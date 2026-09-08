@@ -189,8 +189,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (!src) return;
     for (const l of linked) map.setFeatureState(l, { linked: false }); linked = [];
     const geoN = neighbors.filter(n => coordOf(n.node.id));
-    const anchor = sel ? coordOf(sel) : null;
-    // 선택에 좌표가 있으면 선. 없으면(인물·집단) 가짜 중심점 대신 관련 지점을 강조만 — 지도 위 '사방팔방'은 그리지 않는다
+    // 선택에 좌표가 있고 이웃이 적을 때만 선. 인물·집단(좌표 없음)이나 로마처럼 이웃이 많으면 관련 지점 강조만 — 지도 위 '사방팔방'은 그리지 않는다
+    const anchor = sel && geoN.length <= 12 ? coordOf(sel) : null; // ponytail: 임계 12는 눈대중. 거슬리면 GraphPanel hover 때만 선으로
     if (!anchor) for (const n of geoN) { const l = { source: n.node.id.startsWith('event:') ? 'battles' : 'settlements', id: n.node.id }; map.setFeatureState(l, { linked: true }); linked.push(l); }
     const feats: any[] = anchor ? geoN.map(n => ({ type: 'Feature', properties: { id: `edge:${n.node.id}`, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [anchor, coordOf(n.node.id)!] } })) : [];
     src.setData({ type: 'FeatureCollection', features: feats });
