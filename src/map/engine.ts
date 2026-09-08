@@ -35,6 +35,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     pitch: s0.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (cam.bearing ?? 0),
     maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖이 안 보이게 — P13
     attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } }); // 내보내기(3.1)가 캔버스를 읽는다
+  // MapLibre는 ResizeObserver 첫 콜백을 버린다 — 컨테이너가 0×0에서 시작하면(숨긴 패널·iframe) 400×300에 갇힌다. 우리가 직접 본다.
+  new ResizeObserver(() => map.resize()).observe(container);
 
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('rgba(0,0,0,0)');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');

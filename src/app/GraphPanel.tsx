@@ -39,7 +39,9 @@ export function GraphPanel({ graph, sel, year, onSelect, onHover }: { graph: Gra
     const ctx = canvas.getContext('2d')!;
     const { nodes: ns, edges: es } = localGraph(graph, sel, year, hops);
     setCount(ns.length - 1);
-    const W = canvas.clientWidth, H = canvas.clientHeight, dpr = devicePixelRatio || 1;
+    // 숨긴 채 마운트되면 clientWidth가 0 — 크기가 생기면 다시 잡는다(setSize)
+    let W = canvas.clientWidth || 328, H = canvas.clientHeight || 200; const dpr = devicePixelRatio || 1;
+    const setSize = () => { W = canvas.clientWidth || W; H = canvas.clientHeight || H; canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); alpha = Math.max(alpha, 0.3); };
     canvas.width = W * dpr; canvas.height = H * dpr; ctx.scale(dpr, dpr);
     // 초기 배치: 선택은 중심 고정, 1홉은 안쪽 링, 2홉은 바깥 링(각도 흩뿌림) — force가 다듬는다
     const nodes: N[] = ns.map((n, i) => { const t = (i * 2.399) % (2 * Math.PI), r = n.hop === 0 ? 0 : n.hop === 1 ? 60 : 110; return { ...n, x: W / 2 + r * Math.cos(t), y: H / 2 + r * Math.sin(t), vx: 0, vy: 0, fixed: n.hop === 0 }; });
@@ -85,6 +87,7 @@ export function GraphPanel({ graph, sel, year, onSelect, onHover }: { graph: Gra
     };
     const loop = () => { if (alpha > 0.02 || drag >= 0) tick(); draw(); raf = requestAnimationFrame(loop); };
     raf = requestAnimationFrame(loop);
+    const ro = new ResizeObserver(() => { if (canvas.clientWidth && canvas.clientWidth * dpr !== canvas.width) setSize(); }); ro.observe(canvas);
 
     const at = (ev: PointerEvent) => { const r = canvas.getBoundingClientRect(); const x = ev.clientX - r.left, y = ev.clientY - r.top; let best = -1, bd = 12 * 12; nodes.forEach((n, i) => { const d = (n.x - x) ** 2 + (n.y - y) ** 2; if (d < bd) { bd = d; best = i; } }); return { x, y, i: best }; };
     let moved = false;
@@ -93,7 +96,7 @@ export function GraphPanel({ graph, sel, year, onSelect, onHover }: { graph: Gra
     const onUp = () => { if (drag >= 0) { const n = nodes[drag]; if (!moved && n.hop > 0) onSelect(n.id); n.fixed = n.hop === 0; drag = -1; } };
     const onLeave = () => { if (hover >= 0) { hover = -1; onHover(null); } };
     canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointerup', onUp); canvas.addEventListener('pointerleave', onLeave);
-    return () => { cancelAnimationFrame(raf); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointerleave', onLeave); };
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointerleave', onLeave); };
   }, [graph, sel, year, hops, open]);
 
   return (
