@@ -41,17 +41,20 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   function addData() {
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
-    map.addSource('territory', { type: 'geojson', data: d.territory as any });
-    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': 0.55 } }, before);
+    map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
+    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.68, 0.55] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1 } }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2] } }, before);
-    if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any });
+    if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
+    // hover: +반지름·외곽 1.5px / selected: 외곽 2px(세력색 대신 잉크 — 정착지는 세력 없음) — DESIGN §2, GPU만
+    const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, base];
     const circle = (id: string, minzoom: number, radius: number) =>
-      map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': radius, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.2 } }, before);
+      map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': hov(radius, 2) as any, 'circle-color': '#b8860b',
+        'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
     circle('settle-major', 3, 5); circle('settle-minor', 5, 3.5);
-    map.addSource('battles', { type: 'geojson', data: d.battles as any });
-    map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': 7, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } }, before);
+    map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
+    map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
     map.addSource('movements', { type: 'geojson', data: d.movements as any });
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#e67e22', 'line-width': 3, 'line-dasharray': [2, 1] } }, before);
 
@@ -65,7 +68,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         return { route: routeId, token };
       });
     } catch { tokens = []; }
-    loaded = true; lastYear = null; lastLayers = '';
+    loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; selectedFs = null;
     apply(store.get());
   }
   map.on('load', addData);
@@ -77,9 +80,39 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
+  // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles' };
+  let hovered: { source: string; id: string } | null = null;
+  const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
+  let tipTimer: number | null = null;
+  const setHover = (next: { source: string; id: string } | null) => {
+    if (hovered && (hovered.source !== next?.source || hovered.id !== next?.id)) map.setFeatureState(hovered, { hover: false });
+    if (next) map.setFeatureState(next, { hover: true });
+    hovered = next;
+  };
+  for (const [layerId, source] of Object.entries(SRC_OF)) {
+    map.on('mousemove', layerId, e => {
+      const f = e.features?.[0]; if (!f?.properties?.id) return;
+      setHover({ source, id: f.properties.id });
+      if (tipTimer) clearTimeout(tipTimer);
+      const p = f.properties, yr = p.year ?? p.valid_from;
+      tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setHTML(`<b>${p.name_ko ?? p.id}</b>${yr != null ? ` · ${yr < 0 ? `BC ${-yr}` : `AD ${yr}`}` : ''}`).addTo(map), 120);
+    });
+    map.on('mouseleave', layerId, () => { setHover(null); if (tipTimer) clearTimeout(tipTimer); tip.remove(); });
+  }
+  // selected feature-state + 나머지 40% 디밍(선택 있을 때만 페인트 교체)
+  let selectedFs: { source: string; id: string } | null = null;
+  const dimExpr = (v: number) => ['case', ['boolean', ['feature-state', 'selected'], false], 1, v];
+  function applySel(sel: string | null) {
+    if (selectedFs) { map.setFeatureState(selectedFs, { selected: false }); selectedFs = null; }
+    const source = sel?.startsWith('event:') ? 'battles' : sel?.startsWith('place:') ? 'settlements' : null;
+    if (sel && source && map.getSource(source)) { selectedFs = { source, id: sel }; map.setFeatureState(selectedFs, { selected: true }); }
+    for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs ? dimExpr(0.6) : 1) as any);
+  }
 
 
-  let lastYear: number | null = null, lastLayers = '', lastView = '';
+
+  let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
   function apply(s: State) {
     if (!loaded) return;
     if (s.year !== lastYear) {
@@ -100,6 +133,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         }
       }
     }
+    if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     if (s.view !== lastView) { lastView = s.view; map.easeTo({ pitch: s.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s.view === '2d' ? 0 : (cam.bearing ?? 0), duration: 600 }); }
   }
   store.subscribe(apply);
