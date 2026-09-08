@@ -39,7 +39,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
-  const [searching, setSearching] = useState(false);
+  const [searching, setSearching] = useState<false | 'find' | 'path'>(false);
+  const [pathTo, setPathTo] = useState<string | null>(null); // F14: 선택 → 이 객체까지 최단 관계 경로
   const [exporting, setExporting] = useState<number | null>(null);
   const [skin, setSkin] = useState<Skin>('light'); // 내보내기 스킨(P12: 웹 UI는 안 바뀐다)
   const withSkin = async <T,>(fn: () => Promise<T>): Promise<T> => { const eng = engRef.current!; const cur = isDark(theme) ? 'dark' : 'light'; if (skin !== cur) await eng.setSkin(skin); try { return await fn(); } finally { if (skin !== cur) await eng.setSkin(null); } };
@@ -83,7 +84,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       else if (e.key === 'ArrowRight') store.set({ year: Math.min(d.manifest.time.to, st.year + step) });
       else if (e.key === ' ') { e.preventDefault(); setPlaying(p => !p); }
       else if (e.key === 'Escape') store.set({ sel: null });
-      else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching(true); }
+      else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching('find'); }
       else if (e.key === 'v' || e.key === 'V') store.set({ view: st.view === '2d' ? '3d' : '2d' }); // '3'은 레이어 3(도시)와 충돌해 V로
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
     };
@@ -127,7 +128,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     <div className="shell">
       <div ref={mapRef} className="shell-map" />
 
-      {searching && <Search base={`${root}datasets/${ds}`} onPick={id => { setSearching(false); locate(id); }} onClose={() => setSearching(false)} />}
+      {searching && <Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} />}
 
       <header className="shell-title">
         <Text size="sm" color="secondary">크로노아틀라스 · 온톨로지 지도</Text>
@@ -188,7 +189,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
 
       {s.sel && <div className="shell-right">
         <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
-          onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />
+          onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
         {graph && !s.sel.startsWith('landmark:') && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
       </div>}
 
@@ -209,7 +210,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Tool label={playing ? '정지' : '재생'} sub="play" active={playing} onClick={() => setPlaying(p => !p)}>{playing ? '❚❚' : '▶'}</Tool>
         <Tool label={s.view === '2d' ? '입체 보기' : '평면 보기'} sub={s.view === '2d' ? '3d' : '2d'} onClick={() => store.set({ view: s.view === '2d' ? '3d' : '2d' })}>◈</Tool>
         <Tool label="지명" sub="labels" active={on.has('labels')} onClick={() => toggleLayer('labels')}>⌖</Tool>
-        <Tool label="검색" sub="⌘K" onClick={() => setSearching(true)}>⌕</Tool>
+        <Tool label="검색" sub="⌘K" onClick={() => setSearching('find')}>⌕</Tool>
         <Tool label="PNG" sub="export" onClick={async () => {
           const eng = engRef.current; if (!eng) return;
           const blob = await withSkin(() => renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: skin === 'dark',

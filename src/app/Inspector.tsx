@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { Card, Text, Heading, Badge, Button, IconButton, Collapsible } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import type { Store } from '../state';
-import { loadGraph, neighborsOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
+import { loadGraph, neighborsOf, shortestPath, groupOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
+import { GROUP_COLOR } from '../map/engine';
 import { stateAt } from '../time';
 import { libraryObject, libraryPoint } from '../links';
 import { renderCard } from '../export/card';
@@ -31,8 +32,8 @@ function Portrait({ node, root, color }: { node: GNode | undefined; root: string
   );
 }
 
-export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark }:
-  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean }) {
+export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath }:
+  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   useEffect(() => { if (!sel.startsWith('landmark:')) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
@@ -71,6 +72,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
   const groups = GROUP_ORDER.map(g => [g, neighbors.filter(n => n.group === g)] as const).filter(([, l]) => l.length);
   const hidden = graph ? neighborsOf(graph, sel).length - neighbors.length : 0;
   const firstYear = graph ? Math.min(...neighborsOf(graph, sel).map(n => n.link.from_year ?? Infinity)) : null; // 빈 상태(DESIGN §4): 연도 밖 객체 → 첫 관계 연도로
+  const path = graph && pathTo && pathTo !== sel ? shortestPath(graph, sel, pathTo, 6) : null; // F14
   const libHref = libraryObject(sel, name);
   const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-emphasized)';
 
@@ -88,6 +90,22 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
         </div>
       </div>
       <div className="ins-body">
+      {graph && pathTo && pathTo !== sel && (
+        <section className="ins-sec">
+          <div className="ins-label">경로 → {graph.nodes.get(pathTo)?.name ?? pathTo}{path ? <span className="ins-muted"> · {path.length}홉</span> : null}</div>
+          {path ? (
+            <ol className="ins-path">
+              {path.map((st, i) => (
+                <li key={i} style={{ '--c': GROUP_COLOR[groupOf(st.rel)] } as React.CSSProperties} onMouseEnter={() => onHoverNeighbor(st.to)} onMouseLeave={() => onHoverNeighbor(null)} onClick={() => onLocate(st.to)}>
+                  <span className="ins-rel-meta">{REL_LABEL[st.rel] ?? st.rel}{st.dir === 'in' ? ' ←' : ' →'}</span><span className="ins-rel-name">{graph.nodes.get(st.to)?.name ?? st.to}</span>
+                </li>
+              ))}
+            </ol>
+          ) : <div className="ins-empty"><Text size="sm" color="secondary">6홉 안에 이어지지 않는다.</Text></div>}
+          <div className="shell-actions"><Button label="다른 객체까지" size="sm" variant="ghost" onClick={onAskPath} /><Button label="지우기" size="sm" variant="ghost" onClick={onClearPath} /></div>
+        </section>
+      )}
+
       <div className="ins-badges">
         {node?.faction && <Badge label={node.faction} variant={'blue' as any} />}
         {node?.src && <Badge label={SRC_LABEL[node.src] ?? node.src} />}
@@ -132,6 +150,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
       <div className="shell-actions">
         <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(libHref)} />
         {node && <Button label="카드" size="sm" variant="ghost" onClick={async () => download(await renderCard(node, { year, state, stateLabels: ATTR_LABEL, neighbors, ringColor: d.actors.find(a => a.id === node.faction)?.color ?? '#8A8F98', root, dark, mapCanvas: getMapCanvas?.() }), `card_${name}_${fmtYear(year).replace(' ', '')}.png`)} />}
+        {!pathTo && onAskPath && <Button label="경로" size="sm" variant="ghost" onClick={onAskPath} />}
         <Button label="링크 복사" size="sm" variant="ghost" onClick={() => navigator.clipboard?.writeText(location.href)} />
       </div>
     </Card>

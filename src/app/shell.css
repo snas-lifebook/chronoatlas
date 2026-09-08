@@ -103,6 +103,11 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ins-rel li:hover { background: var(--color-background-muted); }
 .ins-rel-meta { font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ins-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+/* 경로(F14): 단계마다 의미군 색 세로선 */
+.ins-path { list-style: none; margin: 0; padding: 0 0 0 10px; border-left: 2px solid var(--color-border); display: grid; }
+.ins-path li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; min-height: 28px; padding: 0 8px; border-radius: 6px; cursor: pointer; font-size: 13px; position: relative; }
+.ins-path li::before { content: ''; position: absolute; left: -12px; width: 2px; top: 0; bottom: 0; background: var(--c); }
+.ins-path li:hover { background: var(--color-background-muted); }
 .ins-chips a { font-size: 11px; font-variant-numeric: tabular-nums; padding: 2px 6px; border-radius: 4px; background: var(--color-background-muted); color: var(--color-text-primary); text-decoration: none; }
 
 /* ⌘K 검색 */

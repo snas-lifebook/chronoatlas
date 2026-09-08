@@ -1,7 +1,7 @@
 // MCP 툴 4개의 순수 구현(F10, TASKS 3.4). 서버(server.ts)와 테스트가 같이 쓴다. 브라우저 패널과 **같은 graph.json**을 읽는다(CONSTITUTION 10-1).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { indexGraph, neighborsOf, groupOf, GROUP_LABEL, REL_LABEL, type Graph } from '../src/graph/data.ts';
+import { indexGraph, neighborsOf, shortestPath, groupOf, GROUP_LABEL, REL_LABEL, type Graph } from '../src/graph/data.ts';
 import { buildIndex, search } from '../src/search.ts';
 import { stateAt } from '../src/time.ts';
 import { ENTITY_TYPES, REL_GROUPS, SRC } from '../schema/ontology.ts';
@@ -31,20 +31,10 @@ export const tools = {
     return { node: brief(d.graph, id), state: to_year != null ? stateAt(node, to_year) : node.attrs, count: list.length,
       neighbors: list.map(n => ({ ...brief(d.graph, n.node.id), rel: n.rel, rel_label: REL_LABEL[n.rel] ?? n.rel, group: n.group, dir: n.dir, from_year: n.link.from_year ?? null, to_year: n.link.to_year ?? null, point: n.link.point ?? null, confidence: n.link.confidence ?? null, src: n.link.src })) };
   },
-  // 최단 관계 경로 — BFS(무방향). graphology 없이 충분(650 노드).
   path: (d: Data, a: string, b: string, max_hops = 4) => {
     if (!d.graph.nodes.has(a) || !d.graph.nodes.has(b)) return { error: 'a 또는 b가 없는 id' };
-    const prev = new Map<string, { from: string; rel: string; dir: 'in' | 'out' }>(); prev.set(a, null as any);
-    let frontier = [a];
-    for (let hop = 0; hop < max_hops && frontier.length; hop++) {
-      const next: string[] = [];
-      for (const cur of frontier) for (const n of neighborsOf(d.graph, cur)) if (!prev.has(n.node.id)) { prev.set(n.node.id, { from: cur, rel: n.rel, dir: n.dir }); next.push(n.node.id); }
-      if (prev.has(b)) break;
-      frontier = next;
-    }
-    if (!prev.has(b)) return { found: false, max_hops };
-    const steps: any[] = []; let cur = b;
-    while (cur !== a) { const p = prev.get(cur)!; steps.unshift({ from: p.from, to: cur, rel: p.rel, rel_label: REL_LABEL[p.rel] ?? p.rel, group: groupOf(p.rel), dir: p.dir }); cur = p.from; }
-    return { found: true, hops: steps.length, path: [a, ...steps.map(s => s.to)].map(id => brief(d.graph, id)), steps };
+    const steps = shortestPath(d.graph, a, b, max_hops);
+    if (!steps) return { found: false, max_hops };
+    return { found: true, hops: steps.length, path: [a, ...steps.map(s => s.to)].map(id => brief(d.graph, id)), steps: steps.map(s => ({ ...s, rel_label: REL_LABEL[s.rel] ?? s.rel, group: groupOf(s.rel) })) };
   },
 };

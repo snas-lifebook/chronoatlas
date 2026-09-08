@@ -7,7 +7,7 @@ import { buildIndex, search, type SearchItem } from '../search';
 const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대' };
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
 
-export function Search({ base, onPick, onClose }: { base: string; onPick: (id: string) => void; onClose: () => void }) {
+export function Search({ base, onPick, onClose, placeholder }: { base: string; onPick: (id: string) => void; onClose: () => void; placeholder?: string }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
@@ -26,7 +26,7 @@ export function Search({ base, onPick, onClose }: { base: string; onPick: (id: s
   return (
     <div className="shell-search-backdrop" onMouseDown={onClose}>
       <Card padding={3} elevation="high" className="shell-search" onMouseDown={e => e.stopPropagation()}>
-        <TextInput ref={inputRef} label="객체 검색" isLabelHidden placeholder="이름 · 이명 · 초성 (예: ㅋㅇㅅㄹ)" value={q} onChange={v => setQ(v)} onKeyDown={onKey} />
+        <TextInput ref={inputRef} label="객체 검색" isLabelHidden placeholder={placeholder ?? "이름 · 이명 · 초성 (예: ㅋㅇㅅㄹ)"} value={q} onChange={v => setQ(v)} onKeyDown={onKey} />
         {q.trim() && (
           <ol className="shell-list shell-search-list">
             {results.map((r, i) => (

@@ -33,6 +33,22 @@ export function neighborsOf(g: Graph, id: string, year?: number): Neighbor[] {
   return out.sort((a, b) => (a.link.from_year ?? 9999) - (b.link.from_year ?? 9999));
 }
 
+// 최단 관계 경로 — BFS(무방향). graphology 없이 충분(650 노드). MCP `path`와 인스펙터 경로(F14)가 같이 쓴다.
+export interface PathStep { from: string; to: string; rel: string; dir: 'in' | 'out' }
+export function shortestPath(g: Graph, a: string, b: string, maxHops = 4): PathStep[] | null {
+  if (!g.nodes.has(a) || !g.nodes.has(b)) return null;
+  const prev = new Map<string, PathStep | null>([[a, null]]);
+  let frontier = [a];
+  for (let hop = 0; hop < maxHops && frontier.length && !prev.has(b); hop++) {
+    const next: string[] = [];
+    for (const cur of frontier) for (const n of neighborsOf(g, cur)) if (!prev.has(n.node.id)) { prev.set(n.node.id, { from: cur, to: n.node.id, rel: n.rel, dir: n.dir }); next.push(n.node.id); }
+    frontier = next;
+  }
+  if (!prev.has(b)) return null;
+  const steps: PathStep[] = []; for (let cur = b; cur !== a; cur = prev.get(cur)!.from) steps.unshift(prev.get(cur)!);
+  return steps;
+}
+
 let cache: Promise<Graph> | null = null;
 export function loadGraph(base: string): Promise<Graph> {
   return cache ??= fetch(`${base}/graph.json`).then(r => { if (!r.ok) throw new Error(`graph.json ${r.status}`); return r.json(); }).then(indexGraph);
