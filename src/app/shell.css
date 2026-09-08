@@ -30,7 +30,8 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-layers { display: grid; gap: 2px; overflow: auto; }
 .shell-layers .row { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 0 4px; }
 .shell-layers .row.is-p1 { opacity: 0.5; }
-.shell-layers .skin-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 4px 4px 10px; border-bottom: 1px solid var(--color-border-primary); margin-bottom: 4px; }
+.shell-layers .skin-row { gap: 8px; padding: 2px 4px 6px; border-bottom: 1px solid var(--color-border-primary); margin-bottom: 4px; }
+.shell-layers .skin-row > :first-child { white-space: nowrap; }
 
 .shell-toolbar { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px;
   background: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: 14px; box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.08)); }

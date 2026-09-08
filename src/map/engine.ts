@@ -68,13 +68,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 관계 그래프 오버레이(2.1): 선택 객체의 1홉. 좌표 없는 노드는 앵커 주위 링에 놓는다(setEgo).
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
     map.addLayer({ id: 'ego-edge', type: 'line', source: 'ego', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round' },
-      paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
+      paint: { 'line-color': ['get', 'color'], 'line-width': ['case', ['==', ['get', 'hop'], 2], 1, 1.6], 'line-opacity': ['case', ['==', ['get', 'hop'], 2], 0.45, 0.85], 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
     map.addLayer({ id: 'ego-node', type: 'circle', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, hov(6, 2)] as any, 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
+      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, ['==', ['get', 'hop'], 2], hov(4, 2), hov(6, 2)] as any, 'circle-opacity': ['case', ['==', ['get', 'hop'], 2], 0.75, 1], 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
     map.addLayer({ id: 'ego-label', type: 'symbol', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false },
-      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
-    if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
+      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': ['case', ['==', ['get', 'hop'], 2], 10, 12], 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false, 'symbol-sort-key': ['get', 'hop'] },
+      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-opacity': ['case', ['==', ['get', 'hop'], 2], 0.8, 1], 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
+    if (ego) setEgo(ego.sel, ego.name, ego.neighbors, ego.second);
 
     // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
     const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
@@ -176,14 +176,16 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   store.subscribe(apply);
 
-  // ---- 1홉 오버레이 데이터. 좌표 있는 이웃은 제자리, 없는 이웃은 앵커 주위 반지름 150px 링(의미군 순, 줌 바뀌면 다시 계산).
-  let ego: { sel: string; name: string; neighbors: Neighbor[] } | null = null;
+  // ---- 관계 오버레이 데이터. 좌표 있는 이웃은 제자리, 없는 이웃은 앵커 주위 링(의미군 순, 줌 바뀌면 다시 계산).
+  // 2홉(P1): second[이웃 id] = 그 이웃의 이웃(1홉·선택 제외). 좌표 없으면 부모 각도 주변 바깥 링(R+90px) 또는 부모 점 주위 작은 링(56px). 선은 가늘고 옅게(hop=2).
+  type Second = Map<string, Neighbor[]>;
+  let ego: { sel: string; name: string; neighbors: Neighbor[]; second?: Second } | null = null;
   const coordOf = (id: string): [number, number] | null => {
     const f = (id.startsWith('event:') ? d.battles : d.settlements).features.find(f => f.properties.id === id);
     return f ? (f.geometry.coordinates as [number, number]) : null;
   };
-  function setEgo(sel: string | null, name: string, neighbors: Neighbor[]) {
-    ego = sel ? { sel, name, neighbors } : null;
+  function setEgo(sel: string | null, name: string, neighbors: Neighbor[], second?: Second) {
+    ego = sel ? { sel, name, neighbors, second } : null;
     const src = map.getSource('ego') as maplibregl.GeoJSONSource | undefined;
     if (!src) return;
     if (!sel || !neighbors.length) { src.setData({ type: 'FeatureCollection', features: [] }); return; }
@@ -197,17 +199,36 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const R = Math.min(260, 60 + sorted.length * 5.5); // 이웃이 많을수록 큰 링 — 라벨 겹침 완화
     const feats: any[] = [];
     const pos = new Map<string, [number, number]>();
-    sorted.forEach((n, i) => { const t = -Math.PI / 2 + (2 * Math.PI * i) / sorted.length; const ll = map.unproject([apx.x + R * Math.cos(t), apx.y + R * Math.sin(t)]); pos.set(n.node.id, [ll.lng, ll.lat]); });
+    const angle = new Map<string, number>();
+    const at = (cx: number, cy: number, r: number, t: number): [number, number] => { const ll = map.unproject([cx + r * Math.cos(t), cy + r * Math.sin(t)]); return [ll.lng, ll.lat]; };
+    sorted.forEach((n, i) => { const t = -Math.PI / 2 + (2 * Math.PI * i) / sorted.length; angle.set(n.node.id, t); pos.set(n.node.id, at(apx.x, apx.y, R, t)); });
     for (const n of geoN) pos.set(n.node.id, coordOf(n.node.id)!);
+    const point = (id: string, props: Record<string, unknown>, p: [number, number]) => feats.push({ type: 'Feature', properties: { id, ...props }, geometry: { type: 'Point', coordinates: p } });
+    const edge = (id: string, n: Neighbor, a: [number, number], b: [number, number], hop: 1 | 2) =>
+      feats.push({ type: 'Feature', properties: { id, hop, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [a, b] } });
     for (const n of neighbors) {
-      const p = pos.get(n.node.id)!;
-      feats.push({ type: 'Feature', properties: { id: `edge:${n.node.id}`, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [anchor, p] } });
-      if (!coordOf(n.node.id)) feats.push({ type: 'Feature', properties: { id: n.node.id, name: n.node.name, type: n.node.type, group: n.group }, geometry: { type: 'Point', coordinates: p } });
+      edge(`edge:${n.node.id}`, n, anchor, pos.get(n.node.id)!, 1);
+      if (!coordOf(n.node.id)) point(n.node.id, { name: n.node.name, type: n.node.type, group: n.group, hop: 1 }, pos.get(n.node.id)!);
     }
-    if (!coordOf(sel)) feats.push({ type: 'Feature', properties: { id: sel, name, anchor: true }, geometry: { type: 'Point', coordinates: anchor } });
+    if (second) for (const [pid, kids] of second) {
+      const pp = pos.get(pid); if (!pp || !kids.length) continue;
+      const ppx = map.project(pp as any);
+      const t0 = angle.get(pid);
+      kids.forEach((k, i) => {
+        if (!pos.has(k.node.id)) {
+          const c = coordOf(k.node.id);
+          // 부모가 링 위면 바깥 링에서 부모 각도 ±섹터 안, 부모가 지도 점이면 그 주위 작은 링
+          pos.set(k.node.id, c ?? (t0 != null ? at(apx.x, apx.y, R + 90, t0 + ((i + 0.5) / kids.length - 0.5) * (2 * Math.PI / Math.max(sorted.length, 3)))
+            : at(ppx.x, ppx.y, 56, -Math.PI / 2 + (2 * Math.PI * i) / kids.length)));
+          if (!c) point(k.node.id, { name: k.node.name, type: k.node.type, group: k.group, hop: 2 }, pos.get(k.node.id)!);
+        }
+        edge(`edge2:${pid}>${k.node.id}`, k, pp, pos.get(k.node.id)!, 2);
+      });
+    }
+    if (!coordOf(sel)) point(sel, { name, anchor: true, hop: 0 }, anchor);
     src.setData({ type: 'FeatureCollection', features: feats });
   }
-  map.on('zoomend', () => { if (ego) setEgo(ego.sel, ego.name, ego.neighbors); });
+  map.on('zoomend', () => { if (ego) setEgo(ego.sel, ego.name, ego.neighbors, ego.second); });
 
   return {
     map,
