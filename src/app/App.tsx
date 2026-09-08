@@ -9,6 +9,7 @@ import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
 import { renderPng, download } from '../export/png';
+import { timeSlice, pointsCsv } from '../export/data';
 import { renderMp4 } from '../export/mp4';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { GraphPanel } from './GraphPanel';
@@ -215,6 +216,11 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
             legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · 정본 온톨로지' }));
           download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
         }}>⤓</Tool>
+        <Tool label="데이터" sub="geojson·csv" onClick={() => {
+          const tag = fmt(s.year).replace(' ', '');
+          download(new Blob([JSON.stringify(timeSlice(d, s.year))], { type: 'application/geo+json' }), `chronoatlas_${ds}_${tag}.geojson`);
+          setTimeout(() => download(new Blob([pointsCsv(d, s.year)], { type: 'text/csv;charset=utf-8' }), `chronoatlas_${ds}_${tag}_points.csv`), 300);
+        }}>⛁</Tool>
         <Tool label={exporting != null ? `${Math.round(exporting * 100)}%` : 'MP4'} sub="scene" onClick={async () => {
           const eng = engRef.current; if (!eng || exporting != null) return;
           // 현재 장면 구간(없으면 현재 연도 ±20) 을 1년/프레임 12fps로. 끝나면 원래 연도로.
