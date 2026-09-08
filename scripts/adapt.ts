@@ -75,7 +75,8 @@ const battles = links.filter(l => l.rel === 'occurred_at').flatMap(l => {
   const ev = byId.get(l.from), pl = nodes.find(n => n.id === l.to);
   const year = l.from_year ?? (ev && parseYear(ev.attrs.year ?? ev.attrs.date ?? ev.attrs.period));
   if (!ev || ev.type !== 'event' || !pl?.lonlat || year == null) return [];
-  return [{ type: 'Feature', properties: { id: ev.id, layer: 'battles', name_ko: ev.name, year, valid_from: year, place: pl.id,
+  // 사건 점은 발생 후 30년 창 안에서만 보인다(영구 표시하면 후대 지도가 옛 전투로 덮인다). 검색·인스펙터로는 언제나.
+  return [{ type: 'Feature', properties: { id: ev.id, layer: 'battles', name_ko: ev.name, year, valid_from: year, valid_to: year + 30, place: pl.id,
     source: 'book', confidence: l.confidence ?? 'medium', src: l.src }, geometry: { type: 'Point', coordinates: pl.lonlat } }];
 });
 writeFileSync(join(OUT, 'layers', 'battles.geojson'), JSON.stringify({ type: 'FeatureCollection', features: battles }));

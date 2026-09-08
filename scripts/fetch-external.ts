@@ -15,14 +15,14 @@ const NE = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/maste
 const NER = 'https://raw.githubusercontent.com/nvkelso/natural-earth-raster/master/50m_rasters';
 
 // out: layers/<out>.geojson. simplify: mapshaper 비율(작을수록 단순). props: 남길 속성.
-const VECTORS = [
+const VECTORS: { id: string; out: string; simplify: string; props: string; dissolve?: string }[] = [
   { id: 'ne_10m_land', out: 'land', simplify: '12%', props: '' },
   { id: 'ne_10m_coastline', out: 'coast', simplify: '12%', props: '' },
   { id: 'ne_10m_rivers_lake_centerlines', out: 'rivers', simplify: '25%', props: 'name,scalerank,min_zoom' },
   { id: 'ne_10m_lakes', out: 'lakes', simplify: '25%', props: 'name,scalerank,min_zoom' },
   { id: 'ne_10m_glaciated_areas', out: 'glaciers', simplify: '25%', props: '' },
-  { id: 'ne_10m_geography_marine_polys', out: 'marine_labels', simplify: '10%', props: 'name,scalerank,featurecla' },
-  { id: 'ne_10m_geography_regions_polys', out: 'region_labels', simplify: '10%', props: 'NAME,SCALERANK,FEATURECLA,REGION' },
+  { id: 'ne_10m_geography_marine_polys', out: 'marine_labels', simplify: '10%', props: 'name,scalerank,featurecla', dissolve: 'name' },
+  { id: 'ne_10m_geography_regions_polys', out: 'region_labels', simplify: '10%', props: 'NAME,SCALERANK,FEATURECLA,REGION', dissolve: 'NAME' },
 ];
 // 수심 다각형(NE 10m bathymetry): 글자 = 등심선. 지중해 최대 ~5,000m.
 const BATHY = [['L', 0], ['K', 200], ['J', 1000], ['I', 2000], ['H', 3000], ['G', 4000], ['F', 5000]] as const;
@@ -44,7 +44,9 @@ for (const v of VECTORS) {
   const out = join(OUT, 'layers', `${v.out}.geojson`);
   // 속성명은 파일마다 대소문자가 다르다(regions는 대문자). 소문자로 통일해 내보낸다.
   const rename = v.props ? ['-rename-fields', v.props.split(',').map(f => `${f.toLowerCase()}=${f}`).filter(x => !/^(\w+)=\1$/.test(x)).join(',')].filter(a => a !== '') : [];
-  mapshaper([src, '-clip', `bbox=${bbox}`, '-simplify', v.simplify, 'keep-shapes', ...(v.props ? ['-filter-fields', v.props] : ['-drop', 'fields=*', '-each', 'k=1'] /* 속성 0이면 GeometryCollection으로 나와서 더미 1개 */), ...(rename.length === 2 && rename[1] ? rename : []), '-o', out, 'precision=0.0005', 'format=geojson']);
+  // dissolve: 클립으로 조각난 같은 이름(ALPS×2)을 하나로 — 라벨 중복 방지
+  const dissolve = v.dissolve ? ['-dissolve', v.dissolve, `copy-fields=${v.props.split(',').filter(f => f !== v.dissolve).join(',')}`] : [];
+  mapshaper([src, '-clip', `bbox=${bbox}`, '-simplify', v.simplify, 'keep-shapes', ...(v.props ? ['-filter-fields', v.props] : ['-drop', 'fields=*', '-each', 'k=1'] /* 속성 0이면 GeometryCollection으로 나와서 더미 1개 */), ...dissolve, ...(rename.length === 2 && rename[1] ? rename : []), '-o', out, 'precision=0.0005', 'format=geojson']);
   console.log('layer', v.out, Math.round(statSync(out).size / 1024), 'KB');
 }
 

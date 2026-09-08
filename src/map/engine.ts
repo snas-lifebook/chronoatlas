@@ -1,7 +1,6 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../schema';
-import { createToken } from '../token3d';
 import { buildStyle } from './style';
 import type { Store, Scene, State } from '../state';
 import type { Neighbor } from '../graph/data';
@@ -25,6 +24,7 @@ export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '
 
 export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false) {
   const s0 = store.get();
+  let isDark = dark;
   const style = buildStyle(d.manifest, root, ds, { dark });
   const scenes: Scene[] = d.manifest.scenes ?? [];
   const cam = scenes.find(sc => sc.id === s0.scene) ?? {} as Scene;
@@ -41,7 +41,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
 
   let loaded = false;
-  let tokens: { route: string; token: ReturnType<typeof createToken> }[] = [];
+  let tokens: { route: string; token: import('../token3d').Token }[] = [];
 
   function addData() {
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
@@ -68,14 +68,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'ego-edge', type: 'line', source: 'ego', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round' },
       paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
     map.addLayer({ id: 'ego-node', type: 'circle', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, hov(6, 2)] as any, 'circle-color': '#111418', 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 } });
+      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, hov(6, 2)] as any, 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
     map.addLayer({ id: 'ego-label', type: 'symbol', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false },
-      paint: { 'text-color': '#111418', 'text-halo-color': '#fff', 'text-halo-width': 1.4 } });
+      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
     if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
 
-    try {
-      const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
+    // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
+    const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
+    if (routeIds.length) import('../token3d').then(({ createToken }) => {
       tokens = routeIds.map(routeId => {
         const actorId = d.movements.features.find(f => f.properties.route === routeId)?.properties.actor;
         const token = createToken(d.actors.find(a => a.id === actorId)?.color ?? '#666');
@@ -83,7 +84,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         map.addLayer(token.layer);
         return { route: routeId, token };
       });
-    } catch { tokens = []; }
+      for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, store.get().year));
+    }).catch(() => { tokens = []; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; selectedFs = null;
     apply(store.get());
   }
@@ -186,7 +188,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const apx = map.project(anchor as any);
     const order = ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make', 'other'];
     const sorted = [...freeN].sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group));
-    const R = Math.min(150, 40 + sorted.length * 9);
+    const R = Math.min(260, 60 + sorted.length * 5.5); // 이웃이 많을수록 큰 링 — 라벨 겹침 완화
     const feats: any[] = [];
     const pos = new Map<string, [number, number]>();
     sorted.forEach((n, i) => { const t = -Math.PI / 2 + (2 * Math.PI * i) / sorted.length; const ll = map.unproject([apx.x + R * Math.cos(t), apx.y + R * Math.sin(t)]); pos.set(n.node.id, [ll.lng, ll.lat]); });
@@ -213,7 +215,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     home() { if (bb) map.fitBounds([[bb[0] + 12, bb[1] + 8], [bb[2] - 20, bb[3] - 10]], { padding: 40, duration: 900 }); },
     zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: 300 }); },
     // 테마 전환: 베이스맵 스타일 재빌드 → 데이터 레이어 다시 얹기(setStyle이 소스·레이어를 지운다)
-    setDark(dk: boolean) { loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
+    setDark(dk: boolean) { isDark = dk; loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
   };
 }
 export type Engine = ReturnType<typeof createEngine>;

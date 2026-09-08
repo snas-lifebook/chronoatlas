@@ -26,6 +26,7 @@ function walkRoute(route: [number, number][], from: [number, number], to: [numbe
 
 let tokenSeq = 0; // 인스턴스마다 고유 CustomLayer id 발급용
 
+export type Token = ReturnType<typeof createToken>;
 export function createToken(color: string) {
   const camera = new THREE.Camera();
   const scene = new THREE.Scene();
