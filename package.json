@@ -28,6 +28,7 @@
   "dependencies": {
     "@astryxdesign/core": "^0.4.0",
     "@astryxdesign/theme-neutral": "^0.4.0",
+    "es-hangul": "^2.4.0",
     "maplibre-gl": "^6.3.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

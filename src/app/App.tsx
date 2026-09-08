@@ -5,6 +5,7 @@ import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
 import { createEngine, allLayers, type Engine } from '../map/engine';
 import { Inspector } from './Inspector';
+import { Search } from './Search';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import './shell.css';
 
@@ -31,6 +32,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [tab, setTab] = useState('objects');
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
+  const [searching, setSearching] = useState(false);
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
   useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
@@ -65,6 +67,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       else if (e.key === 'ArrowRight') store.set({ year: Math.min(d.manifest.time.to, st.year + step) });
       else if (e.key === ' ') { e.preventDefault(); setPlaying(p => !p); }
       else if (e.key === 'Escape') store.set({ sel: null });
+      else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching(true); }
       else if (e.key === '3') store.set({ view: st.view === '2d' ? '3d' : '2d' });
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
     };
@@ -81,12 +84,19 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     ...d.settlements.features.filter(f => f.properties.rank <= 2).map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: f.properties.name_ancient as string | null, kind: '도시' })),
     ...d.battles.features.map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: fmt(f.properties.year), kind: '전투' })),
   ], [d]);
-  const locate = (id: string) => { const f = [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === id); store.set({ sel: id }); if (f) engRef.current?.map.easeTo({ center: f.geometry.coordinates, duration: 600, padding: { right: 380 } }); };
+  const locate = (id: string) => {
+    const f = [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === id);
+    const ll = f?.geometry.coordinates ?? graph?.nodes.get(id)?.lonlat ?? null;
+    store.set({ sel: id });
+    if (ll) engRef.current?.map.easeTo({ center: ll, duration: 600, padding: { right: 380 } });
+  };
   const span = d.manifest.time.to - d.manifest.time.from;
 
   return (
     <div className="shell">
       <div ref={mapRef} className="shell-map" />
+
+      {searching && <Search base={`${root}datasets/${ds}`} onPick={id => { setSearching(false); locate(id); }} onClose={() => setSearching(false)} />}
 
       <header className="shell-title">
         <Text size="sm" color="secondary">로마제국쇠망사 · 온톨로지 지도</Text>
@@ -154,6 +164,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Tool label={playing ? '정지' : '재생'} sub="play" active={playing} onClick={() => setPlaying(p => !p)}>{playing ? '❚❚' : '▶'}</Tool>
         <Tool label={s.view === '2d' ? '입체 보기' : '평면 보기'} sub={s.view === '2d' ? '3d' : '2d'} onClick={() => store.set({ view: s.view === '2d' ? '3d' : '2d' })}>◈</Tool>
         <Tool label="지명" sub="labels" active={on.has('labels')} onClick={() => toggleLayer('labels')}>⌖</Tool>
+        <Tool label="검색" sub="⌘K" onClick={() => setSearching(true)}>⌕</Tool>
         <Tool label="전체 화면" sub="fullscreen" onClick={() => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()}>⛶</Tool>
       </nav>
 
