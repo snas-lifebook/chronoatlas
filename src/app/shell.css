@@ -63,6 +63,9 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 
 .shell-footnote { position: absolute; left: 24px; bottom: 104px; pointer-events: none; }
 
+/* 낮은 화면(노트북 반쪽·패널)에선 그래프 카드가 환경 세그먼트를 덮는다 — 접는다. 인스펙터의 관계 목록이 대신한다 */
+@media (max-height: 640px) { .shell-graph { display: none; } }
+
 @media (max-width: 1023px) {
   .shell-explorer { top: auto; bottom: 200px; left: 12px; right: 12px; width: auto; max-height: 40%; }
   .shell-explorer-pill { top: auto; bottom: 200px; left: 12px; }
