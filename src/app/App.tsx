@@ -5,6 +5,7 @@ import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
 import { createEngine, allLayers, type Engine } from '../map/engine';
 import { Inspector } from './Inspector';
+import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import './shell.css';
 
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
@@ -29,6 +30,15 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
   const [playing, setPlaying] = useState(false);
+  const [graph, setGraph] = useState<Graph | null>(null);
+
+  // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
+  useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
+  useEffect(() => {
+    const eng = engRef.current; if (!eng) return;
+    if (!s.sel || !graph || s.sel.startsWith('landmark:')) { eng.setEgo(null, '', []); return; }
+    eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
+  }, [s.sel, s.year, graph]);
 
   useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);

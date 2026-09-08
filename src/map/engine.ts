@@ -4,6 +4,7 @@ import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../sch
 import { createToken } from '../token3d';
 import { buildStyle } from './style';
 import type { Store, Scene, State } from '../state';
+import type { Neighbor } from '../graph/data';
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
@@ -17,7 +18,10 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   rivers: ['rivers-major', 'rivers-minor'],
   labels: ['label-marine', 'label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
   landmarks: ['landmark-region_labels', 'landmark-marine_labels'],
+  graph: ['ego-edge', 'ego-node', 'ego-label'],
 };
+// 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
+export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '#2F7D5B', rule: '#5B4B8A', lineage: '#8A6D3B', member: '#3E6F8C', act: '#6B6F76', locate: '#8A8F98', make: '#6B6F76', other: '#8A8F98' };
 
 export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false) {
   const s0 = store.get();
@@ -59,6 +63,17 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('movements', { type: 'geojson', data: d.movements as any });
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#e67e22', 'line-width': 3, 'line-dasharray': [2, 1] } }, before);
 
+    // 관계 그래프 오버레이(2.1): 선택 객체의 1홉. 좌표 없는 노드는 앵커 주위 링에 놓는다(setEgo).
+    map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
+    map.addLayer({ id: 'ego-edge', type: 'line', source: 'ego', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round' },
+      paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
+    map.addLayer({ id: 'ego-node', type: 'circle', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
+      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, hov(6, 2)] as any, 'circle-color': '#111418', 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 } });
+    map.addLayer({ id: 'ego-label', type: 'symbol', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
+      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false },
+      paint: { 'text-color': '#111418', 'text-halo-color': '#fff', 'text-halo-width': 1.4 } });
+    if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
+
     try {
       const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
       tokens = routeIds.map(routeId => {
@@ -74,7 +89,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'ego-node']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
@@ -88,7 +103,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'ego-node': 'ego' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -153,8 +168,42 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   store.subscribe(apply);
 
+  // ---- 1홉 오버레이 데이터. 좌표 있는 이웃은 제자리, 없는 이웃은 앵커 주위 반지름 150px 링(의미군 순, 줌 바뀌면 다시 계산).
+  let ego: { sel: string; name: string; neighbors: Neighbor[] } | null = null;
+  const coordOf = (id: string): [number, number] | null => {
+    const f = (id.startsWith('event:') ? d.battles : d.settlements).features.find(f => f.properties.id === id);
+    return f ? (f.geometry.coordinates as [number, number]) : null;
+  };
+  function setEgo(sel: string | null, name: string, neighbors: Neighbor[]) {
+    ego = sel ? { sel, name, neighbors } : null;
+    const src = map.getSource('ego') as maplibregl.GeoJSONSource | undefined;
+    if (!src) return;
+    if (!sel || !neighbors.length) { src.setData({ type: 'FeatureCollection', features: [] }); return; }
+    const geoN = neighbors.filter(n => coordOf(n.node.id)), freeN = neighbors.filter(n => !coordOf(n.node.id));
+    let anchor = coordOf(sel);
+    if (!anchor && geoN.length) { const cs = geoN.map(n => coordOf(n.node.id)!); anchor = [cs.reduce((a, c) => a + c[0], 0) / cs.length, cs.reduce((a, c) => a + c[1], 0) / cs.length]; }
+    if (!anchor) { const c = map.getCenter(); anchor = [c.lng, c.lat]; }
+    const apx = map.project(anchor as any);
+    const order = ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make', 'other'];
+    const sorted = [...freeN].sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group));
+    const R = Math.min(150, 40 + sorted.length * 9);
+    const feats: any[] = [];
+    const pos = new Map<string, [number, number]>();
+    sorted.forEach((n, i) => { const t = -Math.PI / 2 + (2 * Math.PI * i) / sorted.length; const ll = map.unproject([apx.x + R * Math.cos(t), apx.y + R * Math.sin(t)]); pos.set(n.node.id, [ll.lng, ll.lat]); });
+    for (const n of geoN) pos.set(n.node.id, coordOf(n.node.id)!);
+    for (const n of neighbors) {
+      const p = pos.get(n.node.id)!;
+      feats.push({ type: 'Feature', properties: { id: `edge:${n.node.id}`, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [anchor, p] } });
+      if (!coordOf(n.node.id)) feats.push({ type: 'Feature', properties: { id: n.node.id, name: n.node.name, type: n.node.type, group: n.group }, geometry: { type: 'Point', coordinates: p } });
+    }
+    if (!coordOf(sel)) feats.push({ type: 'Feature', properties: { id: sel, name, anchor: true }, geometry: { type: 'Point', coordinates: anchor } });
+    src.setData({ type: 'FeatureCollection', features: feats });
+  }
+  map.on('zoomend', () => { if (ego) setEgo(ego.sel, ego.name, ego.neighbors); });
+
   return {
     map,
+    setEgo,
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: 1400, essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {
@@ -169,4 +218,4 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 }
 export type Engine = ReturnType<typeof createEngine>;
 
-export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels', 'landmarks'];
+export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels', 'landmarks', 'graph'];

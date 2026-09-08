@@ -67,7 +67,8 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ca-tip .maplibregl-popup-tip { display: none; }
 
 /* 인스펙터 밀도(DESIGN §3 compact): 이름 20/600 · 메타 13 · 본문 14/1.55 · 라벨 11 대문자 · 행 32 · 섹션 16 */
-.ins { max-height: calc(100% - 230px); overflow: auto; gap: 8px; }
+.ins { max-height: calc(100% - 230px); overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+.ins-body { overflow: auto; flex: 1 1 auto; min-height: 0; display: grid; gap: 8px; align-content: start; }
 .ins h2 { font-size: 20px; font-weight: 600; line-height: 1.25; margin: 0; }
 .ins-head { display: flex; justify-content: space-between; align-items: center; }
 .ins-year { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }

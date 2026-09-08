@@ -57,6 +57,7 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
       </div>
       <Heading level={2}>{name}</Heading>
       {yearLine && <div className="ins-year">{yearLine}</div>}
+      <div className="ins-body">
       <div className="ins-badges">
         {node?.faction && <Badge label={node.faction} variant={'blue' as any} />}
         {node?.src && <Badge label={SRC_LABEL[node.src] ?? node.src} />}
@@ -95,6 +96,7 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
           <div className="ins-chips">{node.points.map(p => <a key={p} href={`${d.manifest.library ?? ''}/read/point/${p}`} target="_blank" rel="noreferrer">P{pad(p)}</a>)}</div>
         </section>
       )}
+      </div>
       <div className="shell-actions">
         <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(libHref)} />
         <Button label="링크 복사" size="sm" variant="ghost" onClick={() => navigator.clipboard?.writeText(location.href)} />
