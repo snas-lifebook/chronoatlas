@@ -122,7 +122,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       {searching && <Search base={`${root}datasets/${ds}`} onPick={id => { setSearching(false); locate(id); }} onClose={() => setSearching(false)} />}
 
       <header className="shell-title">
-        <Text size="sm" color="secondary">로마제국쇠망사 · 온톨로지 지도</Text>
+        <Text size="sm" color="secondary">크로노아틀라스 · 온톨로지 지도</Text>
         <div className="shell-year">{fmt(s.year)}</div>
         <Text size="sm" color="secondary">{d.manifest.title}</Text>
       </header>
@@ -215,7 +215,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       </footer>
 
       <div className="shell-footnote">
-        <Text size="sm" color="secondary">실제 지리 기반 · Natural Earth 10m(PD) · 정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="3" /> 평면/입체</Text>
+        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="3" /> 평면/입체</Text>
       </div>
     </div>
   );
