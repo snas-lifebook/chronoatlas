@@ -48,7 +48,9 @@ export function GraphPanel({ graph, sel, year, onSelect, onHover }: { graph: Gra
     const idx = new Map(nodes.map((n, i) => [n.id, i]));
     const edges: E[] = es.map(e => ({ a: idx.get(e.a)!, b: idx.get(e.b)!, color: GROUP_COLOR[e.group] ?? GROUP_COLOR.other, low: e.low }));
     const css = getComputedStyle(canvas);
-    const col = { text: css.getPropertyValue('--color-text-primary').trim() || '#111', muted: css.getPropertyValue('--color-text-secondary').trim() || '#777', bg: css.getPropertyValue('--color-bg-primary').trim() || '#fff' };
+    // astryx 토큰은 light-dark(...) 문자열이라 Canvas가 못 읽는다 — 요소 color에 대입해 계산된 rgb로 푼다
+    const resolve = (token: string) => { canvas.style.color = `var(${token})`; const c = getComputedStyle(canvas).color; canvas.style.color = ''; return c; };
+    const col = { text: resolve('--color-text-primary'), muted: resolve('--color-text-secondary'), bg: resolve('--color-background-surface') };
     let alpha = 1, hover = -1, drag = -1, raf = 0;
 
     const tick = () => {

@@ -71,7 +71,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
   const groups = GROUP_ORDER.map(g => [g, neighbors.filter(n => n.group === g)] as const).filter(([, l]) => l.length);
   const hidden = graph ? neighborsOf(graph, sel).length - neighbors.length : 0;
   const libHref = libraryObject(sel, name);
-  const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-primary)';
+  const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-emphasized)';
 
   return (
     <Card padding={4} elevation="low" className="shell-inspector ins">
