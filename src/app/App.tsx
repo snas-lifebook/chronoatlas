@@ -167,7 +167,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
       </Card>
 
-      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root}
+      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
         onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />}
 
       <div className="shell-env">

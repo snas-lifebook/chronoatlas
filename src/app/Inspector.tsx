@@ -6,6 +6,8 @@ import type { Store } from '../state';
 import { loadGraph, neighborsOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
 import { stateAt } from '../time';
 import { libraryObject, libraryPoint } from '../links';
+import { renderCard } from '../export/card';
+import { download } from '../export/png';
 
 const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대', landmark: '지형지물' };
 const SRC_LABEL: Record<string, string> = { point: '포인트', gibbon: '기번', wikidata: 'Wikidata', dprr: 'DPRR', manual: '수기' };
@@ -29,8 +31,8 @@ function Portrait({ node, root, color }: { node: GNode | undefined; root: string
   );
 }
 
-export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate }:
-  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void }) {
+export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark }:
+  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   useEffect(() => { if (!sel.startsWith('landmark:')) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
@@ -118,6 +120,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
       </div>
       <div className="shell-actions">
         <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(libHref)} />
+        {node && <Button label="카드" size="sm" variant="ghost" onClick={async () => download(await renderCard(node, { year, state, stateLabels: ATTR_LABEL, neighbors, ringColor: d.actors.find(a => a.id === node.faction)?.color ?? '#8A8F98', root, dark, mapCanvas: getMapCanvas?.() }), `card_${name}_${fmtYear(year).replace(' ', '')}.png`)} />}
         <Button label="링크 복사" size="sm" variant="ghost" onClick={() => navigator.clipboard?.writeText(location.href)} />
       </div>
     </Card>
