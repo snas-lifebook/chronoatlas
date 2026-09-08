@@ -11,6 +11,7 @@ export interface Manifest {
   time: { from: number; to: number; unit: string };
   layers: string[]; skins: string[];
   scenes?: import('./state').Scene[]; // 장면 프리셋(data/scenes/*.json → adapt)
+  basemap?: string[]; relief?: boolean; bbox?: [number, number, number, number]; // fetch-external 산출(style.ts)
 }
 export interface Feature { type: 'Feature'; properties: Record<string, any>; geometry: { type: string; coordinates: any }; }
 export interface FeatureCollection { type: 'FeatureCollection'; features: Feature[]; }
@@ -24,7 +25,6 @@ export interface Dataset {
   settlements: FeatureCollection;
   battles: FeatureCollection;        // 전투 지점 (dated Point) — _gen_battles.mjs 생성
   movements: FeatureCollection;      // 원정로 세그먼트 (dated LineString) — _gen_movements.mjs 생성
-  land: FeatureCollection | null;    // 육지(Natural Earth, 시간 불변). manifest.layers에 'land' 있을 때만
 }
 
 // 열린 시간범위 sentinel (valid_from/valid_to 없으면 상시). _gen_territory.mjs OPEN_FUTURE와 일치.

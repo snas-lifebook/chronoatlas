@@ -12,8 +12,24 @@
   "to": 1481,
   "unit": "year"
  },
- "layers": [
+ "basemap": [
   "land",
+  "coast",
+  "rivers",
+  "lakes",
+  "glaciers",
+  "bathy",
+  "marine_labels",
+  "region_labels"
+ ],
+ "relief": true,
+ "bbox": [
+  -15,
+  20,
+  65,
+  60
+ ],
+ "layers": [
   "territory",
   "admin_regions",
   "settlements",

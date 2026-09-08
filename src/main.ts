@@ -6,6 +6,7 @@ import { createToken } from './token3d';
 import { createPanel } from './panel';
 import { initExport } from './export';
 import { createStore, parseState, bindUrl, applyScene, DEFAULTS, type Scene } from './state';
+import { buildStyle } from './map/style';
 
 // 데이터셋 스위처: ?dataset=chuhan-206 으로 다른 도메인 로드(스키마 무관 증명). 기본=로마.
 // 상태는 state.ts 하나. ?ds= 가 정식, ?dataset= 은 옛 링크 호환.
@@ -27,9 +28,7 @@ async function load(): Promise<Dataset> {
     j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'),
     j('layers/battles.geojson'), j('layers/movements.geojson'),
   ]);
-  // 육지(Natural Earth)는 선택 — 옛 데이터셋(rome-753-218·chuhan-206)에는 없다.
-  const land = manifest.layers?.includes('land') ? await j('layers/land.geojson') : null;
-  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements, land };
+  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements };
 }
 
 const formatYear = (y: number) => (y < 0 ? `기원전 ${-y}년` : `서기 ${y === 0 ? 1 : y}년`);
@@ -46,18 +45,17 @@ async function main() {
   let loaded = false;
   let tokens: { route: string; token: ReturnType<typeof createToken> }[] = [];
 
-  const style: any = {
-    version: 8,
-    sources: {},
-    layers: [{ id: 'sea', type: 'background', paint: { 'background-color': '#D6E4EF' } }], // DESIGN v2 바다
-  };
-  if (d.land) {
-    style.sources.land = { type: 'geojson', data: d.land };
-    style.layers.push({ id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': '#EEF0EC' } }); // DESIGN v2 육지
-  }
+  // 베이스맵(1.4): manifest.basemap → style.ts. 다크는 OS 설정을 따른다(astryx light-dark와 같은 기준).
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const style = buildStyle(d.manifest as any, import.meta.env.BASE_URL, DATASET, { dark });
   // pitch: 토큰(장기 말) 입체감. ponytail: 지도 기울기 노브 — 평면 원하면 0.
   const cam = wanted ?? {} as Scene;
-  const map = new maplibregl.Map({ container: 'map', style, center: cam.center ?? d.manifest.center, zoom: cam.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9, pitch: cam.pitch ?? 30, bearing: cam.bearing ?? 0 });
+  const view = store.get().view;
+  const bb = (d.manifest as any).bbox as [number, number, number, number] | undefined;
+  const map = new maplibregl.Map({ container: 'map', style, center: cam.center ?? d.manifest.center, zoom: cam.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9,
+    pitch: view === '2d' ? 0 : (cam.pitch ?? 50), bearing: view === '2d' ? 0 : (cam.bearing ?? 0),
+    maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖(클립 경계)이 안 보이게 — P13
+    attributionControl: { compact: true, customAttribution: 'Natural Earth (PD) · 정본 온톨로지' } });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
   const panel = createPanel(d);
 
@@ -93,13 +91,14 @@ async function main() {
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions',
       paint: { 'line-color': '#4b3f8c', 'line-width': 2, 'line-dasharray': [3, 2] } });
 
-    map.addSource('settlements', { type: 'geojson', data: d.settlements as any });
+    if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any });
     // 줌별 노출(LOD) = 레이어 minzoom 네이티브. 시간필터(setFilter)와 병존.
+    const before = map.getLayer('label-settle-1') ? 'label-settle-1' : undefined; // 마커는 라벨 아래
     const circle = (id: string, minzoom: number, radius: number) =>
       map.addLayer({ id, type: 'circle', source: 'settlements', minzoom,
-        paint: { 'circle-radius': radius, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.2 } });
-    circle('settle-major', 3, 6);
-    circle('settle-minor', 5, 4);
+        paint: { 'circle-radius': radius, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.2 } }, before);
+    circle('settle-major', 3, 5);
+    circle('settle-minor', 5, 3.5);
 
     // 전투 지점 — 승자색 원 + 흰 테두리. 시간필터로 발생 연도부터 등장.
     map.addSource('battles', { type: 'geojson', data: d.battles as any });

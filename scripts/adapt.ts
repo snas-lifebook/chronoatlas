@@ -81,9 +81,11 @@ writeFileSync(join(OUT, 'layers', 'battles.geojson'), JSON.stringify({ type: 'Fe
 for (const l of ['territory', 'admin_regions', 'movements'])
   if (!existsSync(join(OUT, 'layers', `${l}.geojson`))) writeFileSync(join(OUT, 'layers', `${l}.geojson`), JSON.stringify({ type: 'FeatureCollection', features: [] }));
 
-// ---- layers/land.geojson: Natural Earth 10m 지중해 클립(PD). 0.5에서 fetch-external로 옮기기 전까지 기존 클립 재사용.
-const neLand = join(import.meta.dirname, '..', 'public', 'datasets', 'rome-753-218', '_sources', 'ne_land_med.geojson');
-if (existsSync(neLand)) writeFileSync(join(OUT, 'layers', 'land.geojson'), readFileSync(neLand));
+// ---- 베이스맵 레이어는 scripts/fetch-external.ts가 만든다(NE 10m·relief). 여기선 있는지 확인만 — manifest.basemap.
+const BASEMAP = ['land', 'coast', 'rivers', 'lakes', 'glaciers', 'bathy', 'marine_labels', 'region_labels'];
+const basemap = BASEMAP.filter(l => existsSync(join(OUT, 'layers', `${l}.geojson`)));
+const relief = existsSync(join(OUT, 'rasters', 'relief.jpg'));
+if (basemap.length < BASEMAP.length) console.warn('basemap 누락:', BASEMAP.filter(l => !basemap.includes(l)).join(', '), '→ node --experimental-strip-types scripts/fetch-external.ts');
 
 // ---- entities/*.json
 const actors = Object.entries(palette).map(([label, color]) => ({ id: label, label, color, source: 'book', confidence: 'high' }));
@@ -102,7 +104,8 @@ const years = [...chron.map(e => e!.year), ...links.flatMap(l => [l.from_year, l
 const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
-  layers: [...(existsSync(neLand) ? ['land'] : []), 'territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
+  basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
+  layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
   scenes, // data/scenes/rome.json — 사람이 쓰는 장면 프리셋(state.ts Scene)
   library: 'https://roma-library.pages.dev', source: '정본 entities.jsonl/links.jsonl → scripts/adapt.ts', generated: new Date().toISOString().slice(0, 10),
   counts: { entities: entities.length, links: links.length, settlements: settlements.length, battles: battles.length },
