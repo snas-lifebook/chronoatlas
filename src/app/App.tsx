@@ -1,6 +1,6 @@
 // 앱 셸 (DESIGN v3 §2, TASKS 1.8): 풀블리드 지도 위에 떠 있는 astryx 카드 5 + 타임라인 띠 + 각주 줄. 상태는 store 하나.
 import { useEffect, useRef, useSyncExternalStore, useState, useMemo } from 'react';
-import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
+import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
@@ -169,6 +169,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
                 {c.p1 ? <Badge label="P1" /> : i < 9 && <Kbd keys={String(i + 1)} />}
               </div>
             ))}
+            <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>
         )}
         {tab === 'scenes' && (

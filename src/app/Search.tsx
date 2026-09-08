@@ -1,6 +1,6 @@
 // ⌘K 검색 (TASKS 2.3): 650 객체 이름·이명·초성. 열릴 때 graph.json 지연 로드.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, Text, Badge, TextInput } from '@astryxdesign/core';
+import { Card, Text, Badge, Button, TextInput } from '@astryxdesign/core';
 import { loadGraph, type Graph } from '../graph/data';
 import { buildIndex, search, type SearchItem } from '../search';
 
@@ -36,7 +36,7 @@ export function Search({ base, onPick, onClose }: { base: string; onPick: (id: s
                 <span className="arrow">↵</span>
               </li>
             ))}
-            {!results.length && <li className="empty"><Text size="sm" color="secondary">일치하는 객체가 없다 — 이명이나 초성으로 다시</Text></li>}
+            {!results.length && <li className="empty"><Text size="sm" color="secondary">「{q.trim()}」와 일치하는 객체가 없다 — 이명이나 초성(ㅋㅇㅅ)으로.</Text><Button label="지우기" size="sm" variant="ghost" onClick={() => setQ('')} /></li>}
           </ol>
         )}
         {!q.trim() && <Text size="sm" color="secondary">{graph ? `${graph.nodes.size}개 객체` : '불러오는 중'} · ↑↓ 이동 · ↵ 선택 · Esc 닫기</Text>}

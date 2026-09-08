@@ -70,6 +70,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
   const neighbors = graph ? neighborsOf(graph, sel, year) : [];
   const groups = GROUP_ORDER.map(g => [g, neighbors.filter(n => n.group === g)] as const).filter(([, l]) => l.length);
   const hidden = graph ? neighborsOf(graph, sel).length - neighbors.length : 0;
+  const firstYear = graph ? Math.min(...neighborsOf(graph, sel).map(n => n.link.from_year ?? Infinity)) : null; // 빈 상태(DESIGN §4): 연도 밖 객체 → 첫 관계 연도로
   const libHref = libraryObject(sel, name);
   const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-emphasized)';
 
@@ -117,6 +118,8 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
             </Collapsible>
           ))}
         </section>
+      ) : hidden > 0 ? (
+        <div className="ins-empty"><Text size="sm" color="secondary">{fmtYear(year)}엔 아직 관계가 없다 — {fmtYear(firstYear!)}부터 {hidden}건.</Text><Button label={`${fmtYear(firstYear!)}로 이동`} size="sm" variant="secondary" onClick={() => store.set({ year: firstYear! })} /></div>
       ) : node ? <Text size="sm" color="secondary">연결된 관계가 없다 · 등장 포인트 {node.points.length}</Text> : null)}
 
       {node && node.points.length > 0 && (
