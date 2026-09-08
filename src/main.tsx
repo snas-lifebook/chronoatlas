@@ -16,10 +16,11 @@ const BASE = `${ROOT}datasets/${DS}`;
 async function j(p: string) { const r = await fetch(`${BASE}/${p}`); if (!r.ok) throw new Error(`${p} ${r.status}`); return r.json(); }
 
 async function load(): Promise<Dataset> {
-  const [manifest, actorsW, eventsW, territory, admin_regions, settlements, battles, movements] = await Promise.all([
+  const [manifest, actorsW, eventsW, territory, admin_regions, settlements, battles, movements, landmarks] = await Promise.all([
     j('manifest.json'), j('entities/actors.json'), j('entities/events.json'),
-    j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'), j('layers/battles.geojson'), j('layers/movements.geojson')]);
-  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements };
+    j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'), j('layers/battles.geojson'), j('layers/movements.geojson'),
+    j('layers/landmarks.geojson').catch(() => undefined)]);
+  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements, landmarks };
 }
 
 load().then(d => {

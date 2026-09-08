@@ -37,15 +37,23 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
   useEffect(() => { if (!sel.startsWith('landmark:')) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
 
-  // 지형지물(NE) — 정본 객체가 아니다
+  // 지형지물(NE 폴리곤 = 이름, Pleiades 점 = pid) — 정본 객체가 아니다
   if (sel.startsWith('landmark:')) {
-    const name = sel.slice('landmark:'.length);
+    const key = sel.slice('landmark:'.length);
+    const lm = d.landmarks?.features.find(f => String(f.properties.pid) === key)?.properties;
     return (
       <Card padding={4} elevation="low" className="shell-inspector ins">
-        <Text size="sm" color="secondary">지형지물 · Natural Earth</Text>
-        <Heading level={2}>{name}</Heading>
-        <Text size="sm" color="secondary">정본 place 제안 대상 — 이름·라틴명·설명을 붙이면 온톨로지 객체가 된다.</Text>
-        <div className="shell-actions"><IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} /></div>
+        <Text size="sm" color="secondary">지형지물 · {lm ? `${lm.kind_ko} · Pleiades` : 'Natural Earth'}</Text>
+        <Heading level={2}>{lm?.name ?? key}</Heading>
+        {lm && <div className="ins-body">
+          {lm.desc && <Text size="sm" className="ins-desc">{lm.desc}</Text>}
+          <Text size="sm" color="secondary">좌표 {lm.precision === 'rough' ? '대략(rough) — 범위의 중심점' : '정밀(precise)'} · {lm.kind}</Text>
+        </div>}
+        <Text size="sm" color="secondary">정본 place 제안 대상 — 한글 이름·설명을 붙이면 온톨로지 객체가 된다.</Text>
+        <div className="shell-actions">
+          {lm && <Button label="Pleiades ↗" size="sm" variant="secondary" onClick={() => open(lm.uri, '_blank')} />}
+          <IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} />
+        </div>
       </Card>
     );
   }

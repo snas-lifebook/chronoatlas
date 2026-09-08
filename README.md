@@ -16,7 +16,7 @@ npm run dev                                                     # http://localho
 
 ## 무엇이 있나
 
-- **베이스맵**: Natural Earth 10m(육지·해안·강·호수·빙하·수심 7단·바다/지역명) + 음영기복 + 자체 글리프. 런타임 외부 호출 0.
+- **베이스맵**: Natural Earth 10m(육지·해안·강·호수·빙하·수심 7단·바다/지역명) + 음영기복 + 자체 글리프 + Pleiades 지형지물 3,552점(산·강·곶·고개·호수·섬…, CC BY). 런타임 외부 호출 0.
 - **데이터 레이어**: 정착지(rank LOD)·사건(30년 창)·영토·속주·이동경로 + 지형지물(NE 폴리곤이 클릭 객체).
 - **관계 그래프**: 선택 객체의 1홉을 지도 위에(의미군 선색, 좌표 없는 인물은 링 배치).
 - **인스펙터**: 초상(세력 링)·그 해의 상태(history fold)·의미군별 관계·등장 포인트·자료실 링크.
@@ -40,4 +40,4 @@ npm run mcp              # MCP stdio 서버
 
 ## 출처
 
-Natural Earth(Public Domain) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · 초상·아이콘은 편데 관계분석 컴포넌트 · 온톨로지는 편데 정본. 자세한 대장은 `data/external/LICENSES.md`.
+Natural Earth(Public Domain) · Pleiades(CC BY 3.0, Bagnall·Talbert 외, isawnyu/pleiades-datasets) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · 초상·아이콘은 편데 관계분석 컴포넌트 · 온톨로지는 편데 정본. 자세한 대장은 `data/external/LICENSES.md`.

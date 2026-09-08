@@ -81,6 +81,14 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
           ['any', ['!', ['in', ['get', 'featurecla'], ['literal', ['Island', 'Island group']]]], ['>=', ['zoom'], 7]],
           ['<=', ['get', 'scalerank'], ['step', ['zoom'], 3, 5, 5, 7, 9]]] as any }));
   }
+  // 지형지물(1.7, Pleiades CC BY): 점 + 작은 라벨, lod 1/2/3 = z5/6/8. 무채색(P2) — 정착지 라벨보다 낮은 우선순위. 클릭 객체(P5).
+  if (has('landmarks')) {
+    geo('landmarks');
+    layers.push(sym('landmark-pleiades', 'landmarks',
+      { 'text-field': ['get', 'name'], 'text-font': FONT.regular, 'text-size': ['interpolate', ['linear'], ['zoom'], 5, 9, 9, 11], 'text-max-width': 7, 'symbol-sort-key': ['+', ['get', 'lod'], 10] },
+      { 'text-color': ['case', ['boolean', ['feature-state', 'selected'], false], c.label, c.label2], 'text-halo-color': c.halo, 'text-halo-width': 1, 'text-opacity': ['case', ['==', ['get', 'precision'], 'rough'], 0.6, 0.9] },
+      { minzoom: 5, filter: ['<=', ['get', 'lod'], ['step', ['zoom'], 1, 6, 2, 8, 3]] as any }));
+  }
   // 정착지 라벨: 데이터셋 settlements(어댑터 산출) — rank LOD z3/5/7. 마커는 main이 같은 소스로 그린다.
   sources.settlements = { type: 'geojson', data: `${base}/layers/settlements.geojson` };
   for (const [rank, minzoom, size, font] of [[1, 3, 13, FONT.bold], [2, 5, 12, FONT.regular], [3, 7, 11, FONT.regular]] as const) {

@@ -86,7 +86,7 @@ for (const l of ['territory', 'admin_regions', 'movements'])
   if (!existsSync(join(OUT, 'layers', `${l}.geojson`))) writeFileSync(join(OUT, 'layers', `${l}.geojson`), JSON.stringify({ type: 'FeatureCollection', features: [] }));
 
 // ---- 베이스맵 레이어는 scripts/fetch-external.ts가 만든다(NE 10m·relief). 여기선 있는지 확인만 — manifest.basemap.
-const BASEMAP = ['land', 'coast', 'rivers', 'lakes', 'glaciers', 'bathy', 'marine_labels', 'region_labels'];
+const BASEMAP = ['land', 'coast', 'rivers', 'lakes', 'glaciers', 'bathy', 'marine_labels', 'region_labels', 'landmarks'];
 const basemap = BASEMAP.filter(l => existsSync(join(OUT, 'layers', `${l}.geojson`)));
 const relief = existsSync(join(OUT, 'rasters', 'relief.jpg'));
 if (basemap.length < BASEMAP.length) console.warn('basemap 누락:', BASEMAP.filter(l => !basemap.includes(l)).join(', '), '→ node --experimental-strip-types scripts/fetch-external.ts');

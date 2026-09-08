@@ -26,3 +26,4 @@ dist-ssr
 # 외부 원본 캐시는 fetch-external.ts가 다시 받는다(149MB). 산출물(public/datasets, public/glyphs)만 커밋.
 data/external/*.geojson
 data/external/*.tif
+data/external/pleiades/

@@ -27,6 +27,7 @@ export interface Dataset {
   settlements: FeatureCollection;
   battles: FeatureCollection;        // 전투 지점 (dated Point) — _gen_battles.mjs 생성
   movements: FeatureCollection;      // 원정로 세그먼트 (dated LineString) — _gen_movements.mjs 생성
+  landmarks?: FeatureCollection;     // 지형지물 Point (Pleiades, fetch-external) — 정본 아님, 없을 수 있다
 }
 
 // 열린 시간범위 sentinel (valid_from/valid_to 없으면 상시). _gen_territory.mjs OPEN_FUTURE와 일치.

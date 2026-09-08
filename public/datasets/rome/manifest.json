@@ -20,7 +20,8 @@
   "glaciers",
   "bathy",
   "marine_labels",
-  "region_labels"
+  "region_labels",
+  "landmarks"
  ],
  "relief": true,
  "bbox": [

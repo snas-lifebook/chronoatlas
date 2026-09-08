@@ -78,6 +78,42 @@ ImageOps.colorize(im.crop((x0,y0,x1,y1)).convert('L'), black='#7A7E76', white='#
 print('raster relief', x1-x0, 'x', y1-y0)
 `], { stdio: 'inherit' });
 
+// 지형지물(TASKS 1.7): Pleiades GIS CSV(isawnyu/pleiades-datasets, CC BY 3.0) → 물리 유형만 bbox 클립 → layers/landmarks.geojson (Point, 클릭 객체 P5).
+// 본진 pleiades.stoa.org는 컨테이너에서 차단 — GitHub 미러를 쓴다. 이름은 Pleiades 제목(라틴/그리스 표기) 그대로 — 한글화는 정본 place 제안으로(proposals/).
+const PLEIADES = 'https://raw.githubusercontent.com/isawnyu/pleiades-datasets/main/data/gis';
+const PL = join(CACHE, 'pleiades'); mkdirSync(PL, { recursive: true });
+for (const f of ['places', 'places_place_types']) await fetchTo(`${PLEIADES}/${f}.csv`, join(PL, `${f}.csv`));
+// lod: 1 = z5부터(산·고개·해협·반도·숲…), 2 = z6(강·호수·곶·섬·만·평원), 3 = z8(나머지)
+export const LANDMARK_TYPES: Record<string, { ko: string; lod: 1 | 2 | 3 }> = {
+  mountain: { ko: '산', lod: 1 }, pass: { ko: '고개', lod: 1 }, strait: { ko: '해협', lod: 1 }, gulf: { ko: '만', lod: 1 }, isthmus: { ko: '지협', lod: 1 }, peninsula: { ko: '반도', lod: 1 },
+  volcano: { ko: '화산', lod: 1 }, forest: { ko: '숲', lod: 1 }, desert: { ko: '사막', lod: 1 }, plateau: { ko: '고원', lod: 1 }, oasis: { ko: '오아시스', lod: 1 },
+  river: { ko: '강', lod: 2 }, lake: { ko: '호수', lod: 2 }, cape: { ko: '곶', lod: 2 }, island: { ko: '섬', lod: 2 }, bay: { ko: '만', lod: 2 }, plain: { ko: '평원', lod: 2 }, valley: { ko: '계곡', lod: 2 },
+  estuary: { ko: '하구', lod: 2 }, lagoon: { ko: '석호', lod: 2 }, archipelago: { ko: '군도', lod: 2 }, delta: { ko: '삼각주', lod: 2 },
+  'water-open': { ko: '해역', lod: 3 }, cave: { ko: '동굴', lod: 3 }, hill: { ko: '언덕', lod: 3 }, spring: { ko: '샘', lod: 3 }, coast: { ko: '해안', lod: 3 }, gorge: { ko: '협곡', lod: 3 },
+  rapid: { ko: '여울', lod: 3 }, 'salt-marsh': { ko: '염습지', lod: 3 }, watercourse: { ko: '물길', lod: 3 }, escarpment: { ko: '절벽', lod: 3 },
+};
+execFileSync('python3', ['-c', `
+import csv, json, re
+T = ${JSON.stringify(LANDMARK_TYPES)}
+types = {}
+for r in csv.DictReader(open(${JSON.stringify(join(PL, 'places_place_types.csv'))}, encoding='utf-8-sig')): types.setdefault(r['place_id'], []).append(r['place_type'])
+feats = []
+for r in csv.DictReader(open(${JSON.stringify(join(PL, 'places.csv'))}, encoding='utf-8-sig')):
+    try: lon, lat = float(r['representative_longitude']), float(r['representative_latitude'])
+    except ValueError: continue
+    if not (${BBOX[0]} <= lon <= ${BBOX[2]} and ${BBOX[1]} <= lat <= ${BBOX[3]}): continue
+    ts = [t for t in types.get(r['id'], []) if t in T]
+    if not ts: continue
+    kind = min(ts, key=lambda t: T[t]['lod'])
+    desc = r['description'].strip()
+    feats.append({'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [round(lon, 4), round(lat, 4)]},
+      'properties': {'pid': int(r['id']), 'name': re.sub(r'\\s*\\([^)]*\\)\\s*$', '', r['title']), 'kind': kind, 'kind_ko': T[kind]['ko'], 'lod': T[kind]['lod'], 'precision': r['location_precision'],
+                     'desc': desc[:240] + ('…' if len(desc) > 240 else ''), 'uri': r['uri']}})
+feats.sort(key=lambda f: (f['properties']['lod'], f['properties']['name']))
+json.dump({'type': 'FeatureCollection', 'features': feats}, open(${JSON.stringify(join(OUT, 'layers', 'landmarks.geojson'))}, 'w'), ensure_ascii=False, separators=(',', ':'))
+print('layer landmarks', len(feats), 'features')
+`], { stdio: 'inherit' });
+
 // 글리프 PBF: 라벨에 실제 쓰인 문자 범위만 내려받아 public/glyphs/에 둔다(런타임 외부 호출 0).
 // ponytail: Pretendard 글리프 자체 빌드(fontnik)는 컨테이너에서 네이티브 빌드 불가 → KlokanTech Noto Sans CJK(OFL)로 시작. DESIGN §1 "Pretendard 글리프"는 River 맥에서 font-maker로 교체.
 const GLYPH_SRC = 'https://raw.githubusercontent.com/klokantech/klokantech-gl-fonts/master';
@@ -102,6 +138,8 @@ writeFileSync(join(CACHE, 'LICENSES.md'), `# data/external — 출처·라이선
 ${VECTORS.map(v => `| ${v.id}.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/${v.out}.geojson, bbox ${bbox} |`).join('\n')}
 ${BATHY.map(([l, d]) => `| ne_10m_bathymetry_${l}_${d}.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=${d} |`).join('\n')}
 | SR_50M.tif | Natural Earth 50m Shaded Relief (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg (image 소스). Mapterhorn 교체 예정 |
+| pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 ${Object.keys(LANDMARK_TYPES).length}종, bbox) |
+| KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
 
 생성: scripts/fetch-external.ts · ${new Date().toISOString().slice(0, 10)}
 `);

@@ -16,7 +16,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
   labels: ['label-marine', 'label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
-  landmarks: ['landmark-region_labels', 'landmark-marine_labels'],
+  landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades'],
   graph: ['ego-edge', 'ego-node', 'ego-label'],
 };
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
@@ -93,12 +93,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'ego-node']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'ego-node']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
         if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle'].filter(l => map.getLayer(l)) }).length) return;
-        store.set({ sel: `landmark:${f.properties.name}` }); return; } // 정본 place 아님 — NE 지형지물(제안 대상)
+        store.set({ sel: `landmark:${f.properties.pid ?? f.properties.name}` }); return; } // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름
       if (f.properties?.id) store.set({ sel: f.properties.id });
     });
     map.on('mouseenter', layerId, () => (map.getCanvas().style.cursor = 'pointer'));
@@ -107,7 +107,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'ego-node': 'ego' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks', 'ego-node': 'ego' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -122,10 +122,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       setHover({ source, id: f.id });
       if (tipTimer) clearTimeout(tipTimer);
       const p = f.properties, yr = p.year ?? p.valid_from;
-      const label = p.name_ko ?? p.name ?? p.id, sub = yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.featurecla ?? '';
+      const label = p.name_ko ?? p.name ?? p.id, sub = yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.kind_ko ?? p.featurecla ?? '';
       tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setHTML(`<b>${label}</b>${sub ? ` · ${sub}` : ''}`).addTo(map), 120);
     });
-    map.on('mouseleave', layerId, () => { setHover(null); if (tipTimer) clearTimeout(tipTimer); tip.remove(); });
+    // 겹친 레이어(지형지물 라벨 위의 도시 점) 중 하나를 떠나도 다른 하나가 아직 밑에 있으면 툴팁을 살린다
+    map.on('mouseleave', layerId, e => {
+      if (map.queryRenderedFeatures(e.point, { layers: Object.keys(SRC_OF).filter(l => l !== layerId && map.getLayer(l)) }).length) return;
+      setHover(null); if (tipTimer) clearTimeout(tipTimer); tip.remove(); });
   }
   // selected feature-state + 나머지 40% 디밍(선택 있을 때만 페인트 교체)
   let selectedFs: { source: string; id: string | number } | null = null;
@@ -135,9 +138,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const source = sel?.startsWith('event:') ? 'battles' : sel?.startsWith('place:') ? 'settlements' : null;
     if (sel && source && map.getSource(source)) { selectedFs = { source, id: sel }; map.setFeatureState(selectedFs, { selected: true }); }
     if (sel?.startsWith('landmark:')) {
-      const name = sel.slice('landmark:'.length);
-      for (const src of ['region_labels', 'marine_labels']) {
-        const f = map.querySourceFeatures(src).find(f => f.properties?.name === name);
+      const key = sel.slice('landmark:'.length);
+      for (const src of ['landmarks', 'region_labels', 'marine_labels']) {
+        if (!map.getSource(src)) continue;
+        const f = map.querySourceFeatures(src).find(f => String(f.properties?.pid ?? f.properties?.name) === key);
         if (f && f.id != null) { selectedFs = { source: src, id: f.id as any }; map.setFeatureState(selectedFs, { selected: true }); break; }
       }
     }

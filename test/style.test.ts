@@ -24,6 +24,14 @@ describe('basemap style (TASKS 1.4)', () => {
     expect(bathy.paint['fill-color'].length).toBeGreaterThanOrEqual(2 + 2 * 5);
     for (const l of st.layers.filter(l => l.type === 'symbol') as any[]) expect(l.layout['text-allow-overlap'] ?? false).toBe(false);
   });
+  it('지형지물(1.7): manifest에 landmarks가 있을 때만, 정착지 라벨 아래(우선순위 낮음), z5부터 lod 단계', () => {
+    expect(ids).not.toContain('landmark-pleiades');
+    const lm = buildStyle({ ...manifest, basemap: [...manifest.basemap, 'landmarks'] }, '/', 'rome');
+    const lids = lm.layers.map(l => l.id);
+    expect(lids.indexOf('landmark-pleiades')).toBeLessThan(lids.indexOf('label-settle-1'));
+    const l: any = lm.layers.find(l => l.id === 'landmark-pleiades');
+    expect(l.minzoom).toBe(5); expect(l.filter[2][0]).toBe('step');
+  });
   it('다크는 육지·바다만 바뀌고 램프는 유지', () => {
     const dk = buildStyle(manifest, '/', 'rome', { dark: true });
     expect((dk.layers[0] as any).paint['background-color']).toBe(MAP.dark.sea);

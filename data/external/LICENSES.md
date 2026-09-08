@@ -17,5 +17,7 @@
 | ne_10m_bathymetry_G_4000.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=4000 |
 | ne_10m_bathymetry_F_5000.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=5000 |
 | SR_50M.tif | Natural Earth 50m Shaded Relief (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg (image 소스). Mapterhorn 교체 예정 |
+| pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 32종, bbox) |
+| KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
 
 생성: scripts/fetch-external.ts · 2026-09-08
