@@ -10,6 +10,7 @@ export interface Manifest {
   id: string; title: string; center: [number, number]; zoom: number;
   time: { from: number; to: number; unit: string };
   layers: string[]; skins: string[];
+  scenes?: import('./state').Scene[]; // 장면 프리셋(data/scenes/*.json → adapt)
 }
 export interface Feature { type: 'Feature'; properties: Record<string, any>; geometry: { type: string; coordinates: any }; }
 export interface FeatureCollection { type: 'FeatureCollection'; features: Feature[]; }

@@ -96,11 +96,14 @@ const chron = existsSync(join(SRC, 'chronology.csv'))
 writeFileSync(join(OUT, 'entities', 'events.json'), JSON.stringify({ events: chron }, null, 1));
 writeFileSync(join(OUT, 'entities', 'people.json'), JSON.stringify(nodes.filter(n => n.type === 'person')));
 
+const scenesPath = join(import.meta.dirname, '..', 'data', 'scenes', 'rome.json');
+const scenes = existsSync(scenesPath) ? JSON.parse(readFileSync(scenesPath, 'utf8')) : [];
 const years = [...chron.map(e => e!.year), ...links.flatMap(l => [l.from_year, l.to_year]).filter((y): y is number => typeof y === 'number')];
 const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   layers: [...(existsSync(neLand) ? ['land'] : []), 'territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
+  scenes, // data/scenes/rome.json — 사람이 쓰는 장면 프리셋(state.ts Scene)
   library: 'https://roma-library.pages.dev', source: '정본 entities.jsonl/links.jsonl → scripts/adapt.ts', generated: new Date().toISOString().slice(0, 10),
   counts: { entities: entities.length, links: links.length, settlements: settlements.length, battles: battles.length },
 };

@@ -1,0 +1,6 @@
+[
+  { "id": "caesar", "title": "카이사르 — 갈리아에서 루비콘까지", "year": -60, "sel": "person:카이사르", "center": [12.5, 42.5], "zoom": 4.6, "pitch": 50, "bearing": -12,
+    "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일" },
+  { "id": "rubicon", "title": "루비콘 도하", "year": -49, "sel": "person:카이사르", "center": [12.3, 44.1], "zoom": 6, "pitch": 55, "bearing": -20 },
+  { "id": "ides", "title": "3월 15일", "year": -44, "sel": "person:카이사르", "center": [12.48, 41.89], "zoom": 7, "pitch": 55, "bearing": 0 }
+]

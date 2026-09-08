@@ -5,9 +5,12 @@ import { type Dataset, dateWindow, positionByRoute, routeGeometry } from './sche
 import { createToken } from './token3d';
 import { createPanel } from './panel';
 import { initExport } from './export';
+import { createStore, parseState, bindUrl, applyScene, DEFAULTS, type Scene } from './state';
 
 // 데이터셋 스위처: ?dataset=chuhan-206 으로 다른 도메인 로드(스키마 무관 증명). 기본=로마.
-const DATASET = new URLSearchParams(location.search).get('dataset') || 'rome-753-218';
+// 상태는 state.ts 하나. ?ds= 가 정식, ?dataset= 은 옛 링크 호환.
+const store = createStore(parseState(location.search, { ...DEFAULTS, ds: new URLSearchParams(location.search).get('dataset') || 'rome-753-218' }));
+const DATASET = store.get().ds;
 // BASE_URL: dev='/', 빌드(GitHub Pages)='/visual-pipeline/'. 둘 다 끝에 슬래시라 그대로 이어붙인다.
 const BASE = `${import.meta.env.BASE_URL}datasets/${DATASET}`;
 const $ = <T extends HTMLElement>(s: string) => document.querySelector(s) as T;
@@ -33,7 +36,13 @@ const formatYear = (y: number) => (y < 0 ? `기원전 ${-y}년` : `서기 ${y ==
 
 async function main() {
   const d = await load();
-  let year = d.manifest.time.to;
+  // 첫 진입 = 장면 프리셋(DESIGN §4). URL에 연도가 있으면 그걸 존중.
+  const scenes: Scene[] = d.manifest.scenes ?? [];
+  const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (new URLSearchParams(location.search).has('y') ? null : scenes[0]);
+  if (wanted) applyScene(store, wanted);
+  else if (!new URLSearchParams(location.search).has('y')) store.set({ year: d.manifest.time.to });
+  bindUrl(store);
+  let year = store.get().year;
   let loaded = false;
   let tokens: { route: string; token: ReturnType<typeof createToken> }[] = [];
 
@@ -47,7 +56,8 @@ async function main() {
     style.layers.push({ id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': '#EEF0EC' } }); // DESIGN v2 육지
   }
   // pitch: 토큰(장기 말) 입체감. ponytail: 지도 기울기 노브 — 평면 원하면 0.
-  const map = new maplibregl.Map({ container: 'map', style, center: d.manifest.center, zoom: d.manifest.zoom, minZoom: 3, maxZoom: 9, pitch: 30 });
+  const cam = wanted ?? {} as Scene;
+  const map = new maplibregl.Map({ container: 'map', style, center: cam.center ?? d.manifest.center, zoom: cam.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9, pitch: cam.pitch ?? 30, bearing: cam.bearing ?? 0 });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
   const panel = createPanel(d);
 
@@ -128,7 +138,7 @@ async function main() {
     } catch { tokens = []; }
 
     loaded = true;
-    applyYear(year);
+    render(year);
   });
 
   function applyFilters(y: number) {
@@ -147,7 +157,9 @@ async function main() {
   const nearestEvent = (y: number) => d.events.reduce<null | Dataset['events'][number]>(
     (best, e) => (!best || Math.abs(e.year - y) < Math.abs(best.year - y)) ? e : best, null);
 
-  function applyYear(y: number) {
+  function applyYear(y: number) { store.set({ year: y }); }
+  store.subscribe(s => { if (s.year !== year) render(s.year); });
+  function render(y: number) {
     year = y;
     slider.value = String(y);
     label.textContent = formatYear(y);
@@ -189,7 +201,7 @@ async function main() {
   // 타임슬라이스 내보내기 버튼(export.ts).
   initExport(d, () => year);
 
-  applyYear(year);
+  render(year);
 }
 
 main().catch(err => {
