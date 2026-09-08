@@ -18,9 +18,9 @@ npm run dev                                                     # http://localho
 
 - **베이스맵**: Natural Earth 10m(육지·해안·강·호수·빙하·수심 7단·바다/지역명) + 음영기복 + 자체 글리프 + Pleiades 지형지물 3,552점(산·강·곶·고개·호수·섬…, CC BY). 런타임 외부 호출 0.
 - **데이터 레이어**: 정착지(rank LOD)·사건(30년 창)·영토·속주·이동경로 + 지형지물(NE 폴리곤이 클릭 객체).
-- **관계 그래프**: 선택 객체의 1홉을 지도 위에(의미군 선색, 좌표 없는 인물은 링 배치).
+- **관계 그래프**: 인스펙터 아래 패널(옵시디언 로컬 그래프식 force 캔버스, 1·2홉, 드래그·hover·클릭). 지도엔 좌표 있는 이웃이 12개 이하일 때만 선.
 - **인스펙터**: 초상(세력 링)·그 해의 상태(history fold)·의미군별 관계·등장 포인트·자료실 링크.
-- **내보내기**: PNG 2× · 카드 1080×1350 · MP4(장면 구간, WebCodecs). 전부 브라우저에서.
+- **내보내기**: PNG 2× · 카드 1080×1350 · MP4(장면 구간, WebCodecs). 스킨 5종(중립·야간·고지도·신문톤·작전)은 내보낼 때만 갈아끼운다. 전부 브라우저에서.
 - **MCP**: `npm run mcp` — `get_schema` `find_entity` `neighbors` `path` (stdio, 읽기 전용, 브라우저와 같은 `graph.json`).
 - **데이터셋 스위처**: `?ds=chuhan-206`(초한전쟁) — 스키마 무관 실증.
 
@@ -36,7 +36,7 @@ npm run mcp              # MCP stdio 서버
 
 ## 구조
 
-`src/state.ts`(상태↔URL) · `src/map/{style,engine}.ts`(베이스맵·데이터·인터랙션·1홉 그래프) · `src/app/{App,Inspector,Search}.tsx`(떠 있는 astryx 카드) · `src/graph/data.ts`(graph.json 인덱스) · `src/export/{png,card,mp4}.ts` · `mcp/` · `scripts/{adapt,fetch-external,lint}.ts` · `schema/ontology.ts`(Zod, SCHEMA v2) · `data/{scenes,eras}/`(사람이 쓰는 장면·시대).
+`src/state.ts`(상태↔URL) · `src/map/{style,engine}.ts`(베이스맵·데이터·인터랙션·1홉 그래프) · `src/app/{App,Inspector,GraphPanel,Search}.tsx`(떠 있는 astryx 카드) · `src/graph/data.ts`(graph.json 인덱스) · `src/export/{png,card,mp4}.ts` · `mcp/` · `scripts/{adapt,fetch-external,lint}.ts` · `schema/ontology.ts`(Zod, SCHEMA v2) · `data/{scenes,eras}/`(사람이 쓰는 장면·시대).
 
 ## 출처
 
