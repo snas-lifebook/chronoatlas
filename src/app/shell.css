@@ -14,7 +14,11 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-explorer-head > :first-child { flex: 1; }
 .shell-explorer-pill { position: absolute; top: 116px; left: 24px; padding: 8px 12px; border: 1px solid var(--color-border-primary); border-radius: 999px; background: var(--color-bg-primary); color: var(--color-text-primary); font: 600 13px var(--font-family-body); cursor: pointer; box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.08)); }
 .shell-explorer { position: absolute; top: 116px; left: 24px; width: 300px; max-height: calc(100% - 116px - 140px); display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
-.shell-inspector { position: absolute; top: 20px; right: 24px; width: 360px; display: grid; gap: 6px; }
+.shell-right { position: absolute; top: 20px; right: 24px; width: 360px; max-height: calc(100% - 250px); display: flex; flex-direction: column; gap: 8px; }
+.shell-inspector { display: grid; gap: 6px; }
+.shell-graph { flex: 0 0 auto; display: grid; gap: 6px; }
+.shell-graph-toggle { border: 0; background: none; padding: 0; cursor: pointer; font: inherit; }
+.shell-graph-canvas { width: 100%; height: 200px; display: block; touch-action: none; border-radius: var(--radius-md, 8px); background: var(--color-bg-secondary); }
 .shell-env { position: absolute; right: 24px; bottom: 120px; display: grid; gap: 8px; justify-items: end; }
 .shell-zoom { display: grid; gap: 4px; }
 .shell-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
@@ -62,7 +66,8 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 @media (max-width: 1023px) {
   .shell-explorer { top: auto; bottom: 200px; left: 12px; right: 12px; width: auto; max-height: 40%; }
   .shell-explorer-pill { top: auto; bottom: 200px; left: 12px; }
-  .shell-inspector { top: 12px; left: 12px; right: 12px; width: auto; }
+  .shell-right { top: 12px; left: 12px; right: 12px; width: auto; }
+  .shell-graph { display: none; }
   .shell-env { right: 12px; bottom: 100px; }
   .shell-title { left: 12px; top: 12px; }
   .shell-footnote { display: none; }
@@ -73,7 +78,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ca-tip .maplibregl-popup-tip { display: none; }
 
 /* 인스펙터 밀도(DESIGN §3 compact): 이름 20/600 · 메타 13 · 본문 14/1.55 · 라벨 11 대문자 · 행 32 · 섹션 16 */
-.ins { max-height: calc(100% - 230px); overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+.ins { flex: 1 1 auto; min-height: min(45%, 320px); overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
 .ins-body { overflow: auto; flex: 1 1 auto; min-height: 0; display: grid; gap: 8px; align-content: start; }
 .ins h2 { font-size: 20px; font-weight: 600; line-height: 1.25; margin: 0; }
 .ins-head { display: flex; justify-content: space-between; align-items: center; }

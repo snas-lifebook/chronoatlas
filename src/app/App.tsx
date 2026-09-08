@@ -10,7 +10,8 @@ import { Inspector } from './Inspector';
 import { Search } from './Search';
 import { renderPng, download } from '../export/png';
 import { renderMp4 } from '../export/mp4';
-import { loadGraph, neighborsOf, type Graph, type Neighbor } from '../graph/data';
+import { loadGraph, neighborsOf, type Graph } from '../graph/data';
+import { GraphPanel } from './GraphPanel';
 import './shell.css';
 
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
@@ -40,7 +41,6 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [searching, setSearching] = useState(false);
   const [exporting, setExporting] = useState<number | null>(null);
   const [skin, setSkin] = useState<Skin>('light'); // 내보내기 스킨(P12: 웹 UI는 안 바뀐다)
-  const [hops, setHops] = useState<1 | 2>(1); // 관계 오버레이 깊이(P1 2홉). ponytail: URL엔 안 넣는다 — 탐색 설정이지 상태가 아니다
   const withSkin = async <T,>(fn: () => Promise<T>): Promise<T> => { const eng = engRef.current!; const cur = isDark(theme) ? 'dark' : 'light'; if (skin !== cur) await eng.setSkin(skin); try { return await fn(); } finally { if (skin !== cur) await eng.setSkin(null); } };
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
@@ -54,15 +54,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   useEffect(() => {
     const eng = engRef.current; if (!eng) return;
     if (!s.sel || !graph || s.sel.startsWith('landmark:')) { eng.setEgo(null, '', []); return; }
-    const n1 = neighborsOf(graph, s.sel, s.year);
-    // 2홉: 이웃마다 그 이웃(선택·1홉 제외), 부모당 상한 — 총 ~48 노드(라벨 겹침 한계)
-    let second: Map<string, Neighbor[]> | undefined;
-    if (hops === 2 && n1.length) {
-      const seen = new Set([s.sel, ...n1.map(n => n.node.id)]); const cap = Math.max(2, Math.ceil(48 / n1.length));
-      second = new Map(n1.map(n => [n.node.id, neighborsOf(graph, n.node.id, s.year).filter(m => !seen.has(m.node.id) && (seen.add(m.node.id), true)).slice(0, cap)]));
-    }
-    eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', n1, second);
-  }, [s.sel, s.year, graph, hops]);
+    eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
+  }, [s.sel, s.year, graph]);
 
   useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
@@ -165,13 +158,6 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         {tab === 'layers' && (
           <div className="shell-layers">
             <div className="row skin-row">
-              <Text size="sm" color="secondary">관계 깊이</Text>
-              <SegmentedControl label="관계 깊이" value={String(hops)} onChange={v => setHops(Number(v) as 1 | 2)} size="sm">
-                <SegmentedControlItem value="1" label="1홉" />
-                <SegmentedControlItem value="2" label="2홉" />
-              </SegmentedControl>
-            </div>
-            <div className="row skin-row">
               <Text size="sm" color="secondary">내보내기 스킨</Text>
               <SegmentedControl label="내보내기 스킨" value={skin} onChange={v => setSkin(v as Skin)} size="sm">
                 {SKINS.map(k => <SegmentedControlItem key={k.id} value={k.id} label={k.label} />)}
@@ -198,8 +184,11 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
       </Card>}
 
-      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
-        onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />}
+      {s.sel && <div className="shell-right">
+        <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
+          onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />
+        {graph && !s.sel.startsWith('landmark:') && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
+      </div>}
 
       <div className="shell-env">
         <SegmentedControl label="테마" value={theme} onChange={v => setTheme(v as Theme)} size="sm">

@@ -55,7 +55,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2] } }, before);
     if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
     // hover: +반지름·외곽 1.5px / selected: 외곽 2px(세력색 대신 잉크 — 정착지는 세력 없음) — DESIGN §2, GPU만
-    const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, base];
+    const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, ['boolean', ['feature-state', 'linked'], false], base + plus * 0.6, base];
     const circle = (id: string, minzoom: number, radius: number) =>
       map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': hov(radius, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
@@ -65,16 +65,16 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('movements', { type: 'geojson', data: d.movements as any });
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#e67e22', 'line-width': 3, 'line-dasharray': [2, 1] } }, before);
 
-    // 관계 그래프 오버레이(2.1): 선택 객체의 1홉. 좌표 없는 노드는 앵커 주위 링에 놓는다(setEgo).
+    // 관계 그래프 오버레이(2.1, 하이브리드): 선택 객체 ↔ 좌표 있는 이웃 선. 좌표 없는 이웃은 GraphPanel.
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
     map.addLayer({ id: 'ego-edge', type: 'line', source: 'ego', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round' },
-      paint: { 'line-color': ['get', 'color'], 'line-width': ['case', ['==', ['get', 'hop'], 2], 1, 1.6], 'line-opacity': ['case', ['==', ['get', 'hop'], 2], 0.45, 0.85], 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
+      paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
     map.addLayer({ id: 'ego-node', type: 'circle', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': ['case', ['boolean', ['get', 'anchor'], false], 9, ['==', ['get', 'hop'], 2], hov(4, 2), hov(6, 2)] as any, 'circle-opacity': ['case', ['==', ['get', 'hop'], 2], 0.75, 1], 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
+      paint: { 'circle-radius': 9, 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
     map.addLayer({ id: 'ego-label', type: 'symbol', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': ['case', ['==', ['get', 'hop'], 2], 10, 12], 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false, 'symbol-sort-key': ['get', 'hop'] },
-      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-opacity': ['case', ['==', ['get', 'hop'], 2], 0.8, 1], 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
-    if (ego) setEgo(ego.sel, ego.name, ego.neighbors, ego.second);
+      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false },
+      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
+    if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
 
     // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
     const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
@@ -176,59 +176,25 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   store.subscribe(apply);
 
-  // ---- 관계 오버레이 데이터. 좌표 있는 이웃은 제자리, 없는 이웃은 앵커 주위 링(의미군 순, 줌 바뀌면 다시 계산).
-  // 2홉(P1): second[이웃 id] = 그 이웃의 이웃(1홉·선택 제외). 좌표 없으면 부모 각도 주변 바깥 링(R+90px) 또는 부모 점 주위 작은 링(56px). 선은 가늘고 옅게(hop=2).
-  type Second = Map<string, Neighbor[]>;
-  let ego: { sel: string; name: string; neighbors: Neighbor[]; second?: Second } | null = null;
+  // ---- 관계 오버레이(하이브리드): 지도엔 좌표 있는 이웃(도시·사건)까지의 선만. 좌표 없는 인물·집단은 GraphPanel(force 레이아웃)이 맡는다.
+  let ego: { sel: string; name: string; neighbors: Neighbor[] } | null = null;
+  let linked: { source: string; id: string }[] = [];
   const coordOf = (id: string): [number, number] | null => {
     const f = (id.startsWith('event:') ? d.battles : d.settlements).features.find(f => f.properties.id === id);
     return f ? (f.geometry.coordinates as [number, number]) : null;
   };
-  function setEgo(sel: string | null, name: string, neighbors: Neighbor[], second?: Second) {
-    ego = sel ? { sel, name, neighbors, second } : null;
+  function setEgo(sel: string | null, name: string, neighbors: Neighbor[]) {
+    ego = sel ? { sel, name, neighbors } : null;
     const src = map.getSource('ego') as maplibregl.GeoJSONSource | undefined;
     if (!src) return;
-    if (!sel || !neighbors.length) { src.setData({ type: 'FeatureCollection', features: [] }); return; }
-    const geoN = neighbors.filter(n => coordOf(n.node.id)), freeN = neighbors.filter(n => !coordOf(n.node.id));
-    let anchor = coordOf(sel);
-    if (!anchor && geoN.length) { const cs = geoN.map(n => coordOf(n.node.id)!); anchor = [cs.reduce((a, c) => a + c[0], 0) / cs.length, cs.reduce((a, c) => a + c[1], 0) / cs.length]; }
-    if (!anchor) { const c = map.getCenter(); anchor = [c.lng, c.lat]; }
-    const apx = map.project(anchor as any);
-    const order = ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make', 'other'];
-    const sorted = [...freeN].sort((a, b) => order.indexOf(a.group) - order.indexOf(b.group));
-    const R = Math.min(260, 60 + sorted.length * 5.5); // 이웃이 많을수록 큰 링 — 라벨 겹침 완화
-    const feats: any[] = [];
-    const pos = new Map<string, [number, number]>();
-    const angle = new Map<string, number>();
-    const at = (cx: number, cy: number, r: number, t: number): [number, number] => { const ll = map.unproject([cx + r * Math.cos(t), cy + r * Math.sin(t)]); return [ll.lng, ll.lat]; };
-    sorted.forEach((n, i) => { const t = -Math.PI / 2 + (2 * Math.PI * i) / sorted.length; angle.set(n.node.id, t); pos.set(n.node.id, at(apx.x, apx.y, R, t)); });
-    for (const n of geoN) pos.set(n.node.id, coordOf(n.node.id)!);
-    const point = (id: string, props: Record<string, unknown>, p: [number, number]) => feats.push({ type: 'Feature', properties: { id, ...props }, geometry: { type: 'Point', coordinates: p } });
-    const edge = (id: string, n: Neighbor, a: [number, number], b: [number, number], hop: 1 | 2) =>
-      feats.push({ type: 'Feature', properties: { id, hop, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [a, b] } });
-    for (const n of neighbors) {
-      edge(`edge:${n.node.id}`, n, anchor, pos.get(n.node.id)!, 1);
-      if (!coordOf(n.node.id)) point(n.node.id, { name: n.node.name, type: n.node.type, group: n.group, hop: 1 }, pos.get(n.node.id)!);
-    }
-    if (second) for (const [pid, kids] of second) {
-      const pp = pos.get(pid); if (!pp || !kids.length) continue;
-      const ppx = map.project(pp as any);
-      const t0 = angle.get(pid);
-      kids.forEach((k, i) => {
-        if (!pos.has(k.node.id)) {
-          const c = coordOf(k.node.id);
-          // 부모가 링 위면 바깥 링에서 부모 각도 ±섹터 안, 부모가 지도 점이면 그 주위 작은 링
-          pos.set(k.node.id, c ?? (t0 != null ? at(apx.x, apx.y, R + 90, t0 + ((i + 0.5) / kids.length - 0.5) * (2 * Math.PI / Math.max(sorted.length, 3)))
-            : at(ppx.x, ppx.y, 56, -Math.PI / 2 + (2 * Math.PI * i) / kids.length)));
-          if (!c) point(k.node.id, { name: k.node.name, type: k.node.type, group: k.group, hop: 2 }, pos.get(k.node.id)!);
-        }
-        edge(`edge2:${pid}>${k.node.id}`, k, pp, pos.get(k.node.id)!, 2);
-      });
-    }
-    if (!coordOf(sel)) point(sel, { name, anchor: true, hop: 0 }, anchor);
+    for (const l of linked) map.setFeatureState(l, { linked: false }); linked = [];
+    const geoN = neighbors.filter(n => coordOf(n.node.id));
+    const anchor = sel ? coordOf(sel) : null;
+    // 선택에 좌표가 있으면 선. 없으면(인물·집단) 가짜 중심점 대신 관련 지점을 강조만 — 지도 위 '사방팔방'은 그리지 않는다
+    if (!anchor) for (const n of geoN) { const l = { source: n.node.id.startsWith('event:') ? 'battles' : 'settlements', id: n.node.id }; map.setFeatureState(l, { linked: true }); linked.push(l); }
+    const feats: any[] = anchor ? geoN.map(n => ({ type: 'Feature', properties: { id: `edge:${n.node.id}`, color: GROUP_COLOR[n.group], confidence: n.link.confidence ?? 'medium', rel: n.rel }, geometry: { type: 'LineString', coordinates: [anchor, coordOf(n.node.id)!] } })) : [];
     src.setData({ type: 'FeatureCollection', features: feats });
   }
-  map.on('zoomend', () => { if (ego) setEgo(ego.sel, ego.name, ego.neighbors, ego.second); });
 
   return {
     map,
