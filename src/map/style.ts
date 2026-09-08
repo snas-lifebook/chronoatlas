@@ -14,9 +14,12 @@ export const MAP = {
   // 신문톤: 무채색 — 룬델 정적 관계지도와 같은 문법
   press:  { sea: '#E8E8E8', land: '#F7F7F7', coast: '#5A5A5A', river: '#B0B0B0', glacier: '#FFFFFF', label: '#111111', label2: '#666666', halo: '#FFFFFF',
     depth: ['#E8E8E8', '#E2E2E2', '#DCDCDC', '#D6D6D6', '#D0D0D0', '#CACACA', '#C4C4C4'], relief: { brightnessMax: 1, contrast: 0.1, saturation: -1, opacity: 0.9 } },
+  // 작전지도: 카키 육지·짙은 음영(지형 과장)·먹선 — 군사사 도해(원정로·전투) 내보내기용. 세리프 글리프는 River 맥(font-maker)에서
+  campaign: { sea: '#C7D2CB', land: '#E2DFCF', coast: '#4A4538', river: '#7E9A96', glacier: '#F0EFE8', label: '#2B2721', label2: '#6B6353', halo: '#EDEADF',
+    depth: ['#C7D2CB', '#BFCAC3', '#B7C2BB', '#AFBAB3', '#A7B2AB', '#9FAAA3', '#97A29B'], relief: { brightnessMax: 0.9, contrast: 0.25, saturation: -0.4, opacity: 1 } },
 } as const;
 export type Skin = keyof typeof MAP;
-export const SKINS: { id: Skin; label: string }[] = [{ id: 'light', label: '중립' }, { id: 'dark', label: '야간' }, { id: 'oldmap', label: '고지도' }, { id: 'press', label: '신문톤' }];
+export const SKINS: { id: Skin; label: string }[] = [{ id: 'light', label: '중립' }, { id: 'dark', label: '야간' }, { id: 'oldmap', label: '고지도' }, { id: 'press', label: '신문톤' }, { id: 'campaign', label: '작전' }];
 const DEPTHS = [0, 200, 1000, 2000, 3000, 4000, 5000];
 const FONT = { regular: ['KlokanTech Noto Sans CJK Regular'], bold: ['KlokanTech Noto Sans CJK Bold'] }; // ponytail: Pretendard 글리프로 교체 예정(fetch-external 참고)
 
