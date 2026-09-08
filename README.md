@@ -1,41 +1,43 @@
-# visual-pipeline
+# 크로노아틀라스 (chronoatlas)
 
-로마사(및 확장 도메인) **시계열 GIS 지도** — MapLibre GL 기반. 타임라인을 옮기면 그 시점의 세력 판도로 지도가 다시 그려진다. 볼트 밖 코드 레포(맥락·결정은 볼트 `Works/비주얼파이프라인/` 참조).
+온톨로지가 중심인 **역사 지도·관계 그래프·타임라인**. 산스 인생책 편데의 『로마제국쇠망사』 시즌을 위해 만들고, 데이터셋만 바꾸면 다른 책·시대에도 쓴다. 단일 연도 상태(URL `?y=`)가 지도·그래프·타임라인·패널 네 뷰를 동시에 움직인다. 소비자는 사람(브라우저)과 AI(MCP) 둘.
 
-## 라이브 데모
+이 레포는 코드다. 왜 이렇게 만드는지(헌장·명세·스키마·디자인·작업 순서)는 볼트 `Works/비주얼파이프라인/`이 정본이다. AI가 먼저 읽을 것은 `AGENTS.md`.
 
-설치 없이 브라우저에서 바로: **https://snas-lifebook.github.io/visual-pipeline/**
-
-- 로마(기본): 타임라인을 옮기면 판도·전투·원정로·토큰 행군이 다시 그려진다.
-- 초한전쟁(도메인 무관 실증): https://snas-lifebook.github.io/visual-pipeline/?dataset=chuhan-206
-
-`main` 브랜치에 push하면 GitHub Actions가 빌드→Pages 자동 배포(`.github/workflows/deploy.yml`).
-
-## 개발
+## 빠른 시작
 
 ```
-npm run dev        # Vite dev 서버
-npm run validate   # 데이터→렌더 계약 테스트 (vitest run) — build 게이트
-npm run build      # validate 통과 후 vite build
-npm test           # vitest watch
+npm i
+ONTOLOGY_DIR=<볼트 Books/로마제국쇠망사/ontology> npm run adapt   # 정본 JSONL → public/datasets/rome
+npm run dev                                                     # http://localhost:5173/?ds=rome
 ```
 
-## 데이터 (도메인 무관 계약 — SCHEMA)
+첫 화면은 장면 프리셋(BC 60 카이사르). `/` 또는 ⌘K 검색, `←→` 연도, `Space` 재생, `V` 평면/입체, `1~9` 레이어, `Esc` 해제.
 
-`public/datasets/<domain>/` 하나가 한 캠페인. `manifest.json` + `layers/*.geojson` + `entities/*.json`. 좌표는 **GeoJSON [lng,lat]**(Leaflet [lat,lon] 아님). 계약·타입은 `src/schema.ts`.
+## 무엇이 있나
 
-- `rome-753-218` — 로마 건국~제2차 포에니 종전(기원전 753~201). 레이어: territory·admin_regions·settlements·battles·**movements**(한니발·스키피오 원정로). 데이터셋 사용법은 `public/datasets/rome-753-218/README.md`.
-- `chuhan-206` — 초한전쟁(기원전 206~202). 스키마 무수정 재사용으로 **도메인 무관성 실증**. `?dataset=chuhan-206`.
-- 데이터 재생성: `npm run gen` (regions·territory·admin·battles). `validate`/`build`가 자동 실행.
+- **베이스맵**: Natural Earth 10m(육지·해안·강·호수·빙하·수심 7단·바다/지역명) + 음영기복 + 자체 글리프. 런타임 외부 호출 0.
+- **데이터 레이어**: 정착지(rank LOD)·사건(30년 창)·영토·속주·이동경로 + 지형지물(NE 폴리곤이 클릭 객체).
+- **관계 그래프**: 선택 객체의 1홉을 지도 위에(의미군 선색, 좌표 없는 인물은 링 배치).
+- **인스펙터**: 초상(세력 링)·그 해의 상태(history fold)·의미군별 관계·등장 포인트·자료실 링크.
+- **내보내기**: PNG 2× · 카드 1080×1350 · MP4(장면 구간, WebCodecs). 전부 브라우저에서.
+- **MCP**: `npm run mcp` — `get_schema` `find_entity` `neighbors` `path` (stdio, 읽기 전용, 브라우저와 같은 `graph.json`).
+- **데이터셋 스위처**: `?ds=chuhan-206`(초한전쟁) — 스키마 무관 실증.
 
-**시간필터 모델**: 시간가변 피처는 `valid_from`/`valid_to`를 갖고, 연도 변경 시 `setFilter`로 필터한다(`setData` 재계산 아님). territory는 `_gen_territory.mjs`가 스냅샷 오너십(`entities/territory.json`) × 지오메트리(`regions.geojson`)를 조인해 "지역×통치구간" 날짜 피처로 생성.
+## 스크립트
 
-> **provisional**: region 폴리곤은 실제 해안선(Natural Earth 10m land, PD)으로 클립해 해안·섬은 실측 윤곽, 내륙 경계는 여전히 러프 근사(confidence:medium/low). GPL/NC/상용 데이터(historical-basemaps=GPL-3.0·AWMC=CC-BY-NC·DARE)는 재배포하지 않고 트레이싱 참조로만 쓴다. 재배포는 PD/자체 트레이싱만.
+```
+npm run adapt            # 정본 온톨로지 → datasets/rome (ONTOLOGY_DIR 필요)
+npm run fetch-external   # Natural Earth·음영·글리프 다시 굽기 (캐시 data/external/, 커밋 안 함)
+npm run lint             # 온톨로지 불변식 (baseline 래칫 — 새 오류만 실패)
+npm run build            # gen + lint + vitest + vite build (+ MapLibre 워커 복사)
+npm run mcp              # MCP stdio 서버
+```
 
-## 비전·로드맵
+## 구조
 
-시간구동 인터랙티브 지도(지배·도시·전투·이동 → Three.js 토큰·3D 지형·시뮬)의 6축 매핑·상태·소스 라이선스는 `docs/roadmap.md` 참조.
+`src/state.ts`(상태↔URL) · `src/map/{style,engine}.ts`(베이스맵·데이터·인터랙션·1홉 그래프) · `src/app/{App,Inspector,Search}.tsx`(떠 있는 astryx 카드) · `src/graph/data.ts`(graph.json 인덱스) · `src/export/{png,card,mp4}.ts` · `mcp/` · `scripts/{adapt,fetch-external,lint}.ts` · `schema/ontology.ts`(Zod, SCHEMA v2) · `data/{scenes,eras}/`(사람이 쓰는 장면·시대).
 
-## 스택
+## 출처
 
-MapLibre GL · Vite · TypeScript · Vitest. 이동 경로 위 장군 토큰(장기 말)은 **Three.js 오버레이**로 movements route별 자동 생성·경로 따라 행군(완료). 타임슬라이스 GeoJSON 내보내기·상세 패널 포함. 상세=`docs/roadmap.md`.
+Natural Earth(Public Domain) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · 초상·아이콘은 편데 관계분석 컴포넌트 · 온톨로지는 편데 정본. 자세한 대장은 `data/external/LICENSES.md`.
