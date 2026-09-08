@@ -3,19 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>비주얼파이프라인 — 로마사 시계열 지도</title>
+    <meta name="color-scheme" content="light dark" />
+    <title>크로노아틀라스</title>
+    <!-- 첫 페인트 전에 테마를 칠한다(FOUC 방지, 자료실과 같은 방식) -->
+    <script>try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))?'dark':'light'}catch(e){}</script>
   </head>
   <body>
-    <div id="map"></div>
-    <div id="timeline">
-      <button id="play" title="재생/정지">▶</button>
-      <div id="yearBox"><span id="yearLabel"></span><small id="eventNote"></small></div>
-      <div id="slider-wrap">
-        <div id="ticks"></div>
-        <input type="range" id="year" />
-      </div>
-      <div id="legend"></div>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

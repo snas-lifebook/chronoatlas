@@ -12,6 +12,7 @@ export interface Manifest {
   layers: string[]; skins: string[];
   scenes?: import('./state').Scene[]; // 장면 프리셋(data/scenes/*.json → adapt)
   basemap?: string[]; relief?: boolean; bbox?: [number, number, number, number]; // fetch-external 산출(style.ts)
+  library?: string; counts?: Record<string, number>;
 }
 export interface Feature { type: 'Feature'; properties: Record<string, any>; geometry: { type: string; coordinates: any }; }
 export interface FeatureCollection { type: 'FeatureCollection'; features: Feature[]; }

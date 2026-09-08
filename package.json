@@ -16,14 +16,21 @@
     "postbuild": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/assets/"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
     "@types/three": "^0.185.4",
+    "@vitejs/plugin-react": "^6.1.1",
     "polygon-clipping": "^0.15.7",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"
   },
   "dependencies": {
+    "@astryxdesign/core": "^0.4.0",
+    "@astryxdesign/theme-neutral": "^0.4.0",
     "maplibre-gl": "^6.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "three": "^0.185.1",
     "zod": "^4.5.4"
   }
