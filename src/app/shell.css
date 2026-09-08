@@ -10,6 +10,9 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-title { position: absolute; top: 20px; left: 24px; pointer-events: none; display: grid; gap: 2px; }
 .shell-year { font-size: 44px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
 
+.shell-explorer-head { display: flex; align-items: center; gap: 6px; }
+.shell-explorer-head > :first-child { flex: 1; }
+.shell-explorer-pill { position: absolute; top: 116px; left: 24px; padding: 8px 12px; border: 1px solid var(--color-border-primary); border-radius: 999px; background: var(--color-bg-primary); color: var(--color-text-primary); font: 600 13px var(--font-family-body); cursor: pointer; box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.08)); }
 .shell-explorer { position: absolute; top: 116px; left: 24px; width: 300px; max-height: calc(100% - 116px - 140px); display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
 .shell-inspector { position: absolute; top: 20px; right: 24px; width: 360px; display: grid; gap: 6px; }
 .shell-env { position: absolute; right: 24px; bottom: 120px; display: grid; gap: 8px; justify-items: end; }
@@ -56,6 +59,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 
 @media (max-width: 1023px) {
   .shell-explorer { top: auto; bottom: 200px; left: 12px; right: 12px; width: auto; max-height: 40%; }
+  .shell-explorer-pill { top: auto; bottom: 200px; left: 12px; }
   .shell-inspector { top: 12px; left: 12px; right: 12px; width: auto; }
   .shell-env { right: 12px; bottom: 100px; }
   .shell-title { left: 12px; top: 12px; }

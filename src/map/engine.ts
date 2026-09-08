@@ -24,6 +24,8 @@ export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '
 
 export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false) {
   const s0 = store.get();
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; // DESIGN §4: 즉시 전환
+  const dur = (ms: number) => (reduced ? 0 : ms);
   let isDark = dark;
   const style = buildStyle(d.manifest, root, ds, { dark });
   const scenes: Scene[] = d.manifest.scenes ?? [];
@@ -166,7 +168,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       }
     }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
-    if (s.view !== lastView) { lastView = s.view; map.easeTo({ pitch: s.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s.view === '2d' ? 0 : (cam.bearing ?? 0), duration: 600 }); }
+    if (s.view !== lastView) { lastView = s.view; map.easeTo({ pitch: s.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s.view === '2d' ? 0 : (cam.bearing ?? 0), duration: dur(600) }); }
   }
   store.subscribe(apply);
 
@@ -206,14 +208,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   return {
     map,
     setEgo,
-    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: 1400, essential: true }); },
+    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {
       const source = id?.startsWith('event:') ? 'battles' : id?.startsWith('place:') ? 'settlements' : null;
       setHover(id && source && map.getSource(source) ? { source, id } : null);
     },
-    home() { if (bb) map.fitBounds([[bb[0] + 12, bb[1] + 8], [bb[2] - 20, bb[3] - 10]], { padding: 40, duration: 900 }); },
-    zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: 300 }); },
+    home() { if (bb) map.fitBounds([[bb[0] + 12, bb[1] + 8], [bb[2] - 20, bb[3] - 10]], { padding: 40, duration: dur(900) }); },
+    zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: dur(300) }); },
     // 테마 전환: 베이스맵 스타일 재빌드 → 데이터 레이어 다시 얹기(setStyle이 소스·레이어를 지운다)
     setDark(dk: boolean) { isDark = dk; loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
   };

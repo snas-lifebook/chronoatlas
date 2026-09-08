@@ -33,6 +33,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const engRef = useRef<Engine | null>(null);
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
+  const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
   const [searching, setSearching] = useState(false);
@@ -52,7 +53,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -129,12 +130,16 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Text size="sm" color="secondary">{d.manifest.title}</Text>
       </header>
 
-      <Card padding={3} elevation="low" className="shell-explorer">
+      {!explorerOpen && <button className="shell-explorer-pill" onClick={() => setExplorerOpen(true)}>탐색 ▸</button>}
+      {explorerOpen && <Card padding={3} elevation="low" className="shell-explorer">
+        <div className="shell-explorer-head">
         <SegmentedControl label="탐색" value={tab} onChange={setTab} size="sm">
           <SegmentedControlItem value="objects" label="객체" />
           <SegmentedControlItem value="layers" label="레이어" />
           <SegmentedControlItem value="scenes" label="장면" />
         </SegmentedControl>
+        <IconButton label="접기" size="sm" variant="ghost" icon={<span>◂</span>} onClick={() => setExplorerOpen(false)} />
+        </div>
         {tab === 'objects' && (
           <ol className="shell-list">
             {objects.slice(0, 40).map((o, i) => (
@@ -167,7 +172,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
             ))}
           </ol>
         )}
-      </Card>
+      </Card>}
 
       {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
         onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />}
