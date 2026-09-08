@@ -60,6 +60,20 @@ const adjacency: Record<string, number[]> = {};
 links.forEach((l, i) => { (adjacency[l.from] ??= []).push(i); (adjacency[l.to] ??= []).push(i); });
 writeFileSync(join(OUT, 'graph.json'), JSON.stringify({ nodes, edges: links, adjacency }));
 
+// ---- QC(F18): 사람이 고칠 목록. 고아·연도 미상·좌표 없음·동명이인 후보. 앱 `?qc=1` 카드와 proposals 작성이 읽는다.
+const norm = (v: string) => v.normalize('NFC').replace(/\s+/g, '').toLowerCase();
+const byName = new Map<string, string[]>();
+for (const n of nodes) for (const a of [n.name, ...n.aliases]) (byName.get(norm(a)) ?? byName.set(norm(a), []).get(norm(a))!).push(n.id);
+const qc = {
+  orphan: nodes.filter(n => !adjacency[n.id]?.length).map(n => n.id),
+  undated: nodes.filter(n => (n.type === 'person' && n.born == null && n.died == null) || (n.type === 'event' && n.year == null)).map(n => n.id),
+  nocoord: nodes.filter(n => n.type === 'place' && !n.lonlat).map(n => n.id),
+  homonym: [...byName.entries()].filter(([, ids]) => new Set(ids).size > 1).map(([name, ids]) => ({ name, ids: [...new Set(ids)] })),
+  low: nodes.filter(n => n.confidence === 'low').map(n => n.id),
+};
+writeFileSync(join(OUT, 'qc.json'), JSON.stringify(qc, null, 1));
+console.log('qc:', Object.fromEntries(Object.entries(qc).map(([k, v]) => [k, v.length])));
+
 // ---- layers/settlements.geojson: 좌표 있는 place 전부. rank = 등장 포인트 수로 LOD.
 const settlements = nodes.filter(n => n.type === 'place' && n.lonlat).map(n => {
   const g = geo.get(n.name.normalize('NFC')) ?? {};

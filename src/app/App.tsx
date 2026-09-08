@@ -13,6 +13,7 @@ import { timeSlice, pointsCsv } from '../export/data';
 import { renderMp4 } from '../export/mp4';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { GraphPanel } from './GraphPanel';
+import { Qc } from './Qc';
 import './shell.css';
 
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
@@ -143,6 +144,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
           <SegmentedControlItem value="objects" label="객체" />
           <SegmentedControlItem value="layers" label="레이어" />
           <SegmentedControlItem value="scenes" label="장면" />
+          <SegmentedControlItem value="qc" label="QC" />
         </SegmentedControl>
         <IconButton label="접기" size="sm" variant="ghost" icon={<span>◂</span>} onClick={() => setExplorerOpen(false)} />
         </div>
@@ -174,6 +176,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
             <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>
         )}
+        {tab === 'qc' && <Qc base={`${root}datasets/${ds}`} onLocate={locate} />}
         {tab === 'scenes' && (
           <ol className="shell-list">
             {scenes.map((sc, i) => (
