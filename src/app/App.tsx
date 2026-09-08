@@ -14,7 +14,7 @@ const CATALOG: { id: string; label: string; p1?: boolean }[] = [
   { id: 'territory', label: '영토' }, { id: 'admin_regions', label: '속주' }, { id: 'settlements', label: '도시' },
   { id: 'battles', label: '전투' }, { id: 'movements', label: '이동 경로' },
   { id: 'relief', label: '지형 음영' }, { id: 'bathy', label: '수심' }, { id: 'rivers', label: '강·호수' }, { id: 'labels', label: '지명' },
-  { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물', p1: true },
+  { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물' },
 ];
 
 type Theme = 'system' | 'light' | 'dark';
@@ -70,7 +70,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     ...d.settlements.features.filter(f => f.properties.rank <= 2).map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: f.properties.name_ancient as string | null, kind: '도시' })),
     ...d.battles.features.map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: fmt(f.properties.year), kind: '전투' })),
   ], [d]);
-  const selected = objects.find(o => o.id === s.sel) ?? (s.sel ? { id: s.sel, name: s.sel.split(':')[1], sub: null, kind: s.sel.split(':')[0] } : null);
+  const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대', landmark: '지형지물' };
+  const selected = objects.find(o => o.id === s.sel) ?? (s.sel ? { id: s.sel, name: s.sel.slice(s.sel.indexOf(':') + 1), sub: null, kind: KIND[s.sel.split(':')[0]] ?? s.sel.split(':')[0] } : null);
   const selFeature = s.sel ? [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === s.sel) : null;
   const locate = (id: string) => { const f = [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === id); store.set({ sel: id }); if (f) engRef.current?.map.easeTo({ center: f.geometry.coordinates, duration: 600, padding: { right: 380 } }); };
   const span = d.manifest.time.to - d.manifest.time.from;
@@ -133,7 +134,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
           {selFeature?.properties.name_modern && <Text size="sm" color="secondary">오늘의 {selFeature.properties.name_modern}</Text>}
           {selFeature && <Text size="sm" color="secondary">{selFeature.geometry.coordinates[1].toFixed(3)}° N · {selFeature.geometry.coordinates[0].toFixed(3)}° E</Text>}
           <div className="shell-actions">
-            <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(`${d.manifest.library}/objects/${selected.kind === '도시' ? 'place' : 'event'}/${encodeURIComponent(selected.name)}`)} />
+            {selected.kind !== '지형지물' && <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(`${d.manifest.library}/objects/${selected.id.split(':')[0]}/${encodeURIComponent(selected.name)}`)} />}
+            {selected.kind === '지형지물' && <Text size="sm" color="secondary">Natural Earth 지형지물 — 정본 place 제안 대상</Text>}
             <IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={() => store.set({ sel: null })} />
           </div>
         </Card>

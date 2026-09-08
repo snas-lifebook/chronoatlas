@@ -19,7 +19,7 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
   const has = (l: string) => (m.basemap ?? []).includes(l);
   const sources: StyleSpecification['sources'] = {};
   const layers: LayerSpecification[] = [{ id: 'sea', type: 'background', paint: { 'background-color': c.sea } }];
-  const geo = (id: string) => { sources[id] = { type: 'geojson', data: `${base}/layers/${id}.geojson` }; };
+  const geo = (id: string) => { sources[id] = { type: 'geojson', data: `${base}/layers/${id}.geojson`, generateId: true }; };
 
   if (has('land')) { geo('land'); layers.push({ id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': c.land } }); }
   if (m.relief && m.bbox) {
@@ -45,6 +45,12 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
     layers.push({ id: 'rivers-minor', type: 'line', source: 'rivers', minzoom: 6, filter: ['>', ['get', 'scalerank'], 6], paint: { 'line-color': c.river, 'line-width': width } });
   }
   if (has('coast')) { geo('coast'); layers.push({ id: 'coast', type: 'line', source: 'coast', paint: { 'line-color': c.coast, 'line-width': 1 } }); }
+
+  // 지형지물 객체(1.7, P5): 지역·바다 폴리곤 자체가 클릭 대상. 평소 투명, hover 시 옅게.
+  for (const src of ['region_labels', 'marine_labels'] as const) if (has(src)) {
+    if (!sources[src]) geo(src);
+    layers.push({ id: `landmark-${src}`, type: 'fill', source: src, paint: { 'fill-color': c.label2, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.12, ['boolean', ['feature-state', 'selected'], false], 0.18, 0] as any } });
+  }
 
   // 라벨 — 충돌 회피 P9(기본값 allow-overlap false). 바다·지역명은 대문자 라틴 자간 0.2em(Esri 관습).
   const sym = (id: string, source: string, layout: any, paint: any, extra: Partial<LayerSpecification> = {}): LayerSpecification =>

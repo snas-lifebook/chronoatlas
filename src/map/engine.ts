@@ -16,6 +16,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
   labels: ['label-marine', 'label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
+  landmarks: ['landmark-region_labels', 'landmark-marine_labels'],
 };
 
 export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false) {
@@ -73,40 +74,54 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement']) {
-    map.on('click', layerId, e => { const p = e.features?.[0]?.properties; if (p?.id) store.set({ sel: p.id }); });
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels']) {
+    map.on('click', layerId, e => {
+      const f = e.features?.[0]; if (!f) return;
+      if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
+        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle'].filter(l => map.getLayer(l)) }).length) return;
+        store.set({ sel: `landmark:${f.properties.name}` }); return; } // 정본 place 아님 — NE 지형지물(제안 대상)
+      if (f.properties?.id) store.set({ sel: f.properties.id });
+    });
     map.on('mouseenter', layerId, () => (map.getCanvas().style.cursor = 'pointer'));
     map.on('mouseleave', layerId, () => (map.getCanvas().style.cursor = ''));
   }
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles' };
-  let hovered: { source: string; id: string } | null = null;
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels' };
+  let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
-  const setHover = (next: { source: string; id: string } | null) => {
+  const setHover = (next: { source: string; id: string | number } | null) => {
     if (hovered && (hovered.source !== next?.source || hovered.id !== next?.id)) map.setFeatureState(hovered, { hover: false });
     if (next) map.setFeatureState(next, { hover: true });
     hovered = next;
   };
   for (const [layerId, source] of Object.entries(SRC_OF)) {
     map.on('mousemove', layerId, e => {
-      const f = e.features?.[0]; if (!f?.properties?.id) return;
-      setHover({ source, id: f.properties.id });
+      const f = e.features?.[0]; if (!f || f.id == null) return;
+      setHover({ source, id: f.id });
       if (tipTimer) clearTimeout(tipTimer);
       const p = f.properties, yr = p.year ?? p.valid_from;
-      tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setHTML(`<b>${p.name_ko ?? p.id}</b>${yr != null ? ` · ${yr < 0 ? `BC ${-yr}` : `AD ${yr}`}` : ''}`).addTo(map), 120);
+      const label = p.name_ko ?? p.name ?? p.id, sub = yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.featurecla ?? '';
+      tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setHTML(`<b>${label}</b>${sub ? ` · ${sub}` : ''}`).addTo(map), 120);
     });
     map.on('mouseleave', layerId, () => { setHover(null); if (tipTimer) clearTimeout(tipTimer); tip.remove(); });
   }
   // selected feature-state + 나머지 40% 디밍(선택 있을 때만 페인트 교체)
-  let selectedFs: { source: string; id: string } | null = null;
+  let selectedFs: { source: string; id: string | number } | null = null;
   const dimExpr = (v: number) => ['case', ['boolean', ['feature-state', 'selected'], false], 1, v];
   function applySel(sel: string | null) {
     if (selectedFs) { map.setFeatureState(selectedFs, { selected: false }); selectedFs = null; }
     const source = sel?.startsWith('event:') ? 'battles' : sel?.startsWith('place:') ? 'settlements' : null;
     if (sel && source && map.getSource(source)) { selectedFs = { source, id: sel }; map.setFeatureState(selectedFs, { selected: true }); }
+    if (sel?.startsWith('landmark:')) {
+      const name = sel.slice('landmark:'.length);
+      for (const src of ['region_labels', 'marine_labels']) {
+        const f = map.querySourceFeatures(src).find(f => f.properties?.name === name);
+        if (f && f.id != null) { selectedFs = { source: src, id: f.id as any }; map.setFeatureState(selectedFs, { selected: true }); break; }
+      }
+    }
     for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs ? dimExpr(0.6) : 1) as any);
   }
 
@@ -149,4 +164,4 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 }
 export type Engine = ReturnType<typeof createEngine>;
 
-export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels'];
+export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels', 'landmarks'];
