@@ -1,7 +1,7 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../schema';
-import { buildStyle } from './style';
+import { buildStyle, type Skin } from './style';
 import type { Store, Scene, State } from '../state';
 import type { Neighbor } from '../graph/data';
 
@@ -218,6 +218,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: dur(300) }); },
     // 테마 전환: 베이스맵 스타일 재빌드 → 데이터 레이어 다시 얹기(setStyle이 소스·레이어를 지운다)
     setDark(dk: boolean) { isDark = dk; loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
+    // 스킨 갈아끼우기(내보내기용). idle까지 기다렸다 resolve.
+    setSkin(skin: Skin | null): Promise<void> {
+      loaded = false; map.once('style.load', addData);
+      map.setStyle(buildStyle(d.manifest, root, ds, skin ? { skin } : { dark: isDark }));
+      return new Promise(res => map.once('idle', () => res()));
+    },
   };
 }
 export type Engine = ReturnType<typeof createEngine>;

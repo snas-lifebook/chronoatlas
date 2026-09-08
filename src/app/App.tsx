@@ -4,6 +4,7 @@ import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Icon
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
+import { SKINS, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
@@ -38,6 +39,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [graph, setGraph] = useState<Graph | null>(null);
   const [searching, setSearching] = useState(false);
   const [exporting, setExporting] = useState<number | null>(null);
+  const [skin, setSkin] = useState<Skin>('light'); // 내보내기 스킨(P12: 웹 UI는 안 바뀐다)
+  const withSkin = async <T,>(fn: () => Promise<T>): Promise<T> => { const eng = engRef.current!; const cur = isDark(theme) ? 'dark' : 'light'; if (skin !== cur) await eng.setSkin(skin); try { return await fn(); } finally { if (skin !== cur) await eng.setSkin(null); } };
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
   useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
@@ -153,6 +156,12 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
         {tab === 'layers' && (
           <div className="shell-layers">
+            <div className="row skin-row">
+              <Text size="sm" color="secondary">내보내기 스킨</Text>
+              <SegmentedControl label="내보내기 스킨" value={skin} onChange={v => setSkin(v as Skin)} size="sm">
+                {SKINS.map(k => <SegmentedControlItem key={k.id} value={k.id} label={k.label} />)}
+              </SegmentedControl>
+            </div>
             {CATALOG.map((c, i) => (
               <div key={c.id} className={`row${c.p1 ? ' is-p1' : ''}`}>
                 <Switch label={c.label} value={!c.p1 && on.has(c.id)} onChange={() => toggleLayer(c.id)} size="sm" isDisabled={!!c.p1} />
@@ -197,8 +206,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Tool label="검색" sub="⌘K" onClick={() => setSearching(true)}>⌕</Tool>
         <Tool label="PNG" sub="export" onClick={async () => {
           const eng = engRef.current; if (!eng) return;
-          const blob = await renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: isDark(theme),
-            legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' });
+          const blob = await withSkin(() => renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: skin === 'dark',
+            legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' }));
           download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
         }}>⤓</Tool>
         <Tool label={exporting != null ? `${Math.round(exporting * 100)}%` : 'MP4'} sub="scene" onClick={async () => {
@@ -207,8 +216,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
           const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? (sc.to ?? Math.min(d.manifest.time.to, sc.year + 20)) : Math.min(d.manifest.time.to, s.year + 20);
           const y0 = s.year; setExporting(0);
           try {
-            const blob = await renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
-              overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: isDark(theme), legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' }) });
+            const blob = await withSkin(() => renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
+              overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: skin === 'dark', legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' }) }));
             download(blob, `chronoatlas_${fmt(from).replace(' ', '')}-${fmt(to).replace(' ', '')}.mp4`);
           } catch (e: any) { console.error(e); } finally { store.set({ year: y0 }); setExporting(null); }
         }}>▣</Tool>
