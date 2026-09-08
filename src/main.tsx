@@ -26,8 +26,9 @@ load().then(d => {
   // 첫 진입 = 장면 프리셋(DESIGN §4). URL에 연도가 있으면 존중.
   const scenes: Scene[] = d.manifest.scenes ?? [];
   const q = new URLSearchParams(location.search);
-  const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') ? null : scenes[0]);
-  if (wanted) applyScene(store, wanted); else if (!q.has('y')) store.set({ year: d.manifest.time.to });
+  // 자료실 딥링크(?sel=, ?y=)가 있으면 장면을 덮어쓰지 않는다
+  const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') ? null : scenes[0]);
+  if (wanted) applyScene(store, wanted); else if (!q.has('y') && !q.has('sel')) store.set({ year: d.manifest.time.to });
   bindUrl(store);
   document.title = `${d.manifest.title} — 크로노아틀라스`;
   createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} />);

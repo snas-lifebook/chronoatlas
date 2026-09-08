@@ -37,6 +37,12 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
   useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
+  // 자료실에서 ?sel=로 들어온 첫 진입(장면 없음): 그래프가 오면 그 객체로 카메라
+  const centeredOnce = useRef(false);
+  useEffect(() => {
+    if (centeredOnce.current || !graph || !s.sel || s.scene) return; centeredOnce.current = true;
+    const ll = graph.nodes.get(s.sel)?.lonlat; if (ll) engRef.current?.map.easeTo({ center: ll, zoom: Math.max(engRef.current!.map.getZoom(), 5.5), duration: 900, padding: { right: 380 } });
+  }, [graph]);
   useEffect(() => {
     const eng = engRef.current; if (!eng) return;
     if (!s.sel || !graph || s.sel.startsWith('landmark:')) { eng.setEgo(null, '', []); return; }

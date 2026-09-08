@@ -5,6 +5,7 @@ import type { Dataset } from '../schema';
 import type { Store } from '../state';
 import { loadGraph, neighborsOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
 import { stateAt } from '../time';
+import { libraryObject, libraryPoint } from '../links';
 
 const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대', landmark: '지형지물' };
 const SRC_LABEL: Record<string, string> = { point: '포인트', gibbon: '기번', wikidata: 'Wikidata', dprr: 'DPRR', manual: '수기' };
@@ -47,7 +48,7 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
   const neighbors = graph ? neighborsOf(graph, sel, year) : [];
   const groups = GROUP_ORDER.map(g => [g, neighbors.filter(n => n.group === g)] as const).filter(([, l]) => l.length);
   const hidden = graph ? neighborsOf(graph, sel).length - neighbors.length : 0;
-  const libHref = `${d.manifest.library ?? 'https://roma-library.pages.dev'}/objects/${type}/${encodeURIComponent(name)}`;
+  const libHref = libraryObject(sel, name);
 
   return (
     <Card padding={4} elevation="low" className="shell-inspector ins">
@@ -93,7 +94,7 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
       {node && node.points.length > 0 && (
         <section className="ins-sec">
           <div className="ins-label">등장 포인트</div>
-          <div className="ins-chips">{node.points.map(p => <a key={p} href={`${d.manifest.library ?? ''}/read/point/${p}`} target="_blank" rel="noreferrer">P{pad(p)}</a>)}</div>
+          <div className="ins-chips">{node.points.map(p => <a key={p} href={libraryPoint(p, name)} target="_blank" rel="noreferrer">P{pad(p)}</a>)}</div>
         </section>
       )}
       </div>
