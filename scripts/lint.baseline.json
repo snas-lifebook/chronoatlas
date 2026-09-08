@@ -1,0 +1,13 @@
+[
+ "participated_in 목적어가 event 아님 place:로마 -participated_in-> place:아펜니노산맥",
+ "occurred_at 주어가 event 아님 place:나일강 -occurred_at-> person:클레오파트라7세",
+ "occurred_at 주어가 event 아님 period:팍스로마나 -occurred_at-> place:로마제국",
+ "occurred_at 주어가 event 아님 person:오다이나투스 -occurred_at-> place:시리아",
+ "participated_in 목적어가 event 아님 person:루피누스 -participated_in-> person:아르카디우스",
+ "participated_in 목적어가 event 아님 person:에우트로피우스 -participated_in-> person:아르카디우스",
+ "participated_in 목적어가 event 아님 person:에우독시아 -participated_in-> person:아르카디우스",
+ "participated_in 목적어가 event 아님 person:안테미우스 -participated_in-> person:아르카디우스",
+ "occurred_at 주어가 event 아님 person:테오도라 -occurred_at-> place:라벤나",
+ "occurred_at 주어가 event 아님 place:콘스탄티노플 -occurred_at-> place:발칸반도",
+ "occurred_at 주어가 event 아님 place:콘스탄티노플 -occurred_at-> place:소아시아"
+]

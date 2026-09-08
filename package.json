@@ -1,5 +1,5 @@
 {
-  "name": "visual-pipeline",
+  "name": "chronoatlas",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,10 +7,13 @@
     "dev": "vite",
     "build": "npm run validate && vite build",
     "preview": "vite preview",
-    "validate": "npm run gen && vitest run",
+    "validate": "npm run gen && npm run lint && vitest run",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "gen": "node public/datasets/rome-753-218/_gen_regions.mjs && node public/datasets/rome-753-218/_gen_territory.mjs && node public/datasets/rome-753-218/_gen_admin.mjs && node public/datasets/rome-753-218/_gen_battles.mjs && node public/datasets/rome-753-218/_gen_movements.mjs"
+    "gen": "node public/datasets/rome-753-218/_gen_regions.mjs && node public/datasets/rome-753-218/_gen_territory.mjs && node public/datasets/rome-753-218/_gen_admin.mjs && node public/datasets/rome-753-218/_gen_battles.mjs && node public/datasets/rome-753-218/_gen_movements.mjs",
+    "adapt": "node --experimental-strip-types scripts/adapt.ts",
+    "lint": "node --experimental-strip-types scripts/lint.ts",
+    "postbuild": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/assets/"
   },
   "devDependencies": {
     "@types/three": "^0.185.4",
@@ -21,6 +24,7 @@
   },
   "dependencies": {
     "maplibre-gl": "^6.3.0",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "zod": "^4.5.4"
   }
 }

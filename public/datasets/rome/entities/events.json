@@ -1,0 +1,496 @@
+{
+ "events": [
+  {
+   "year": -753,
+   "label": "로물루스의 로마 건국",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": -509,
+   "label": "왕정 폐지. 공화제 시작",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": -60,
+   "label": "카이사르•폼페이우스•크라수스의 제1차 삼두정치",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": -53,
+   "label": "크라수스, 파르티아 원정에서 전사",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": -44,
+   "label": "카이사르 암살",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": -27,
+   "label": "옥타비아누스가 '아우구스투스'의 칭호를 받고 원",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 9,
+   "label": "로마, 토이토부르크 전투에서 게르만인에게 패배",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 30,
+   "label": "예수 그리스도의 처형",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 41,
+   "label": "칼리굴라 암살",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 54,
+   "label": "네로 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 66,
+   "label": "제1차 유대 전쟁",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 79,
+   "label": "베수비오 화산 폭발, 폼페이 매몰",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 80,
+   "label": "로마의 콜로세움 완성",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 96,
+   "label": "네르바 즉위(5현제 시대개막)",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 98,
+   "label": "트라야누스 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 117,
+   "label": "하드리아누스 즉위. 로마 제국 최대의 판도 형성",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 138,
+   "label": "안토니누스 피우스 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 161,
+   "label": "마르쿠스 아우렐리우스 안토니누스 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 212,
+   "label": "카라칼라 황제, 제국 영토 내의 모든 자유민에게",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 216,
+   "label": "로마 시민권 부여",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 218,
+   "label": "카라칼라 황제 목욕탕 건설",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 235,
+   "label": "엘라가발루스 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 250,
+   "label": "군인 황제 시대 시작(3세기의 위기)",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 260,
+   "label": "데키우스 황제에 의한 기독교도 박해. 발레리아누스 황제, 페르시아 왕 샤푸르 1세에게 체포",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 284,
+   "label": "디오클레티아누스 즉위, 전제군주제 시작",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 293,
+   "label": "4분할 통치 실시",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 303,
+   "label": "디오클레티아누스 황제, 기독교도 탄압 개시",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 306,
+   "label": "콘스탄티누스 1세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 313,
+   "label": "밀라노 칙령에 의한 기독교 공인",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 330,
+   "label": "콘스탄티누스 황제 신수도 콘스탄티노플 천도",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 361,
+   "label": "율리아누스 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 375,
+   "label": "게르만 민족의 대이동",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 379,
+   "label": "테오도시우스 1세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 391,
+   "label": "테오도시우스 황제, 기독교 외의 종교 금지",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 395,
+   "label": "로마 제국 동서로 분열",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 410,
+   "label": "서고트 왕 알라리크의 로마 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 452,
+   "label": "훈족 왕 아틸라의 이탈리아 침공",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 455,
+   "label": "반달족의 로마 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 476,
+   "label": "서로마 제국 멸망",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 527,
+   "label": "유스티니아누스 1세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 529,
+   "label": "「로마법 대전」 편찬 개시",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 532,
+   "label": "콘스탄티노플에서 니카의 반란 발발",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 537,
+   "label": "유스티니아누스 1세, 성 소피아 성당 재건",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 540,
+   "label": "비잔틴 제국과 사산조 페르시아의 전쟁 재개",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 578,
+   "label": "아바르족・슬라브족에 의한 그리스 도시 파괴 시작",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 610,
+   "label": "헤라클리우스, 포카스 타도",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 618,
+   "label": "콘스탄티노플 시민에 대한 밀 배급(빵) 폐지",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 626,
+   "label": "페르시아 군과 아바르・슬라브 군의 콘스탄티노플 포위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 636,
+   "label": "야르무크 호반의 전투. 비잔틴 군이 아랍 군에게 패배",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 655,
+   "label": "비잔틴 해군이 아랍 해군에게 패배",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 674,
+   "label": "아랍 군, 콘스탄티노플 포위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 680,
+   "label": "불가리아 제국 수립",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 717,
+   "label": "레오 3세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 726,
+   "label": "아랍 군, 콘스탄티노플 포위. 레오 3세, 성상 숭배 금지 표명",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 751,
+   "label": "라벤나, 롬바르드족에게 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 797,
+   "label": "제2회 니케아 공의회, 성상 숭배 부활 이레네, 비잔틴 제국 최초의 여제 탄생",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 815,
+   "label": "제2차 성상 숭배 금지 운동 개시",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 860,
+   "label": "성상 숭배의 최종적 부활 키예프루시, 콘스탄티노플 공격",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 867,
+   "label": "바실리우스 1세 즉위. 마케도니아 왕조 시작",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 913,
+   "label": "불가리아인, 콘스탄티노플 포위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 947,
+   "label": "콘스탄티누스 7세의 궁정에서 마케도니아 왕조의",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 963,
+   "label": "르네상스 개화",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 976,
+   "label": "니케포루스 2세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 996,
+   "label": "바실리우스 2세 즉위, 비잔틴 제국의 최전성기. 반귀족적 신법 반포",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1018,
+   "label": "바실리우스 2세, 제1차 불가리아 제국 멸함",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1042,
+   "label": "콘스탄티노플에 법과대학과 철학대학 설립",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1054,
+   "label": "동서 교회의 분열",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1057,
+   "label": "이사키우스 1세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1071,
+   "label": "만지케르트 전투. 로마누스 4세가 셀주크 투르크",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1081,
+   "label": "군의 포로가 됨 알렉시우스 1세 즉위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1155,
+   "label": "비잔틴 군, 이탈리아 반도 동부 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1171,
+   "label": "비잔틴 제국과 베네치아 단교",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1204,
+   "label": "제4회 십자군의 콘스탄티노플 점령. 비잔틴 제국 일시 멸망",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1261,
+   "label": "니케아 제국의 콘스탄티노플 점령. 라틴 제국 멸망. 비잔틴 제국 재건, 팔라이올로구스 왕조 성립",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1331,
+   "label": "오스만투르크, 니케아 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1340,
+   "label": "안드로니코스 3세, 에피루스 병합",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1389,
+   "label": "코소보 전투. 동구 연합군이 오스만투르크에 패배",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1396,
+   "label": "오스만투르크 군, 콘스탄티노플 포위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1399,
+   "label": "마누엘 2세, 서구로 구원 요청 여행 떠남",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1422,
+   "label": "오스만투르크 군, 콘스탄티노플 포위",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1426,
+   "label": "맘루크 왕조, 키프로스 점령",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "year": 1453,
+   "label": "동로마 제국 멸망",
+   "source": "book",
+   "confidence": "high"
+  }
+ ]
+}

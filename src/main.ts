@@ -24,7 +24,9 @@ async function load(): Promise<Dataset> {
     j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'),
     j('layers/battles.geojson'), j('layers/movements.geojson'),
   ]);
-  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements };
+  // 육지(Natural Earth)는 선택 — 옛 데이터셋(rome-753-218·chuhan-206)에는 없다.
+  const land = manifest.layers?.includes('land') ? await j('layers/land.geojson') : null;
+  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements, land };
 }
 
 const formatYear = (y: number) => (y < 0 ? `기원전 ${-y}년` : `서기 ${y === 0 ? 1 : y}년`);
@@ -38,8 +40,12 @@ async function main() {
   const style: any = {
     version: 8,
     sources: {},
-    layers: [{ id: 'sea', type: 'background', paint: { 'background-color': '#cfe0e6' } }],
+    layers: [{ id: 'sea', type: 'background', paint: { 'background-color': '#D6E4EF' } }], // DESIGN v2 바다
   };
+  if (d.land) {
+    style.sources.land = { type: 'geojson', data: d.land };
+    style.layers.push({ id: 'land', type: 'fill', source: 'land', paint: { 'fill-color': '#EEF0EC' } }); // DESIGN v2 육지
+  }
   // pitch: 토큰(장기 말) 입체감. ponytail: 지도 기울기 노브 — 평면 원하면 0.
   const map = new maplibregl.Map({ container: 'map', style, center: d.manifest.center, zoom: d.manifest.zoom, minZoom: 3, maxZoom: 9, pitch: 30 });
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');

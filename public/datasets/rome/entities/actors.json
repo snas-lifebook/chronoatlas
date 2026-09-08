@@ -1,0 +1,67 @@
+{
+ "actors": [
+  {
+   "id": "로마",
+   "label": "로마",
+   "color": "#A4243B",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "카르타고",
+   "label": "카르타고",
+   "color": "#5B2A86",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "그리스계",
+   "label": "그리스계",
+   "color": "#1E6F7A",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "이탈리아세력",
+   "label": "이탈리아세력",
+   "color": "#C46A1B",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "누미디아",
+   "label": "누미디아",
+   "color": "#C79A2E",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "갈리아",
+   "label": "갈리아",
+   "color": "#3E7C4F",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "게르만",
+   "label": "게르만",
+   "color": "#2E5A34",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "반란세력",
+   "label": "반란세력",
+   "color": "#6E4B3A",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "기타중립",
+   "label": "기타중립",
+   "color": "#8A8F98",
+   "source": "book",
+   "confidence": "high"
+  }
+ ]
+}
