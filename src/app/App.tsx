@@ -3,7 +3,8 @@ import { useEffect, useRef, useSyncExternalStore, useState, useMemo } from 'reac
 import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
-import { createEngine, allLayers, type Engine } from '../map/engine';
+import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
+import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
@@ -91,6 +92,21 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     if (ll) engRef.current?.map.easeTo({ center: ll, duration: 600, padding: { right: 380 } });
   };
   const span = d.manifest.time.to - d.manifest.time.from;
+  // 범례(2.4, P7): 지금 연도·켜진 레이어에 있는 것만. 없으면 항목도 없다.
+  const legend = useMemo(() => {
+    const items: { swatch: React.CSSProperties; label: string }[] = [];
+    if (on.has('territory')) {
+      const present = new Set(d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6)).map(f => f.properties.actor));
+      for (const a of d.actors) if (present.has(a.id)) items.push({ swatch: { background: a.color, opacity: 0.7 }, label: a.label });
+    }
+    if (on.has('settlements')) items.push({ swatch: { background: '#b8860b', borderRadius: '50%', border: '1px solid #3a2f22' }, label: '도시' });
+    if (on.has('battles') && d.battles.features.some(f => (f.properties.valid_from ?? -1e6) <= s.year)) items.push({ swatch: { background: '#333', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 0 1px #999' }, label: '전투·사건' });
+    if (on.has('graph') && s.sel && graph) {
+      const groups = new Set(neighborsOf(graph, s.sel, s.year).map(n => n.group));
+      for (const g of ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make']) if (groups.has(g)) items.push({ swatch: { background: GROUP_COLOR[g], height: 2, alignSelf: 'center' }, label: GROUP_LABEL[g] });
+    }
+    return items;
+  }, [d, s.year, s.sel, s.layers, graph]);
 
   return (
     <div className="shell">
@@ -181,7 +197,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <input type="range" className="shell-slider" min={d.manifest.time.from} max={d.manifest.time.to} value={s.year} onChange={e => store.set({ year: Number(e.currentTarget.value) })} aria-label="연도" />
         <div className="shell-tl-meta">
           <Text size="sm" color="secondary">{fmtKo(s.year)} · {nearest(d, s.year)?.label ?? ''}</Text>
-          <div className="shell-legend">{d.actors.map(a => <span key={a.id}><i style={{ background: a.color }} />{a.label}</span>)}</div>
+          <div className="shell-legend">{legend.map(l => <span key={l.label}><i style={l.swatch} />{l.label}</span>)}</div>
         </div>
       </footer>
 
