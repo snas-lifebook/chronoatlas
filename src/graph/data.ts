@@ -2,7 +2,7 @@
 import { REL_GROUPS } from '../../schema/ontology';
 
 export interface GNode { id: string; type: string; name: string; aliases: string[]; points: number[]; born: number | null; died: number | null; year: number | null;
-  lonlat: [number, number] | null; faction: string | null; asset: string | null; tier: string | null; confidence: string | null; desc: string; src: string; ext: Record<string, string | null>;
+  lonlat: [number, number] | null; faction: string | null; asset: string | null; /* 웹 경로 assets/portraits·icons/*.webp */ tier: string | null; confidence: string | null; desc: string; src: string; ext: Record<string, string | null>;
   attrs: Record<string, unknown>; history: { year: number; patch: Record<string, unknown> }[] }
 export interface GLink { from: string; to: string; rel: string; point?: number; from_year?: number | null; to_year?: number | null; src: string; confidence?: string; note?: string }
 export interface Graph { nodes: Map<string, GNode>; edges: GLink[]; adjacency: Record<string, number[]> }

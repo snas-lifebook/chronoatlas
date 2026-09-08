@@ -30,6 +30,9 @@ if (existsSync(join(SRC, '_registry.csv'))) {
   for (const r of rows) { const v = r.split(','); registry.set(v[0], Object.fromEntries(cols.map((c, i) => [c, v[i] ?? '']))); }
 }
 
+// 레지스트리 asset(관계분석 components 상대경로) → 웹 경로. 원본 PNG는 public/assets/{portraits,icons}/*.webp로 축소 복사돼 있다(0.6).
+const webAsset = (a?: string) => !a ? null : a.includes('_초상_1x1/') ? `assets/portraits/${a.split('/').pop()!.replace(/\.png$/, '.webp')}` : `assets/icons/${a.split('/').pop()!.replace(/\.png$/, '.webp')}`;
+
 const parseYear = (s: unknown): number | null => {
   if (typeof s === 'number') return s;
   if (typeof s !== 'string') return null;
@@ -48,7 +51,7 @@ const nodes = entities.map(e => {
     died: e.type === 'person' ? parseYear(e.attrs.died ?? e.attrs.death) : null,
     year: e.type === 'event' ? parseYear(e.attrs.year ?? e.attrs.date ?? e.attrs.period) : null,
     lonlat: g ? [g.lon, g.lat] : (e.location ?? null),
-    faction: reg?.faction || null, asset: reg?.asset || null, tier: reg?.tier || null,
+    faction: reg?.faction || null, asset: webAsset(reg?.asset), tier: reg?.tier || null,
     confidence: e.confidence ?? g?.confidence ?? null,
     desc: e.desc ?? e.descs[0]?.desc ?? '',
   };

@@ -166,7 +166,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
       </Card>
 
-      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`}
+      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root}
         onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />}
 
       <div className="shell-env">

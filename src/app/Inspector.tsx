@@ -17,8 +17,20 @@ const GROUP_ORDER = ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'loc
 export const fmtYear = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate }:
-  { d: Dataset; store: Store; sel: string; year: number; base: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void }) {
+// 초상 블록(DESIGN §3): 룬델 1:1 초상 + 세력 링. 없으면 절차적(세력 링 + 타입 글리프/이니셜) — 관계분석 노드 조립 규칙과 같다.
+const TYPE_GLYPH: Record<string, string> = { person: '', place: '◉', event: '✕', group: '⚑', institution: '▣', faction: '⚑', office: '▤', work: '▥', period: '▬' };
+function Portrait({ node, root, color }: { node: GNode | undefined; root: string; color: string }) {
+  if (!node) return null;
+  const initial = node.name.replace(/\s+/g, '').slice(0, 1);
+  return (
+    <div className="ins-portrait" style={{ '--ring': color } as React.CSSProperties} aria-hidden>
+      {node.asset ? <img src={`${root}${node.asset}`} alt="" loading="lazy" /> : <span className="glyph">{TYPE_GLYPH[node.type] || initial}</span>}
+    </div>
+  );
+}
+
+export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate }:
+  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   useEffect(() => { if (!sel.startsWith('landmark:')) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
@@ -49,6 +61,7 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
   const groups = GROUP_ORDER.map(g => [g, neighbors.filter(n => n.group === g)] as const).filter(([, l]) => l.length);
   const hidden = graph ? neighborsOf(graph, sel).length - neighbors.length : 0;
   const libHref = libraryObject(sel, name);
+  const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-primary)';
 
   return (
     <Card padding={4} elevation="low" className="shell-inspector ins">
@@ -56,8 +69,13 @@ export function Inspector({ d, store, sel, year, base, onHoverNeighbor, onLocate
         <Text size="sm" color="secondary">{KIND[type] ?? type}{ancient ? ` · ${ancient}` : ''}</Text>
         <IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} />
       </div>
-      <Heading level={2}>{name}</Heading>
-      {yearLine && <div className="ins-year">{yearLine}</div>}
+      <div className="ins-identity">
+        <Portrait node={node} root={root} color={ringColor} />
+        <div>
+          <Heading level={2}>{name}</Heading>
+          {yearLine && <div className="ins-year">{yearLine}</div>}
+        </div>
+      </div>
       <div className="ins-body">
       <div className="ins-badges">
         {node?.faction && <Badge label={node.faction} variant={'blue' as any} />}

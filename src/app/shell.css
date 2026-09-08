@@ -96,3 +96,9 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-search { width: min(560px, calc(100% - 48px)); display: grid; gap: 10px; }
 .shell-search-list { max-height: 50vh; }
 .shell-search-list li.empty { grid-template-columns: 1fr; cursor: default; }
+
+/* 초상: 룬델 1:1 + 세력 링(3px). 없으면 절차적 글리프 */
+.ins-identity { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; }
+.ins-portrait { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--color-bg-secondary); box-shadow: 0 0 0 3px var(--ring), 0 0 0 4px var(--color-bg-primary); display: grid; place-items: center; }
+.ins-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ins-portrait .glyph { font-size: 22px; font-weight: 600; color: var(--color-text-secondary); }
