@@ -160,6 +160,12 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       </nav>
 
       <footer className="shell-timeline">
+        <div className="shell-eras" aria-hidden>
+          {(d.manifest.eras ?? []).map(e => {
+            const l = Math.max(0, (e.from - d.manifest.time.from) / span) * 100, r = Math.min(1, (e.to - d.manifest.time.from) / span) * 100;
+            return <span key={e.id} className={`era${e.sub ? ' sub' : ''}${s.year >= e.from && s.year < e.to ? ' is-now' : ''}`} style={{ left: `${l}%`, width: `${r - l}%` }} onClick={() => store.set({ year: e.from })}>{e.label}</span>;
+          })}
+        </div>
         <div className="shell-ticks">
           {d.events.map(e => <i key={e.year + e.label} style={{ left: `${((e.year - d.manifest.time.from) / span) * 100}%` }} title={`${fmtKo(e.year)} ${e.label}`} onClick={() => store.set({ year: e.year })} />)}
         </div>

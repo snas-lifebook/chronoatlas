@@ -100,12 +100,18 @@ writeFileSync(join(OUT, 'entities', 'people.json'), JSON.stringify(nodes.filter(
 
 const scenesPath = join(import.meta.dirname, '..', 'data', 'scenes', 'rome.json');
 const scenes = existsSync(scenesPath) ? JSON.parse(readFileSync(scenesPath, 'utf8')) : [];
+// 시대 띠: data/eras/rome.json(사람이 쓰는 큰 시대) + 정본 period 엔티티 중 years "96-180"처럼 범위가 있는 것
+const erasPath = join(import.meta.dirname, '..', 'data', 'eras', 'rome.json');
+const eras = [...(existsSync(erasPath) ? JSON.parse(readFileSync(erasPath, 'utf8')) : []),
+  ...entities.filter(e => e.type === 'period' && typeof e.attrs.years === 'string' && /^-?\d+-\d+$/.test(e.attrs.years as string)).map(e => {
+    const m = (e.attrs.years as string).match(/^(-?\d+)-(\d+)$/)!; return { id: e.id, label: e.name, from: Number(m[1]), to: Number(m[2]), sub: true }; })];
 const years = [...chron.map(e => e!.year), ...links.flatMap(l => [l.from_year, l.to_year]).filter((y): y is number => typeof y === 'number')];
 const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
   layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
+  eras, // 타임라인 시대 띠(1.5)
   scenes, // data/scenes/rome.json — 사람이 쓰는 장면 프리셋(state.ts Scene)
   library: 'https://roma-library.pages.dev', source: '정본 entities.jsonl/links.jsonl → scripts/adapt.ts', generated: new Date().toISOString().slice(0, 10),
   counts: { entities: entities.length, links: links.length, settlements: settlements.length, battles: battles.length },

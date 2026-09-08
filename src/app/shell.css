@@ -12,7 +12,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 
 .shell-explorer { position: absolute; top: 116px; left: 24px; width: 300px; max-height: calc(100% - 116px - 140px); display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
 .shell-inspector { position: absolute; top: 20px; right: 24px; width: 360px; display: grid; gap: 6px; }
-.shell-env { position: absolute; right: 24px; bottom: 112px; display: grid; gap: 8px; justify-items: end; }
+.shell-env { position: absolute; right: 24px; bottom: 120px; display: grid; gap: 8px; justify-items: end; }
 .shell-zoom { display: grid; gap: 4px; }
 .shell-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
 
@@ -28,7 +28,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-layers .row { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 0 4px; }
 .shell-layers .row.is-p1 { opacity: 0.5; }
 
-.shell-toolbar { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px;
+.shell-toolbar { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px;
   background: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: 14px; box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.08)); }
 .shell-tool { display: grid; justify-items: center; gap: 1px; min-width: 76px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--color-text-primary); cursor: pointer; font: inherit; }
 .shell-tool:hover { background: var(--color-bg-secondary); }
@@ -37,8 +37,12 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-tool .lbl { font-size: 12px; font-weight: 600; }
 .shell-tool .sub { font-size: 10px; opacity: 0.7; letter-spacing: 0.04em; }
 
-.shell-timeline { position: absolute; left: 0; right: 0; bottom: 0; height: 88px; padding: 10px 24px 8px; display: grid; grid-template-rows: 14px 20px 1fr; gap: 2px;
+.shell-timeline { position: absolute; left: 0; right: 0; bottom: 0; height: 96px; padding: 8px 24px 8px; display: grid; grid-template-rows: 16px 12px 20px 1fr; gap: 2px;
   background: color-mix(in srgb, var(--color-bg-primary) 82%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--color-border-primary); }
+.shell-eras { position: relative; }
+.shell-eras .era { position: absolute; top: 0; height: 14px; line-height: 14px; font-size: 10px; letter-spacing: 0.04em; color: var(--color-text-secondary); background: var(--color-bg-secondary); border-radius: 3px; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; box-sizing: border-box; cursor: pointer; }
+.shell-eras .era.is-now { color: var(--color-text-primary); background: var(--color-bg-tertiary, var(--color-bg-secondary)); box-shadow: inset 0 0 0 1px var(--color-border-primary); }
+.shell-eras .era.sub { top: 15px; height: 3px; padding: 0; border-radius: 2px; font-size: 0; background: var(--color-text-secondary); opacity: 0.5; }
 .shell-ticks { position: relative; }
 .shell-ticks i { position: absolute; top: 2px; width: 2px; height: 10px; background: var(--color-text-secondary); opacity: 0.55; cursor: pointer; }
 .shell-ticks i:hover { opacity: 1; width: 3px; }
@@ -48,7 +52,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-legend span { display: inline-flex; align-items: center; gap: 4px; }
 .shell-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
-.shell-footnote { position: absolute; left: 24px; bottom: 96px; pointer-events: none; }
+.shell-footnote { position: absolute; left: 24px; bottom: 104px; pointer-events: none; }
 
 @media (max-width: 1023px) {
   .shell-explorer { top: auto; bottom: 200px; left: 12px; right: 12px; width: auto; max-height: 40%; }

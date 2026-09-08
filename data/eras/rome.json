@@ -1,0 +1,7 @@
+[
+  { "id": "kingdom", "label": "왕정", "from": -753, "to": -509 },
+  { "id": "republic", "label": "공화정", "from": -509, "to": -27 },
+  { "id": "principate", "label": "원수정", "from": -27, "to": 284 },
+  { "id": "dominate", "label": "전제정", "from": 284, "to": 476 },
+  { "id": "byzantine", "label": "동로마", "from": 476, "to": 1453 }
+]
