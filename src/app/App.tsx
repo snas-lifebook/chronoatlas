@@ -7,6 +7,7 @@ import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine
 import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
+import { renderPng, download } from '../export/png';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import './shell.css';
 
@@ -187,6 +188,12 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Tool label={s.view === '2d' ? '입체 보기' : '평면 보기'} sub={s.view === '2d' ? '3d' : '2d'} onClick={() => store.set({ view: s.view === '2d' ? '3d' : '2d' })}>◈</Tool>
         <Tool label="지명" sub="labels" active={on.has('labels')} onClick={() => toggleLayer('labels')}>⌖</Tool>
         <Tool label="검색" sub="⌘K" onClick={() => setSearching(true)}>⌕</Tool>
+        <Tool label="PNG" sub="export" onClick={async () => {
+          const eng = engRef.current; if (!eng) return;
+          const blob = await renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: isDark(theme),
+            legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' });
+          download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
+        }}>⤓</Tool>
         <Tool label="전체 화면" sub="fullscreen" onClick={() => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()}>⛶</Tool>
       </nav>
 

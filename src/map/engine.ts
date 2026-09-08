@@ -32,7 +32,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const map = new maplibregl.Map({ container, style, center: cam.center ?? d.manifest.center, zoom: cam.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9,
     pitch: s0.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (cam.bearing ?? 0),
     maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖이 안 보이게 — P13
-    attributionControl: false });
+    attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } }); // 내보내기(3.1)가 캔버스를 읽는다
 
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('rgba(0,0,0,0)');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
