@@ -93,7 +93,7 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
       { minzoom: 5, filter: ['<=', ['get', 'lod'], ['step', ['zoom'], 1, 6, 2, 8, 3]] as any }));
   }
   // 정착지 라벨: 데이터셋 settlements(어댑터 산출) — rank LOD z3/5/7. 마커는 main이 같은 소스로 그린다.
-  sources.settlements = { type: 'geojson', data: `${base}/layers/settlements.geojson` };
+  sources.settlements = { type: 'geojson', data: `${base}/layers/settlements.geojson`, promoteId: 'id' }; // 엔진의 hover·selected·linked feature-state가 이 id를 쓴다
   for (const [rank, minzoom, size, font] of [[1, 3, 13, FONT.bold], [2, 5, 12, FONT.regular], [3, 7, 11, FONT.regular]] as const) {
     layers.push(sym(`label-settle-${rank}`, 'settlements',
       { 'text-field': ['get', 'name_ko'], 'text-font': [...font], 'text-size': size, 'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
