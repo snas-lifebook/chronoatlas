@@ -43,7 +43,7 @@ const nodes = entities.map(e => {
   const g = geo.get(e.name.normalize('NFC'));
   const reg = registry.get(e.id);
   return {
-    id: e.id, type: e.type, name: e.name, aliases: e.aliases, points: e.points, src: e.src, ext: e.ext,
+    id: e.id, type: e.type, name: e.name, aliases: e.aliases, points: e.points, src: e.src, ext: e.ext, attrs: e.attrs, history: e.history ?? [],
     born: e.type === 'person' ? parseYear(e.attrs.born ?? e.attrs.birth) : null,
     died: e.type === 'person' ? parseYear(e.attrs.died ?? e.attrs.death) : null,
     year: e.type === 'event' ? parseYear(e.attrs.year ?? e.attrs.date ?? e.attrs.period) : null,

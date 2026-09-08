@@ -156,6 +156,11 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   return {
     map,
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: 1400, essential: true }); },
+    // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
+    pulse(id: string | null) {
+      const source = id?.startsWith('event:') ? 'battles' : id?.startsWith('place:') ? 'settlements' : null;
+      setHover(id && source && map.getSource(source) ? { source, id } : null);
+    },
     home() { if (bb) map.fitBounds([[bb[0] + 12, bb[1] + 8], [bb[2] - 20, bb[3] - 10]], { padding: 40, duration: 900 }); },
     zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: 300 }); },
     // 테마 전환: 베이스맵 스타일 재빌드 → 데이터 레이어 다시 얹기(setStyle이 소스·레이어를 지운다)

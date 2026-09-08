@@ -1,9 +1,10 @@
 // 앱 셸 (DESIGN v3 §2, TASKS 1.8): 풀블리드 지도 위에 떠 있는 astryx 카드 5 + 타임라인 띠 + 각주 줄. 상태는 store 하나.
 import { useEffect, useRef, useSyncExternalStore, useState, useMemo } from 'react';
-import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Heading, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
+import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene } from '../state';
 import { createEngine, allLayers, type Engine } from '../map/engine';
+import { Inspector } from './Inspector';
 import './shell.css';
 
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
@@ -70,9 +71,6 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
     ...d.settlements.features.filter(f => f.properties.rank <= 2).map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: f.properties.name_ancient as string | null, kind: '도시' })),
     ...d.battles.features.map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: fmt(f.properties.year), kind: '전투' })),
   ], [d]);
-  const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대', landmark: '지형지물' };
-  const selected = objects.find(o => o.id === s.sel) ?? (s.sel ? { id: s.sel, name: s.sel.slice(s.sel.indexOf(':') + 1), sub: null, kind: KIND[s.sel.split(':')[0]] ?? s.sel.split(':')[0] } : null);
-  const selFeature = s.sel ? [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === s.sel) : null;
   const locate = (id: string) => { const f = [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === id); store.set({ sel: id }); if (f) engRef.current?.map.easeTo({ center: f.geometry.coordinates, duration: 600, padding: { right: 380 } }); };
   const span = d.manifest.time.to - d.manifest.time.from;
 
@@ -126,20 +124,8 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
       </Card>
 
-      {selected && (
-        <Card padding={4} elevation="low" className="shell-inspector">
-          <Text size="sm" color="secondary">{selected.kind}{selFeature?.properties.name_ancient ? ` · ${selFeature.properties.name_ancient}` : ''}</Text>
-          <Heading level={2}>{selected.name}</Heading>
-          {selFeature?.properties.year != null && <Text size="sm">{fmtKo(selFeature.properties.year)}</Text>}
-          {selFeature?.properties.name_modern && <Text size="sm" color="secondary">오늘의 {selFeature.properties.name_modern}</Text>}
-          {selFeature && <Text size="sm" color="secondary">{selFeature.geometry.coordinates[1].toFixed(3)}° N · {selFeature.geometry.coordinates[0].toFixed(3)}° E</Text>}
-          <div className="shell-actions">
-            {selected.kind !== '지형지물' && <Button label="자료실에서 읽기" size="sm" variant="secondary" onClick={() => open(`${d.manifest.library}/objects/${selected.id.split(':')[0]}/${encodeURIComponent(selected.name)}`)} />}
-            {selected.kind === '지형지물' && <Text size="sm" color="secondary">Natural Earth 지형지물 — 정본 place 제안 대상</Text>}
-            <IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={() => store.set({ sel: null })} />
-          </div>
-        </Card>
-      )}
+      {s.sel && <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`}
+        onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} />}
 
       <div className="shell-env">
         <SegmentedControl label="테마" value={theme} onChange={v => setTheme(v as Theme)} size="sm">

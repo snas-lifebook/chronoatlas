@@ -45,7 +45,7 @@ export type Entity = z.infer<typeof Entity>;
 export const Link = z.object({
   from: z.string(),
   to: z.string(),
-  rel: z.string().refine(r => RELS.includes(r), r => ({ message: `rel '${r}'는 정의되지 않음` })),
+  rel: z.string().refine((r: string) => RELS.includes(r), { message: 'rel이 정의되지 않음(REL_GROUPS 참조)' }),
   point: z.number().int().optional(),
   from_year: Year.nullable().optional(),
   to_year: Year.nullable().optional(),
