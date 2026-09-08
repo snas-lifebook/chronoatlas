@@ -33,6 +33,7 @@
     "@modelcontextprotocol/sdk": "^1.30.0",
     "es-hangul": "^2.4.0",
     "maplibre-gl": "^6.3.0",
+    "mediabunny": "^1.55.7",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "three": "^0.185.1",

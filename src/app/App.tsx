@@ -8,6 +8,7 @@ import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
 import { renderPng, download } from '../export/png';
+import { renderMp4 } from '../export/mp4';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import './shell.css';
 
@@ -35,6 +36,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
   const [searching, setSearching] = useState(false);
+  const [exporting, setExporting] = useState<number | null>(null);
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
   useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
@@ -194,6 +196,17 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
             legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' });
           download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
         }}>⤓</Tool>
+        <Tool label={exporting != null ? `${Math.round(exporting * 100)}%` : 'MP4'} sub="scene" onClick={async () => {
+          const eng = engRef.current; if (!eng || exporting != null) return;
+          // 현재 장면 구간(없으면 현재 연도 ±20) 을 1년/프레임 12fps로. 끝나면 원래 연도로.
+          const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? Math.min(d.manifest.time.to, sc.year + 20) : Math.min(d.manifest.time.to, s.year + 20);
+          const y0 = s.year; setExporting(0);
+          try {
+            const blob = await renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
+              overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: isDark(theme), legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · 정본 온톨로지' }) });
+            download(blob, `chronoatlas_${fmt(from).replace(' ', '')}-${fmt(to).replace(' ', '')}.mp4`);
+          } catch (e: any) { console.error(e); } finally { store.set({ year: y0 }); setExporting(null); }
+        }}>▣</Tool>
         <Tool label="전체 화면" sub="fullscreen" onClick={() => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()}>⛶</Tool>
       </nav>
 
