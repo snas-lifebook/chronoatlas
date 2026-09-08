@@ -13,7 +13,9 @@
     "gen": "node public/datasets/rome-753-218/_gen_regions.mjs && node public/datasets/rome-753-218/_gen_territory.mjs && node public/datasets/rome-753-218/_gen_admin.mjs && node public/datasets/rome-753-218/_gen_battles.mjs && node public/datasets/rome-753-218/_gen_movements.mjs",
     "adapt": "node --experimental-strip-types scripts/adapt.ts",
     "lint": "node --experimental-strip-types scripts/lint.ts",
-    "postbuild": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/assets/"
+    "postbuild": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/assets/",
+    "mcp": "node --experimental-strip-types mcp/server.ts",
+    "fetch-external": "node --experimental-strip-types scripts/fetch-external.ts"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",
@@ -28,6 +30,7 @@
   "dependencies": {
     "@astryxdesign/core": "^0.4.0",
     "@astryxdesign/theme-neutral": "^0.4.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "es-hangul": "^2.4.0",
     "maplibre-gl": "^6.3.0",
     "react": "^19.2.8",
