@@ -8,7 +8,7 @@ export interface State {
   ds: string;
   scene: string | null;      // 장면 프리셋 id
 }
-export interface Scene { id: string; title: string; year: number; sel?: string | null; center?: [number, number]; zoom?: number; pitch?: number; bearing?: number }
+export interface Scene { id: string; title: string; year: number; to?: number /* 재생·MP4 구간 끝 */; sel?: string | null; center?: [number, number]; zoom?: number; pitch?: number; bearing?: number }
 
 export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null };
 

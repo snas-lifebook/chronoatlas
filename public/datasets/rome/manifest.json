@@ -91,7 +91,8 @@
    "zoom": 4.6,
    "pitch": 50,
    "bearing": -12,
-   "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일"
+   "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일",
+   "to": -44
   },
   {
    "id": "rubicon",
@@ -104,7 +105,8 @@
    ],
    "zoom": 6,
    "pitch": 55,
-   "bearing": -20
+   "bearing": -20,
+   "to": -45
   },
   {
    "id": "ides",
@@ -117,7 +119,8 @@
    ],
    "zoom": 7,
    "pitch": 55,
-   "bearing": 0
+   "bearing": 0,
+   "to": -42
   }
  ],
  "library": "https://roma-library.pages.dev",

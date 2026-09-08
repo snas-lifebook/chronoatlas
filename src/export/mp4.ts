@@ -16,6 +16,7 @@ export async function renderMp4(o: Mp4Opt): Promise<Blob> {
   out.addVideoTrack(src, { frameRate: fps });
   await out.start();
   const total = Math.floor((o.to - o.from) / step) + 1;
+  const hold = Math.max(1, Math.round((10 * fps) / total)); // 구간이 짧아도 ~10초: 한 해를 hold 프레임만큼 붙든다
   for (let i = 0; i < total; i++) {
     const y = o.from + i * step;
     await o.setYear(y);
@@ -23,7 +24,7 @@ export async function renderMp4(o: Mp4Opt): Promise<Blob> {
     const png = await renderPng(o.mapCanvas, { ...o.overlay(y), scale });
     const bmp = await createImageBitmap(png);
     g.drawImage(bmp, 0, 0, w, h); bmp.close();
-    await src.add(i / fps, 1 / fps);
+    await src.add((i * hold) / fps, hold / fps);
     o.onProgress?.((i + 1) / total);
   }
   await out.finalize();

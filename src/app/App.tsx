@@ -20,7 +20,7 @@ const CATALOG: { id: string; label: string; p1?: boolean }[] = [
   { id: 'territory', label: '영토' }, { id: 'admin_regions', label: '속주' }, { id: 'settlements', label: '도시' },
   { id: 'battles', label: '전투' }, { id: 'movements', label: '이동 경로' },
   { id: 'relief', label: '지형 음영' }, { id: 'bathy', label: '수심' }, { id: 'rivers', label: '강·호수' }, { id: 'labels', label: '지명' },
-  { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물' },
+  { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물' }, { id: 'graph', label: '관계 그래프' },
 ];
 
 type Theme = 'system' | 'light' | 'dark';
@@ -79,7 +79,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       else if (e.key === ' ') { e.preventDefault(); setPlaying(p => !p); }
       else if (e.key === 'Escape') store.set({ sel: null });
       else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching(true); }
-      else if (e.key === '3') store.set({ view: st.view === '2d' ? '3d' : '2d' });
+      else if (e.key === 'v' || e.key === 'V') store.set({ view: st.view === '2d' ? '3d' : '2d' }); // '3'은 레이어 3(도시)와 충돌해 V로
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
     };
     addEventListener('keydown', onKey); return () => removeEventListener('keydown', onKey);
@@ -204,7 +204,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         <Tool label={exporting != null ? `${Math.round(exporting * 100)}%` : 'MP4'} sub="scene" onClick={async () => {
           const eng = engRef.current; if (!eng || exporting != null) return;
           // 현재 장면 구간(없으면 현재 연도 ±20) 을 1년/프레임 12fps로. 끝나면 원래 연도로.
-          const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? Math.min(d.manifest.time.to, sc.year + 20) : Math.min(d.manifest.time.to, s.year + 20);
+          const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? (sc.to ?? Math.min(d.manifest.time.to, sc.year + 20)) : Math.min(d.manifest.time.to, s.year + 20);
           const y0 = s.year; setExporting(0);
           try {
             const blob = await renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
@@ -233,7 +233,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       </footer>
 
       <div className="shell-footnote">
-        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="3" /> 평면/입체</Text>
+        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>
       </div>
     </div>
   );
