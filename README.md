@@ -17,7 +17,7 @@ npm run dev                                                     # http://localho
 ## 무엇이 있나
 
 - **베이스맵**: Natural Earth 10m(육지·해안·강·호수·빙하·수심 7단·바다/지역명) + 음영기복 + 자체 글리프 + Pleiades 지형지물 3,552점(산·강·곶·고개·호수·섬…, CC BY). 런타임 외부 호출 0.
-- **데이터 레이어**: 정착지(rank LOD)·사건(30년 창)·영토·속주·이동경로 + 지형지물(NE 폴리곤이 클릭 객체).
+- **데이터 레이어**: 정착지(rank LOD)·사건(30년 창)·**영토(Cliopatria 정치체 3,276개, 100년 버킷 지연 로드, 팔레트 세력색)**·속주·이동경로(정본 `_routes/`, 연도 따라 그려짐) + 지형지물(NE 폴리곤·Pleiades 점이 클릭 객체).
 - **관계 그래프**: 인스펙터 아래 패널(옵시디언 로컬 그래프식 force 캔버스, 1·2홉, 드래그·hover·클릭). 지도엔 좌표 있는 이웃이 12개 이하일 때만 선.
 - **인스펙터**: 초상(세력 링)·그 해의 상태(history fold)·의미군별 관계·등장 포인트·자료실 링크.
 - **내보내기**: PNG 2× · 카드 1080×1350 · MP4(장면 구간, WebCodecs). 스킨 5종(중립·야간·고지도·신문톤·작전)은 내보낼 때만 갈아끼운다. 전부 브라우저에서.
@@ -28,7 +28,7 @@ npm run dev                                                     # http://localho
 
 ```
 npm run adapt            # 정본 온톨로지 → datasets/rome (ONTOLOGY_DIR 필요)
-npm run fetch-external   # Natural Earth·음영·글리프 다시 굽기 (캐시 data/external/, 커밋 안 함)
+npm run fetch-external   # Natural Earth·음영·Pleiades·Cliopatria·글리프 다시 굽기 (캐시 data/external/, 커밋 안 함)
 npm run lint             # 온톨로지 불변식 (baseline 래칫 — 새 오류만 실패)
 npm run build            # gen + lint + vitest + vite build (+ MapLibre 워커 복사)
 npm run mcp              # MCP stdio 서버
@@ -40,4 +40,4 @@ npm run mcp              # MCP stdio 서버
 
 ## 출처
 
-Natural Earth(Public Domain) · Pleiades(CC BY 3.0, Bagnall·Talbert 외, isawnyu/pleiades-datasets) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · 초상·아이콘은 편데 관계분석 컴포넌트 · 온톨로지는 편데 정본. 자세한 대장은 `data/external/LICENSES.md`.
+Natural Earth(Public Domain) · Pleiades(CC BY 3.0, Bagnall·Talbert 외, isawnyu/pleiades-datasets) · Cliopatria(CC BY 4.0, Seshat Global History Databank — 정치체 경계는 한 견해) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · 초상·아이콘은 편데 관계분석 컴포넌트 · 온톨로지는 편데 정본. 자세한 대장은 `data/external/LICENSES.md`.
