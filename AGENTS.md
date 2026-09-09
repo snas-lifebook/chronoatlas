@@ -29,12 +29,26 @@
 
 ## 기하 3D 지형(DEM)
 
-지금 "입체 보기"는 카메라 pitch만이다 — 굴곡은 없다. 켜려면 DEM 타일이 필요하다(런타임 외부 호출 0 원칙 → 미리 받아 둔다).
+"입체 보기"는 기본이 카메라 pitch만이다 — 굴곡은 DEM 타일이 있어야 생긴다. 타일은 용량·라이선스 때문에 레포에 없다(`.gitignore`).
 
 ```
-TERRAIN=1 npm run fetch-external   # AWS terrarium 타일 bbox·z0~7 (~730장, ~20MB). 샌드박스에선 egress 차단 — 로컬 터미널에서
-npm run adapt                      # manifest.terrain 갱신 → 엔진이 raster-dem + hillshade + setTerrain 자동 적용
+TERRAIN=1 npm run fetch-external
 ```
 
-`public/datasets/<ds>/terrain/meta.json`의 `encoding`(terrarium|mapbox)·`maxzoom`·`exaggeration`을 바꾸면 그대로 반영된다.
-검증됨(2026-09-09): MapLibre 데모 타일(JAXA AW3D30, mapbox 인코딩)로 알프스가 실제로 솟는 것 확인. `.gitignore`에 걸려 있으니 커밋은 라이선스 확인 후.
+지형만 받고 즉시 끝난다(NE 재다운로드·PIL·mapshaper 안 씀). AWS Terrain Tiles(terrarium) bbox·z0~7, 약 730장 20MB.
+브라우저 새로고침하면 켜진다 — `terrain/meta.json`을 엔진이 런타임에 보고 `raster-dem` + `hillshade` + `setTerrain`을 붙인다. **adapt 불필요**
+(manifest에 박지 않는 이유: manifest는 커밋되는데 타일은 아니라서 없는 타일을 요청하게 된다).
+
+- 더 촘촘히: `TERRAIN_MAX=8` (약 2,900장 55MB). z8 이상은 MapLibre가 오버줌해서 부드럽게 쓴다.
+- 과장·인코딩은 `public/datasets/<ds>/terrain/meta.json`의 `exaggeration`·`encoding`(terrarium|mapbox).
+- 끄기: `rm -rf public/datasets/rome/terrain`
+- 검증됨(2026-09-09): MapLibre 데모 타일(JAXA AW3D30, mapbox 인코딩)로 알프스 융기·인스브루크 고도 939m 확인.
+- 라이선스가 출처별로 섞여 있다(SRTM·GMTED PD, 일부 ODbL) — 커밋할 거면 확인 후.
+
+## 정본 온톨로지 경로
+
+`npm run adapt`은 `ONTOLOGY_DIR` 환경변수를 쓴다. 매번 치기 싫으면 `data/ontology-dir.txt`(gitignore)에 경로 한 줄:
+
+```
+echo "/Users/river/Library/Mobile Documents/iCloud~md~obsidian/Documents/River's Second Brain/Efforts/Notes/산업스터디/Projects/인생책_읽기_편데/Books/로마제국쇠망사/ontology" > data/ontology-dir.txt
+```

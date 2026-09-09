@@ -12,7 +12,6 @@ export interface Manifest {
   layers: string[]; skins: string[];
   scenes?: import('./state').Scene[]; // 장면 프리셋(data/scenes/*.json → adapt)
   basemap?: string[]; relief?: boolean; bbox?: [number, number, number, number]; // fetch-external 산출(style.ts)
-  terrain?: { encoding?: 'terrarium' | 'mapbox'; minzoom?: number; maxzoom?: number; exaggeration?: number; credit?: string }; // 기하 3D DEM 타일(있으면 켠다)
   territory?: { bucket: number; from: number; to: number }; // 영토 버킷 지연 로드(F16 Cliopatria) — 없으면 territory.geojson 한 파일
   library?: string; counts?: Record<string, number>;
   eras?: { id: string; label: string; from: number; to: number; sub?: boolean }[];

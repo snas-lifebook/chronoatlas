@@ -32,3 +32,4 @@ data/external/__MACOSX/
 
 # 기하 3D DEM 타일은 크고 라이선스가 출처별로 다르다 — 받는 사람이 판단해서 커밋(기본은 무시)
 public/datasets/*/terrain/
+data/ontology-dir.txt

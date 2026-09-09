@@ -4,8 +4,9 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 
 import { join } from 'node:path';
 import { Entity, Link, idType } from '../schema/ontology.ts';
 
-const SRC = process.env.ONTOLOGY_DIR;
-if (!SRC) throw new Error('ONTOLOGY_DIR 필요 (정본 ontology/ 폴더)');
+const DIRFILE = join(import.meta.dirname, '..', 'data', 'ontology-dir.txt'); // 한 번 적어두면 매번 환경변수를 안 써도 된다(gitignore)
+const SRC = process.env.ONTOLOGY_DIR ?? (existsSync(DIRFILE) ? readFileSync(DIRFILE, 'utf8').trim() : undefined);
+if (!SRC) throw new Error('ONTOLOGY_DIR 필요 — 환경변수로 주거나 data/ontology-dir.txt 에 정본 ontology/ 폴더 경로 한 줄');
 const OUT = join(import.meta.dirname, '..', 'public', 'datasets', 'rome');
 mkdirSync(join(OUT, 'layers'), { recursive: true });
 mkdirSync(join(OUT, 'entities'), { recursive: true });
@@ -159,8 +160,6 @@ const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
-  // DEM 타일을 public/datasets/<ds>/terrain/ 에 넣으면 기하 3D가 켜진다(terrain/tiles.json에 encoding·maxzoom·credit)
-  terrain: existsSync(join(OUT, 'terrain')) ? { encoding: 'terrarium', maxzoom: 12, exaggeration: 1.4, ...(existsSync(join(OUT, 'terrain', 'meta.json')) ? JSON.parse(readFileSync(join(OUT, 'terrain', 'meta.json'), 'utf8')) : {}) } : undefined,
   territory: existsSync(join(OUT, 'layers', 'territory')) ? { bucket: 100, from: -800, to: 1500 } : undefined, // fetch-external TERRITORY_BUCKET
   layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
   eras, // 타임라인 시대 띠(1.5)

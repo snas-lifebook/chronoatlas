@@ -29,6 +29,37 @@ const BATHY = [['L', 0], ['K', 200], ['J', 1000], ['I', 2000], ['H', 3000], ['G'
 
 mkdirSync(CACHE, { recursive: true }); mkdirSync(join(OUT, 'layers'), { recursive: true }); mkdirSync(join(OUT, 'rasters'), { recursive: true });
 
+// 기하 3D 지형(선택): TERRAIN=1 로 켠다. AWS Terrain Tiles(terrarium, ODbL/PD 혼합 — SRTM·GMTED·ETOPO 등)를 bbox·z0~7만 받아
+// public/datasets/rome/terrain/{z}/{x}/{y}.png 로 둔다(런타임 외부 호출 0). 샌드박스에선 egress가 막혀 있어 실패한다 — 로컬 터미널에서 돌릴 것.
+// 예: TERRAIN=1 npm run fetch-external     (~730타일 · 약 20MB · z8+는 MapLibre가 오버줌). 지형만 받고 즉시 끝난다.
+if (process.env.TERRAIN) {
+  const TERRAIN_MAX = Number(process.env.TERRAIN_MAX ?? 7);
+  const TDIR = join(OUT, 'terrain');
+  const lat2y = (lat: number, n: number) => Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
+  let got = 0, miss = 0;
+  for (let z = 0; z <= TERRAIN_MAX; z++) {
+    const n = 2 ** z;
+    const x0 = Math.floor((BBOX[0] + 180) / 360 * n), x1 = Math.floor((BBOX[2] + 180) / 360 * n);
+    const y0 = lat2y(BBOX[3], n), y1 = lat2y(BBOX[1], n);
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+      const f = join(TDIR, String(z), String(x), `${y}.png`);
+      if (existsSync(f)) { got++; continue; }
+      mkdirSync(join(TDIR, String(z), String(x)), { recursive: true });
+      try {
+        const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`);
+        if (!r.ok) { miss++; continue; }
+        writeFileSync(f, Buffer.from(await r.arrayBuffer())); got++;
+      } catch { miss++; }
+    }
+    console.log('terrain z', z, 'ok', got, 'miss', miss);
+  }
+  if (!got) { console.error('terrain: 한 장도 못 받았다 — 네트워크(egress)가 막혔거나 bbox가 비었다. meta.json은 쓰지 않는다(빈 지형이 켜지면 더 나쁘다).'); process.exit(1); }
+  writeFileSync(join(TDIR, 'meta.json'), JSON.stringify({ encoding: 'terrarium', maxzoom: TERRAIN_MAX, exaggeration: 1.4, credit: 'AWS Terrain Tiles (Mapzen/Tilezen) — SRTM·GMTED2010·ETOPO1 외' }));
+  console.log('terrain tiles', got, 'missing', miss, '→ 브라우저 새로고침하면 3D가 켜진다(런타임 감지, adapt 불필요)');
+  process.exit(0); // 지형만 받고 끝 — NE 재다운로드·PIL·mapshaper 불필요
+}
+
+
 async function fetchTo(url: string, file: string) {
   if (existsSync(file) && !process.env.FORCE) return;
   const r = await fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`);
@@ -344,34 +375,6 @@ for b in range(-800, 1500, B):
     open(f'{out}/{b}.geojson', 'w').write(s); total += len(s)
 print('layer territory buckets', len(range(-800, 1500, B)), 'features', len(keep), 'total KB', total // 1024)
 `], { stdio: 'inherit' });
-
-// 기하 3D 지형(선택): TERRAIN=1 로 켠다. AWS Terrain Tiles(terrarium, ODbL/PD 혼합 — SRTM·GMTED·ETOPO 등)를 bbox·z0~7만 받아
-// public/datasets/rome/terrain/{z}/{x}/{y}.png 로 둔다(런타임 외부 호출 0). 샌드박스에선 egress가 막혀 있어 실패한다 — 로컬 터미널에서 돌릴 것.
-// 예: TERRAIN=1 npm run fetch-external     (~730타일 · 약 20MB · z8+는 MapLibre가 오버줌)
-if (process.env.TERRAIN) {
-  const TERRAIN_MAX = Number(process.env.TERRAIN_MAX ?? 7);
-  const TDIR = join(OUT, 'terrain');
-  const lat2y = (lat: number, n: number) => Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
-  let got = 0, miss = 0;
-  for (let z = 0; z <= TERRAIN_MAX; z++) {
-    const n = 2 ** z;
-    const x0 = Math.floor((BBOX[0] + 180) / 360 * n), x1 = Math.floor((BBOX[2] + 180) / 360 * n);
-    const y0 = lat2y(BBOX[3], n), y1 = lat2y(BBOX[1], n);
-    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
-      const f = join(TDIR, String(z), String(x), `${y}.png`);
-      if (existsSync(f)) { got++; continue; }
-      mkdirSync(join(TDIR, String(z), String(x)), { recursive: true });
-      try {
-        const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`);
-        if (!r.ok) { miss++; continue; }
-        writeFileSync(f, Buffer.from(await r.arrayBuffer())); got++;
-      } catch { miss++; }
-    }
-    console.log('terrain z', z, 'ok', got, 'miss', miss);
-  }
-  writeFileSync(join(TDIR, 'meta.json'), JSON.stringify({ encoding: 'terrarium', maxzoom: TERRAIN_MAX, exaggeration: 1.4, credit: 'AWS Terrain Tiles (Mapzen/Tilezen) — SRTM·GMTED2010·ETOPO1 외' }));
-  console.log('terrain tiles', got, 'missing', miss, '→ npm run adapt 로 manifest.terrain 갱신');
-}
 
 // 글리프 PBF: 라벨에 실제 쓰인 문자 범위만 내려받아 public/glyphs/에 둔다(런타임 외부 호출 0).
 // ponytail: Pretendard 글리프 자체 빌드(fontnik)는 컨테이너에서 네이티브 빌드 불가 → KlokanTech Noto Sans CJK(OFL)로 시작. DESIGN §1 "Pretendard 글리프"는 River 맥에서 font-maker로 교체.
