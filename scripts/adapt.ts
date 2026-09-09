@@ -107,10 +107,12 @@ if (existsSync(routesDir)) for (const file of readdirSync(routesDir).filter(f =>
   const owner = nodes.find(n => n.type === 'person' && title.startsWith(n.name)) ?? nodes.find(n => title.includes(n.name));
   const actor = owner?.faction ?? '기타중립';
   const stops = feats.filter(f => f.geometry.type === 'Point' && typeof f.properties?.year === 'number').sort((a, b) => a.properties.year - b.properties.year);
+  // 원정이 끝나고 한 세대(10년) 뒤엔 지도에서 걷는다 — 안 그러면 AD 476 지도에 카이사르 행군로가 남는다.
+  const routeEnd = (stops.at(-1)?.properties.year ?? 0) + 10;
   for (let i = 1; i < stops.length; i++) {
     const a = stops[i - 1], b = stops[i];
     movements.push({ type: 'Feature', properties: { id: `${route}@${i - 1}`, layer: 'movements', route, name_ko: title, actor, label: b.properties.name, from_year: a.properties.year, to_year: b.properties.year,
-      valid_from: b.properties.year, valid_to: 1000000, source: 'book', confidence: b.properties.confidence ?? 'medium', owner: owner?.id ?? null },
+      valid_from: b.properties.year, valid_to: routeEnd, source: 'book', confidence: b.properties.confidence ?? 'medium', owner: owner?.id ?? null },
       geometry: { type: 'LineString', coordinates: [a.geometry.coordinates, b.geometry.coordinates] } });
   }
   const bc = (t: string) => { const m = /기원전\s*(\d+)/.exec(t ?? ''); return m ? -Number(m[1]) : null; };

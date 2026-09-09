@@ -130,10 +130,162 @@ export const ACTOR_OF: [RegExp, string][] = [
   [/Palmyrene|Britannic Empire|Sertorius|Spartacus/, '반란세력'],
   [/Etrusc|Samnite|Latin League|Sabine|Volsci|Umbri|Lucani|Bruttii/, '이탈리아세력'],
 ];
+// 정치체 한글 이름(라벨용). 없으면 원문(라틴·영문) 그대로 — 지어내지 않는다. 상위 130개 + 쇠망사 관련.
+export const TERRITORY_KO: Record<string, string> = {
+ "Roman Kingdom": "로마 왕정",
+ "Roman Republic": "로마 공화정",
+ "Roman Empire": "로마 제국",
+ "Western Roman Empire": "서로마 제국",
+ "Eastern Roman Empire": "동로마 제국",
+ "Byzantine Empire": "비잔티움 제국",
+ "Gallic Empire": "갈리아 제국",
+ "Palmyrene Empire": "팔미라 제국",
+ "Carthage": "카르타고",
+ "Kingdom of Numidia": "누미디아 왕국",
+ "Mauretania": "마우레타니아",
+ "Macedonian Empire": "마케도니아 제국",
+ "Antigonid Macedonia": "안티고노스 마케도니아",
+ "Seleucid Empire": "셀레우코스 제국",
+ "Ptolemaic Kingdom": "프톨레마이오스 왕국",
+ "Kingdom of Pontus": "폰토스 왕국",
+ "Kingdom of Cappadocia": "카파도키아 왕국",
+ "Kingdom of Armenia": "아르메니아 왕국",
+ "Galatia": "갈라티아",
+ "Thracian Kingdom": "트라키아 왕국",
+ "Judea": "유대",
+ "Nabataeans": "나바테아",
+ "Kingdom of Lysimachus": "리시마코스 왕국",
+ "Greco-Bactrian Kingdom": "그레코박트리아 왕국",
+ "Indo-Greeks": "인도그리스",
+ "Bosporan Kingdom": "보스포로스 왕국",
+ "Achaemenid Empire": "아케메네스 페르시아",
+ "Median Kingdom": "메디아 왕국",
+ "Parthian Empire": "파르티아 제국",
+ "Sasanian Empire": "사산조 페르시아",
+ "Indo-Sasanian Empire": "인도사산",
+ "Kushan Empire": "쿠샨 제국",
+ "Neo-Assyrian Empire": "신아시리아 제국",
+ "Neo-Babylonian Empire": "신바빌로니아 제국",
+ "Assyrian Egypt": "아시리아령 이집트",
+ "Kingdom of Kush": "쿠시 왕국",
+ "Scythia": "스키타이",
+ "Indo-Scythians": "인도스키타이",
+ "Yuezhi": "월지",
+ "Huns": "훈족",
+ "Hunnic Empire": "훈 제국",
+ "White Huns": "백훈(에프탈)",
+ "Xionites": "키오니타이",
+ "Kidarites": "키다라",
+ "Avar Khaganate": "아바르 칸국",
+ "Magyars": "마자르",
+ "Vandals": "반달족",
+ "Vandal Kingdom": "반달 왕국",
+ "Visigoths": "서고트족",
+ "Visigothic Kingdom": "서고트 왕국",
+ "Ostrogoths": "동고트족",
+ "Ostrogothic Kingdom": "동고트 왕국",
+ "Gothia": "고티아",
+ "Burgundian Kingdom": "부르군트 왕국",
+ "Kingdom of Alamannia": "알라마니아 왕국",
+ "Kingdom of Soissons": "수아송 왕국",
+ "Kingdom of the Franks": "프랑크 왕국",
+ "West Franks": "서프랑크",
+ "East Franks": "동프랑크",
+ "Middle Franks": "중프랑크",
+ "Ripuarian Franks": "리푸아리아 프랑크",
+ "Salian Franks": "살리 프랑크",
+ "Carolingian Empire": "카롤루스 제국",
+ "Kingdom of Germany": "독일 왕국",
+ "Holy Roman Empire": "신성로마제국",
+ "Holy Roman Empire Minor States": "신성로마제국 소국",
+ "Rashidun Caliphate": "정통 칼리프국",
+ "Umayyad Caliphate": "우마이야 칼리프국",
+ "Abbasid Caliphate": "아바스 칼리프국",
+ "Fatimid Caliphate": "파티마 칼리프국",
+ "Emirate of Córdoba": "코르도바 토후국",
+ "Caliphate of Córdoba": "코르도바 칼리프국",
+ "Almoravid Dynasty": "무라비트 왕조",
+ "Almohad Caliphate": "무와히드 칼리프국",
+ "Marinid Sultanate": "마린 술탄국",
+ "Wattasid dynasty": "와타스 왕조",
+ "Rustamid dynasty": "루스탐 왕조",
+ "Tulunids": "툴룬 왕조",
+ "Hamdanid Emirates": "함단 토후국",
+ "Ayyubid Sultanate": "아이유브 술탄국",
+ "Mamluk Sultanate": "맘루크 술탄국",
+ "Zengid dynasty": "장기 왕조",
+ "Buyid Dynasty": "부와이 왕조",
+ "Samanid Empire": "사만 왕조",
+ "Saffarid Dynasty": "사파르 왕조",
+ "Ghaznavid Empire": "가즈나 왕조",
+ "Ghurid Dynasty": "구르 왕조",
+ "Great Seljuk Empire": "셀주크 제국",
+ "Seljuk Dynasty": "셀주크 왕조",
+ "Khwarezmid Empire": "호라즘 제국",
+ "Khwarezmid Dynasty": "호라즘 왕조",
+ "Ottoman Empire": "오스만 제국",
+ "Aq Qoyunlu": "백양 왕조",
+ "Qara Qoyunlu": "흑양 왕조",
+ "Timurid Empire": "티무르 제국",
+ "Mongol Empire": "몽골 제국",
+ "Golden Horde": "킵차크 칸국",
+ "Ilkhanate": "일 칸국",
+ "Chagatai Khanate": "차가타이 칸국",
+ "White Horde": "백장 칸국",
+ "Blue Horde": "청장 칸국",
+ "Nogai Horde": "노가이 칸국",
+ "Khanate of Sibir": "시비르 칸국",
+ "Kazakh Khanate": "카자흐 칸국",
+ "Göktürk Khaganate": "돌궐",
+ "Western Göktürks": "서돌궐",
+ "Türgesh": "튀르기시",
+ "Khazaria": "하자르",
+ "Kimek-Kipchak confederation": "키메크·킵차크",
+ "Kara-Khitans": "서요(카라키타이)",
+ "Kara-Khanids": "카라한",
+ "Western Karakhanid Khanate": "서카라한",
+ "Kievan Rus'": "키예프 루스",
+ "Rus'": "루스",
+ "Novgorod Republic": "노브고로드 공화국",
+ "Grand Principality of Moscow": "모스크바 대공국",
+ "Grand Duchy of Lithuania": "리투아니아 대공국",
+ "Halych-Volhynia occupation": "할리치·볼히니아",
+ "First Bulgarian Empire": "제1차 불가리아 제국",
+ "Kingdom of Hungary": "헝가리 왕국",
+ "Principality of Hungary": "헝가리 공국",
+ "Kingdom of Poland": "폴란드 왕국",
+ "Kalmar Union": "칼마르 동맹",
+ "North Sea Empire": "북해 제국",
+ "Kingdom of France": "프랑스 왕국",
+ "Kingdom of Sweden": "스웨덴 왕국",
+ "Old Kingdom of Norway": "노르웨이 왕국",
+ "Norway-Denmark": "노르웨이·덴마크",
+ "Crown of Castile": "카스티야 왕국",
+ "Angevin Empire": "앙주 제국",
+ "Aquitaine": "아키텐",
+ "House of Habsburg": "합스부르크가",
+ "House of Jagiellon": "야기에우워가",
+ "House of Oldenburg": "올덴부르크가",
+ "Jalayirid Sultanate": "잘라이르 술탄국",
+ "Muzaffarids": "무자파르 왕조",
+ "Sarbadars": "사르베다르",
+ "Kartids": "카르트 왕조",
+ "Shaybanids": "샤이반 왕조",
+ "Maurya Empire": "마우리아 제국",
+ "Tang Dynasty": "당",
+ "Turks": "투르크",
+ "Oghuz Turks": "오구즈 투르크",
+ "Western Kushans": "서쿠샨",
+ "Scandinavian minor kingdoms": "스칸디나비아 소왕국",
+ "Thirtieth Dynasty of Egypt": "이집트 제30왕조",
+ "Twenty-sixth Dynasty of Egypt": "이집트 제26왕조",
+ "Abbasid Caliphate/Buyid Dynasty": "아바스·부와이"
+};
 export const TERRITORY_BUCKET = 100;
 execFileSync('python3', ['-c', `
 import json, re, os
 A = ${JSON.stringify(ACTOR_OF.map(([re, a]) => [re.source, a]))}
+KO = ${JSON.stringify(TERRITORY_KO)}
 W, S, E, N = ${BBOX.join(', ')}
 def bbox(g):
     xs = []; ys = []
@@ -154,9 +306,29 @@ for f in json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['
     if x1 < W or x0 > E or y1 < S or y0 > N: continue
     def rnd(c):
         return [round(c[0], 2), round(c[1], 2)] if isinstance(c[0], (int, float)) else [rnd(x) for x in c]
-    keep.append({'type': 'Feature', 'geometry': {'type': f['geometry']['type'], 'coordinates': rnd(f['geometry']['coordinates'])},
-      'properties': {'id': f"territory:{p['Name']}:{p['FromYear']}", 'name': p['Name'], 'actor': actor(p['Name']), 'valid_from': p['FromYear'], 'valid_to': p['ToYear'] + 1,
+    geom = {'type': f['geometry']['type'], 'coordinates': rnd(f['geometry']['coordinates'])}
+    keep.append({'type': 'Feature', 'geometry': geom,
+      'properties': {'id': f"territory:{p['Name']}:{p['FromYear']}", 'name': KO.get(p['Name'], p['Name']), 'name_en': p['Name'], 'actor': actor(p['Name']), 'valid_from': p['FromYear'], 'valid_to': p['ToYear'] + 1,
                      'wikidata': p['Wikidata'], 'area': int(p['Area']), 'src': 'cliopatria', 'confidence': 'medium'}})
+# 라벨 앵커: MultiPolygon이면 부분마다 라벨이 붙는다 — 가장 큰 부분의 무게중심 Point 하나를 같은 파일에 넣고 심볼 레이어는 Point만 그린다.
+def ring_centroid(ring):
+    a = cx = cy = 0.0
+    for i in range(len(ring) - 1):
+        x0, y0 = ring[i][0], ring[i][1]; x1, y1 = ring[i + 1][0], ring[i + 1][1]
+        cr = x0 * y1 - x1 * y0; a += cr; cx += (x0 + x1) * cr; cy += (y0 + y1) * cr
+    if abs(a) < 1e-12:
+        xs = [c[0] for c in ring]; ys = [c[1] for c in ring]; return [sum(xs) / len(xs), sum(ys) / len(ys)], 0.0
+    return [cx / (3 * a), cy / (3 * a)], abs(a) / 2
+def anchor(g):
+    parts = g['coordinates'] if g['type'] == 'MultiPolygon' else [g['coordinates']]
+    best = None
+    for poly in parts:
+        c, a = ring_centroid(poly[0])
+        if best is None or a > best[1]: best = (c, a)
+    return best[0]
+labels = [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [round(v, 3) for v in anchor(f['geometry'])]},
+           'properties': {**f['properties'], 'id': f['properties']['id'] + ':label'}} for f in keep]
+keep = keep + labels
 out = ${JSON.stringify(join(OUT, 'layers', 'territory'))}; os.makedirs(out, exist_ok=True)
 B = ${TERRITORY_BUCKET}; total = 0
 for b in range(-800, 1500, B):
