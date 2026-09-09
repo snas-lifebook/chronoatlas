@@ -64,8 +64,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
     terrainReady.then(() => { if (map.getStyle()) addTerrain(map.getLayer('label-marine') ? 'label-marine' : undefined); });
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
-    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.5, ['==', ['get', 'actor'], '기타중립'], 0.18, 0.38] as any } }, before);
-    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1, 'line-opacity': 0.8 } }, before);
+    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.45, ['==', ['get', 'actor'], '기타중립'], 0.1, 0.22] as any } }, before);
+    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,

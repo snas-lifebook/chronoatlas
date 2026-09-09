@@ -109,7 +109,7 @@ from PIL import ImageOps, ImageChops, ImageFilter
 # Gray Earth엔 저지대를 어둡게 칠하는 계조가 섞여 있다(이탈리아가 시커멓게 나온다) — 넓은 계조(가우시안 24px)를 빼고
 # 고주파만 1.6배 남긴다. 능선·하계망 각인은 살고 바탕은 균일해진다.
 g = im.crop((x0,y0,x1,y1)).convert('L')
-g = ImageChops.subtract(g, g.filter(ImageFilter.GaussianBlur(24)), 0.625, 205)
+g = ImageChops.subtract(g, g.filter(ImageFilter.GaussianBlur(24)), 0.8, 185)
 ImageOps.colorize(g, black='#6E7268', white='#F6F7F3').save(${JSON.stringify(join(OUT, 'rasters', 'relief.jpg'))}, quality=80, optimize=True, progressive=True)
 print('raster relief', x1-x0, 'x', y1-y0)
 `], { stdio: 'inherit' });

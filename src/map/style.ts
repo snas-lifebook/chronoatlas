@@ -91,7 +91,7 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
     layers.push(sym('landmark-pleiades', 'landmarks',
       { 'text-field': ['get', 'name'], 'text-font': FONT.regular, 'text-size': ['interpolate', ['linear'], ['zoom'], 5, 9, 9, 11], 'text-max-width': 7, 'symbol-sort-key': ['+', ['get', 'lod'], 10] },
       { 'text-color': ['case', ['boolean', ['feature-state', 'selected'], false], c.label, c.label2], 'text-halo-color': c.halo, 'text-halo-width': 1, 'text-opacity': ['case', ['==', ['get', 'precision'], 'rough'], 0.6, 0.9] },
-      { minzoom: 5, filter: ['<=', ['get', 'lod'], ['step', ['zoom'], 1, 6, 2, 8, 3]] as any }));
+      { minzoom: 5, filter: ['<=', ['get', 'lod'], ['step', ['zoom'], 1, 7, 2, 9, 3]] as any }));
   }
   // 정착지 라벨: 데이터셋 settlements(어댑터 산출) — rank LOD z3/5/7. 마커는 main이 같은 소스로 그린다.
   sources.settlements = { type: 'geojson', data: `${base}/layers/settlements.geojson`, promoteId: 'id' }; // 엔진의 hover·selected·linked feature-state가 이 id를 쓴다
