@@ -47,9 +47,19 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   let loaded = false;
   let tokens: { route: string; token: import('../token3d').Token }[] = [];
 
+  // 기하 3D 지형(River 9/9 "3D인데 굴곡이 없다"): manifest.terrain이 있으면 raster-dem을 켠다.
+  // DEM 타일은 용량·라이선스 때문에 레포에 없다 — public/datasets/<ds>/terrain/{z}/{x}/{y}.png(terrarium)를 두면 자동으로 켜진다.
+  function addTerrain(before?: string) {
+    const t = d.manifest.terrain; if (!t) return;
+    if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
+    if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': isDark ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': isDark ? '#3A424C' : '#FFFFFF' } }, before);
+    map.setTerrain({ source: 'dem', exaggeration: t.exaggeration ?? 1.4 });
+  }
+
   function addData() {
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
+    addTerrain(before);
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
     map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.5, ['==', ['get', 'actor'], '기타중립'], 0.18, 0.38] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1, 'line-opacity': 0.8 } }, before);

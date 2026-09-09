@@ -63,18 +63,23 @@ for (const [letter, depth] of BATHY) {
 mapshaper(['-i', ...bathyParts, 'combine-files', '-merge-layers', '-o', join(OUT, 'layers', 'bathy.geojson'), 'format=geojson']);
 console.log('layer bathy', Math.round(statSync(join(OUT, 'layers', 'bathy.geojson')).size / 1024), 'KB');
 
-// 음영기복: NE SR_50M(수동 shaded relief, PD) 전지구 등장방형 TIF → bbox 크롭 PNG. MapLibre image 소스 4모서리 = BBOX.
-// ponytail: Mapterhorn DEM 타일(hillshade 실계산·지형 과장)은 컨테이너에서 못 받는다 — River 맥에서 pmtiles extract 후 교체(TASKS 1.6 후반).
-const tif = join(CACHE, 'SR_50M.tif');
-await fetchTo(`${NER}/SR_50M/SR_50M.tif`, tif);
+// 음영기복: NE 10m GRAY_HR_SR_OB_DR(Gray Earth — 음영 + 하계망 각인 + 해저, PD). 21600×10800 → bbox 크롭 4800×2400(≈1.85km/px).
+// SR_50M(10800×5400)에서 올렸다 — 알프스·아펜니노 능선과 강 골짜기가 실제로 읽힌다. 해저 부분은 위의 bathy 폴리곤이 덮는다.
+// ponytail: 진짜 기하 3D(raster-dem + setTerrain)는 DEM 타일이 필요한데 샌드박스·맥 둘 다 egress 차단 — public/terrain/ 에 타일을 두면 엔진이 자동으로 켠다(engine.ts TERRAIN).
+const tif = join(CACHE, 'GRAY_HR_SR_OB_DR.tif');
+await fetchTo(`${NER.replace('50m_rasters', '10m_rasters')}/GRAY_HR_SR_OB_DR/GRAY_HR_SR_OB_DR.tif`, tif);
 execFileSync('python3', ['-c', `
 from PIL import Image
 Image.MAX_IMAGE_PIXELS=None
 im=Image.open(${JSON.stringify(tif)}); W,H=im.size
 x0=int((${BBOX[0]}+180)/360*W); x1=int((${BBOX[2]}+180)/360*W); y0=int((90-${BBOX[3]})/180*H); y1=int((90-${BBOX[1]})/180*H)
-from PIL import ImageOps
-# 육지 톤으로 착색(DESIGN --map-land #EEF0EC 기준: 밝은 곳 #F1F2EE, 그늘 #7A7E76). 바다는 bathy 폴리곤이 위에서 덮는다.
-ImageOps.colorize(im.crop((x0,y0,x1,y1)).convert('L'), black='#7A7E76', white='#F1F2EE').save(${JSON.stringify(join(OUT, 'rasters', 'relief.jpg'))}, quality=82, optimize=True)
+from PIL import ImageOps, ImageChops, ImageFilter
+# 육지 톤으로 착색. 바다는 bathy 폴리곤이 위에서 덮는다.
+# Gray Earth엔 저지대를 어둡게 칠하는 계조가 섞여 있다(이탈리아가 시커멓게 나온다) — 넓은 계조(가우시안 24px)를 빼고
+# 고주파만 1.6배 남긴다. 능선·하계망 각인은 살고 바탕은 균일해진다.
+g = im.crop((x0,y0,x1,y1)).convert('L')
+g = ImageChops.subtract(g, g.filter(ImageFilter.GaussianBlur(24)), 0.625, 205)
+ImageOps.colorize(g, black='#6E7268', white='#F6F7F3').save(${JSON.stringify(join(OUT, 'rasters', 'relief.jpg'))}, quality=80, optimize=True, progressive=True)
 print('raster relief', x1-x0, 'x', y1-y0)
 `], { stdio: 'inherit' });
 
@@ -340,6 +345,34 @@ for b in range(-800, 1500, B):
 print('layer territory buckets', len(range(-800, 1500, B)), 'features', len(keep), 'total KB', total // 1024)
 `], { stdio: 'inherit' });
 
+// 기하 3D 지형(선택): TERRAIN=1 로 켠다. AWS Terrain Tiles(terrarium, ODbL/PD 혼합 — SRTM·GMTED·ETOPO 등)를 bbox·z0~7만 받아
+// public/datasets/rome/terrain/{z}/{x}/{y}.png 로 둔다(런타임 외부 호출 0). 샌드박스에선 egress가 막혀 있어 실패한다 — 로컬 터미널에서 돌릴 것.
+// 예: TERRAIN=1 npm run fetch-external     (~730타일 · 약 20MB · z8+는 MapLibre가 오버줌)
+if (process.env.TERRAIN) {
+  const TERRAIN_MAX = Number(process.env.TERRAIN_MAX ?? 7);
+  const TDIR = join(OUT, 'terrain');
+  const lat2y = (lat: number, n: number) => Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
+  let got = 0, miss = 0;
+  for (let z = 0; z <= TERRAIN_MAX; z++) {
+    const n = 2 ** z;
+    const x0 = Math.floor((BBOX[0] + 180) / 360 * n), x1 = Math.floor((BBOX[2] + 180) / 360 * n);
+    const y0 = lat2y(BBOX[3], n), y1 = lat2y(BBOX[1], n);
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) {
+      const f = join(TDIR, String(z), String(x), `${y}.png`);
+      if (existsSync(f)) { got++; continue; }
+      mkdirSync(join(TDIR, String(z), String(x)), { recursive: true });
+      try {
+        const r = await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${x}/${y}.png`);
+        if (!r.ok) { miss++; continue; }
+        writeFileSync(f, Buffer.from(await r.arrayBuffer())); got++;
+      } catch { miss++; }
+    }
+    console.log('terrain z', z, 'ok', got, 'miss', miss);
+  }
+  writeFileSync(join(TDIR, 'meta.json'), JSON.stringify({ encoding: 'terrarium', maxzoom: TERRAIN_MAX, exaggeration: 1.4, credit: 'AWS Terrain Tiles (Mapzen/Tilezen) — SRTM·GMTED2010·ETOPO1 외' }));
+  console.log('terrain tiles', got, 'missing', miss, '→ npm run adapt 로 manifest.terrain 갱신');
+}
+
 // 글리프 PBF: 라벨에 실제 쓰인 문자 범위만 내려받아 public/glyphs/에 둔다(런타임 외부 호출 0).
 // ponytail: Pretendard 글리프 자체 빌드(fontnik)는 컨테이너에서 네이티브 빌드 불가 → KlokanTech Noto Sans CJK(OFL)로 시작. DESIGN §1 "Pretendard 글리프"는 River 맥에서 font-maker로 교체.
 const GLYPH_SRC = 'https://raw.githubusercontent.com/klokantech/klokantech-gl-fonts/master';
@@ -363,9 +396,10 @@ writeFileSync(join(CACHE, 'LICENSES.md'), `# data/external — 출처·라이선
 |---|---|---|---|
 ${VECTORS.map(v => `| ${v.id}.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/${v.out}.geojson, bbox ${bbox} |`).join('\n')}
 ${BATHY.map(([l, d]) => `| ne_10m_bathymetry_${l}_${d}.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=${d} |`).join('\n')}
-| SR_50M.tif | Natural Earth 50m Shaded Relief (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg (image 소스). Mapterhorn 교체 예정 |
+| GRAY_HR_SR_OB_DR.tif | Natural Earth 10m Gray Earth — 음영·하계망·해저 (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg 4800×2400 (image 소스). 기하 3D DEM은 미확보 |
 | pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 ${Object.keys(LANDMARK_TYPES).length}종, bbox) |
 | cliopatria.geojson.zip | Cliopatria — Seshat Global History Databank (정치체 폴리곤 3400BCE–2024CE) | CC BY 4.0 — 크레딧 "Cliopatria (Seshat)" 필수 | → layers/territory/<100년>.geojson (bbox·면적 3만km² 이상·팔레트 세력 매핑) |
+| terrarium 타일(선택, TERRAIN=1) | AWS Terrain Tiles — Mapzen/Tilezen (SRTM·GMTED2010·ETOPO1 등) | 출처별 상이(PD·CC BY·ODbL) — 크레딧 표기 | → public/datasets/rome/terrain/ (기하 3D). 커밋 전 라이선스 확인 |
 | KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
 
 생성: scripts/fetch-external.ts · ${new Date().toISOString().slice(0, 10)}

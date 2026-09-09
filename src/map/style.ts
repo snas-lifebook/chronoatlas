@@ -5,12 +5,12 @@ import type { StyleSpecification, LayerSpecification } from 'maplibre-gl';
 // 스킨 = 지도 토큰 한 벌 (Azgaar FMG처럼 같은 데이터 위에 갈아끼운다). light/dark는 웹 UI가 쓰고, 나머지는 내보내기 전용(DESIGN P12).
 export const MAP = {
   light: { sea: '#D6E4EF', land: '#EEF0EC', coast: '#8FA3B4', river: '#9CBBD3', glacier: '#F7F8F6', label: '#111418', label2: '#7C8794', halo: '#FFFFFF',
-    depth: ['#D6E4EF', '#CBDCE9', '#BFD2E3', '#B2C8DD', '#A6BED7', '#9AB4D1', '#8FAACB'], relief: { brightnessMax: 1, contrast: -0.12, saturation: 0, opacity: 1 } },
+    depth: ['#D6E4EF', '#CBDCE9', '#BFD2E3', '#B2C8DD', '#A6BED7', '#9AB4D1', '#8FAACB'], relief: { brightnessMax: 1, contrast: 0.06, saturation: 0, opacity: 1 } },
   dark:  { sea: '#1B2129', land: '#2A2E33', coast: '#4C5A67', river: '#3D5468', glacier: '#3A3F45', label: '#E6E8EB', label2: '#9AA3AE', halo: '#1B2129',
-    depth: ['#1B2129', '#192028', '#171E26', '#151C24', '#131A22', '#111820', '#0F161E'], relief: { brightnessMax: 0.32, contrast: 0.2, saturation: 0, opacity: 1 } },
+    depth: ['#1B2129', '#192028', '#171E26', '#151C24', '#131A22', '#111820', '#0F161E'], relief: { brightnessMax: 0.38, contrast: 0.32, saturation: 0, opacity: 1 } },
   // 고지도: 양피지 육지·먹색 선·옅은 청록 바다(토탈워 고지도 참조). 라벨은 같은 글리프(세리프 글리프는 P1)
   oldmap: { sea: '#CFDCD3', land: '#E9DFC7', coast: '#6B5A3E', river: '#7F9A93', glacier: '#F2EEE3', label: '#3A2F22', label2: '#7A6A4F', halo: '#EFE6D0',
-    depth: ['#CFDCD3', '#C6D4CB', '#BCCBC2', '#B2C2B9', '#A8B9B0', '#9EB0A7', '#94A79E'], relief: { brightnessMax: 0.95, contrast: -0.05, saturation: -0.3, opacity: 0.85 } },
+    depth: ['#CFDCD3', '#C6D4CB', '#BCCBC2', '#B2C2B9', '#A8B9B0', '#9EB0A7', '#94A79E'], relief: { brightnessMax: 0.95, contrast: 0.12, saturation: -0.3, opacity: 0.9 } },
   // 신문톤: 무채색 — 룬델 정적 관계지도와 같은 문법
   press:  { sea: '#E8E8E8', land: '#F7F7F7', coast: '#5A5A5A', river: '#B0B0B0', glacier: '#FFFFFF', label: '#111111', label2: '#666666', halo: '#FFFFFF',
     depth: ['#E8E8E8', '#E2E2E2', '#DCDCDC', '#D6D6D6', '#D0D0D0', '#CACACA', '#C4C4C4'], relief: { brightnessMax: 1, contrast: 0.1, saturation: -1, opacity: 0.9 } },
@@ -50,9 +50,10 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
   if (has('glaciers')) { geo('glaciers'); layers.push({ id: 'glaciers', type: 'fill', source: 'glaciers', paint: { 'fill-color': c.glacier, 'fill-opacity': 0.8 } }); }
   if (has('rivers')) {
     geo('rivers');
-    const width: any = ['interpolate', ['linear'], ['zoom'], 3, 0.4, 9, 1.6];
-    layers.push({ id: 'rivers-major', type: 'line', source: 'rivers', minzoom: 3, filter: ['<=', ['get', 'scalerank'], 6], paint: { 'line-color': c.river, 'line-width': width } });
-    layers.push({ id: 'rivers-minor', type: 'line', source: 'rivers', minzoom: 6, filter: ['>', ['get', 'scalerank'], 6], paint: { 'line-color': c.river, 'line-width': width } });
+    // 강은 지형을 읽는 단서다(River 9/9 피드백) — 등급별로 굵기를 벌리고 z5부터 지류도.
+    const width = (mul: number): any => ['interpolate', ['linear'], ['zoom'], 3, 0.6 * mul, 6, 1.4 * mul, 9, 3.2 * mul];
+    layers.push({ id: 'rivers-major', type: 'line', source: 'rivers', minzoom: 3, filter: ['<=', ['get', 'scalerank'], 6], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': c.river, 'line-width': width(1), 'line-opacity': 0.95 } });
+    layers.push({ id: 'rivers-minor', type: 'line', source: 'rivers', minzoom: 5, filter: ['>', ['get', 'scalerank'], 6], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': c.river, 'line-width': width(0.6), 'line-opacity': 0.75 } });
   }
   if (has('coast')) { geo('coast'); layers.push({ id: 'coast', type: 'line', source: 'coast', paint: { 'line-color': c.coast, 'line-width': 1 } }); }
 

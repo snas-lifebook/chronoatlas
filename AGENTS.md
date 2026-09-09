@@ -26,3 +26,15 @@
 - 런타임 외부 호출 0. 새 데이터는 빌드타임에 `data/external/`로 굽는다. 카피레프트(ODbL) 데이터는 재배포하지 않는다.
 - 웹 UI에 astryx 밖의 색·간격을 넣지 않는다(DESIGN P1). 지도 위 유채색은 데이터 색뿐(P2). 클릭 안 되는 지도 요소를 만들지 않는다(P5).
 - 신뢰도 값을 지어내지 않는다. Hunyuan3D 금지.
+
+## 기하 3D 지형(DEM)
+
+지금 "입체 보기"는 카메라 pitch만이다 — 굴곡은 없다. 켜려면 DEM 타일이 필요하다(런타임 외부 호출 0 원칙 → 미리 받아 둔다).
+
+```
+TERRAIN=1 npm run fetch-external   # AWS terrarium 타일 bbox·z0~7 (~730장, ~20MB). 샌드박스에선 egress 차단 — 로컬 터미널에서
+npm run adapt                      # manifest.terrain 갱신 → 엔진이 raster-dem + hillshade + setTerrain 자동 적용
+```
+
+`public/datasets/<ds>/terrain/meta.json`의 `encoding`(terrarium|mapbox)·`maxzoom`·`exaggeration`을 바꾸면 그대로 반영된다.
+검증됨(2026-09-09): MapLibre 데모 타일(JAXA AW3D30, mapbox 인코딩)로 알프스가 실제로 솟는 것 확인. `.gitignore`에 걸려 있으니 커밋은 라이선스 확인 후.

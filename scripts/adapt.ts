@@ -159,6 +159,8 @@ const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
+  // DEM 타일을 public/datasets/<ds>/terrain/ 에 넣으면 기하 3D가 켜진다(terrain/tiles.json에 encoding·maxzoom·credit)
+  terrain: existsSync(join(OUT, 'terrain')) ? { encoding: 'terrarium', maxzoom: 12, exaggeration: 1.4, ...(existsSync(join(OUT, 'terrain', 'meta.json')) ? JSON.parse(readFileSync(join(OUT, 'terrain', 'meta.json'), 'utf8')) : {}) } : undefined,
   territory: existsSync(join(OUT, 'layers', 'territory')) ? { bucket: 100, from: -800, to: 1500 } : undefined, // fetch-external TERRITORY_BUCKET
   layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
   eras, // 타임라인 시대 띠(1.5)
