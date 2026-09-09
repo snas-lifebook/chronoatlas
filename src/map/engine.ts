@@ -12,7 +12,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
   battles: ['battle'],
   movements: ['movement'],
-  relief: ['relief'],
+  relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
   labels: ['label-marine', 'label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
@@ -52,21 +52,25 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // manifest에 박지 않는 이유: manifest는 커밋되는데 타일은 아니라서, 없는 타일을 요청하게 된다.
   let terrainMeta: { encoding?: 'terrarium' | 'mapbox'; minzoom?: number; maxzoom?: number; exaggeration?: number } | null = null;
   const terrainReady = fetch(`${root}datasets/${ds}/terrain/meta.json`).then(r => r.ok ? r.json() : null).then(m => { terrainMeta = m; }).catch(() => {});
+  // 고도 과장은 줌에 따라 — 낮은 줌에서 1.4배는 화면상 1~2px라 "3D인데 굴곡이 없다"가 된다.
+  // 산이 화면에서 비슷한 높이로 보이도록 줌이 낮을수록 크게(z3 12배 → z9 1.4배). setTerrain은 표현식을 못 받아서 zoom 이벤트로 갱신.
+  let lastEx = 0;
+  const syncTerrain = () => {
+    if (!terrainMeta || !map.getSource('dem')) return;
+    const base = terrainMeta.exaggeration ?? 1.4;
+    const ex = Math.round(base * Math.min(11, Math.max(1, 2 ** ((9 - map.getZoom()) * 0.62))) * 10) / 10;
+    if (ex === lastEx && map.getTerrain()) return;
+    lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
+  };
+  map.on('zoom', syncTerrain); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
+
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
     if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
     if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': isDark ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': isDark ? '#3A424C' : '#FFFFFF' } }, before);
-    // 고도 과장은 줌에 따라 — 낮은 줌에서 1.4배는 화면상 1~2px라 "3D인데 굴곡이 없다"가 된다.
-    // 산이 화면에서 비슷한 높이로 보이도록 줌이 낮을수록 크게(z3 16배 → z11 1.4배). setTerrain은 표현식을 못 받아서 zoom 이벤트로 갱신.
-    const base = t.exaggeration ?? 1.4;
-    const exaggerationAt = (z: number) => base * Math.min(11, Math.max(1, 2 ** ((9 - z) * 0.62)));
-    let lastEx = 0;
-    const syncTerrain = () => {
-      const ex = Math.round(exaggerationAt(map.getZoom()) * 10) / 10;
-      if (ex === lastEx) return;
-      lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
-    };
-    syncTerrain(); map.on('zoom', syncTerrain);
+    // 베이크된 relief.jpg(NE Gray Earth 1.85km/px)와 겹치면 그림자가 두 벌이라 능선이 뭉갠다 — DEM 음영이 해상도·광원 모두 낫다.
+    if (map.getLayer('relief')) map.removeLayer('relief');
+    syncTerrain();
   }
 
   function addData() {
