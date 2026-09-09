@@ -27,3 +27,4 @@ dist-ssr
 data/external/*.geojson
 data/external/*.tif
 data/external/pleiades/
+data/external/cliopatria*

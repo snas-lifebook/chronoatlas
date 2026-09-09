@@ -95,9 +95,38 @@ const battles = links.filter(l => l.rel === 'occurred_at').flatMap(l => {
 });
 writeFileSync(join(OUT, 'layers', 'battles.geojson'), JSON.stringify({ type: 'FeatureCollection', features: battles }));
 
-// territory·admin_regions·movements: Phase 0에선 빈 컬렉션(1.3·0.5에서 Cliopatria·_routes로 채운다). 파일이 있어야 main.ts가 뜬다.
-for (const l of ['territory', 'admin_regions', 'movements'])
-  if (!existsSync(join(OUT, 'layers', `${l}.geojson`))) writeFileSync(join(OUT, 'layers', `${l}.geojson`), JSON.stringify({ type: 'FeatureCollection', features: [] }));
+// ---- 이동경로·속주(0.5): 정본 ontology/_routes/*.geojson. 연도 있는 Point ≥ 2 + LineString → movements 세그먼트(도착 연도부터 보임, 토큰은 세그먼트 끝점).
+// Polygon → admin_regions(설명의 '기원전 NNN년'이 valid_from). 세력은 경로 이름에 들어간 정본 객체의 faction. 강 같은 무연도 선은 베이스맵 몫 — 건너뛴다.
+const movements: any[] = [], admin: any[] = [];
+const routesDir = join(SRC, '_routes');
+if (existsSync(routesDir)) for (const file of readdirSync(routesDir).filter(f => f.endsWith('.geojson'))) {
+  const route = file.replace(/\.geojson$/, '');
+  const fc = JSON.parse(readFileSync(join(routesDir, file), 'utf8'));
+  const feats: any[] = fc.features ?? [];
+  const title: string = feats.find(f => f.geometry.type === 'LineString')?.properties?.name ?? route;
+  const owner = nodes.find(n => n.type === 'person' && title.startsWith(n.name)) ?? nodes.find(n => title.includes(n.name));
+  const actor = owner?.faction ?? '기타중립';
+  const stops = feats.filter(f => f.geometry.type === 'Point' && typeof f.properties?.year === 'number').sort((a, b) => a.properties.year - b.properties.year);
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1], b = stops[i];
+    movements.push({ type: 'Feature', properties: { id: `${route}@${i - 1}`, layer: 'movements', route, name_ko: title, actor, label: b.properties.name, from_year: a.properties.year, to_year: b.properties.year,
+      valid_from: b.properties.year, valid_to: 1000000, source: 'book', confidence: b.properties.confidence ?? 'medium', owner: owner?.id ?? null },
+      geometry: { type: 'LineString', coordinates: [a.geometry.coordinates, b.geometry.coordinates] } });
+  }
+  const bc = (t: string) => { const m = /기원전\s*(\d+)/.exec(t ?? ''); return m ? -Number(m[1]) : null; };
+  const routeFrom = stops[0]?.properties.year ?? null;
+  for (const f of feats.filter(f => /Polygon/.test(f.geometry.type))) {
+    const name: string = (f.properties?.name ?? '').split(' — ').pop();
+    admin.push({ type: 'Feature', properties: { id: `admin:${route}:${name}`, layer: 'admin_regions', name_ko: name, name: name, actor, route,
+      // 연도 근거가 없으면 열린 구간 + low — 지어내지 않는다(CONSTITUTION). 설명의 '[대략]'도 low.
+      valid_from: bc(f.properties?.description) ?? routeFrom ?? null, valid_to: 1000000, confidence: bc(f.properties?.description) ? (f.properties?.confidence ?? 'medium') : 'low', source: 'book' }, geometry: f.geometry });
+  }
+}
+writeFileSync(join(OUT, 'layers', 'movements.geojson'), JSON.stringify({ type: 'FeatureCollection', features: movements }));
+writeFileSync(join(OUT, 'layers', 'admin_regions.geojson'), JSON.stringify({ type: 'FeatureCollection', features: admin }));
+console.log('routes:', movements.length, 'segments,', admin.length, 'admin regions');
+// territory: 버킷(fetch-external, Cliopatria)이 있으면 엔진이 지연 로드 — 한 파일은 빈 컬렉션 자리만.
+if (!existsSync(join(OUT, 'layers', 'territory.geojson'))) writeFileSync(join(OUT, 'layers', 'territory.geojson'), JSON.stringify({ type: 'FeatureCollection', features: [] }));
 
 // ---- 베이스맵 레이어는 scripts/fetch-external.ts가 만든다(NE 10m·relief). 여기선 있는지 확인만 — manifest.basemap.
 const BASEMAP = ['land', 'coast', 'rivers', 'lakes', 'glaciers', 'bathy', 'marine_labels', 'region_labels', 'landmarks'];
@@ -128,6 +157,7 @@ const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
+  territory: existsSync(join(OUT, 'layers', 'territory')) ? { bucket: 100, from: -800, to: 1500 } : undefined, // fetch-external TERRITORY_BUCKET
   layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
   eras, // 타임라인 시대 띠(1.5)
   scenes, // data/scenes/rome.json — 사람이 쓰는 장면 프리셋(state.ts Scene)

@@ -30,6 +30,11 @@
   65,
   60
  ],
+ "territory": {
+  "bucket": 100,
+  "from": -800,
+  "to": 1500
+ },
  "layers": [
   "territory",
   "admin_regions",
@@ -126,7 +131,7 @@
  ],
  "library": "https://roma-library.pages.dev",
  "source": "정본 entities.jsonl/links.jsonl → scripts/adapt.ts",
- "generated": "2026-09-08",
+ "generated": "2026-09-09",
  "counts": {
   "entities": 650,
   "links": 698,

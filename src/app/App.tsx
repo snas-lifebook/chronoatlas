@@ -43,11 +43,15 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [searching, setSearching] = useState<false | 'find' | 'path'>(false);
   const [pathTo, setPathTo] = useState<string | null>(null); // F14: 선택 → 이 객체까지 최단 관계 경로
   const [exporting, setExporting] = useState<number | null>(null);
-  const [skin, setSkin] = useState<Skin>('light'); // 내보내기 스킨(P12: 웹 UI는 안 바뀐다)
-  const withSkin = async <T,>(fn: () => Promise<T>): Promise<T> => { const eng = engRef.current!; const cur = isDark(theme) ? 'dark' : 'light'; if (skin !== cur) await eng.setSkin(skin); try { return await fn(); } finally { if (skin !== cur) await eng.setSkin(null); } };
+  const [dataTick, setDataTick] = useState(0); // 영토 버킷이 바뀌면 범례 다시
+  const [skin, setSkin] = useState<Skin>('light'); // 지도 스킨(P1 Azgaar식). 웹 UI 크롬은 안 바뀐다(P12)
+  // 스킨은 지도에 바로 입힌다(Azgaar식 미리보기). 크롬(카드·툴바)은 astryx 그대로 — P12는 'UI 토큰 불변'이지 '지도 불변'이 아니다. 내보내기는 보이는 그대로.
+  const firstSkin = useRef(true);
+  useEffect(() => { if (firstSkin.current) { firstSkin.current = false; return; } const eng = engRef.current; if (!eng) return; const cur = isDark(theme) ? 'dark' : 'light'; eng.setSkin(skin === cur ? null : skin); }, [skin]);
+  const withSkin = <T,>(fn: () => Promise<T>): Promise<T> => fn();
 
   // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
-  useEffect(() => { if (s.sel && !graph && !s.sel.startsWith('landmark:')) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
+  useEffect(() => { if (s.sel && !graph && !/^(landmark|territory):/.test(s.sel)) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
   // 자료실에서 ?sel=로 들어온 첫 진입(장면 없음): 그래프가 오면 그 객체로 카메라
   const centeredOnce = useRef(false);
   useEffect(() => {
@@ -56,17 +60,19 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   }, [graph]);
   useEffect(() => {
     const eng = engRef.current; if (!eng) return;
-    if (!s.sel || !graph || s.sel.startsWith('landmark:')) { eng.setEgo(null, '', []); return; }
+    if (!s.sel || !graph || /^(landmark|territory):/.test(s.sel)) { eng.setEgo(null, '', []); return; }
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
     try { localStorage.setItem('theme', theme); } catch {}
     if (firstTheme.current) { firstTheme.current = false; return; } // 첫 스타일은 엔진 생성 때 이미 맞췄다
-    engRef.current?.setDark(isDark(theme));
+    const cur = isDark(theme) ? 'dark' : 'light';
+    if (skin === 'light' || skin === 'dark') { setSkin(cur as Skin); engRef.current?.setDark(isDark(theme)); } // 테마 따라가는 스킨
+    else { engRef.current?.setDark(isDark(theme)); engRef.current?.setSkin(skin); } // 고지도·신문톤·작전은 테마와 무관 — 다시 입힌다(재빌드 2회, 드문 일)
   }, [theme]);
 
   // 재생: 5년/350ms. 끝에 닿으면 멈춘다.
@@ -123,7 +129,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       for (const g of ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make']) if (groups.has(g)) items.push({ swatch: { background: GROUP_COLOR[g], height: 2, alignSelf: 'center' }, label: GROUP_LABEL[g] });
     }
     return items;
-  }, [d, s.year, s.sel, s.layers, graph]);
+  }, [d, s.year, s.sel, s.layers, graph, dataTick]);
 
   return (
     <div className="shell">
@@ -161,9 +167,9 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
         {tab === 'layers' && (
           <div className="shell-layers">
-            <div className="row skin-row">
-              <Text size="sm" color="secondary">내보내기 스킨</Text>
-              <SegmentedControl label="내보내기 스킨" value={skin} onChange={v => setSkin(v as Skin)} size="sm">
+            <div className="skin-block">
+              <Text size="sm" color="secondary">지도 스킨</Text>
+              <SegmentedControl label="지도 스킨" value={skin} onChange={v => setSkin(v as Skin)} size="sm">
                 {SKINS.map(k => <SegmentedControlItem key={k.id} value={k.id} label={k.label} />)}
               </SegmentedControl>
             </div>
@@ -193,7 +199,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       {s.sel && <div className="shell-right">
         <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
           onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
-        {graph && !s.sel.startsWith('landmark:') && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
+        {graph && !/^(landmark|territory):/.test(s.sel) && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
       </div>}
 
       <div className="shell-env">

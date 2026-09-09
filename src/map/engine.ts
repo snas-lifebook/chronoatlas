@@ -38,7 +38,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // MapLibre는 ResizeObserver 첫 콜백을 버린다 — 컨테이너가 0×0에서 시작하면(숨긴 패널·iframe) 400×300에 갇힌다. 우리가 직접 본다.
   new ResizeObserver(() => map.resize()).observe(container);
 
-  const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('rgba(0,0,0,0)');
+  const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['admin-line', null],
     ['settle-major', ['<=', ['get', 'rank'], 1]], ['settle-minor', ['>=', ['get', 'rank'], 2]], ['battle', null], ['movement', null]];
@@ -51,10 +51,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
-    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.68, 0.55] as any } }, before);
-    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1 } }, before);
+    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.5, ['==', ['get', 'actor'], '기타중립'], 0.18, 0.38] as any } }, before);
+    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1, 'line-opacity': 0.8 } }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
-    map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2] } }, before);
+    map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
     if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
     // hover: +반지름·외곽 1.5px / selected: 외곽 2px(세력색 대신 잉크 — 정착지는 세력 없음) — DESIGN §2, GPU만
     const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, ['boolean', ['feature-state', 'linked'], false], base + plus * 0.6, base];
@@ -65,7 +65,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
     map.addSource('movements', { type: 'geojson', data: d.movements as any });
-    map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#e67e22', 'line-width': 3, 'line-dasharray': [2, 1] } }, before);
+    map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': fillColor, 'line-width': 2.5, 'line-dasharray': [2, 1.2], 'line-opacity': 0.9 } }, before);
 
     // 관계 그래프 오버레이(2.1, 하이브리드): 선택 객체 ↔ 좌표 있는 이웃 선. 좌표 없는 이웃은 GraphPanel.
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
@@ -101,6 +101,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
         if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle'].filter(l => map.getLayer(l)) }).length) return;
         store.set({ sel: `landmark:${f.properties.pid ?? f.properties.name}` }); return; } // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름
+      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
       if (f.properties?.id) store.set({ sel: f.properties.id });
     });
     map.on('mouseenter', layerId, () => (map.getCanvas().style.cursor = 'pointer'));
@@ -152,11 +153,23 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
 
 
+  // 영토 버킷 지연 로드(F16): manifest.territory = { bucket, from, to } 이면 layers/territory/<from>.geojson을 연도에 맞춰 받는다. d.territory를 갈아끼워 범례·내보내기가 같은 걸 본다.
+  const tb = d.manifest.territory; const bucketCache = new Map<number, Promise<any>>(); let curBucket: number | null = null;
+  function loadTerritory(year: number) {
+    if (!tb) return;
+    const b = Math.max(tb.from, Math.min(tb.to - tb.bucket, Math.floor((year - tb.from) / tb.bucket) * tb.bucket + tb.from));
+    if (b === curBucket) return; curBucket = b;
+    if (!bucketCache.has(b)) bucketCache.set(b, fetch(`${root}datasets/${ds}/layers/territory/${b}.geojson`).then(r => r.ok ? r.json() : { type: 'FeatureCollection', features: [] }));
+    bucketCache.get(b)!.then(fc => { if (curBucket !== b) return; d.territory.features = fc.features; (map.getSource('territory') as maplibregl.GeoJSONSource | undefined)?.setData(fc); onData?.(); });
+  }
+  let onData: (() => void) | null = null;
+
   let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
   function apply(s: State) {
     if (!loaded) return;
     if (s.year !== lastYear) {
       lastYear = s.year;
+      loadTerritory(s.year);
       for (const [id, base] of timed) map.setFilter(id, filterFor(base, s.year));
       for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, s.year));
     }
@@ -201,6 +214,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   return {
     map,
     setEgo,
+    onData(fn: () => void) { onData = fn; },
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {

@@ -35,9 +35,26 @@ function Portrait({ node, root, color }: { node: GNode | undefined; root: string
 export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath }:
   { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void }) {
   const [graph, setGraph] = useState<Graph | null>(null);
-  useEffect(() => { if (!sel.startsWith('landmark:')) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
+  useEffect(() => { if (!/^(landmark|territory):/.test(sel)) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
 
+  // 영토(Cliopatria) — 정본 객체가 아니다. 이름·기간·세력·Wikidata
+  if (sel.startsWith('territory:')) {
+    const t = d.territory.features.find(f => f.properties.id === sel)?.properties;
+    const actor = d.actors.find(a => a.id === t?.actor);
+    return (
+      <Card padding={4} elevation="low" className="shell-inspector ins">
+        <div className="ins-head"><Text size="sm" color="secondary">영토 · Cliopatria(Seshat)</Text><IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} /></div>
+        <Heading level={2}>{t?.name ?? sel.split(':')[1]}</Heading>
+        {t && <div className="ins-body">
+          <div className="ins-badges">{actor && <Badge label={actor.label} variant={'blue' as any} />}<Badge label="신뢰도 medium" /></div>
+          <dl className="ins-kv"><div><dt>기간</dt><dd>{fmtYear(t.valid_from)} – {fmtYear(t.valid_to - 1)}</dd></div><div><dt>면적</dt><dd>{Math.round(t.area / 1000).toLocaleString()}천 km²</dd></div></dl>
+          <Text size="sm" color="secondary">경계는 한 견해다(Seshat). 정본 세력색은 팔레트 매핑, 회색은 팔레트 밖.</Text>
+        </div>}
+        <div className="shell-actions">{t?.wikidata && <Button label="Wikidata ↗" size="sm" variant="secondary" onClick={() => open(`https://www.wikidata.org/wiki/${t.wikidata}`, '_blank')} />}</div>
+      </Card>
+    );
+  }
   // 지형지물(NE 폴리곤 = 이름, Pleiades 점 = pid) — 정본 객체가 아니다
   if (sel.startsWith('landmark:')) {
     const key = sel.slice('landmark:'.length);

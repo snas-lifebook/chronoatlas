@@ -114,12 +114,66 @@ json.dump({'type': 'FeatureCollection', 'features': feats}, open(${JSON.stringif
 print('layer landmarks', len(feats), 'features')
 `], { stdio: 'inherit' });
 
+// 영토(TASKS 1.3 · F16 · D5a): Cliopatria(Seshat, CC BY 4.0) 정치체 폴리곤 → 100년 버킷 파일 layers/territory/<from>.geojson (엔진이 연도에 맞춰 지연 로드).
+// 전 구간 한 파일은 26MB라 초기 예산(1MB)을 깬다. 버킷당 200~900KB. 정본 팔레트의 세력(actor)으로 매핑, 나머지는 기타중립(회색).
+const CLIO_ZIP = join(CACHE, 'cliopatria.geojson.zip');
+await fetchTo('https://raw.githubusercontent.com/Seshat-Global-History-Databank/cliopatria/main/cliopatria.geojson.zip', CLIO_ZIP);
+if (!existsSync(join(CACHE, 'cliopatria.geojson'))) { execFileSync('unzip', ['-o', '-q', '-j', CLIO_ZIP, 'cliopatria_polities_only.geojson', '-d', CACHE]); execFileSync('mv', [join(CACHE, 'cliopatria_polities_only.geojson'), join(CACHE, 'cliopatria.geojson')]); }
+// 정치체 이름 → 정본 팔레트 세력. 정규식은 앞에서부터 첫 일치. 없으면 기타중립.
+export const ACTOR_OF: [RegExp, string][] = [
+  [/^(Roman (Kingdom|Republic|Empire)|Western Roman Empire|Eastern Roman Empire|Byzantine Empire)$/, '로마'],
+  [/^Carthage$/, '카르타고'],
+  [/Macedon|Seleucid|Ptolemaic|Pontus|Pergam|Epirus|Achaean|Aetolian|Sparta|Athens|Syracuse|Bosporan|Greco-Bactrian|Bithynia|Cappadocia/, '그리스계'],
+  [/Numidia|Mauretania/, '누미디아'],
+  [/Gaul|Gallic Empire|Arverni|Aedui|Celt|Galatia|Britons/, '갈리아'],
+  [/Vandal|Visigoth|Ostrogoth|Frank|Suebi|Burgund|Lombard|Alemanni|Saxon|Goth|Gepid|Thuringi|Bavarii|Angles|Jutes/, '게르만'],
+  [/Palmyrene|Britannic Empire|Sertorius|Spartacus/, '반란세력'],
+  [/Etrusc|Samnite|Latin League|Sabine|Volsci|Umbri|Lucani|Bruttii/, '이탈리아세력'],
+];
+export const TERRITORY_BUCKET = 100;
+execFileSync('python3', ['-c', `
+import json, re, os
+A = ${JSON.stringify(ACTOR_OF.map(([re, a]) => [re.source, a]))}
+W, S, E, N = ${BBOX.join(', ')}
+def bbox(g):
+    xs = []; ys = []
+    def walk(c):
+        if isinstance(c[0], (int, float)): xs.append(c[0]); ys.append(c[1])
+        else:
+            for x in c: walk(x)
+    walk(g['coordinates']); return min(xs), min(ys), max(xs), max(ys)
+def actor(name):
+    for rx, a in A:
+        if re.search(rx, name): return a
+    return '기타중립'
+keep = []
+for f in json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['features']:
+    p = f['properties']
+    if p['Type'] != 'POLITY' or p['Name'].startswith('(') or p['ToYear'] < -800 or p['FromYear'] > 1500 or p['Area'] < 30000: continue
+    x0, y0, x1, y1 = bbox(f['geometry'])
+    if x1 < W or x0 > E or y1 < S or y0 > N: continue
+    def rnd(c):
+        return [round(c[0], 2), round(c[1], 2)] if isinstance(c[0], (int, float)) else [rnd(x) for x in c]
+    keep.append({'type': 'Feature', 'geometry': {'type': f['geometry']['type'], 'coordinates': rnd(f['geometry']['coordinates'])},
+      'properties': {'id': f"territory:{p['Name']}:{p['FromYear']}", 'name': p['Name'], 'actor': actor(p['Name']), 'valid_from': p['FromYear'], 'valid_to': p['ToYear'] + 1,
+                     'wikidata': p['Wikidata'], 'area': int(p['Area']), 'src': 'cliopatria', 'confidence': 'medium'}})
+out = ${JSON.stringify(join(OUT, 'layers', 'territory'))}; os.makedirs(out, exist_ok=True)
+B = ${TERRITORY_BUCKET}; total = 0
+for b in range(-800, 1500, B):
+    fs = [f for f in keep if f['properties']['valid_from'] < b + B and f['properties']['valid_to'] > b]
+    # 큰 나라가 아래, 작은 나라가 위(가려지지 않게)
+    fs.sort(key=lambda f: -f['properties']['area'])
+    s = json.dumps({'type': 'FeatureCollection', 'features': fs}, ensure_ascii=False, separators=(',', ':'))
+    open(f'{out}/{b}.geojson', 'w').write(s); total += len(s)
+print('layer territory buckets', len(range(-800, 1500, B)), 'features', len(keep), 'total KB', total // 1024)
+`], { stdio: 'inherit' });
+
 // 글리프 PBF: 라벨에 실제 쓰인 문자 범위만 내려받아 public/glyphs/에 둔다(런타임 외부 호출 0).
 // ponytail: Pretendard 글리프 자체 빌드(fontnik)는 컨테이너에서 네이티브 빌드 불가 → KlokanTech Noto Sans CJK(OFL)로 시작. DESIGN §1 "Pretendard 글리프"는 River 맥에서 font-maker로 교체.
 const GLYPH_SRC = 'https://raw.githubusercontent.com/klokantech/klokantech-gl-fonts/master';
 const FONTS = ['KlokanTech Noto Sans CJK Regular', 'KlokanTech Noto Sans CJK Bold'];
 const chars = new Set<number>();
-for (const f of readdirSync(join(OUT, 'layers'))) {
+for (const f of readdirSync(join(OUT, 'layers')).filter(f => f.endsWith('.geojson'))) {
   const g = JSON.parse(readFileSync(join(OUT, 'layers', f), 'utf8'));
   for (const ft of g.features ?? []) for (const [k, v] of Object.entries(ft.properties ?? {})) if (/name/.test(k) && typeof v === 'string') for (const ch of v) chars.add(ch.codePointAt(0)!);
 }
@@ -139,6 +193,7 @@ ${VECTORS.map(v => `| ${v.id}.geojson | Natural Earth 10m (nvkelso/natural-earth
 ${BATHY.map(([l, d]) => `| ne_10m_bathymetry_${l}_${d}.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=${d} |`).join('\n')}
 | SR_50M.tif | Natural Earth 50m Shaded Relief (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg (image 소스). Mapterhorn 교체 예정 |
 | pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 ${Object.keys(LANDMARK_TYPES).length}종, bbox) |
+| cliopatria.geojson.zip | Cliopatria — Seshat Global History Databank (정치체 폴리곤 3400BCE–2024CE) | CC BY 4.0 — 크레딧 "Cliopatria (Seshat)" 필수 | → layers/territory/<100년>.geojson (bbox·면적 3만km² 이상·팔레트 세력 매핑) |
 | KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
 
 생성: scripts/fetch-external.ts · ${new Date().toISOString().slice(0, 10)}
