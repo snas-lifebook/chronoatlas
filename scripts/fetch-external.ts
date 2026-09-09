@@ -119,6 +119,7 @@ print('raster relief', x1-x0, 'x', y1-y0)
 const PLEIADES = 'https://raw.githubusercontent.com/isawnyu/pleiades-datasets/main/data/gis';
 const PL = join(CACHE, 'pleiades'); mkdirSync(PL, { recursive: true });
 for (const f of ['places', 'places_place_types']) await fetchTo(`${PLEIADES}/${f}.csv`, join(PL, `${f}.csv`));
+await fetchTo(`${NE}/ne_10m_geography_regions_elevation_points.geojson`, '/tmp/__ne_elev.json');
 // lod: 1 = z5부터(산·고개·해협·반도·숲…), 2 = z6(강·호수·곶·섬·만·평원), 3 = z8(나머지)
 export const LANDMARK_TYPES: Record<string, { ko: string; lod: 1 | 2 | 3 }> = {
   mountain: { ko: '산', lod: 1 }, pass: { ko: '고개', lod: 1 }, strait: { ko: '해협', lod: 1 }, gulf: { ko: '만', lod: 1 }, isthmus: { ko: '지협', lod: 1 }, peninsula: { ko: '반도', lod: 1 },
@@ -145,6 +146,17 @@ for r in csv.DictReader(open(${JSON.stringify(join(PL, 'places.csv'))}, encoding
     feats.append({'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [round(lon, 4), round(lat, 4)]},
       'properties': {'pid': int(r['id']), 'name': re.sub(r'\\s*\\([^)]*\\)\\s*$', '', r['title']), 'kind': kind, 'kind_ko': T[kind]['ko'], 'lod': T[kind]['lod'], 'precision': r['location_precision'],
                      'desc': desc[:240] + ('…' if len(desc) > 240 else ''), 'uri': r['uri']}})
+# NE 10m 고도점(PD): 이름난 봉우리 + 실측 고도 — 음영기복만으로는 '산'이 안 읽혀서 고도 숫자를 얹는다. Pleiades와 같은 레이어(클릭·인스펙터 경로 공유).
+ne = json.load(open('/tmp/__ne_elev.json', encoding='utf-8'))
+for x in ne['features']:
+    lon, lat = x['geometry']['coordinates'][:2]
+    if not (${BBOX[0]} <= lon <= ${BBOX[2]} and ${BBOX[1]} <= lat <= ${BBOX[3]}): continue
+    q = x['properties']
+    nm = q.get('name_ko') or q.get('name')
+    if not nm or q.get('elevation') is None: continue
+    feats.append({'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [round(lon, 4), round(lat, 4)]},
+      'properties': {'pid': 'ne' + str(q.get('wikidataid') or nm), 'name': nm, 'kind': q['featurecla'], 'kind_ko': {'mountain': '산', 'depression': '저지', 'spot elevation': '고도점'}.get(q['featurecla'], q['featurecla']),
+                     'lod': 1, 'precision': 'precise', 'elev': int(q['elevation']), 'desc': '', 'uri': 'https://www.wikidata.org/wiki/' + q['wikidataid'] if q.get('wikidataid') else '', 'src': 'ne'}})
 feats.sort(key=lambda f: (f['properties']['lod'], f['properties']['name']))
 json.dump({'type': 'FeatureCollection', 'features': feats}, open(${JSON.stringify(join(OUT, 'layers', 'landmarks.geojson'))}, 'w'), ensure_ascii=False, separators=(',', ':'))
 print('layer landmarks', len(feats), 'features')

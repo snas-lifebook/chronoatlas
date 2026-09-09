@@ -61,15 +61,16 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
     const lm = d.landmarks?.features.find(f => String(f.properties.pid) === key)?.properties;
     return (
       <Card padding={4} elevation="low" className="shell-inspector ins">
-        <Text size="sm" color="secondary">지형지물 · {lm ? `${lm.kind_ko} · Pleiades` : 'Natural Earth'}</Text>
+        <Text size="sm" color="secondary">지형지물 · {lm ? `${lm.kind_ko} · ${lm.src === 'ne' ? 'Natural Earth 10m' : 'Pleiades'}` : 'Natural Earth'}</Text>
         <Heading level={2}>{lm?.name ?? key}</Heading>
         {lm && <div className="ins-body">
           {lm.desc && <Text size="sm" className="ins-desc">{lm.desc}</Text>}
+          {lm.elev != null && <dl className="ins-kv"><div><dt>고도</dt><dd>{lm.elev.toLocaleString()} m</dd></div></dl>}
           <Text size="sm" color="secondary">좌표 {lm.precision === 'rough' ? '대략(rough) — 범위의 중심점' : '정밀(precise)'} · {lm.kind}</Text>
         </div>}
         <Text size="sm" color="secondary">정본 place 제안 대상 — 한글 이름·설명을 붙이면 온톨로지 객체가 된다.</Text>
         <div className="shell-actions">
-          {lm && <Button label="Pleiades ↗" size="sm" variant="secondary" onClick={() => open(lm.uri, '_blank')} />}
+          {lm?.uri && <Button label={lm.src === 'ne' ? 'Wikidata ↗' : 'Pleiades ↗'} size="sm" variant="secondary" onClick={() => open(lm.uri, '_blank')} />}
           <IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} />
         </div>
       </Card>

@@ -89,7 +89,7 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
   if (has('landmarks')) {
     geo('landmarks');
     layers.push(sym('landmark-pleiades', 'landmarks',
-      { 'text-field': ['get', 'name'], 'text-font': FONT.regular, 'text-size': ['interpolate', ['linear'], ['zoom'], 5, 9, 9, 11], 'text-max-width': 7, 'symbol-sort-key': ['+', ['get', 'lod'], 10] },
+      { 'text-field': ['case', ['has', 'elev'], ['concat', '▲ ', ['get', 'name'], '  ', ['get', 'elev'], 'm'], ['get', 'name']], 'text-font': FONT.regular, 'text-size': ['interpolate', ['linear'], ['zoom'], 5, 9, 9, 11], 'text-max-width': 8, 'symbol-sort-key': ['case', ['has', 'elev'], -1, ['+', ['get', 'lod'], 10]] },
       { 'text-color': ['case', ['boolean', ['feature-state', 'selected'], false], c.label, c.label2], 'text-halo-color': c.halo, 'text-halo-width': 1, 'text-opacity': ['case', ['==', ['get', 'precision'], 'rough'], 0.6, 0.9] },
       { minzoom: 5, filter: ['<=', ['get', 'lod'], ['step', ['zoom'], 1, 7, 2, 9, 3]] as any }));
   }
