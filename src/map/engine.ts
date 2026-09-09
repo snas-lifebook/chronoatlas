@@ -56,7 +56,17 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const t = terrainMeta; if (!t) return;
     if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
     if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': isDark ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': isDark ? '#3A424C' : '#FFFFFF' } }, before);
-    map.setTerrain({ source: 'dem', exaggeration: t.exaggeration ?? 1.4 });
+    // 고도 과장은 줌에 따라 — 낮은 줌에서 1.4배는 화면상 1~2px라 "3D인데 굴곡이 없다"가 된다.
+    // 산이 화면에서 비슷한 높이로 보이도록 줌이 낮을수록 크게(z3 16배 → z11 1.4배). setTerrain은 표현식을 못 받아서 zoom 이벤트로 갱신.
+    const base = t.exaggeration ?? 1.4;
+    const exaggerationAt = (z: number) => base * Math.min(11, Math.max(1, 2 ** ((9 - z) * 0.62)));
+    let lastEx = 0;
+    const syncTerrain = () => {
+      const ex = Math.round(exaggerationAt(map.getZoom()) * 10) / 10;
+      if (ex === lastEx) return;
+      lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
+    };
+    syncTerrain(); map.on('zoom', syncTerrain);
   }
 
   function addData() {
