@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "npm run validate && vite build",
     "preview": "vite preview",
-    "validate": "npm run gen && npm run lint && vitest run",
+    "validate": "npm run gen && npm run lint && npm run typecheck && vitest run",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "gen": "node public/datasets/rome-753-218/_gen_regions.mjs && node public/datasets/rome-753-218/_gen_territory.mjs && node public/datasets/rome-753-218/_gen_admin.mjs && node public/datasets/rome-753-218/_gen_battles.mjs && node public/datasets/rome-753-218/_gen_movements.mjs",
