@@ -411,7 +411,8 @@ writeFileSync(join(CACHE, 'LICENSES.md'), `# data/external — 출처·라이선
 |---|---|---|---|
 ${VECTORS.map(v => `| ${v.id}.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/${v.out}.geojson, bbox ${bbox} |`).join('\n')}
 ${BATHY.map(([l, d]) => `| ne_10m_bathymetry_${l}_${d}.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=${d} |`).join('\n')}
-| GRAY_HR_SR_OB_DR.tif | Natural Earth 10m Gray Earth — 음영·하계망·해저 (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg 4800×2400 (image 소스). 기하 3D DEM은 미확보 |
+| GRAY_HR_SR_OB_DR.tif | Natural Earth 10m Gray Earth — 음영·하계망·해저 (nvkelso/natural-earth-raster) | Public Domain | → rasters/relief.jpg 4800×2400 (image 소스). DEM 타일이 있으면 엔진이 이걸 걷어낸다(음영 두 벌이 겹치면 능선이 뭉개진다) |
+| ne_10m_geography_regions_elevation_points.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/landmarks.geojson 고도점 132곳(이름난 봉우리 + 실측 고도, src=ne). Pleiades와 같은 레이어라 재배포된다 |
 | pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 ${Object.keys(LANDMARK_TYPES).length}종, bbox) |
 | cliopatria.geojson.zip | Cliopatria — Seshat Global History Databank (정치체 폴리곤 3400BCE–2024CE) | CC BY 4.0 — 크레딧 "Cliopatria (Seshat)" 필수 | → layers/territory/<100년>.geojson (bbox·면적 3만km² 이상·팔레트 세력 매핑) |
 | terrarium 타일(선택, TERRAIN=1) | AWS Terrain Tiles — Mapzen/Tilezen (SRTM·GMTED2010·ETOPO1 등) | 출처별 상이(PD·CC BY·ODbL) — 크레딧 표기 | → public/datasets/rome/terrain/ (기하 3D). 커밋 전 라이선스 확인 |
