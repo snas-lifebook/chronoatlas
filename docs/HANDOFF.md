@@ -7,8 +7,9 @@
 
 ## 1. 지금 상태
 
-- `main` @ `2eaa9cd`. GitHub 원격 **없음**(로컬 + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
-- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, **vitest 81 통과**.
+- GitHub 원격 **없음**(로컬 `main` + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
+  (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다 — `git log --oneline -5`를 보라.)
+- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, vitest 81 통과. **수치가 다르면 이 문서가 낡은 것이다.**
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
 - 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
 - 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9 — landmarks 1.2MB가 끼어 있었다).
