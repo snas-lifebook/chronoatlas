@@ -33,7 +33,7 @@ npm run dev                                                     # http://localho
 npm run adapt            # 정본 온톨로지 → datasets/rome (ONTOLOGY_DIR 필요)
 npm run fetch-external   # Natural Earth·음영·Pleiades·Cliopatria·글리프 다시 굽기 (캐시 data/external/, 커밋 안 함)
 npm run lint             # 온톨로지 불변식 (baseline 래칫 — 새 오류만 실패)
-npm run build            # gen + lint + vitest + vite build (+ MapLibre 워커 복사)
+npm run build            # gen + lint + typecheck + vitest + vite build (+ MapLibre 워커 복사). Actions가 이걸 그대로 돌린다
 npm run mcp              # MCP stdio 서버
 ```
 
