@@ -7,15 +7,15 @@
 
 ## 1. 지금 상태
 
-- `main` @ `958adfa`. GitHub 원격 **없음**(로컬 + `bundle/main`만). Pages 미배포.
+- `main` @ `1c1927c`. GitHub 원격 **없음**(로컬 + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
 - `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, **vitest 79 통과**.
-- 초기 JS **385.8 kB gz** (예산 400 — 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
-- 첫 페인트 차단 데이터 **15.4 kB gz** (2026-09-10 이전엔 228.9 — landmarks 1.2MB가 끼어 있었다).
-- `npx tsc --noEmit` 에러 1건 상존: `src/app/Profile.tsx:42` SVG `title` prop. 빌드 게이트에 typecheck는 없다.
+- 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
+- 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9 — landmarks 1.2MB가 끼어 있었다).
+- `npx tsc --noEmit` 에러 1건 상존: `src/app/Profile.tsx:42` SVG `title` prop. **빌드 게이트에 typecheck가 없다.**
 
-볼트 문서(`SPEC`·`TASKS`·MOC)는 **9/8자**라 9/9~10 작업(3D 지형·고도 단면·GraphPanel 수정·번들)이 안 들어 있다.
-`docs/roadmap.md`는 한 세대 낡았다 — `rome-753-218`·`main.ts`·`panel.ts` 기준으로 쓰여 있고
-"다음 증분 1. 경로 고도 프로파일"은 `958adfa`에서 이미 끝났다. 고쳐 쓸 것.
+문서는 9/10에 맞춰 놨다(볼트 `SPEC`·`TASKS`·MOC, 레포 `README`·`roadmap.md`).
+남은 어긋남 하나: `data/external/LICENSES.md`는 생성물인데 캐시가 비어 재생성을 못 했다.
+`fetch-external.ts` 쪽은 고쳤으니 egress 있는 데서 `npm run fetch-external` 한 번 돌리면 맞는다.
 
 ## 2. 폴더 지도
 
@@ -71,11 +71,13 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
 
 | # | 무엇 | 왜 지금 | 근거 |
 |---|---|---|---|
-| 6.1 | **`docs/roadmap.md` 재작성** — 한 세대 낡음(§1). 볼트 `TASKS`·`SPEC` 상태 열도 9/9~10분 반영 | 문서가 실제와 어긋난 채로 다음 세션이 또 읽는다 | TASKS 4.3 |
-| 6.2 | **초한지 데이터셋 새 스키마·린트 적용** — `chuhan-206`이 옛 포맷 그대로 | 완료 판정 7의 ◐ 하나 | TASKS 3.5 |
+| 6.1 | **초한지 데이터셋 새 스키마·린트 적용** — `chuhan-206`이 옛 포맷 그대로 | 완료 판정 7의 ◐ 하나 | TASKS 3.5 |
+| 6.2 | **`Profile.tsx` typecheck 에러 1건** + `npm run validate`에 `tsc --noEmit` 추가 | 게이트에 구멍이 하나 있다 | §1 |
 | 6.3 | **크레딧 페이지** — `LICENSES.md` + 각주에서 생성 | 작고 독립적 | SPEC F20 ◐ |
-| 6.4 | **`Profile.tsx` typecheck 에러 1건** + `npm run validate`에 `tsc --noEmit` 추가 | 게이트에 구멍 | §1 |
-| 6.5 | **번들 나머지** — 초기 JS 385.8 gz의 바닥은 maplibre 243 + react 59.6 + astryx 58.4. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 함 | 예산은 이미 통과. 더 갈지는 판단 필요 | TASKS 4.5 |
+| 6.4 | **F19 파벌 해칭** — `fill-pattern`·영향권 `heatmap` | 정치 세력 데이터(F13)는 막혔지만 `confidence` 기반 해칭은 지금 됨 | SPEC F19 ○ |
+| 6.5 | **번들 나머지** — 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
+
+닫힌 것(9/10): `docs/roadmap.md` 재작성 · 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 누락 2건.
 
 **막힌 것**(고르지 말 것): 4.1 P13 z7~9(DEM) · 4.5 Lighthouse CI(배포) · 3.6 자료실 역링크(크로노아틀라스 URL이 아직 없다) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) · 3.7·3.8 흉상 GLB(GPU).
 
