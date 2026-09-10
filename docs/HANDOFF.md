@@ -58,11 +58,13 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
   mkdir -p /tmp/smoke && ln -s ~/Projects/chronoatlas/dist /tmp/smoke/chronoatlas
   cd /tmp/smoke && python3 -m http.server 4180   # → localhost:4180/chronoatlas/
   ```
-- **Claude in Chrome 자동화 탭에서는 지도가 안 뜬다** (2026-09-10 실측). 셸·패널·그래프·타임라인·데이터는 다 뜨는데
-  MapLibre 스타일이 `_loaded: false`에서 멈춘다(`getStyle()` 없음, 소스 0, 글리프 요청 0). WebGL은 정상(M3 Metal, 컨텍스트 안 잃음).
-  **dev·빌드 둘 다, `958adfa`(내 수정 전)에서도 같다** — 즉 코드 회귀가 아니라 그 브라우저 컨텍스트 문제다.
-  River 맥의 평범한 Chrome에서는 뜬다(4.2 영상이 증거). **지도 렌더가 걸린 검증은 에이전트가 못 한다 — River 몫.**
-  원인은 안 팠다.
+- **자동화 탭(Claude in Chrome)에서는 지도가 안 뜬다.** 원인은 `document.hidden = true`다 — 배경 탭에서는
+  rAF가 멈추고, MapLibre는 스타일 로드를 rAF로 굴리므로 `map.on('load')`가 **영영 안 fire**한다.
+  증상: 셸·패널·그래프·타임라인·데이터는 다 뜨는데 `map.style._loaded`가 false에 머물고 `getStyle()`이 없다(소스 0, 글리프 요청 0).
+  **JS 에러 0, WebGL 정상**(M3 Metal, 컨텍스트 안 잃음)이라 코드 버그처럼 안 보인다. dev·빌드 둘 다 같고 옛 커밋에서도 같다.
+  이 함정은 8월에 이미 밟았다(visual-pipeline 시절) — 다시 파지 말 것.
+  → **렌더 확인은 포그라운드 실브라우저에서 `npm run dev`.** 에이전트는 못 한다, River 몫.
+  자동화 탭으로 확인할 수 있는 것: DOM·상태(`window.__ca.store`)·네트워크(`performance.getEntriesByType('resource')`)까지.
 - 브라우저 검증이 필요하면 헤드리스 Playwright도 없다(파이썬 `playwright`는 있으나 chromium 미설치, 설치는 egress 필요).
 
 ## 6. 에이전트가 지금 할 수 있는 것
