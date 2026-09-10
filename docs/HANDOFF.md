@@ -7,8 +7,12 @@
 
 ## 1. 지금 상태
 
-- GitHub 원격 **없음**(로컬 `main` + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
+- **라이브: https://snas-lifebook.github.io/chronoatlas/** (2026-09-10 배포). 원격 `origin` = `snas-lifebook/chronoatlas`(public).
+  push하면 Actions가 `npm ci` → `npm run build`(= gen·lint·typecheck·vitest·vite) → Pages. **빌드가 깨지면 배포가 안 된다.**
+  옛 레포 `visual-pipeline`은 archived이고 옛 Pages 주소는 여기로 리다이렉트한다.
   (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다 — `git log --oneline -5`를 보라.)
+- **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
+  그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
 - `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, vitest 81 통과. **수치가 다르면 이 문서가 낡은 것이다.**
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
 - 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
@@ -83,13 +87,14 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
 
 | # | 무엇 | 왜 지금 | 근거 |
 |---|---|---|---|
-| 6.1 | **크레딧 페이지** — `LICENSES.md` + 각주에서 생성 | 작고 독립적. CC BY 소스(Cliopatria·Pleiades)가 출처표기 의무를 진다 | SPEC F20 ◐ |
-| 6.2 | **`?ds=` 전환에 새로고침이 필요한지 확인** — `main.tsx`가 부팅 때 `ds`를 한 번만 읽는다. URL만 바뀌고 데이터가 안 바뀌면 버그 | 데이터셋 스위처는 완료 판정 7 | SPEC F12 |
+| 6.1 | **자료실 역링크(3.6)** — 자료실 `site/lib/links.ts`에 `atlasUrl` 추가 → 객체 페이지에 「지도에서 보기」. 주소는 `…/chronoatlas/?ds=rome&sel={id}&y={연도}` | 배포로 **막힘이 풀렸다**. 완료 판정 4의 남은 반쪽 | TASKS 3.6 |
+| 6.2 | **크레딧 페이지** — 대장 둘(`data/external/LICENSES.md`·`public/assets/CREDITS.md`)에서 생성 | 작고 독립적 | SPEC F20 ◐ |
 | 6.3 | **번들 나머지** — 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
 | 6.4 | **F19 파벌 해칭** — `fill-pattern`·영향권 `heatmap` | 코드는 쓸 수 있지만 **결과를 눈으로 못 본다**(§5). 착수 전 River와 합의할 것 | SPEC F19 ○ |
 
-닫힌 것(9/10): `docs/roadmap.md` 재작성 · 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 누락 2건 ·
-typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · 검색 팔레트 빈 상태.
+닫힌 것(9/10): **0.0 레포·Pages 배포**(+ 옛 레포 archived·리다이렉트) · `docs/roadmap.md` 재작성 ·
+볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 3건(외부 2 + 에셋 대장 신설) ·
+typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · 검색 팔레트 빈 상태 · 뒤로가기 `ds` 어긋남.
 
 **초한지(TASKS 3.5)는 여기서 뺐다** — 남은 것이 베이스맵인데 egress가 필요하다(§1). 그 데이터셋에서
 검증으로 닫을 수 있던 부분(스키마 통과·검색 빈 상태)은 이미 닫혔다.
@@ -98,7 +103,7 @@ typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · �
 
 ## 7. River 몫
 
-GitHub 레포 생성·push·Pages · DEM z8+ · Pretendard/세리프 글리프 · DPRR · 기후·바람·해류 ·
+DEM z8+ · Pretendard/세리프 글리프 · DPRR · 기후·바람·해류 ·
 `migrate_v2.py --write` · `proposals/` 2건 검토 · 자료실 `atlasUrl` · Claude Desktop MCP 연결 · 흉상 GLB(F12b) ·
 **그리고 지도 렌더가 걸린 모든 검증**(§5).
 
