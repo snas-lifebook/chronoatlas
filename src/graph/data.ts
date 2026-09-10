@@ -51,5 +51,10 @@ export function shortestPath(g: Graph, a: string, b: string, maxHops = 4): PathS
 
 let cache: Promise<Graph> | null = null;
 export function loadGraph(base: string): Promise<Graph> {
-  return cache ??= fetch(`${base}/graph.json`).then(r => { if (!r.ok) throw new Error(`graph.json ${r.status}`); return r.json(); }).then(indexGraph);
+  // 실패한 약속은 캐시에 남기지 않는다 — 남기면 그 뒤 호출이 전부 같은 거절을 다시 던져서
+  // 한 번 놓친 graph.json이 새로고침 전까지 영영 안 온다. graph.json이 없는 데이터셋(초한지)도 있다.
+  return cache ??= fetch(`${base}/graph.json`)
+    .then(r => { if (!r.ok) throw new Error(`graph.json ${r.status}`); return r.json(); })
+    .then(indexGraph)
+    .catch(err => { cache = null; throw err; });
 }

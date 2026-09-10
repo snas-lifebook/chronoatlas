@@ -9,10 +9,11 @@ const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
 
 export function Search({ base, onPick, onClose, placeholder }: { base: string; onPick: (id: string) => void; onClose: () => void; placeholder?: string }) {
   const [graph, setGraph] = useState<Graph | null>(null);
+  const [noIndex, setNoIndex] = useState(false); // graph.json이 없는 데이터셋 — '불러오는 중'에 영영 머무르지 않게
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { loadGraph(base).then(setGraph).catch(() => {}); inputRef.current?.focus(); }, []);
+  useEffect(() => { loadGraph(base).then(setGraph).catch(() => setNoIndex(true)); inputRef.current?.focus(); }, []);
   const index = useMemo(() => graph ? buildIndex([...graph.nodes.values()].map(n => ({ id: n.id, name: n.name, aliases: n.aliases, type: n.type }))) : [], [graph]);
   const results: SearchItem[] = useMemo(() => search(index, q), [index, q]);
   useEffect(() => setCursor(0), [q]);
@@ -39,7 +40,7 @@ export function Search({ base, onPick, onClose, placeholder }: { base: string; o
             {!results.length && <li className="empty"><Text size="sm" color="secondary">「{q.trim()}」와 일치하는 객체가 없다 — 이명이나 초성(ㅋㅇㅅ)으로.</Text><Button label="지우기" size="sm" variant="ghost" onClick={() => setQ('')} /></li>}
           </ol>
         )}
-        {!q.trim() && <Text size="sm" color="secondary">{graph ? `${graph.nodes.size}개 객체` : '불러오는 중'} · ↑↓ 이동 · ↵ 선택 · Esc 닫기</Text>}
+        {!q.trim() && <Text size="sm" color="secondary">{graph ? `${graph.nodes.size}개 객체` : noIndex ? '이 데이터셋에는 객체 색인이 없다' : '불러오는 중'} · ↑↓ 이동 · ↵ 선택 · Esc 닫기</Text>}
       </Card>
     </div>
   );
