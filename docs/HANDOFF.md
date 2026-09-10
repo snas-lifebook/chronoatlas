@@ -7,11 +7,15 @@
 
 ## 1. 지금 상태
 
-- `main` @ `1c1927c`. GitHub 원격 **없음**(로컬 + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
-- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, **vitest 79 통과**.
+- `main` @ `2eaa9cd`. GitHub 원격 **없음**(로컬 + `bundle/main`만). Pages 미배포 — 완료 판정 1이 여기서 막혀 있다.
+- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, **vitest 81 통과**.
+- `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
 - 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
 - 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9 — landmarks 1.2MB가 끼어 있었다).
-- `npx tsc --noEmit` 에러 1건 상존: `src/app/Profile.tsx:42` SVG `title` prop. **빌드 게이트에 typecheck가 없다.**
+- **`chuhan-206`은 베이스맵이 없다.** manifest에 `basemap`·`bbox`·`relief`가 없고, `rome/layers/land.geojson`은
+  경도 −15~65(지중해)만 덮어 중원(100~125)에 쓸 육지·해안·강이 아예 없다. `?ds=chuhan-206`은 빈 배경 위에
+  데이터 레이어만 뜬다 = SPEC F3 반려("단색 배경만 보이는 줌 레벨 없음")를 이 데이터셋은 전 줌에서 위반한다.
+  중원 bbox로 NE를 다시 구우려면 egress가 필요하다. 온톨로지가 없어 `graph.json`도 없다(검색·관계 패널은 빈 상태로 이름 붙여 놨다).
 
 문서는 9/10에 맞춰 놨다(볼트 `SPEC`·`TASKS`·MOC, 레포 `README`·`roadmap.md`).
 남은 어긋남 하나: `data/external/LICENSES.md`는 생성물인데 캐시가 비어 재생성을 못 했다.
@@ -73,13 +77,21 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
 
 | # | 무엇 | 왜 지금 | 근거 |
 |---|---|---|---|
-| 6.1 | **초한지 데이터셋 새 스키마·린트 적용** — `chuhan-206`이 옛 포맷 그대로 | 완료 판정 7의 ◐ 하나 | TASKS 3.5 |
-| 6.2 | **`Profile.tsx` typecheck 에러 1건** + `npm run validate`에 `tsc --noEmit` 추가 | 게이트에 구멍이 하나 있다 | §1 |
-| 6.3 | **크레딧 페이지** — `LICENSES.md` + 각주에서 생성 | 작고 독립적 | SPEC F20 ◐ |
-| 6.4 | **F19 파벌 해칭** — `fill-pattern`·영향권 `heatmap` | 정치 세력 데이터(F13)는 막혔지만 `confidence` 기반 해칭은 지금 됨 | SPEC F19 ○ |
-| 6.5 | **번들 나머지** — 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
+**고르기 전에 §5를 먼저 읽어라.** 지도가 화면에 그려져야 확인되는 것(색·해칭·LOD·레이어 순서·성능)은
+에이전트가 검증할 수 없다. 그런 건 River 몫으로 남기고, 코드·데이터·빌드로 닫히는 것을 고른다.
 
-닫힌 것(9/10): `docs/roadmap.md` 재작성 · 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 누락 2건.
+| # | 무엇 | 왜 지금 | 근거 |
+|---|---|---|---|
+| 6.1 | **크레딧 페이지** — `LICENSES.md` + 각주에서 생성 | 작고 독립적. CC BY 소스(Cliopatria·Pleiades)가 출처표기 의무를 진다 | SPEC F20 ◐ |
+| 6.2 | **`?ds=` 전환에 새로고침이 필요한지 확인** — `main.tsx`가 부팅 때 `ds`를 한 번만 읽는다. URL만 바뀌고 데이터가 안 바뀌면 버그 | 데이터셋 스위처는 완료 판정 7 | SPEC F12 |
+| 6.3 | **번들 나머지** — 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
+| 6.4 | **F19 파벌 해칭** — `fill-pattern`·영향권 `heatmap` | 코드는 쓸 수 있지만 **결과를 눈으로 못 본다**(§5). 착수 전 River와 합의할 것 | SPEC F19 ○ |
+
+닫힌 것(9/10): `docs/roadmap.md` 재작성 · 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 누락 2건 ·
+typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · 검색 팔레트 빈 상태.
+
+**초한지(TASKS 3.5)는 여기서 뺐다** — 남은 것이 베이스맵인데 egress가 필요하다(§1). 그 데이터셋에서
+검증으로 닫을 수 있던 부분(스키마 통과·검색 빈 상태)은 이미 닫혔다.
 
 **막힌 것**(고르지 말 것): 4.1 P13 z7~9(DEM) · 4.5 Lighthouse CI(배포) · 3.6 자료실 역링크(크로노아틀라스 URL이 아직 없다) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) · 3.7·3.8 흉상 GLB(GPU).
 
