@@ -50,5 +50,6 @@ TERRAIN=1 npm run fetch-external
 `npm run adapt`은 `ONTOLOGY_DIR` 환경변수를 쓴다. 매번 치기 싫으면 `data/ontology-dir.txt`(gitignore)에 경로 한 줄:
 
 ```
-echo "/Users/river/Library/Mobile Documents/iCloud~md~obsidian/Documents/River's Second Brain/Efforts/Notes/산업스터디/Projects/인생책_읽기_편데/Books/로마제국쇠망사/ontology" > data/ontology-dir.txt
+# <볼트> = Obsidian 볼트 루트 (공개 레포라 개인 경로는 안 적는다)
+echo "<볼트>/Efforts/Notes/산업스터디/Projects/인생책_읽기_편데/Books/로마제국쇠망사/ontology" > data/ontology-dir.txt
 ```
