@@ -45,7 +45,8 @@ DEM 타일은 z0~7(840장, 53MB)이 River 맥에 있고 레포에는 없다. z8 
 ## 소스·라이선스
 
 정책은 하나: **PD·자체 트레이싱·출처표기 조건부만 재배포한다. 카피레프트·NC·상용은 참조만.**
-파일 단위 대장은 `data/external/LICENSES.md`(`fetch-external.ts`가 생성). 요약:
+파일 단위 대장 둘: 외부 데이터는 `data/external/LICENSES.md`(`fetch-external.ts`가 생성),
+초상·문장 71점은 `public/assets/CREDITS.md`(자체 제작, 제3자 이미지 재배포 없음). 외부 소스 요약:
 
 | 소스 | 라이선스 | 용도 | 재배포 |
 |------|----------|------|--------|
