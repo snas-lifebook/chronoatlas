@@ -272,8 +272,10 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
 function Tool({ label, sub, active, onClick, children }: { label: string; sub: string; active?: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <Tooltip content={label}>
-      <button className={`shell-tool${active ? ' is-active' : ''}`} onClick={onClick} aria-label={label} aria-pressed={active}>
-        <span className="ico">{children}</span><span className="lbl">{label}</span><span className="sub">{sub}</span>
+      {/* aria-label을 주면 접근명("전체 보기")이 보이는 글자("전체 보기 overview")를 다 담지 못해 WCAG 2.5.3 위반이 된다.
+          내용이 곧 이름이 되게 두고, 장식인 아이콘만 숨긴다. */}
+      <button className={`shell-tool${active ? ' is-active' : ''}`} onClick={onClick} aria-pressed={active}>
+        <span className="ico" aria-hidden="true">{children}</span><span className="lbl">{label}</span><span className="sub">{sub}</span>
       </button>
     </Tooltip>
   );
