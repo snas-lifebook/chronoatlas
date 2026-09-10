@@ -2,7 +2,7 @@
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../schema';
 import { buildStyle, type Skin } from './style';
-import type { Store, Scene, State } from '../state';
+import { roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
@@ -27,16 +27,30 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; // DESIGN §4: 즉시 전환
   const dur = (ms: number) => (reduced ? 0 : ms);
   let isDark = dark;
-  const style = buildStyle(d.manifest, root, ds, { dark });
-  const scenes: Scene[] = d.manifest.scenes ?? [];
-  const cam = scenes.find(sc => sc.id === s0.scene) ?? {} as Scene;
+  // 부팅 스킨은 스타일에 바로 넣는다. 나중에 setSkin으로 갈아끼우면 setStyle이 소스·레이어를 통째로
+  // 다시 얹으므로(아래 setSkin 참고) 북마크로 들어온 스킨 때문에 스타일을 두 번 빌드하게 된다.
+  const themeSkin: Skin = dark ? 'dark' : 'light';
+  const style = buildStyle(d.manifest, root, ds, s0.skin && s0.skin !== themeSkin ? { skin: s0.skin } : { dark });
+  // 카메라는 상태에서 온다. main.tsx가 URL·장면을 이미 상태에 접어 넣은 뒤 엔진을 만든다.
   const bb = d.manifest.bbox;
-  const map = new maplibregl.Map({ container, style, center: cam.center ?? d.manifest.center, zoom: cam.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9,
-    pitch: s0.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (cam.bearing ?? 0),
+  const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: s0.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9,
+    pitch: s0.view === '2d' ? 0 : (s0.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (s0.bearing ?? 0),
     maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖이 안 보이게 — P13
     attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } }); // 내보내기(3.1)가 캔버스를 읽는다
   // MapLibre는 ResizeObserver 첫 콜백을 버린다 — 컨테이너가 0×0에서 시작하면(숨긴 패널·iframe) 400×300에 갇힌다. 우리가 직접 본다.
   new ResizeObserver(() => map.resize()).observe(container);
+
+  // 카메라 → 상태 (R35·F8). URL이 지금 화면을 담아야 '링크 복사'와 북마크가 쓸모 있다.
+  // move가 아니라 moveend라 팬·줌 한 동작에 한 번만 돈다. 값은 roundCam으로 깎아 넣는다 —
+  // 안 그러면 부동소수 잡음마다 store가 바뀌어 앱 전체(useSyncExternalStore)가 다시 그려진다.
+  let pitch3d = s0.pitch ?? 50, bearing3d = s0.bearing ?? 0; // 평면으로 눕혔다 다시 세울 때 돌아갈 각도
+  let echo = false; // 지금 들어온 상태 변경이 지도 자신이 낸 것인가(되먹임 차단)
+  map.on('moveend', () => {
+    if (store.get().view === '3d') { pitch3d = map.getPitch(); bearing3d = map.getBearing(); }
+    echo = true;
+    store.set(roundCam(map.getCenter(), map.getZoom(), map.getPitch(), map.getBearing()));
+    echo = false;
+  });
 
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
@@ -230,6 +244,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
+  // 지도를 이 카메라로 만들었으니 첫 apply에서 같은 자리로 다시 날아가지 않게 미리 채워 둔다
+  let lastCam = `${s0.center?.join(',') ?? ''}|${s0.zoom ?? ''}|${s0.pitch ?? ''}|${s0.bearing ?? ''}`;
   function apply(s: State) {
     if (!loaded) return;
     if (s.year !== lastYear) {
@@ -252,7 +268,16 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       }
     }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
-    if (s.view !== lastView) { lastView = s.view; map.easeTo({ pitch: s.view === '2d' ? 0 : (cam.pitch ?? 50), bearing: s.view === '2d' ? 0 : (cam.bearing ?? 0), duration: dur(600) }); }
+    // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
+    // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
+    const camKey = `${s.center?.join(',') ?? ''}|${s.zoom ?? ''}|${s.pitch ?? ''}|${s.bearing ?? ''}`;
+    if (camKey !== lastCam) {
+      const wasEcho = echo; lastCam = camKey;
+      if (!wasEcho && s.center) map.easeTo({ center: s.center, zoom: s.zoom ?? map.getZoom(),
+        pitch: s.view === '2d' ? 0 : (s.pitch ?? map.getPitch()), bearing: s.view === '2d' ? 0 : (s.bearing ?? map.getBearing()), duration: dur(600) });
+    }
+    // 평면/입체 토글은 '눕히기 전 각도'로 돌아간다. 부팅 장면(cam)이 아니라 마지막으로 세워 뒀던 각도다.
+    if (s.view !== lastView) { lastView = s.view; map.easeTo({ pitch: s.view === '2d' ? 0 : pitch3d, bearing: s.view === '2d' ? 0 : bearing3d, duration: dur(600) }); }
   }
   store.subscribe(apply);
 

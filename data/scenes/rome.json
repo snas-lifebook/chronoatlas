@@ -12,7 +12,8 @@
     "pitch": 50,
     "bearing": -12,
     "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일",
-    "to": -44
+    "to": -44,
+    "group": "첫 장면 · 카이사르"
   },
   {
     "id": "rubicon",
@@ -26,7 +27,8 @@
     "zoom": 6,
     "pitch": 55,
     "bearing": -20,
-    "to": -45
+    "to": -45,
+    "group": "첫 장면 · 카이사르"
   },
   {
     "id": "ides",
@@ -40,6 +42,7 @@
     "zoom": 7,
     "pitch": 55,
     "bearing": 0,
-    "to": -42
+    "to": -42,
+    "group": "첫 장면 · 카이사르"
   }
 ]

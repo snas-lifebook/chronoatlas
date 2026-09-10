@@ -2,7 +2,7 @@
 import { useEffect, useRef, useSyncExternalStore, useState, useMemo } from 'react';
 import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
-import { type Store, type Scene, applyScene } from '../state';
+import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
 import { SKINS, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
@@ -31,7 +31,7 @@ type Theme = 'system' | 'light' | 'dark';
 const readTheme = (): Theme => { try { return (localStorage.getItem('theme') as Theme) || 'system'; } catch { return 'system'; } };
 const isDark = (t: Theme) => t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
 
-export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: string; ds: string }) {
+export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; root: string; ds: string; scenes: Scene[] }) {
   const s = useSyncExternalStore(store.subscribe, store.get);
   const mapRef = useRef<HTMLDivElement>(null);
   const engRef = useRef<Engine | null>(null);
@@ -44,7 +44,9 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
   const [pathTo, setPathTo] = useState<string | null>(null); // F14: 선택 → 이 객체까지 최단 관계 경로
   const [exporting, setExporting] = useState<number | null>(null);
   const [dataTick, setDataTick] = useState(0); // 영토 버킷이 바뀌면 범례 다시
-  const [skin, setSkin] = useState<Skin>('light'); // 지도 스킨(P1 Azgaar식). 웹 UI 크롬은 안 바뀐다(P12)
+  // 지도 스킨(P1 Azgaar식). 웹 UI 크롬은 안 바뀐다(P12).
+  // 북마크가 스킨까지 담아야 해서 store에 있다 — URL로 나가고 URL에서 돌아온다(R35).
+  const skin = s.skin, setSkin = (k: Skin) => store.set({ skin: k });
   // 스킨은 지도에 바로 입힌다(Azgaar식 미리보기). 크롬(카드·툴바)은 astryx 그대로 — P12는 'UI 토큰 불변'이지 '지도 불변'이 아니다. 내보내기는 보이는 그대로.
   const firstSkin = useRef(true);
   useEffect(() => { if (firstSkin.current) { firstSkin.current = false; return; } const eng = engRef.current; if (!eng) return; const cur = isDark(theme) ? 'dark' : 'light'; eng.setSkin(skin === cur ? null : skin); }, [skin]);
@@ -100,8 +102,23 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
 
   const on = new Set(s.layers ?? allLayers(d));
   const toggleLayer = (id: string) => { const st = store.get(); const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] }); };
-  const scenes: Scene[] = d.manifest.scenes ?? [];
   const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
+  // 북마크 복사(R35). 제목·그룹은 사람이 파일에서 고치는 자리라 여기선 기본값만 채운다 — 지어내지 않는다.
+  const [copied, setCopied] = useState<'url' | 'json' | null>(null);
+  const copy = async (kind: 'url' | 'json', text: string) => {
+    try { await navigator.clipboard.writeText(text); setCopied(kind); setTimeout(() => setCopied(null), 2400); } catch { /* 권한 없으면 조용히 */ }
+  };
+  const bookmarkId = () => {
+    const st = store.get();
+    return `${st.sel ? st.sel.split(':').slice(1).join(':') : 'view'}-${st.year < 0 ? `bc${-st.year}` : `ad${st.year}`}`;
+  };
+  const bookmarkTitle = () => `${fmtKo(store.get().year)}${nearest(d, store.get().year)?.label ? ` · ${nearest(d, store.get().year)!.label}` : ''}`;
+  // 장면 탭은 프로젝트(발표자)별로 묶는다. group이 없으면 「장면」 한 덩어리(R35).
+  const sceneGroups = useMemo(() => {
+    const m = new Map<string, Scene[]>();
+    for (const sc of scenes) (m.get(sc.group ?? '장면') ?? m.set(sc.group ?? '장면', []).get(sc.group ?? '장면')!).push(sc);
+    return [...m];
+  }, [scenes]);
 
   // 객체 목록(1.8 최소판): 도시 rank≤2 + 전투. 2.3 검색에서 people·전체로.
   const objects = useMemo(() => [
@@ -184,15 +201,28 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
         )}
         {tab === 'qc' && <Qc base={`${root}datasets/${ds}`} onLocate={locate} />}
         {tab === 'scenes' && (
-          <ol className="shell-list">
-            {scenes.map((sc, i) => (
-              <li key={sc.id} className={sc.id === s.scene ? 'is-sel' : ''} onClick={() => goScene(sc)}>
-                <span className="num">{String(i + 1).padStart(2, '0')}</span>
-                <span className="name">{sc.title}<small>{fmtKo(sc.year)}</small></span>
-                <span className="arrow">↗</span>
-              </li>
+          <div className="shell-scenes">
+            {sceneGroups.map(([group, list]) => (
+              <div key={group} className="scene-group">
+                <Text size="sm" color="secondary">{group}</Text>
+                <ol className="shell-list">
+                  {list.map((sc, i) => (
+                    <li key={sc.id} className={sc.id === s.scene ? 'is-sel' : ''} onClick={() => goScene(sc)}>
+                      <span className="num">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="name">{sc.title}<small>{fmtKo(sc.year)}</small></span>
+                      <span className="arrow">↗</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             ))}
-          </ol>
+            {/* 서버가 없으니 북마크 저장은 URL과 파일뿐이다(R35). 주소는 그대로 공유하고, 파일에 남길 것은 조각으로 복사한다. */}
+            <div className="scene-new">
+              <Button label={copied === 'url' ? '복사됨' : '이 화면 링크 복사'} size="sm" variant="secondary" onClick={() => copy('url', location.href)} />
+              <Button label={copied === 'json' ? '복사됨' : '북마크 조각 복사'} size="sm" variant="ghost" onClick={() => copy('json', JSON.stringify(bookmarkOf(store.get(), { id: bookmarkId(), title: bookmarkTitle(), layers: [...on] }), null, 2))} />
+              <Text size="sm" color="secondary">연도·카메라·스킨·레이어가 함께 담긴다. 조각은 <code>data/scenes/{ds}.json</code>에 붙여넣고 <code>title</code>·<code>group</code>을 고쳐 커밋한다.</Text>
+            </div>
+          </div>
         )}
       </Card>}
 
