@@ -21,7 +21,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 22.6+ 여야 한다. lint·adapt·mcp가 node --experimental-strip-types 로 .ts를 직접 돌린다
+          # (20에서는 "bad option: --experimental-strip-types"로 죽는다). 로컬은 22.17.
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run build
