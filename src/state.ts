@@ -55,8 +55,18 @@ export function createStore(initial: State) {
 }
 export type Store = ReturnType<typeof createStore>;
 
-export function applyScene(store: Store, scene: Scene) {
-  store.set({ year: scene.year, sel: scene.sel ?? null, scene: scene.id });
+// 장면 프리셋 적용. search를 주면 URL에 명시된 y·sel이 장면값을 이긴다.
+// '링크 복사'는 location.href를 그대로 복사하는데 scene은 한 번 박히면 지워지지 않아
+// 공유 링크가 늘 ?y=...&scene=... 꼴이 된다. 이 우선순위가 없으면 받는 사람 화면이
+// 언제나 장면의 기본 연도로 되돌아간다(완료 판정 8). 카메라는 URL에 없으니 계속 장면에서 온다.
+export function applyScene(store: Store, scene: Scene, search = '') {
+  const q = new URLSearchParams(search), cur = store.get();
+  const hasYear = q.has('y') && Number.isInteger(Number(q.get('y'))); // parseState와 같은 판정
+  store.set({
+    year: hasYear ? cur.year : scene.year,
+    sel: q.has('sel') ? cur.sel : scene.sel ?? null,
+    scene: scene.id,
+  });
 }
 
 // URL ↔ store. 뒤로가기(popstate)는 store로, store 변경은 replaceState로(히스토리 오염 0).
