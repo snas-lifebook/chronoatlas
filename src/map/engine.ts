@@ -199,7 +199,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   let onData: (() => void) | null = null;
 
-  // 지형지물 상세(1.2MB)는 인스펙터에서만 쓴다 — 지도는 style.ts가 같은 파일을 URL 소스로 따로 받아 그린다.
+  // 지형지물 상세(1.2MB)는 인스펙터에서만 쓴다. 지도는 style.ts가 같은 파일을 URL 소스로 따로 받아 그린다.
   // 첫 페인트에서 빼고 지형지물을 처음 고른 순간에만 받는다(대개 한 번도 안 받는다). 받아지면 onData로 패널을 다시 그린다.
   let lmLoading = false;
   function needLandmarks() {

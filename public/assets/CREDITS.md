@@ -1,4 +1,4 @@
-# public/assets — 초상·문장 출처 대장
+# public/assets: 초상·문장 출처 대장
 
 여기 있는 이미지는 **전부 이 프로젝트가 만든 것**이다. 제3자 이미지를 재배포하지 않는다.
 (PLAN 「레포 구조」의 `assets/ ... 출처 대장 동반` 요건. 외부 데이터 대장은 `data/external/LICENSES.md`에 따로 있다.)

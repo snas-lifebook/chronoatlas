@@ -65,7 +65,7 @@ export function bindUrl(store: Store) {
   store.subscribe(s => { if (!syncing) history.replaceState(null, '', serializeState(s) || location.pathname); });
   addEventListener('popstate', () => {
     // ds는 main.tsx가 부팅 때 한 번 읽어 데이터셋을 통째로 받는다. 뒤로가기로 ds가 바뀌면
-    // 상태만 갈아끼울 수 없다 — 안 그러면 주소는 초한지인데 화면은 로마인 채로 남는다.
+    // 상태만 갈아끼울 수 없다. 안 그러면 주소는 초한지인데 화면은 로마인 채로 남는다.
     if (parseState(location.search).ds !== store.get().ds) { location.reload(); return; }
     syncing = true; store.set(parseState(location.search)); syncing = false;
   });

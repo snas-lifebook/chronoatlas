@@ -1,4 +1,4 @@
-// 온톨로지 어휘 상수 — 타입·rel 의미군·출처 열거. 볼트 SCHEMA.md v2.
+// 온톨로지 어휘 상수: 타입·rel 의미군·출처 열거. 볼트 SCHEMA.md v2.
 // ontology.ts에서 떼어낸 이유: 브라우저(graph/data.ts)가 REL_GROUPS 하나를 쓰는데
 // ontology.ts는 zod를 import해서 검증 라이브러리 전체가 초기 번들에 실려 갔다.
 // 여기엔 의존성을 넣지 않는다. zod가 필요한 스키마는 ontology.ts에.

@@ -9,7 +9,7 @@ beforeEach(() => vi.resetModules()); // 모듈 캐시가 테스트 간에 새로
 afterEach(() => vi.unstubAllGlobals());
 
 describe('loadGraph 캐시', () => {
-  it('실패를 캐시하지 않는다 — 다음 호출에서 다시 받는다', async () => {
+  it('실패를 캐시하지 않는다. 다음 호출에서 다시 받는다', async () => {
     let n = 0;
     vi.stubGlobal('fetch', vi.fn(async () => (++n === 1 ? { ok: false, status: 404 } : { ok: true, json: async () => RAW })));
     const { loadGraph } = await import('../src/graph/data');
@@ -20,7 +20,7 @@ describe('loadGraph 캐시', () => {
     expect(n).toBe(2);
   });
 
-  it('성공은 캐시한다 — 두 번 부르면 fetch는 한 번', async () => {
+  it('성공은 캐시한다. 두 번 부르면 fetch는 한 번', async () => {
     const fetchMock = vi.fn(async () => ({ ok: true, json: async () => RAW }));
     vi.stubGlobal('fetch', fetchMock);
     const { loadGraph } = await import('../src/graph/data');

@@ -39,7 +39,7 @@ export function Profile({ base, routeId, path }: { base: string; routeId: string
   return (
     <div className="ins-profile">
       <Text size="sm" color="secondary">고도 단면 · {Math.round(km).toLocaleString()}km · 최고 {Math.round(hi).toLocaleString()}m / 최저 {Math.round(lo).toLocaleString()}m{seaPct > 0 && ` · 해상 ${seaPct}%`}</Text>
-      {/* 출처 툴팁은 title 속성이 아니라 <title> 자식이어야 뜬다 — SVG에 title 속성은 없다. 접근명은 aria-label이 이긴다. */}
+      {/* 출처 툴팁은 title 속성이 아니라 <title> 자식이어야 뜬다. SVG에 title 속성은 없다. 접근명은 aria-label이 이긴다. */}
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`경로 고도 단면. 총 ${Math.round(km)}킬로미터, 최고 ${Math.round(hi)}미터, 최저 ${Math.round(lo)}미터.`}>
         <title>{`AWS Terrain Tiles(SRTM·GMTED2010 외) · 96점 리샘플${seaPct > 0 ? ' · 해상 구간은 0m' : ''}`}</title>
         <polygon points={`${x(known[0])},${H} ${line} ${x(known[known.length - 1])},${H}`} className="fill" />

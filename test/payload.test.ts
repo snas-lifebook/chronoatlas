@@ -2,7 +2,7 @@
 // main.tsx의 load()는 await Promise.all이라, 여기 담긴 파일이 다 와야 첫 픽셀이 나온다.
 // 실제로 landmarks.geojson(1.2MB raw · 213kB gz)이 여기 있어서 첫 화면이 그만큼 늦었고,
 // 지도는 style.ts가 같은 파일을 URL 소스로 따로 받고 있어 사실상 두 번 받고 있었다.
-// 번들(JS) 쪽 예산은 dist가 있어야 재므로 여기서 못 잰다 — Lighthouse CI(4.5) 몫.
+// 번들(JS) 쪽 예산은 dist가 있어야 재므로 여기서 못 잰다. Lighthouse CI(4.5) 몫.
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +35,7 @@ describe('첫 페인트 데이터 예산', () => {
     expect(total).toBeLessThanOrEqual(BUDGET_GZ);
   });
 
-  it('패널 전용 사본은 첫 페인트를 막지 않는다 — landmarks는 engine이 선택 시에만 받는다', () => {
+  it('패널 전용 사본은 첫 페인트를 막지 않는다. landmarks는 engine이 선택 시에만 받는다', () => {
     expect(files.some(f => f.includes('landmarks'))).toBe(false);
     expect(readFileSync(join(ROOT, 'src/map/engine.ts'), 'utf8')).toContain('needLandmarks');
   });

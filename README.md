@@ -39,9 +39,9 @@ npm run mcp              # MCP stdio 서버
 
 ## 구조
 
-`src/state.ts`(상태↔URL) · `src/map/{style,engine,elevation}.ts`(베이스맵·데이터·인터랙션·1홉 그래프·고도 단면) · `src/app/{App,Inspector,GraphPanel,Search}.tsx`(떠 있는 astryx 카드) · `src/graph/data.ts`(graph.json 인덱스) · `src/export/{png,card,mp4,data}.ts` · `mcp/` · `scripts/{adapt,fetch-external,lint}.ts` · `schema/{vocab,ontology}.ts`(어휘 상수 / Zod, SCHEMA v2 — 브라우저는 vocab만 쓴다) · `data/{scenes,eras}/`(사람이 쓰는 장면·시대).
+`src/state.ts`(상태↔URL) · `src/map/{style,engine,elevation}.ts`(베이스맵·데이터·인터랙션·1홉 그래프·고도 단면) · `src/app/{App,Inspector,GraphPanel,Search}.tsx`(떠 있는 astryx 카드) · `src/graph/data.ts`(graph.json 인덱스) · `src/export/{png,card,mp4,data}.ts` · `mcp/` · `scripts/{adapt,fetch-external,lint}.ts` · `schema/{vocab,ontology}.ts`(어휘 상수 / Zod, SCHEMA v2, 브라우저는 vocab만 쓴다) · `data/{scenes,eras}/`(사람이 쓰는 장면·시대).
 
 ## 출처
 
-Natural Earth(Public Domain) · Pleiades(CC BY 3.0, Bagnall·Talbert 외, isawnyu/pleiades-datasets) · Cliopatria(CC BY 4.0, Seshat Global History Databank — 정치체 경계는 한 견해) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · AWS Terrain Tiles(Mapzen/Tilezen, 출처별 라이선스가 섞여 있어 **재배포하지 않는다** — 각자 로컬에서 받는다) · 초상·아이콘은 편데 관계분석 컴포넌트(자체 제작, 제3자 이미지 재배포 없음) · 온톨로지는 편데 정본.
+Natural Earth(Public Domain) · Pleiades(CC BY 3.0, Bagnall·Talbert 외, isawnyu/pleiades-datasets) · Cliopatria(CC BY 4.0, Seshat Global History Databank — 정치체 경계는 한 견해) · Noto Sans CJK 글리프(OFL, Pretendard로 교체 예정) · Pretendard(OFL) · AWS Terrain Tiles(Mapzen/Tilezen, 출처별 라이선스가 섞여 있어 **재배포하지 않는다**. 각자 로컬에서 받는다) · 초상·아이콘은 편데 관계분석 컴포넌트(자체 제작, 제3자 이미지 재배포 없음) · 온톨로지는 편데 정본.
 대장 둘: 외부 데이터는 `data/external/LICENSES.md`, 초상·문장은 `public/assets/CREDITS.md`.

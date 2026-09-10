@@ -1,22 +1,22 @@
-# HANDOFF — 세션을 넘겨받는 사람이 먼저 읽는 것
+# HANDOFF: 세션을 넘겨받는 사람이 먼저 읽는 것
 
 빌드·구조·MCP·DEM 받는 법은 [AGENTS.md](../AGENTS.md)에 있다. 중복하지 않는다.
 이 파일은 **지금 어디까지 됐고, 다음에 뭘 집을 수 있는지**만 적는다.
 
-작성 2026-09-10. 이 문서가 실제와 어긋나면 이 문서가 틀린 것이다 — 레포와 볼트를 믿어라.
+작성 2026-09-10. 이 문서가 실제와 어긋나면 이 문서가 틀린 것이다. 레포와 볼트를 믿어라.
 
 ## 1. 지금 상태
 
 - **라이브: https://snas-lifebook.github.io/chronoatlas/** (2026-09-10 배포). 원격 `origin` = `snas-lifebook/chronoatlas`(public).
   push하면 Actions가 `npm ci` → `npm run build`(= gen·lint·typecheck·vitest·vite) → Pages. **빌드가 깨지면 배포가 안 된다.**
   옛 레포 `visual-pipeline`은 archived이고 옛 Pages 주소는 여기로 리다이렉트한다.
-  (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다 — `git log --oneline -5`를 보라.)
+  (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다. `git log --oneline -5`를 보라.)
 - **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
   그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
 - `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, vitest 81 통과. **수치가 다르면 이 문서가 낡은 것이다.**
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
 - 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
-- 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9 — landmarks 1.2MB가 끼어 있었다).
+- 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9였다. landmarks 1.2MB가 끼어 있었다).
 - **`chuhan-206`은 베이스맵이 없다.** manifest에 `basemap`·`bbox`·`relief`가 없고, `rome/layers/land.geojson`은
   경도 −15~65(지중해)만 덮어 중원(100~125)에 쓸 육지·해안·강이 아예 없다. `?ds=chuhan-206`은 빈 배경 위에
   데이터 레이어만 뜬다 = SPEC F3 반려("단색 배경만 보이는 줌 레벨 없음")를 이 데이터셋은 전 줌에서 위반한다.
@@ -67,39 +67,39 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
   mkdir -p /tmp/smoke && ln -s ~/Projects/chronoatlas/dist /tmp/smoke/chronoatlas
   cd /tmp/smoke && python3 -m http.server 4180   # → localhost:4180/chronoatlas/
   ```
-- **자동화 탭(Claude in Chrome)에서는 지도가 안 뜬다.** 원인은 `document.hidden = true`다 — 배경 탭에서는
+- **자동화 탭(Claude in Chrome)에서는 지도가 안 뜬다.** 원인은 `document.hidden = true`다. 배경 탭에서는
   rAF가 멈추고, MapLibre는 스타일 로드를 rAF로 굴리므로 `map.on('load')`가 **영영 안 fire**한다.
   증상: 셸·패널·그래프·타임라인·데이터는 다 뜨는데 `map.style._loaded`가 false에 머물고 `getStyle()`이 없다(소스 0, 글리프 요청 0).
   **JS 에러 0, WebGL 정상**(M3 Metal, 컨텍스트 안 잃음)이라 코드 버그처럼 안 보인다. dev·빌드 둘 다 같고 옛 커밋에서도 같다.
-  이 함정은 8월에 이미 밟았다(visual-pipeline 시절) — 다시 파지 말 것.
+  이 함정은 8월에 이미 밟았다(visual-pipeline 시절). 다시 파지 말 것.
   → **렌더 확인은 포그라운드 실브라우저에서 `npm run dev`.** 에이전트는 못 한다, River 몫.
   자동화 탭으로 확인할 수 있는 것: DOM·상태(`window.__ca.store`)·네트워크(`performance.getEntriesByType('resource')`)까지.
 - 브라우저 검증이 필요하면 헤드리스 Playwright도 없다(파이썬 `playwright`는 있으나 chromium 미설치, 설치는 egress 필요).
 
 ## 6. 에이전트가 지금 할 수 있는 것
 
-지도 렌더·외부 네트워크·GPU가 안 걸리는 것만. 하나 골라서 착수하고, 착수 전에 River 확인을 받는다.
+하나 골라서 착수하고, 착수 전에 River 확인을 받는다.
 
-| # | 무엇 | 왜 지금 | 근거 |
-|---|---|---|---|
 **고르기 전에 §5를 먼저 읽어라.** 지도가 화면에 그려져야 확인되는 것(색·해칭·LOD·레이어 순서·성능)은
 에이전트가 검증할 수 없다. 그런 건 River 몫으로 남기고, 코드·데이터·빌드로 닫히는 것을 고른다.
 
 | # | 무엇 | 왜 지금 | 근거 |
 |---|---|---|---|
-| 6.1 | **자료실 역링크(3.6)** — 자료실 `site/lib/links.ts`에 `atlasUrl` 추가 → 객체 페이지에 「지도에서 보기」. 주소는 `…/chronoatlas/?ds=rome&sel={id}&y={연도}` | 배포로 **막힘이 풀렸다**. 완료 판정 4의 남은 반쪽 | TASKS 3.6 |
-| 6.2 | **크레딧 페이지** — 대장 둘(`data/external/LICENSES.md`·`public/assets/CREDITS.md`)에서 생성 | 작고 독립적 | SPEC F20 ◐ |
-| 6.3 | **번들 나머지** — 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
-| 6.4 | **F19 파벌 해칭** — `fill-pattern`·영향권 `heatmap` | 코드는 쓸 수 있지만 **결과를 눈으로 못 본다**(§5). 착수 전 River와 합의할 것 | SPEC F19 ○ |
+| 6.1 | **자료실 역링크(3.6)**: 자료실 `site/lib/links.ts`에 `atlasUrl` 추가 → 객체 페이지에 「지도에서 보기」. 주소는 `…/chronoatlas/?ds=rome&sel={id}&y={연도}` | 배포로 **막힘이 풀렸다**. 완료 판정 4의 남은 반쪽 | TASKS 3.6 |
+| 6.2 | **크레딧 페이지**: 대장 둘(`data/external/LICENSES.md`·`public/assets/CREDITS.md`)에서 생성 | 작고 독립적 | SPEC F20 ◐ |
+| 6.3 | **번들 나머지**: 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
+| 6.4 | **F19 파벌 해칭**: `fill-pattern`·영향권 `heatmap` | 코드는 쓸 수 있지만 **결과를 눈으로 못 본다**(§5). 착수 전 River와 합의할 것 | SPEC F19 ○ |
 
 닫힌 것(9/10): **0.0 레포·Pages 배포**(+ 옛 레포 archived·리다이렉트) · `docs/roadmap.md` 재작성 ·
 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 3건(외부 2 + 에셋 대장 신설) ·
 typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · 검색 팔레트 빈 상태 · 뒤로가기 `ds` 어긋남.
 
-**초한지(TASKS 3.5)는 여기서 뺐다** — 남은 것이 베이스맵인데 egress가 필요하다(§1). 그 데이터셋에서
+**초한지(TASKS 3.5)는 여기서 뺐다.** 남은 것이 베이스맵인데 egress가 필요하다(§1). 그 데이터셋에서
 검증으로 닫을 수 있던 부분(스키마 통과·검색 빈 상태)은 이미 닫혔다.
 
-**막힌 것**(고르지 말 것): 4.1 P13 z7~9(DEM) · 4.5 Lighthouse CI(배포) · 3.6 자료실 역링크(크로노아틀라스 URL이 아직 없다) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) · 3.7·3.8 흉상 GLB(GPU).
+**막힌 것**(고르지 말 것): 4.1 P13 z7~9 재캡처(지도 렌더) · 4.5 Lighthouse 측정(지도 렌더) ·
+TASKS 3.5 초한지 베이스맵(egress) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) · 3.7·3.8 흉상 GLB(GPU) ·
+`LICENSES.md` 재생성(egress).
 
 ## 7. River 몫
 
@@ -110,4 +110,4 @@ DEM z8+ · Pretendard/세리프 글리프 · DPRR · 기후·바람·해류 ·
 ## 8. 다음 라운드를 설계한다면
 
 `docs/BACKLOG.md`는 아직 없다. 라운드 설계는 볼트 [TASKS](../../Works/비주얼파이프라인/TASKS.md) 「P1」·「LVP」 절이 정본이다.
-(볼트 상대경로는 레포 밖이라 안 열린다 — 볼트에서 열어라.)
+(볼트 상대경로는 레포 밖이라 안 열린다. 볼트에서 열어라.)

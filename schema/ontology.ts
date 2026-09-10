@@ -1,5 +1,5 @@
 // 온톨로지 정본 계약 (볼트 SCHEMA.md v2의 코드판). 프론트·어댑터·린트·MCP가 이 한 벌을 공유한다.
-// 어휘 상수는 vocab.ts에 있다 — 브라우저는 그쪽만 import한다(zod를 끌고 들어오지 않도록).
+// 어휘 상수는 vocab.ts에 있다. 브라우저는 그쪽만 import한다(zod를 끌고 들어오지 않도록).
 import { z } from 'zod';
 import { ENTITY_TYPES, RELS, SRC, CONFIDENCE, SOURCE } from './vocab.ts';
 

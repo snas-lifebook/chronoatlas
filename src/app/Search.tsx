@@ -9,7 +9,7 @@ const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
 
 export function Search({ base, onPick, onClose, placeholder }: { base: string; onPick: (id: string) => void; onClose: () => void; placeholder?: string }) {
   const [graph, setGraph] = useState<Graph | null>(null);
-  const [noIndex, setNoIndex] = useState(false); // graph.json이 없는 데이터셋 — '불러오는 중'에 영영 머무르지 않게
+  const [noIndex, setNoIndex] = useState(false); // graph.json이 없는 데이터셋. '불러오는 중'에 영영 머무르지 않게
   const [q, setQ] = useState('');
   const [cursor, setCursor] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
