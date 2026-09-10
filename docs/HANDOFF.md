@@ -14,6 +14,8 @@
 - **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
   그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
 - `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, vitest 81 통과. **수치가 다르면 이 문서가 낡은 것이다.**
+- **라이브 실측(2026-09-10, Lighthouse desktop)**: 접근성 100 · Best Practices 96 · SEO 100 · LCP 278ms · CLS 0.01.
+  Best Practices의 -4는 아래 §5의 `terrain/meta.json` 404 하나뿐이고 그건 설계대로다.
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
 - 초기 JS **382.8 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5.
 - 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9였다. landmarks 1.2MB가 끼어 있었다).
@@ -67,28 +69,36 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
   mkdir -p /tmp/smoke && ln -s ~/Projects/chronoatlas/dist /tmp/smoke/chronoatlas
   cd /tmp/smoke && python3 -m http.server 4180   # → localhost:4180/chronoatlas/
   ```
-- **자동화 탭(Claude in Chrome)에서는 지도가 안 뜬다.** 원인은 `document.hidden = true`다. 배경 탭에서는
-  rAF가 멈추고, MapLibre는 스타일 로드를 rAF로 굴리므로 `map.on('load')`가 **영영 안 fire**한다.
-  증상: 셸·패널·그래프·타임라인·데이터는 다 뜨는데 `map.style._loaded`가 false에 머물고 `getStyle()`이 없다(소스 0, 글리프 요청 0).
-  **JS 에러 0, WebGL 정상**(M3 Metal, 컨텍스트 안 잃음)이라 코드 버그처럼 안 보인다. dev·빌드 둘 다 같고 옛 커밋에서도 같다.
-  이 함정은 8월에 이미 밟았다(visual-pipeline 시절). 다시 파지 말 것.
-  → **렌더 확인은 포그라운드 실브라우저에서 `npm run dev`.** 에이전트는 못 한다, River 몫.
-  자동화 탭으로 확인할 수 있는 것: DOM·상태(`window.__ca.store`)·네트워크(`performance.getEntriesByType('resource')`)까지.
-- 브라우저 검증이 필요하면 헤드리스 Playwright도 없다(파이썬 `playwright`는 있으나 chromium 미설치, 설치는 egress 필요).
+- **자동화 탭(Claude in Chrome)에서는 지도가 안 뜬다.** 원인은 `document.hidden = true`다(2026-09-10 직접 측정:
+  `visibilityState: "hidden"`, rAF 1초에 **0틱**). 배경 탭에서는 rAF가 멈추고, MapLibre는 스타일 로드를 rAF로
+  굴리므로 `map.on('load')`가 영영 안 fire한다. 같은 이유로 **첫 페인트 뒤에 도착한 이미지도 화면에 안 나타난다**
+  (DOM엔 `complete: true`인데 스크린샷은 빈 자리). JS 에러 0, WebGL 정상이라 코드 버그처럼 보인다.
+  rAF에 의존하는 코드를 `await`하면 렌더러가 멈춘 채 45초 타임아웃이 난다.
+  이 함정은 8월에 한 번 밟았다. **다시 파지 말 것.**
+- **그래서 이렇게 검증한다(에이전트도 된다).** 디버깅 포트를 연 진짜 창을 띄우면 `visibilityState: "visible"`,
+  rAF 61틱/초가 되고 지도가 정상으로 뜬다. `mcp__arc-devtools__*`가 여기에 붙는다.
+  ```
+  open -na "Google Chrome" --args --remote-debugging-port=9222 \
+       --user-data-dir=/tmp/ca-chrome --no-first-run \
+       "https://snas-lifebook.github.io/chronoatlas/"
+  ```
+  별도 프로파일이라 River의 Chrome 세션은 안 건드린다. 끝나면 `pkill -f "user-data-dir=/tmp/ca-chrome"`.
+  이 경로로 지도 렌더·Lighthouse·성능 트레이스까지 전부 실측했다(2026-09-10).
+- 헤드리스 Playwright는 없다(파이썬 `playwright`는 있으나 chromium 미설치, 설치는 egress 필요). 위 방법을 쓸 것.
 
 ## 6. 에이전트가 지금 할 수 있는 것
 
 하나 골라서 착수하고, 착수 전에 River 확인을 받는다.
 
-**고르기 전에 §5를 먼저 읽어라.** 지도가 화면에 그려져야 확인되는 것(색·해칭·LOD·레이어 순서·성능)은
-에이전트가 검증할 수 없다. 그런 건 River 몫으로 남기고, 코드·데이터·빌드로 닫히는 것을 고른다.
+**지도 렌더도 §5의 디버깅 창으로 검증할 수 있다**(2026-09-10 확인). 더는 River 몫이 아니다.
+다만 "보기 좋은가"(미감·구도)는 여전히 사람 판단이다.
 
 | # | 무엇 | 왜 지금 | 근거 |
 |---|---|---|---|
 | 6.1 | **자료실 역링크(3.6)**: 자료실 `site/lib/links.ts`에 `atlasUrl` 추가 → 객체 페이지에 「지도에서 보기」. 주소는 `…/chronoatlas/?ds=rome&sel={id}&y={연도}` | 배포로 **막힘이 풀렸다**. 완료 판정 4의 남은 반쪽 | TASKS 3.6 |
 | 6.2 | **크레딧 페이지**: 대장 둘(`data/external/LICENSES.md`·`public/assets/CREDITS.md`)에서 생성 | 작고 독립적 | SPEC F20 ◐ |
 | 6.3 | **번들 나머지**: 초기 JS 382.8 gz의 바닥은 maplibre 243.3 + react 59.6 + astryx 58.4 + 앱 23.8. 더 줄이려면 첫 페인트에서 뺄 것을 River가 정해야 한다 | 예산은 이미 통과. 더 갈지는 판단 | TASKS 4.5 |
-| 6.4 | **F19 파벌 해칭**: `fill-pattern`·영향권 `heatmap` | 코드는 쓸 수 있지만 **결과를 눈으로 못 본다**(§5). 착수 전 River와 합의할 것 | SPEC F19 ○ |
+| 6.4 | **F19 파벌 해칭**: `fill-pattern`·영향권 `heatmap` | §5 방법으로 결과를 볼 수 있게 됐다. 다만 해칭 디자인은 River 취향 문제 | SPEC F19 ○ |
 
 닫힌 것(9/10): **0.0 레포·Pages 배포**(+ 옛 레포 archived·리다이렉트) · `docs/roadmap.md` 재작성 ·
 볼트 SPEC·TASKS·MOC 정합 · README 수치 · 라이선스 대장 3건(외부 2 + 에셋 대장 신설) ·
@@ -97,15 +107,17 @@ typecheck 게이트(+ 고도 단면 `<title>`) · `loadGraph` 거절 캐시 · �
 **초한지(TASKS 3.5)는 여기서 뺐다.** 남은 것이 베이스맵인데 egress가 필요하다(§1). 그 데이터셋에서
 검증으로 닫을 수 있던 부분(스키마 통과·검색 빈 상태)은 이미 닫혔다.
 
-**막힌 것**(고르지 말 것): 4.1 P13 z7~9 재캡처(지도 렌더) · 4.5 Lighthouse 측정(지도 렌더) ·
-TASKS 3.5 초한지 베이스맵(egress) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) · 3.7·3.8 흉상 GLB(GPU) ·
-`LICENSES.md` 재생성(egress).
+**막힌 것**(고르지 말 것): TASKS 3.5 초한지 베이스맵(egress) · F13(DPRR) · F20b·F20c(ERA5·CMEMS) ·
+3.7·3.8 흉상 GLB(GPU) · `LICENSES.md` 재생성(egress) · DEM z8+(egress).
+4.1 P13 재캡처와 4.5 Lighthouse는 §5 방법으로 **풀렸다**.
 
 ## 7. River 몫
 
 DEM z8+ · Pretendard/세리프 글리프 · DPRR · 기후·바람·해류 ·
-`migrate_v2.py --write` · `proposals/` 2건 검토 · 자료실 `atlasUrl` · Claude Desktop MCP 연결 · 흉상 GLB(F12b) ·
-**그리고 지도 렌더가 걸린 모든 검증**(§5).
+`migrate_v2.py --write` · `proposals/` 2건 검토 · 자료실 `atlasUrl` · Claude Desktop MCP 연결 · 흉상 GLB(F12b).
+
+지도 렌더 검증은 더 이상 River 몫이 아니다(§5). 남는 것은 **취향·판정**이다: P13 "완성된 지도로 보이는가",
+P16 30초 테스트, 4.4 실전 사용. 기계가 대신 못 하는 건 그쪽이다.
 
 ## 8. 다음 라운드를 설계한다면
 
