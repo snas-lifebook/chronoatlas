@@ -86,12 +86,18 @@ const settlements = nodes.filter(n => n.type === 'place' && n.lonlat).map(n => {
 writeFileSync(join(OUT, 'layers', 'settlements.geojson'), JSON.stringify({ type: 'FeatureCollection', features: settlements }));
 
 // ---- layers/battles.geojson: event → occurred_at → place 좌표. 연도는 링크 from_year > event.year.
+// 여러 해에 걸친 전쟁은 occurred_at 링크가 여럿이다(제2차포에니전쟁 = 로마 + 카르타고). 링크마다 점을 찍되
+// 피처 id는 유일해야 한다 — 지도가 promoteId로 쓰기 때문에 id가 같으면 한쪽에 마우스를 올렸을 때
+// 멀리 떨어진 다른 쪽도 같이 커진다(도시 레이어에서 한 번 터졌던 것과 같은 버그다).
+// 선택·이웃 강조가 쓰는 사건 id는 entity로 따로 싣고, 두 번째 점부터 #n을 붙인다.
+const evSeen = new Map<string, number>();
 const battles = links.filter(l => l.rel === 'occurred_at').flatMap(l => {
   const ev = byId.get(l.from), pl = nodes.find(n => n.id === l.to);
   const year = l.from_year ?? (ev && parseYear(ev.attrs.year ?? ev.attrs.date ?? ev.attrs.period));
   if (!ev || ev.type !== 'event' || !pl?.lonlat || year == null) return [];
+  const nth = (evSeen.get(ev.id) ?? 0) + 1; evSeen.set(ev.id, nth);
   // 사건 점은 발생 후 30년 창 안에서만 보인다(영구 표시하면 후대 지도가 옛 전투로 덮인다). 검색·인스펙터로는 언제나.
-  return [{ type: 'Feature', properties: { id: ev.id, layer: 'battles', name_ko: ev.name, year, valid_from: year, valid_to: year + 30, place: pl.id,
+  return [{ type: 'Feature', properties: { id: nth === 1 ? ev.id : `${ev.id}#${nth}`, entity: ev.id, layer: 'battles', name_ko: ev.name, year, valid_from: year, valid_to: year + 30, place: pl.id,
     source: 'book', confidence: l.confidence ?? 'medium', src: l.src }, geometry: { type: 'Point', coordinates: pl.lonlat } }];
 });
 writeFileSync(join(OUT, 'layers', 'battles.geojson'), JSON.stringify({ type: 'FeatureCollection', features: battles }));

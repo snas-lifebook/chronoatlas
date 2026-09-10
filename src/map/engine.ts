@@ -15,9 +15,9 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
-  labels: ['label-marine', 'label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
+  labels: ['label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades'],
-  graph: ['ego-edge', 'ego-node', 'ego-label'],
+  graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
 };
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
 export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '#2F7D5B', rule: '#5B4B8A', lineage: '#8A6D3B', member: '#3E6F8C', act: '#6B6F76', locate: '#8A8F98', make: '#6B6F76', other: '#8A8F98' };
@@ -105,11 +105,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
     map.addLayer({ id: 'ego-edge', type: 'line', source: 'ego', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round' },
       paint: { 'line-color': ['get', 'color'], 'line-width': 1.6, 'line-opacity': 0.85, 'line-dasharray': ['case', ['==', ['get', 'confidence'], 'low'], ['literal', [2, 2]], ['literal', [1, 0]]] } as any });
-    map.addLayer({ id: 'ego-node', type: 'circle', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 9, 'circle-color': isDark ? '#E6E8EB' : '#111418', 'circle-stroke-color': isDark ? '#1B2129' : '#fff', 'circle-stroke-width': 1.5 } });
-    map.addLayer({ id: 'ego-label', type: 'symbol', source: 'ego', filter: ['==', ['geometry-type'], 'Point'],
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 12, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-allow-overlap': false },
-      paint: { 'text-color': isDark ? '#E6E8EB' : '#111418', 'text-halo-color': isDark ? '#1B2129' : '#fff', 'text-halo-width': 1.4 } });
+    // ego-node·ego-label은 없다. setEgo가 만드는 건 LineString뿐인데 두 레이어는 Point로 필터해서
+    // 한 번도 그려진 적이 없었다(클릭·hover 핸들러까지 죽은 대상에 걸려 있었다).
+    // 선의 끝점은 이미 settle-*·battle 원이고 이름표는 label-settle-*이라 애초에 겹쳐 그릴 것이 없다.
     if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
 
     // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
@@ -124,19 +122,25 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       });
       for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, store.get().year));
     }).catch(() => { tokens = []; });
-    loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; selectedFs = null;
+    loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; selectedFs = [];
     apply(store.get());
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'ego-node']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
         if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle'].filter(l => map.getLayer(l)) }).length) return;
-        store.set({ sel: `landmark:${f.properties.pid ?? f.properties.name}` }); return; } // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름
+        // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름.
+        // marine_labels(바다 마스크)는 properties가 통째로 비어 있다 — 'landmark:undefined'를 만들지 않는다.
+        const key = f.properties.pid ?? f.properties.name;
+        if (key != null) store.set({ sel: `landmark:${key}` });
+        return; }
       if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
-      if (f.properties?.id) store.set({ sel: f.properties.id });
+      // 한 사건이 두 곳에서 벌어지면 두 번째 점의 id는 '<사건>#2'다(adapt). 선택은 언제나 사건 id로 한다.
+      const sel = f.properties?.entity ?? f.properties?.id;
+      if (sel) store.set({ sel });
     });
     map.on('mouseenter', layerId, () => (map.getCanvas().style.cursor = 'pointer'));
     map.on('mouseleave', layerId, () => (map.getCanvas().style.cursor = ''));
@@ -144,7 +148,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks', 'ego-node': 'ego' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -160,7 +164,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       if (tipTimer) clearTimeout(tipTimer);
       const p = f.properties, yr = p.year ?? p.valid_from;
       const label = p.name_ko ?? p.name ?? p.id, sub = yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.kind_ko ?? p.featurecla ?? '';
-      tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setHTML(`<b>${label}</b>${sub ? ` · ${sub}` : ''}`).addTo(map), 120);
+      // marine_labels(바다 마스크)는 properties가 비어 있어 이름이 없다. 그대로 두면 툴팁에 'undefined'가 뜬다.
+      if (label == null) { tip.remove(); return; }
+      // setHTML이 아니라 DOM으로 넣는다: 이름은 Pleiades·Cliopatria·NE에서 온 남의 문자열이라
+      // 문자열 보간으로 지도 팝업에 꽂으면 maplibre의 sanitize가 유일한 방어선이 된다(그 sanitize에 우회가 보고돼 있다).
+      const body = document.createElement('div');
+      const strong = document.createElement('b'); strong.textContent = String(label); body.append(strong);
+      if (sub) body.append(document.createTextNode(` · ${sub}`));
+      tipTimer = window.setTimeout(() => tip.setLngLat(e.lngLat).setDOMContent(body).addTo(map), 120);
     });
     // 겹친 레이어(지형지물 라벨 위의 도시 점) 중 하나를 떠나도 다른 하나가 아직 밑에 있으면 툴팁을 살린다
     map.on('mouseleave', layerId, e => {
@@ -168,22 +179,29 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       setHover(null); if (tipTimer) clearTimeout(tipTimer); tip.remove(); });
   }
   // selected feature-state + 나머지 40% 디밍(선택 있을 때만 페인트 교체)
-  let selectedFs: { source: string; id: string | number } | null = null;
+  // 한 사건이 두 곳에서 벌어지면 점이 둘이고 id가 '#2'로 갈린다(adapt). 선택하면 둘 다 밝힌다 — 그래서 배열이다.
+  let selectedFs: { source: string; id: string | number }[] = [];
   const dimExpr = (v: number) => ['case', ['boolean', ['feature-state', 'selected'], false], 1, v];
   function applySel(sel: string | null) {
-    if (selectedFs) { map.setFeatureState(selectedFs, { selected: false }); selectedFs = null; }
+    for (const fs of selectedFs) map.setFeatureState(fs, { selected: false });
+    selectedFs = [];
     const source = sel?.startsWith('event:') ? 'battles' : sel?.startsWith('place:') ? 'settlements' : null;
-    if (sel && source && map.getSource(source)) { selectedFs = { source, id: sel }; map.setFeatureState(selectedFs, { selected: true }); }
+    if (sel && source && map.getSource(source)) {
+      const ids = source === 'battles'
+        ? d.battles.features.filter(f => (f.properties.entity ?? f.properties.id) === sel).map(f => f.properties.id)
+        : [sel];
+      for (const id of ids.length ? ids : [sel]) { const fs = { source, id }; map.setFeatureState(fs, { selected: true }); selectedFs.push(fs); }
+    }
     if (sel?.startsWith('landmark:')) {
       needLandmarks();
       const key = sel.slice('landmark:'.length);
       for (const src of ['landmarks', 'region_labels', 'marine_labels']) {
         if (!map.getSource(src)) continue;
         const f = map.querySourceFeatures(src).find(f => String(f.properties?.pid ?? f.properties?.name) === key);
-        if (f && f.id != null) { selectedFs = { source: src, id: f.id as any }; map.setFeatureState(selectedFs, { selected: true }); break; }
+        if (f && f.id != null) { const fs = { source: src, id: f.id as any }; map.setFeatureState(fs, { selected: true }); selectedFs.push(fs); break; }
       }
     }
-    for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs ? dimExpr(0.6) : 1) as any);
+    for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs.length ? dimExpr(0.6) : 1) as any);
   }
 
 

@@ -7,7 +7,7 @@ describe('basemap style (TASKS 1.4)', () => {
   const st = buildStyle(manifest, '/chronoatlas/', 'rome');
   const ids = st.layers.map(l => l.id);
   it('순서: 바다 → 육지 → 음영 → 수심 → 물 → 강 → 해안 → 라벨', () => {
-    const order = ['sea', 'land', 'relief', 'bathy', 'lakes', 'rivers-major', 'coast', 'label-marine', 'label-region', 'label-settle-1'];
+    const order = ['sea', 'land', 'relief', 'bathy', 'lakes', 'rivers-major', 'coast', 'label-region', 'label-settle-1'];
     expect(order.map(id => ids.indexOf(id))).toEqual([...order.map(id => ids.indexOf(id))].sort((a, b) => a - b));
     expect(ids.indexOf('sea')).toBe(0);
   });
@@ -31,6 +31,14 @@ describe('basemap style (TASKS 1.4)', () => {
     expect(lids.indexOf('landmark-pleiades')).toBeLessThan(lids.indexOf('label-settle-1'));
     const l: any = lm.layers.find(l => l.id === 'landmark-pleiades');
     expect(l.minzoom).toBe(5); expect(l.filter[2][0]).toBe('step');
+  });
+  // marine_labels.geojson은 이름 없는 GeometryCollection(바다 마스크)이다. 이름표 소스로 쓰면
+  // text-field·filter가 읽을 name·scalerank가 없어 매 로드마다 null 경고를 내고 글자는 0개다.
+  // 소스 자체는 바다를 클릭 대상으로 만드는 채우기에 계속 쓴다(P5).
+  it('바다 이름표 심볼 레이어는 두지 않는다 — 마스크 소스엔 properties가 없다', () => {
+    expect(ids).not.toContain('label-marine');
+    expect(st.sources.marine_labels).toBeDefined();
+    expect(ids).toContain('landmark-marine_labels');
   });
   it('다크는 육지·바다만 바뀌고 램프는 유지', () => {
     const dk = buildStyle(manifest, '/', 'rome', { dark: true });

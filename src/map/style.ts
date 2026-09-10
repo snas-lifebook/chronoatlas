@@ -66,14 +66,11 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
   // 라벨 — 충돌 회피 P9(기본값 allow-overlap false). 바다·지역명은 대문자 라틴 자간 0.2em(Esri 관습).
   const sym = (id: string, source: string, layout: any, paint: any, extra: Partial<LayerSpecification> = {}): LayerSpecification =>
     ({ id, type: 'symbol', source, layout: { 'text-allow-overlap': false, 'text-padding': 4, ...layout }, paint, ...extra } as LayerSpecification);
-  if (has('marine_labels')) {
-    geo('marine_labels');
-    layers.push(sym('label-marine', 'marine_labels',
-      { 'text-field': ['upcase', ['get', 'name']], 'text-font': FONT.regular, 'text-letter-spacing': 0.2, 'text-max-width': 6,
-        'text-size': ['interpolate', ['linear'], ['zoom'], 3, 9, 7, 14], 'symbol-sort-key': ['get', 'scalerank'] },
-      { 'text-color': c.label2, 'text-opacity': 0.85 },
-      { minzoom: 3, filter: ['<=', ['get', 'scalerank'], ['step', ['zoom'], 1, 4, 3, 6, 9]] as any }));
-  }
+  // 바다 이름표 레이어는 없다. marine_labels.geojson은 이름 없는 GeometryCollection(바다 마스크)이라
+  // properties가 들어갈 자리 자체가 없다 — text-field가 읽을 name도, filter가 읽을 scalerank도 없어
+  // 필터가 매 로드마다 null 경고를 내고 항상 false로 떨어졌다(글자를 한 번도 그린 적이 없다).
+  // 바다 이름은 정본 place(kind:sea) 11종이 settlements를 타고 label-settle-*로 이미 나온다.
+  // 이 소스는 바다를 클릭 대상으로 만드는 landmark-marine_labels 채우기에만 쓴다(P5).
   if (has('region_labels')) {
     geo('region_labels');
     layers.push(sym('label-region', 'region_labels',

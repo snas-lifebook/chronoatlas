@@ -9,6 +9,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const graph = JSON.parse(readFileSync(join(ROOT, 'public/datasets/rome/graph.json'), 'utf8'));
 const manifest = JSON.parse(readFileSync(join(ROOT, 'public/datasets/rome/manifest.json'), 'utf8'));
 const settlements = JSON.parse(readFileSync(join(ROOT, 'public/datasets/rome/layers/settlements.geojson'), 'utf8'));
+const battles = JSON.parse(readFileSync(join(ROOT, 'public/datasets/rome/layers/battles.geojson'), 'utf8'));
 
 describe('어댑터 산출물 == 정본 (F1)', () => {
   it('노드·엣지 수가 manifest.counts와 같다', () => {
@@ -27,6 +28,20 @@ describe('어댑터 산출물 == 정본 (F1)', () => {
     }
     const roma = settlements.features.find((f: any) => f.properties.id === 'place:로마');
     expect(roma.geometry.coordinates[0]).toBeCloseTo(12.49, 1); // lon 먼저 — 뒤집히면 여기서 죽는다
+  });
+  it('battles: 클릭이 쓰는 (entity ?? id)는 전부 event 노드다', () => {
+    const byId = new Map(graph.nodes.map((n: any) => [n.id, n]));
+    for (const f of battles.features) expect(byId.get(f.properties.entity ?? f.properties.id)?.type).toBe('event');
+  });
+  // 지도는 이 id를 promoteId로 쓴다. 겹치면 한쪽에 마우스를 올렸을 때 멀리 떨어진 다른 쪽도 같이 커진다
+  // (도시 레이어에서 한 번 터졌던 버그다). adapt.ts는 고쳤다 — 두 번째 점부터 '#n' + entity를 싣는다.
+  // 그런데 정본 마이그레이션(TASKS 0.1, `migrate_v2.py --write`)이 밀려 adapt을 돌릴 수 없어
+  // 커밋된 산출물엔 아직 중복 3건이 남아 있다. 정본이 풀려 adapt이 돌면 이 테스트가 빨개진다 —
+  // 그때 이 블록을 지우고 위 '유일해야 한다'로 바꿔라.
+  it('battles: id 중복 3건은 정본 마이그레이션 대기 중이라는 표시다', () => {
+    const ids = battles.features.map((f: any) => f.properties.id);
+    expect(ids.length - new Set(ids).size).toBe(3);
+    expect(battles.features.every((f: any) => f.properties.entity == null)).toBe(true);
   });
 });
 
