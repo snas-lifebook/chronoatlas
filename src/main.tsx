@@ -15,12 +15,14 @@ const ROOT = import.meta.env.BASE_URL; // dev '/', 빌드 '/chronoatlas/'
 const BASE = `${ROOT}datasets/${DS}`;
 async function j(p: string) { const r = await fetch(`${BASE}/${p}`); if (!r.ok) throw new Error(`${p} ${r.status}`); return r.json(); }
 
+// 여기 담긴 것은 전부 첫 페인트를 막는다(P17 초기 1MB). 큰 레이어는 넣지 말 것 —
+// 지도는 style.ts가 URL 소스로 알아서 받고, 패널만 쓰는 사본은 engine이 필요할 때 받는다.
+// landmarks.geojson(1.2MB)이 여기 있어서 첫 화면이 그만큼 늦었다. 예산은 test/payload.test.ts가 지킨다.
 async function load(): Promise<Dataset> {
-  const [manifest, actorsW, eventsW, territory, admin_regions, settlements, battles, movements, landmarks] = await Promise.all([
+  const [manifest, actorsW, eventsW, territory, admin_regions, settlements, battles, movements] = await Promise.all([
     j('manifest.json'), j('entities/actors.json'), j('entities/events.json'),
-    j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'), j('layers/battles.geojson'), j('layers/movements.geojson'),
-    j('layers/landmarks.geojson').catch(() => undefined)]);
-  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements, landmarks };
+    j('layers/territory.geojson'), j('layers/admin_regions.geojson'), j('layers/settlements.geojson'), j('layers/battles.geojson'), j('layers/movements.geojson')]);
+  return { manifest, actors: actorsW.actors, events: eventsW.events, territory, admin_regions, settlements, battles, movements };
 }
 
 load().then(d => {

@@ -1,24 +1,9 @@
 // 온톨로지 정본 계약 (볼트 SCHEMA.md v2의 코드판). 프론트·어댑터·린트·MCP가 이 한 벌을 공유한다.
+// 어휘 상수는 vocab.ts에 있다 — 브라우저는 그쪽만 import한다(zod를 끌고 들어오지 않도록).
 import { z } from 'zod';
+import { ENTITY_TYPES, RELS, SRC, CONFIDENCE, SOURCE } from './vocab.ts';
 
-export const ENTITY_TYPES = ['person', 'place', 'event', 'group', 'institution', 'work', 'period', 'faction', 'office'] as const;
-
-// 의미군 → rel. 선 스타일과 방향 규칙의 근원. 새 rel은 여기 먼저.
-export const REL_GROUPS = {
-  ally:    ['allied_with', 'protected'],
-  hostile: ['opposed'],
-  rule:    ['ruled', 'conquered', 'controls', 'claims', 'core'],
-  lineage: ['succeeded', 'child_of', 'married'],
-  member:  ['member_of', 'held_office', 'aligned_with'],
-  locate:  ['located_in', 'occurred_at'],
-  act:     ['participated_in', 'decided', 'triggers'],
-  make:    ['created', 'applied_to', 'grants'],
-} as const;
-export const RELS = Object.values(REL_GROUPS).flat() as readonly string[];
-
-export const SRC = ['point', 'gibbon', 'wikidata', 'dprr', 'manual'] as const;
-export const CONFIDENCE = ['high', 'medium', 'low'] as const;
-export const SOURCE = ['book', 'web', 'book+web'] as const;
+export * from './vocab.ts';
 
 const Year = z.number().int().min(-3000).max(2100);
 

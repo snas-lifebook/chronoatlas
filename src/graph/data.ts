@@ -1,5 +1,5 @@
 // graph.json(어댑터 산출) 인메모리 인덱스 + 이웃 조회. 패널·Sigma·검색이 같이 쓴다(2.2). 지연 로드 — 패널이 처음 열릴 때.
-import { REL_GROUPS } from '../../schema/ontology.ts';
+import { REL_GROUPS } from '../../schema/vocab.ts';
 
 export interface GNode { id: string; type: string; name: string; aliases: string[]; points: number[]; born: number | null; died: number | null; year: number | null;
   lonlat: [number, number] | null; faction: string | null; asset: string | null; /* 웹 경로 assets/portraits·icons/*.webp */ tier: string | null; confidence: string | null; desc: string; src: string; ext: Record<string, string | null>;

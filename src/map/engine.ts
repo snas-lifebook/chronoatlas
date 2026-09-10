@@ -175,6 +175,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const source = sel?.startsWith('event:') ? 'battles' : sel?.startsWith('place:') ? 'settlements' : null;
     if (sel && source && map.getSource(source)) { selectedFs = { source, id: sel }; map.setFeatureState(selectedFs, { selected: true }); }
     if (sel?.startsWith('landmark:')) {
+      needLandmarks();
       const key = sel.slice('landmark:'.length);
       for (const src of ['landmarks', 'region_labels', 'marine_labels']) {
         if (!map.getSource(src)) continue;
@@ -197,6 +198,18 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     bucketCache.get(b)!.then(fc => { if (curBucket !== b) return; d.territory.features = fc.features; (map.getSource('territory') as maplibregl.GeoJSONSource | undefined)?.setData(fc); onData?.(); });
   }
   let onData: (() => void) | null = null;
+
+  // 지형지물 상세(1.2MB)는 인스펙터에서만 쓴다 — 지도는 style.ts가 같은 파일을 URL 소스로 따로 받아 그린다.
+  // 첫 페인트에서 빼고 지형지물을 처음 고른 순간에만 받는다(대개 한 번도 안 받는다). 받아지면 onData로 패널을 다시 그린다.
+  let lmLoading = false;
+  function needLandmarks() {
+    if (d.landmarks || lmLoading) return;
+    lmLoading = true;
+    fetch(`${root}datasets/${ds}/layers/landmarks.geojson`)
+      .then(r => r.ok ? r.json() : null)
+      .then(fc => { if (fc) { d.landmarks = fc; onData?.(); } })
+      .catch(() => { lmLoading = false; });
+  }
 
   let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
   function apply(s: State) {
