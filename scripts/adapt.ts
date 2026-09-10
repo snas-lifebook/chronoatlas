@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Entity, Link, idType } from '../schema/ontology.ts';
+import { parseYear } from './year.ts';
 
 const DIRFILE = join(import.meta.dirname, '..', 'data', 'ontology-dir.txt'); // 한 번 적어두면 매번 환경변수를 안 써도 된다(gitignore)
 const SRC = process.env.ONTOLOGY_DIR ?? (existsSync(DIRFILE) ? readFileSync(DIRFILE, 'utf8').trim() : undefined);
@@ -34,13 +35,7 @@ if (existsSync(join(SRC, '_registry.csv'))) {
 // 레지스트리 asset(관계분석 components 상대경로) → 웹 경로. 원본 PNG는 public/assets/{portraits,icons}/*.webp로 축소 복사돼 있다(0.6).
 const webAsset = (a?: string) => !a ? null : a.includes('_초상_1x1/') ? `assets/portraits/${a.split('/').pop()!.replace(/\.png$/, '.webp')}` : `assets/icons/${a.split('/').pop()!.replace(/\.png$/, '.webp')}`;
 
-const parseYear = (s: unknown): number | null => {
-  if (typeof s === 'number') return s;
-  if (typeof s !== 'string') return null;
-  if (/^-?\d{1,4}$/.test(s.trim())) return Number(s);
-  const m = s.match(/(기원전\s*|BC\s*)?(\d{1,4})/); if (!m) return null;
-  return m[1] ? -Number(m[2]) : Number(m[2]);
-};
+// parseYear는 scripts/year.ts로 뺐다 — 테스트가 붙어야 하는 함수였다(정본이 멀쩡한데 연도를 지어내고 있었다).
 
 // ---- graph.json: 노드·엣지 원본 그대로 + 인접 인덱스. Sigma/Graphology·MCP·린트가 읽는다.
 const nodes = entities.map(e => {
@@ -80,7 +75,12 @@ const settlements = nodes.filter(n => n.type === 'place' && n.lonlat).map(n => {
   const g = geo.get(n.name.normalize('NFC')) ?? {};
   const rank = n.points.length >= 6 ? 1 : n.points.length >= 3 ? 2 : 3;
   return { type: 'Feature', properties: { id: n.id, layer: 'settlements', name_ko: n.name, name_ancient: g.ancient ?? null, name_modern: g.modern ?? null,
-    kind: g.kind ?? null, rank, minzoom: rank === 1 ? 0 : rank === 2 ? 4 : 6, source: 'book+web', confidence: n.confidence ?? 'medium', src: n.src },
+    kind: g.kind ?? null, rank, minzoom: rank === 1 ? 0 : rank === 2 ? 4 : 6,
+    // R25 회귀 복구: 자원·지형은 구 데이터셋(rome-753-218)의 10개 도시에만 있던 값이다. 정본엔 없었다 —
+    // 어댑터 이식 누락이 아니라 애초에 손으로 넣은 값이었다. proposals/20260911_place_resource_terrain_7.jsonl로
+    // 정본에 올리자고 제안했고, 승인되면 이 두 줄이 그대로 실어 나른다(없으면 null이라 지금은 무해하다).
+    resource: (n.attrs?.resource as string | undefined) ?? null, terrain: (n.attrs?.terrain as string | undefined) ?? null,
+    source: 'book+web', confidence: n.confidence ?? 'medium', src: n.src },
     geometry: { type: 'Point', coordinates: n.lonlat } };
 });
 writeFileSync(join(OUT, 'layers', 'settlements.geojson'), JSON.stringify({ type: 'FeatureCollection', features: settlements }));
