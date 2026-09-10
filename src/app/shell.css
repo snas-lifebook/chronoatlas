@@ -126,3 +126,11 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ins-portrait { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; background: var(--color-background-muted); box-shadow: 0 0 0 3px var(--ring), 0 0 0 4px var(--color-background-surface); display: grid; place-items: center; }
 .ins-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .ins-portrait .glyph { font-size: 22px; font-weight: 600; color: var(--color-text-secondary); }
+
+/* 원정로 고도 단면 */
+.ins-profile { display: grid; gap: 4px; }
+.ins-profile svg { width: 100%; height: auto; display: block; background: var(--color-background-muted); border: 1px solid var(--color-border); border-radius: var(--radius-element); }
+.ins-profile .fill { fill: var(--color-text-secondary); opacity: 0.14; }
+.ins-profile .line { fill: none; stroke: var(--color-text-primary); stroke-width: 1.2; stroke-linejoin: round; }
+.ins-profile .peak { fill: var(--color-accent); }
+.ins-profile .tag { font-size: 9px; fill: var(--color-text-secondary); }

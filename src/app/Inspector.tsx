@@ -6,8 +6,10 @@ import type { Store } from '../state';
 import { loadGraph, neighborsOf, shortestPath, groupOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
 import { GROUP_COLOR } from '../map/engine';
 import { stateAt } from '../time';
+import { routeGeometry } from '../schema';
 import { libraryObject, libraryPoint } from '../links';
 import { renderCard } from '../export/card';
+import { Profile } from './Profile';
 import { download } from '../export/png';
 
 const KIND: Record<string, string> = { person: '인물', place: '장소', event: '사건', group: '집단', institution: '제도', faction: '파벌', office: '관직', work: '저작', period: '시대', landmark: '지형지물' };
@@ -55,6 +57,31 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
       </Card>
     );
   }
+  // 원정로(movements) — 정본 객체가 아니라 경로 세그먼트다. 경로 전체를 이어 고도 단면을 그린다.
+  const mv = d.movements.features.find(f => f.properties.id === sel)?.properties;
+  if (mv) {
+    const geom = routeGeometry(d.movements.features, mv.route);
+    const actor = d.actors.find(a => a.id === mv.actor);
+    return (
+      <Card padding={4} elevation="low" className="shell-inspector ins">
+        <div className="ins-head"><Text size="sm" color="secondary">원정로 · {mv.route}</Text><IconButton label="닫기" size="sm" variant="ghost" icon={<span>✕</span>} onClick={close} /></div>
+        <Heading level={2}>{mv.name_ko ?? mv.route}</Heading>
+        <div className="ins-body">
+          <div className="ins-badges">{actor && <Badge label={actor.label} variant={'blue' as any} />}<Badge label={`신뢰도 ${mv.confidence ?? '미상'}`} /></div>
+          <dl className="ins-kv">
+            {mv.label && <div><dt>구간</dt><dd>{mv.label}</dd></div>}
+            <div><dt>기간</dt><dd>{fmtYear(mv.from_year ?? mv.valid_from)} – {fmtYear(mv.to_year ?? mv.valid_from)}</dd></div>
+            {mv.owner && <div><dt>주체</dt><dd>{mv.owner.split(':')[1]}</dd></div>}
+          </dl>
+          <Profile base={base} routeId={mv.route} path={geom.path} />
+        </div>
+        <div className="shell-actions">
+          {mv.owner && <Button label="주체 보기" size="sm" variant="secondary" onClick={() => store.set({ sel: mv.owner })} />}
+        </div>
+      </Card>
+    );
+  }
+
   // 지형지물(NE 폴리곤 = 이름, Pleiades 점 = pid) — 정본 객체가 아니다
   if (sel.startsWith('landmark:')) {
     const key = sel.slice('landmark:'.length);

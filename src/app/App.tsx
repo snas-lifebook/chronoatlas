@@ -199,7 +199,7 @@ export function App({ d, store, root, ds }: { d: Dataset; store: Store; root: st
       {s.sel && <div className="shell-right">
         <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
           onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
-        {graph && !/^(landmark|territory):/.test(s.sel) && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
+        {graph?.nodes.has(s.sel) && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
       </div>}
 
       <div className="shell-env">
