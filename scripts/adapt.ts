@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 
 import { join } from 'node:path';
 import { Entity, Link, idType } from '../schema/ontology.ts';
 import { parseYear } from './year.ts';
+import { BBOX, TERRITORY_BUCKET, TERRITORY_FROM, TERRITORY_TO } from './extent.ts';
 
 const DIRFILE = join(import.meta.dirname, '..', 'data', 'ontology-dir.txt'); // 한 번 적어두면 매번 환경변수를 안 써도 된다(gitignore)
 const SRC = process.env.ONTOLOGY_DIR ?? (existsSync(DIRFILE) ? readFileSync(DIRFILE, 'utf8').trim() : undefined);
@@ -165,8 +166,10 @@ const years = [...chron.map(e => e!.year), ...links.flatMap(l => [l.from_year, l
 const manifest = {
   id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
-  basemap, relief, bbox: [-15, 20, 65, 60], // fetch-external.ts BBOX와 같아야 한다(relief.jpg 모서리)
-  territory: existsSync(join(OUT, 'layers', 'territory')) ? { bucket: 100, from: -800, to: 1500 } : undefined, // fetch-external TERRITORY_BUCKET
+  // 범위는 scripts/extent.ts 하나만 본다. 예전엔 여기에 같은 숫자를 또 박아 놨고, 그러면 BBOX를 바꿔도
+  // manifest.bbox가 옛 값으로 남아 지도의 maxBounds와 relief 모서리가 조용히 어긋난다. test/extent.test.ts가 막는다.
+  basemap, relief, bbox: [...BBOX],
+  territory: existsSync(join(OUT, 'layers', 'territory')) ? { bucket: TERRITORY_BUCKET, from: TERRITORY_FROM, to: TERRITORY_TO } : undefined,
   layers: ['territory', 'admin_regions', 'settlements', 'battles', 'movements'], skins: ['neutral'],
   eras, // 타임라인 시대 띠(1.5)
   scenes, // data/scenes/rome.json — 사람이 쓰는 장면 프리셋(state.ts Scene)

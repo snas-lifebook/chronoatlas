@@ -8,8 +8,9 @@ import { execFileSync } from 'node:child_process';
 const ROOT = join(import.meta.dirname, '..');
 const CACHE = join(ROOT, 'data', 'external');
 const OUT = join(ROOT, 'public', 'datasets', 'rome');
-// DESIGN v3 §1: 서경 15° ~ 동경 65°, 북위 20° ~ 60°
-export const BBOX = [-15, 20, 65, 60] as const;
+// 범위는 scripts/extent.ts가 정본이다 — adapt.ts도 같은 값을 봐야 하는데 이 파일은 import하면 다운로드가 돈다.
+import { BBOX, TERRITORY_BUCKET, TERRITORY_FROM, TERRITORY_TO } from './extent.ts';
+export { BBOX, TERRITORY_BUCKET };
 
 const NE = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson';
 const NER = 'https://raw.githubusercontent.com/nvkelso/natural-earth-raster/master/50m_rasters';
@@ -329,7 +330,6 @@ export const TERRITORY_KO: Record<string, string> = {
  "Twenty-sixth Dynasty of Egypt": "이집트 제26왕조",
  "Abbasid Caliphate/Buyid Dynasty": "아바스·부와이"
 };
-export const TERRITORY_BUCKET = 100;
 execFileSync('python3', ['-c', `
 import json, re, os
 A = ${JSON.stringify(ACTOR_OF.map(([re, a]) => [re.source, a]))}
@@ -349,7 +349,7 @@ def actor(name):
 keep = []
 for f in json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['features']:
     p = f['properties']
-    if p['Type'] != 'POLITY' or p['Name'].startswith('(') or p['ToYear'] < -800 or p['FromYear'] > 1500 or p['Area'] < 30000: continue
+    if p['Type'] != 'POLITY' or p['Name'].startswith('(') or p['ToYear'] < ${TERRITORY_FROM} or p['FromYear'] > ${TERRITORY_TO} or p['Area'] < 30000: continue
     x0, y0, x1, y1 = bbox(f['geometry'])
     if x1 < W or x0 > E or y1 < S or y0 > N: continue
     def rnd(c):
