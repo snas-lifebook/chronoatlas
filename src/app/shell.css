@@ -10,6 +10,20 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-title { position: absolute; top: 20px; left: 24px; pointer-events: none; display: grid; gap: 2px; }
 .shell-year { font-size: 44px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
 
+/* 「그 해에 누가·어디가·무엇이」(R36). 타이틀 옆 — 탐색 카드(top 116)·툴바(bottom 120)·인스펙터(right 360)를 피한 유일한 자리다.
+   카드가 아니라 글자만 얹는다(P14b 면적을 먹지 않게). 좁은 화면에서는 숨긴다. */
+.shell-year-brief { position: absolute; top: 22px; left: 300px; right: 404px; display: grid; gap: 3px; align-content: start; }
+.shell-year-brief .yb-row { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: baseline; }
+.shell-year-brief .yb-k { font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.04em; }
+.shell-year-brief .yb-v { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13px; line-height: 1.35; }
+.shell-year-brief button { border: 0; background: none; padding: 0; font: inherit; color: var(--color-text-primary); cursor: pointer; border-bottom: 1px solid transparent; }
+.shell-year-brief button:hover { border-bottom-color: var(--color-text-secondary); }
+.shell-year-brief button i { font-style: normal; font-size: 11px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; margin-left: 3px; }
+.shell-year-brief em { font-style: normal; color: var(--color-text-primary); }
+.shell-year-brief em.more { color: var(--color-text-secondary); }
+/* 좌 300 + 우 404가 크롬이라 1100 밑에서는 남는 폭이 400도 안 된다. 셸의 다른 중단점(1023)과 같이 가되 조금 먼저 접는다. */
+@media (max-width: 1099px) { .shell-year-brief { display: none; } }
+
 .shell-explorer-head { display: flex; align-items: center; gap: 6px; }
 .shell-explorer-head > :first-child { flex: 1; }
 .shell-explorer-pill { position: absolute; top: 116px; left: 24px; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-background-surface); color: var(--color-text-primary); font: 600 13px var(--font-family-body); cursor: pointer; box-shadow: var(--shadow-med, 0 4px 16px rgba(0,0,0,.08)); }

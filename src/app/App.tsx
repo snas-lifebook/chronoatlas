@@ -12,6 +12,7 @@ import { renderPng, download } from '../export/png';
 import { timeSlice, pointsCsv } from '../export/data';
 import { renderMp4 } from '../export/mp4';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
+import { yearBrief } from '../year';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
 import './shell.css';
@@ -52,8 +53,10 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
   useEffect(() => { if (firstSkin.current) { firstSkin.current = false; return; } const eng = engRef.current; if (!eng) return; const cur = isDark(theme) ? 'dark' : 'light'; eng.setSkin(skin === cur ? null : skin); }, [skin]);
   const withSkin = <T,>(fn: () => Promise<T>): Promise<T> => fn();
 
-  // 관계 그래프(2.1): 선택되면 graph.json 지연 로드 → 그 해의 1홉을 지도 위에 얹는다
-  useEffect(() => { if (s.sel && !graph && !/^(landmark|territory):/.test(s.sel)) loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, [s.sel]);
+  // 관계 그래프(2.1) + 「그 해」(R36): graph.json 지연 로드. 첫 페인트는 안 막는다(main.tsx의 Promise.all 밖이다).
+  // 선택 없이도 받는다 — 「그 해의 인물·일」이 연도만 바뀌어도 필요하기 때문이다.
+  // 어차피 첫 진입 장면이 카이사르를 고르고 있어 예전에도 늘 받아 왔다.
+  useEffect(() => { loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, []);
   // 자료실에서 ?sel=로 들어온 첫 진입(장면 없음): 그래프가 오면 그 객체로 카메라
   const centeredOnce = useRef(false);
   useEffect(() => {
@@ -103,6 +106,9 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
   const on = new Set(s.layers ?? allLayers(d));
   const toggleLayer = (id: string) => { const st = store.get(); const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] }); };
   const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
+  // dataTick: 영토 버킷이 바뀌면 d.territory.features가 통째로 갈린다 — 그때 다시 센다.
+  const brief = useMemo(() => yearBrief(s.year, { graph, territory: d.territory.features, events: d.events, battles: d.battles.features }),
+    [s.year, graph, dataTick]);
   // 북마크 복사(R35). 제목·그룹은 사람이 파일에서 고치는 자리라 여기선 기본값만 채운다 — 지어내지 않는다.
   const [copied, setCopied] = useState<'url' | 'json' | null>(null);
   const copy = async (kind: 'url' | 'json', text: string) => {
@@ -153,6 +159,30 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
       <div ref={mapRef} className="shell-map" />
 
       {searching && <Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} />}
+
+      {/* 「그 해에 누가·어디가·무엇이」(R36). 규칙은 src/year.ts 머리에 적어 놨다 — 중요도를 지어내지 않는다.
+          자리는 타이틀 옆이다. 탐색 카드(top 116)·툴바(bottom 120 중앙)·인스펙터(right 360)를 피하면 여기뿐이다. */}
+      {(brief.people.length > 0 || brief.nations.length > 0 || brief.happenings.length > 0) && (
+        <div className="shell-year-brief">
+          {brief.people.length > 0 && (
+            <div className="yb-row"><span className="yb-k">인물</span>
+              <span className="yb-v">{brief.people.map(p => (
+                <button key={p.id} onClick={() => locate(p.id)} title={`그 해에 활성인 관계 ${p.n}건`}>{p.name}<i>{p.n}</i></button>
+              ))}</span></div>
+          )}
+          {brief.nations.length > 0 && (
+            <div className="yb-row"><span className="yb-k">국가</span>
+              <span className="yb-v">{brief.nations.map(n => <em key={n.name}>{n.name}</em>)}
+                {brief.nationsMore > 0 && <em className="more">그 외 {brief.nationsMore}</em>}</span></div>
+          )}
+          {brief.happenings.length > 0 && (
+            <div className="yb-row"><span className="yb-k">그 해</span>
+              <span className="yb-v">{brief.happenings.map(h => (
+                h.id ? <button key={h.label} onClick={() => locate(h.id!)}>{h.label}</button> : <em key={h.label}>{h.label}</em>
+              ))}</span></div>
+          )}
+        </div>
+      )}
 
       <header className="shell-title">
         <Text size="sm" color="secondary">크로노아틀라스 · 온톨로지 지도</Text>
