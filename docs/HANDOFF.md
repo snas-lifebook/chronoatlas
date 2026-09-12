@@ -45,6 +45,18 @@
 | `data/external/` | 외부 원본 캐시 149MB | X |
 | `data/ontology-dir.txt` | 정본 경로 폴백 | X |
 | `proposals/` | 정본 결함 제안. 정본에 직접 안 쓴다 | O |
+| `data/boards/*.json` | 말판(교보재). **정본과 별개 스키마**, `teaching: true` 강제 | O |
+| `data/scenes/rome.json` | 장면·북마크. 사람이 편집한다 | O |
+| `docs/verify/` | 요구를 닫을 때 근거로 남긴 스크린샷 | O |
+
+2026-09-11~12에 생긴 모듈 — AGENTS의 구조 절에 아직 안 실렸다:
+
+| 파일 | 무엇 |
+|---|---|
+| `scripts/extent.ts` | `BBOX` 단일 출처. 범위를 바꾸면 여기 한 줄(라운드 A) |
+| `schema/board.ts` | 말판 zod. `src/`에 안 넣는다 — 초기 번들에 zod가 실린 적이 있다 |
+| `src/board.ts` | 말판 런타임 순수 함수(`phaseOf`·`unitsGeoJSON`·`nearestSettlement` 자석) |
+| `src/people.ts` | 그 해에 인물이 어디 있나(R38). 위치 판정 규칙 4개가 파일 머리에 있다 |
 
 ## 3. 정본 볼트 경로
 

@@ -25,6 +25,10 @@
 | 기하 3D | 산지가 실제로 솟는다 | terrarium DEM(z0~7) + `hillshade` + `setTerrain` · 과장은 줌 연동(z3 12배 → z9 1.4배) | 완료 (타일은 각자 로컬, §소스) |
 | 고도 단면 | 원정로의 오르내림 | `map/elevation.ts`, 원정로 클릭 시 인스펙터에 단면(카이사르 10,947km·최고 1,782m·해상 51%) | 완료 |
 | 관계 | 선택 객체의 이웃 | `graph/data.ts` + `GraphPanel`(force, 1·2홉) · 지도엔 좌표 이웃 ≤12일 때만 선(D4) | 완료 |
+| 북마크 | 그 화면으로 돌아간다 | 연도·선택·중심·줌·pitch·bearing·스킨·레이어가 전부 URL에. `data/scenes/rome.json`을 사람이 편집하거나 앱에서 「북마크 조각 복사」 | 완료 (R35) |
+| 그 해 | 이 해에 누가·어디가·무엇이 | 타이틀 블록 아래 요약 — 인물·국가·일. 판정 규칙을 문서에 먼저 적고 그대로 계산한다 | 완료 (R36) |
+| 말판 | 사람이 놓고 옮기는 유닛 | `schema/board.ts`(정본과 분리, `teaching: true` 강제) + `data/boards/*.json` · 페이즈 슬라이더 · 자석 2단계(territory → settlement) | 완료 (2D). 목각 GLB는 R39 |
+| 인물 위치 | 그 해에 누가 어디 있나 | `src/people.ts` — `located_in` 우선, 없으면 `movements`의 그 해 위치. 위치를 지어내지 않는다 | 완료 (R38) |
 | 내보내기 | 슬라이드에 넣을 것 | PNG 2× · MP4(mediabunny) · 카드 1080×1350 · 연도 단면 GeoJSON/CSV | 완료 |
 | MCP | AI가 같은 데이터를 | `mcp/server.ts` 4툴 stdio. 브라우저와 **같은 `datasets/`**를 읽는다 | 완료 (Claude Desktop 연결은 River) |
 | 배포 | URL 하나로 열린다 | GitHub Pages(Actions) | **완료**(2026-09-10) |
