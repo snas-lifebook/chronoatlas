@@ -1,0 +1,72 @@
+{
+ "id": "pharsalus-48",
+ "title": "파르살루스 — 넷째 줄이 판을 뒤집는다",
+ "year": -48,
+ "center": [22.3833, 39.3],
+ "zoom": 11,
+ "bearing": 0,
+ "teaching": true,
+ "source": "배치는 카이사르 『내전기』 3.88~99(당사자 기록)를 통설대로 도식화한 것이다. 좌표는 place:파르살루스(정본)를 원점으로 한 상대 배치이며 측량값이 아니다. 병력수도 카이사르 본인이 적은 수(폼페이우스 보병 110개 대대 45,000·기병 7,000 / 카이사르 보병 80개 대대 22,000·기병 1,000)이고, 적을 부풀리고 자기를 줄이는 쪽으로 기울었다는 것이 근대 이후의 통설이다. 전장 위치 자체가 논쟁 중이다 — 에니페우스 강 북안이냐 남안이냐로 갈린다(Morgan 1983 대 Pelling 1973). 여기서는 강이 폼페이우스의 우익과 카이사르의 좌익을 막고 전선이 남북으로 섰다는 통설 하나만 그렸다. 내전이라 양쪽 다 로마 군단이다 — 세력색은 아직 없다(proposals/20260912_palette_civilwar_2.jsonl). 교보재이지 사실 주장이 아니다.",
+ "phases": [
+  {
+   "t": 0,
+   "title": "배치",
+   "note": "강이 북쪽 끝을 막았다. 그래서 남쪽 열린 벌판이 유일한 측면이고, 폼페이우스는 기병 7,000을 전부 거기(자기 좌익)에 몰았다. 카이사르의 기병은 1,000뿐이라 정면으로는 못 막는다. 대신 셋째 줄에서 여섯 대대를 빼내 우익 뒤에 비스듬히 숨겼다 — 넷째 줄이다.",
+   "units": [
+    { "id": "pom-r", "at": [22.3893, 39.3090], "actor": "폼페이우스파", "arm": "infantry", "label": "킬리키아 군단 + 히스파니아 대대 (렌툴루스)", "strength": 9000, "facing": 270, "entity": "person:렌툴루스" },
+    { "id": "pom-c", "at": [22.3893, 39.3000], "actor": "폼페이우스파", "arm": "infantry", "label": "시리아 군단 (스키피오)", "strength": 18000, "facing": 270 },
+    { "id": "pom-l", "at": [22.3893, 39.2920], "actor": "폼페이우스파", "arm": "infantry", "label": "제1·제3군단 (폼페이우스)", "strength": 18000, "facing": 270, "entity": "person:폼페이우스" },
+    { "id": "pom-cav", "at": [22.3910, 39.2872], "actor": "폼페이우스파", "arm": "cavalry", "label": "기병 (라비에누스)", "strength": 7000, "facing": 270, "entity": "person:라비에누스" },
+    { "id": "pom-light", "at": [22.3928, 39.2890], "actor": "폼페이우스파", "arm": "light", "label": "궁수·투석병", "strength": 4200, "facing": 270 },
+    { "id": "pom-cmd", "at": [22.3921, 39.2930], "actor": "폼페이우스파", "arm": "command", "label": "폼페이우스", "facing": 270, "entity": "person:폼페이우스" },
+
+    { "id": "cae-l", "at": [22.3773, 39.3090], "actor": "카이사르파", "arm": "infantry", "label": "제8·제9군단 (안토니우스)", "strength": 7000, "facing": 90, "entity": "person:마르쿠스안토니우스" },
+    { "id": "cae-c", "at": [22.3773, 39.3000], "actor": "카이사르파", "arm": "infantry", "label": "중앙 (도미티우스 칼비누스)", "strength": 8000, "facing": 90 },
+    { "id": "cae-r", "at": [22.3773, 39.2920], "actor": "카이사르파", "arm": "infantry", "label": "제10군단 (술라)", "strength": 7000, "facing": 90, "entity": "person:술라" },
+    { "id": "cae-cav", "at": [22.3756, 39.2876], "actor": "카이사르파", "arm": "cavalry", "label": "기병", "strength": 1000, "facing": 90 },
+    { "id": "cae-4th", "at": [22.3745, 39.2900], "actor": "카이사르파", "arm": "infantry", "label": "넷째 줄 — 여섯 대대 (숨김)", "strength": 2000, "facing": 135 },
+    { "id": "cae-cmd", "at": [22.3745, 39.2930], "actor": "카이사르파", "arm": "command", "label": "카이사르", "facing": 90, "entity": "person:카이사르" }
+   ]
+  },
+  {
+   "t": 1,
+   "title": "기병이 밀고 들어온다",
+   "note": "라비에누스의 기병이 카이사르의 1,000기를 밀어낸다. 여기까지는 폼페이우스의 계획대로다 — 기병으로 우익을 돌아 뒤를 치면 끝난다. 카이사르의 기병은 물러서되 무너지지 않고, 넷째 줄이 그 뒤에서 일어선다.",
+   "units": [
+    { "id": "pom-r", "at": [22.3889, 39.3090], "actor": "폼페이우스파", "arm": "infantry", "label": "킬리키아 군단 + 히스파니아 대대 (렌툴루스)", "strength": 9000, "facing": 270, "entity": "person:렌툴루스" },
+    { "id": "pom-c", "at": [22.3887, 39.3000], "actor": "폼페이우스파", "arm": "infantry", "label": "시리아 군단 (스키피오)", "strength": 18000, "facing": 270 },
+    { "id": "pom-l", "at": [22.3887, 39.2920], "actor": "폼페이우스파", "arm": "infantry", "label": "제1·제3군단 (폼페이우스)", "strength": 18000, "facing": 270, "entity": "person:폼페이우스" },
+    { "id": "pom-cav", "at": [22.3835, 39.2862], "actor": "폼페이우스파", "arm": "cavalry", "label": "기병 — 카이사르 기병을 밀어낸다", "strength": 7000, "facing": 300, "entity": "person:라비에누스" },
+    { "id": "pom-light", "at": [22.3900, 39.2880], "actor": "폼페이우스파", "arm": "light", "label": "궁수·투석병 — 기병 뒤를 따른다", "strength": 4200, "facing": 270 },
+    { "id": "pom-cmd", "at": [22.3921, 39.2930], "actor": "폼페이우스파", "arm": "command", "label": "폼페이우스", "facing": 270, "entity": "person:폼페이우스" },
+
+    { "id": "cae-l", "at": [22.3777, 39.3090], "actor": "카이사르파", "arm": "infantry", "label": "제8·제9군단 (안토니우스)", "strength": 7000, "facing": 90, "entity": "person:마르쿠스안토니우스" },
+    { "id": "cae-c", "at": [22.3779, 39.3000], "actor": "카이사르파", "arm": "infantry", "label": "중앙 (도미티우스 칼비누스)", "strength": 8000, "facing": 90 },
+    { "id": "cae-r", "at": [22.3779, 39.2920], "actor": "카이사르파", "arm": "infantry", "label": "제10군단 (술라)", "strength": 7000, "facing": 90, "entity": "person:술라" },
+    { "id": "cae-cav", "at": [22.3768, 39.2856], "actor": "카이사르파", "arm": "cavalry", "label": "기병 — 밀리되 무너지지 않는다", "strength": 1000, "facing": 60 },
+    { "id": "cae-4th", "at": [22.3782, 39.2878], "actor": "카이사르파", "arm": "infantry", "label": "넷째 줄 — 일어선다", "strength": 2000, "facing": 110 },
+    { "id": "cae-cmd", "at": [22.3752, 39.2926], "actor": "카이사르파", "arm": "command", "label": "카이사르", "facing": 90, "entity": "person:카이사르" }
+   ]
+  },
+  {
+   "t": 2,
+   "title": "넷째 줄이 얼굴을 노린다",
+   "note": "넷째 줄이 필룸을 던지지 않고 손에 쥔 채 기병의 얼굴을 찔러 올린다. 귀족 자제가 많던 기병이 얼굴을 감싸고 돌아서면서 7,000기가 한꺼번에 무너지고, 뒤따르던 궁수·투석병이 맨몸으로 남아 베인다. 넷째 줄은 그대로 방향을 틀어 폼페이우스의 드러난 좌측면을 친다. 카이사르가 아껴둔 셋째 줄을 그때 넣는다.",
+   "units": [
+    { "id": "pom-r", "at": [22.3889, 39.3090], "actor": "폼페이우스파", "arm": "infantry", "label": "킬리키아 군단 + 히스파니아 대대 (렌툴루스)", "strength": 9000, "facing": 270, "entity": "person:렌툴루스" },
+    { "id": "pom-c", "at": [22.3887, 39.3000], "actor": "폼페이우스파", "arm": "infantry", "label": "시리아 군단 (스키피오)", "strength": 18000, "facing": 270 },
+    { "id": "pom-l", "at": [22.3887, 39.2922], "actor": "폼페이우스파", "arm": "infantry", "label": "제1·제3군단 — 좌측면이 드러났다", "strength": 18000, "facing": 250, "entity": "person:폼페이우스" },
+    { "id": "pom-cav", "at": [22.3930, 39.2830], "actor": "폼페이우스파", "arm": "cavalry", "label": "기병 — 무너져 달아난다", "strength": 7000, "facing": 90, "entity": "person:라비에누스" },
+    { "id": "cae-4th", "at": [22.3866, 39.2880], "actor": "카이사르파", "arm": "infantry", "label": "넷째 줄 — 좌측면을 친다", "strength": 2000, "facing": 30 },
+    { "id": "cae-3rd", "at": [22.3820, 39.2930], "actor": "카이사르파", "arm": "infantry", "label": "셋째 줄 — 아껴둔 예비대", "strength": 5000, "facing": 90 },
+
+    { "id": "cae-l", "at": [22.3781, 39.3090], "actor": "카이사르파", "arm": "infantry", "label": "제8·제9군단 (안토니우스)", "strength": 7000, "facing": 90, "entity": "person:마르쿠스안토니우스" },
+    { "id": "cae-c", "at": [22.3785, 39.3000], "actor": "카이사르파", "arm": "infantry", "label": "중앙 (도미티우스 칼비누스)", "strength": 8000, "facing": 90 },
+    { "id": "cae-r", "at": [22.3789, 39.2920], "actor": "카이사르파", "arm": "infantry", "label": "제10군단 (술라)", "strength": 7000, "facing": 90, "entity": "person:술라" },
+    { "id": "cae-cav", "at": [22.3848, 39.2848], "actor": "카이사르파", "arm": "cavalry", "label": "기병 — 되돌아 추격한다", "strength": 1000, "facing": 60 },
+    { "id": "cae-cmd", "at": [22.3760, 39.2926], "actor": "카이사르파", "arm": "command", "label": "카이사르", "facing": 90, "entity": "person:카이사르" },
+    { "id": "pom-cmd", "at": [22.3940, 39.2960], "actor": "폼페이우스파", "arm": "command", "label": "폼페이우스 — 진영으로 물러난다", "facing": 90, "entity": "person:폼페이우스" }
+   ]
+  }
+ ]
+}
