@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { indexGraph } from '../src/graph/data';
-import { peopleAtYear, peopleGeoJSON } from '../src/people';
+import { peopleAtYear, peopleGeoJSON, companionsOf } from '../src/people';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const B = join(ROOT, 'public/datasets/rome');
@@ -55,11 +55,19 @@ describe('인물 위치 (R38)', () => {
     }
   });
 
+  it('같은 장소의 다른 사람을 같이 있는 사람으로 센다', () => {
+    const at218 = at(-218);
+    const hannibal = at218.find(p => p.id === 'person:한니발');
+    expect(hannibal).toBeTruthy();
+    const withH = companionsOf(at218, 'person:한니발');
+    expect(withH.every(p => p.id !== 'person:한니발')).toBe(true);
+  });
+
   it('peopleGeoJSON: id는 사람, 색은 세력 팔레트, 정본 신뢰도 필드 없음', () => {
     const fc = peopleGeoJSON(at(-49), { 로마: '#A4243B' });
     const c = fc.features.find(f => f.properties.id === 'person:카이사르')!;
     expect(c.geometry).toEqual({ type: 'Point', coordinates: [12.4431, 44.1681] });
-    expect(c.properties.color).toBe('#A4243B');
+    expect(c.properties.color).toBe('#8C3B2E'); // 인물색. 세력 로마 #A4243B가 아님
     expect(c.properties.name).toBe('카이사르');
     const flat = JSON.stringify(fc);
     expect(flat).not.toContain('"src"');

@@ -6,7 +6,7 @@ import * as maplibregl from 'maplibre-gl';
 // 위치는 MercatorCoordinate + meterInMercatorCoordinateUnits() 스케일.
 
 const TOKEN_METERS = 60000; // ponytail: 토큰 높이(약 60km) — zoom 3~9 가독성 튜닝 노브. 안 보이면 키운다.
-const ANIM_MS = 500; // ponytail: 이동 애니메이션 총 지속시간 노브. 다중 정점 행군도 이 시간 안에 끝난다.
+const ANIM_MS = 1200; // 북마크 점프가 텔레포트로 안 읽히게. 연도 슬라이더도 같은 속도로 걷는다.
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);

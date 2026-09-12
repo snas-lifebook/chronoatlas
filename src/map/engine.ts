@@ -5,6 +5,9 @@ import { buildStyle, type Skin } from './style';
 import { roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
+import { tokenColor } from '../tokenColor';
+
+const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
 const MAP_MAX_ZOOM = 9;
 const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다.
@@ -30,7 +33,7 @@ function armIcon(arm: string, color: string): ImageData {
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
-  territory: ['territory-fill', 'territory-outline', 'territory-label'],
+  territory: ['territory-fill', 'territory-outline', 'territory-label', 'gallia-free'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
   battles: ['battle'],
@@ -120,6 +123,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
     map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.45, ['==', ['get', 'actor'], '기타중립'], 0.1, 0.22] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // 갈리아 교보재(발표 3·4번). Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다. year < -51.
+    if (GALLIA_FREE && !map.getSource('gallia-free')) {
+      map.addSource('gallia-free', { type: 'geojson', data: GALLIA_FREE as any });
+      map.addLayer({ id: 'gallia-free', type: 'fill', source: 'gallia-free',
+        paint: { 'fill-color': '#3E7C4F', 'fill-opacity': 0.28 } }, before);
+    }
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
@@ -181,10 +190,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
     // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
     const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
+    const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
     if (routeIds.length) import('../token3d').then(({ createToken }) => {
       tokens = routeIds.map(routeId => {
-        const actorId = d.movements.features.find(f => f.properties.route === routeId)?.properties.actor;
-        const token = createToken(d.actors.find(a => a.id === actorId)?.color ?? '#666');
+        const feat = d.movements.features.find(f => f.properties.route === routeId);
+        const owner = feat?.properties.owner as string | undefined;
+        const actorId = feat?.properties.actor as string | undefined;
+        const token = createToken(tokenColor(owner, actorId, palette));
         token.setRoute(routeGeometry(d.movements.features, routeId).path);
         map.addLayer(token.layer);
         return { route: routeId, token };
@@ -362,6 +374,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         src?.setData(unitsGeoJSON(phaseOf(b, s.phase), palette, { event: b.event }) as any);
         if (s.sel) applySel(s.sel);
       }
+    }
+    if (map.getLayer('gallia-free')) {
+      const showGaul = (s.layers == null || new Set(s.layers ?? allLayers(d)).has('territory')) && s.year < -51;
+      map.setLayoutProperty('gallia-free', 'visibility', showGaul ? 'visible' : 'none');
     }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.

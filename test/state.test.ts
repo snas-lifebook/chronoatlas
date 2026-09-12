@@ -6,7 +6,7 @@ describe('state ↔ URL (TASKS 1.1)', () => {
     const q = '?y=-52&sel=person%3A%EC%B9%B4%EC%9D%B4%EC%82%AC%EB%A5%B4&layers=territory%2Cbattles&view=2d&ds=rome';
     const s = parseState(q);
     expect(s).toEqual({ year: -52, sel: 'person:카이사르', layers: ['territory', 'battles'], view: '2d', ds: 'rome', scene: null,
-      center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0 });
+      center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0, present: false });
     expect(parseState(serializeState(s))).toEqual(s);
   });
   it('기본값은 URL에서 생략', () => {

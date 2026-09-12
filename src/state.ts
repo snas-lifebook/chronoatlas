@@ -18,6 +18,7 @@ export interface State {
   skin: Skin;                // 지도 스킨. 테마(밝게/어둡게)와 별개 축이다(DESIGN P12)
   board: string | null;      // 말판 id (R37). null = 꺼짐
   phase: number;             // 말판 페이즈 t. board가 있을 때만 의미
+  present: boolean;          // 발표 모드. 크롬을 숨기고 [ ] 로 장면을 넘긴다
 }
 export interface Scene {
   id: string; title: string; year: number;
@@ -29,9 +30,9 @@ export interface Scene {
   board?: string; phase?: number;  // 말판 북마크 (R37)
 }
 
-export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0 };
+export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0, present: false };
 
-const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin', board: 'board', bt: 'phase' };
+const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin', board: 'board', bt: 'phase', present: 'present' };
 
 // 카메라 반올림. 상태에 들어가기 전에 깎는다 — URL을 짧게 하고, 부동소수 잡음으로
 // store.set이 매번 "바뀌었다"고 판정해 리렌더가 도는 것을 막는다.
@@ -63,6 +64,7 @@ export function parseState(search: string, defaults: State = DEFAULTS): State {
     skin: (q.get('skin') as Skin) || defaults.skin,
     board: q.get('board') || defaults.board,
     phase: (() => { const n = Number(q.get('bt')); return q.has('bt') && Number.isInteger(n) ? n : defaults.phase; })(),
+    present: q.get('present') === '1' || q.get('present') === 'true',
   };
 }
 
@@ -71,6 +73,7 @@ export function serializeState(s: State, defaults: State = DEFAULTS): string {
   for (const [k, f] of Object.entries(KEYS)) {
     const v = s[f], d = defaults[f];
     if (v == null || JSON.stringify(v) === JSON.stringify(d)) continue;
+    if (typeof v === 'boolean') { q.set(k, v ? '1' : '0'); continue; }
     q.set(k, Array.isArray(v) ? v.join(',') : String(v));
   }
   const str = q.toString();

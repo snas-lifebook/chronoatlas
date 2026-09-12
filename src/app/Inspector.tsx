@@ -8,6 +8,7 @@ import { GROUP_COLOR } from '../map/engine';
 import { stateAt } from '../time';
 import { routeGeometry } from '../schema';
 import { libraryObject, libraryPoint } from '../links';
+import { peopleAtYear, companionsOf } from '../people';
 import { renderCard } from '../export/card';
 import { Profile } from './Profile';
 import { download } from '../export/png';
@@ -120,6 +121,9 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
   const path = graph && pathTo && pathTo !== sel ? shortestPath(graph, sel, pathTo, 6) : null; // F14
   const libHref = libraryObject(sel, name);
   const ringColor = d.actors.find(a => a.id === node?.faction)?.color ?? 'var(--color-border-emphasized)';
+  const atYear = node?.type === 'person' ? peopleAtYear(year, { graph: graph ?? null, movements: d.movements.features, territory: d.territory.features }) : [];
+  const here = atYear.find(p => p.id === sel);
+  const withThem = here ? companionsOf(atYear, sel) : [];
 
   return (
     <Card padding={4} elevation="low" className="shell-inspector ins">
@@ -151,6 +155,17 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
         </section>
       )}
 
+      {here && (
+        <section className="ins-sec">
+          <div className="ins-label">그 해의 위치</div>
+          <dl className="ins-kv">
+            {here.placeName && <div><dt>장소</dt><dd>{here.placeName}</dd></div>}
+            {here.polityName && <div><dt>소속</dt><dd>{here.polityName}</dd></div>}
+            <div><dt>근거</dt><dd>{here.via === 'located_in' ? '위치 관계' : '이동 경로'}</dd></div>
+          </dl>
+          {withThem.length > 0 && <Text size="sm" color="secondary">같이: {withThem.map(p => p.name).join(' · ')}</Text>}
+        </section>
+      )}
       <div className="ins-badges">
         {node?.faction && <Badge label={node.faction} variant={'blue' as any} />}
         {node?.src && <Badge label={SRC_LABEL[node.src] ?? node.src} />}

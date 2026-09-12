@@ -58,5 +58,108 @@
     "phase": 0,
     "group": "말판",
     "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다."
+  },
+  {
+    "id": "pack-intro-med",
+    "title": "지중해 판도",
+    "year": -60,
+    "center": [14, 40],
+    "zoom": 4.2,
+    "pitch": 0,
+    "bearing": 0,
+    "layers": ["territory", "admin_regions", "settlements", "relief", "rivers", "labels"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-gaul-52",
+    "title": "갈리아 원정",
+    "year": -52,
+    "sel": "person:카이사르",
+    "center": [4.5, 47.5],
+    "zoom": 5.2,
+    "pitch": 50,
+    "bearing": -8,
+    "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-extent-60",
+    "title": "판도 BC 60",
+    "year": -60,
+    "center": [14, 40],
+    "zoom": 4.2,
+    "pitch": 0,
+    "bearing": 0,
+    "layers": ["territory", "admin_regions", "relief", "rivers"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-extent-51",
+    "title": "판도 BC 51",
+    "year": -51,
+    "center": [14, 40],
+    "zoom": 4.2,
+    "pitch": 0,
+    "bearing": 0,
+    "layers": ["territory", "admin_regions", "relief", "rivers"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-rubicon",
+    "title": "루비콘",
+    "year": -49,
+    "sel": "person:카이사르",
+    "center": [12.3, 44.1],
+    "zoom": 6,
+    "pitch": 55,
+    "bearing": -20,
+    "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-greece-48",
+    "title": "그리스 내전",
+    "year": -48,
+    "sel": "person:카이사르",
+    "center": [20.5, 39.5],
+    "zoom": 5.4,
+    "pitch": 50,
+    "bearing": 0,
+    "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-egypt-47",
+    "title": "이집트",
+    "year": -47,
+    "sel": "person:카이사르",
+    "center": [29.9, 31.2],
+    "zoom": 5.2,
+    "pitch": 45,
+    "bearing": 0,
+    "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-extent-44",
+    "title": "최대 판도",
+    "year": -44,
+    "center": [14, 40],
+    "zoom": 4.2,
+    "pitch": 0,
+    "bearing": 0,
+    "layers": ["territory", "admin_regions", "settlements", "relief", "rivers"],
+    "group": "2회차 발표 · 카이사르 팩"
+  },
+  {
+    "id": "pack-augustan-27",
+    "title": "제정",
+    "year": -27,
+    "center": [14, 40],
+    "zoom": 4.2,
+    "pitch": 0,
+    "bearing": 0,
+    "layers": ["territory", "admin_regions", "relief", "rivers"],
+    "group": "2회차 발표 · 카이사르 팩"
   }
 ]

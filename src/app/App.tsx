@@ -15,6 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
+import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
 import './shell.css';
@@ -72,7 +73,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (!s.sel || !graph || /^(landmark|territory):/.test(s.sel)) { eng.setEgo(null, '', []); return; }
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
-  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: d.movements.features }), [s.year, graph, d]);
+  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: d.movements.features, territory: d.territory.features }), [s.year, graph, d, dataTick]);
   useEffect(() => {
     const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
     engRef.current?.setPeople(peopleGeoJSON(people, palette));
@@ -107,6 +108,13 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       else if (e.key === 'Escape') store.set({ sel: null });
       else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching('find'); }
       else if (e.key === 'v' || e.key === 'V') store.set({ view: st.view === '2d' ? '3d' : '2d' }); // '3'은 레이어 3(도시)와 충돌해 V로
+      else if (e.key === 'f' || e.key === 'F') store.set({ present: !st.present });
+      else if (e.key === '[' || e.key === ']') {
+        e.preventDefault();
+        const group = presentGroupOf(scenes, st.scene);
+        const next = stepScene(scenesInGroup(scenes, group), st.scene, e.key === ']' ? 1 : -1);
+        if (next) goScene(next);
+      }
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
     };
     addEventListener('keydown', onKey); return () => removeEventListener('keydown', onKey);
@@ -181,7 +189,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   }, [boards, s.board, s.phase]);
 
   return (
-    <div className="shell">
+    <div className={`shell${s.present ? ' is-present' : ''}`}>
       <div ref={mapRef} className="shell-map" />
 
       {searching && <Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} />}
@@ -209,6 +217,14 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           )}
         </div>
       )}
+
+      {s.present && (() => {
+        const group = presentGroupOf(scenes, s.scene);
+        const list = scenesInGroup(scenes, group);
+        const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
+        const title = list[i]?.title ?? scenes.find(sc => sc.id === s.scene)?.title ?? '';
+        return <div className="shell-present-hud"><div className="ph-k">{i + 1} / {list.length}</div><div className="ph-t">{title}</div><div className="ph-y">{fmt(s.year)}</div></div>;
+      })()}
 
       <header className="shell-title">
         <Text size="sm" color="secondary">크로노아틀라스 · 온톨로지 지도</Text>

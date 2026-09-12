@@ -12,7 +12,8 @@
 import { edgeActive } from './year';
 import { positionByRoute, type Feature } from './schema';
 import type { Graph } from './graph/data';
-import { FALLBACK_COLOR } from './board';
+import { containingPolity, type LonLat } from './board';
+import { tokenColor } from './tokenColor';
 
 export interface PersonAt {
   id: string;
@@ -22,6 +23,9 @@ export interface PersonAt {
   placeName: string | null;
   via: 'located_in' | 'movement';
   faction: string | null;
+  polity: string | null;
+  polityName: string | null;
+  asset: string | null;
 }
 
 function span(l: { from_year?: number | null; to_year?: number | null }): number {
@@ -30,7 +34,19 @@ function span(l: { from_year?: number | null; to_year?: number | null }): number
   return t - f;
 }
 
-export function peopleAtYear(year: number, src: { graph: Graph | null; movements: Feature[] }): PersonAt[] {
+function attachPolity(p: PersonAt, year: number, territory?: { properties: Record<string, any>; geometry: { type: string; coordinates: any } }[]): PersonAt {
+  if (!territory?.length) return p;
+  const pol = containingPolity(p.at as LonLat, territory, year);
+  return { ...p, polity: pol?.id ?? null, polityName: pol?.name ?? null };
+}
+
+export function companionsOf(people: PersonAt[], id: string): PersonAt[] {
+  const me = people.find(p => p.id === id);
+  if (!me) return [];
+  return people.filter(p => p.id !== id && (me.place ? p.place === me.place : p.at[0] === me.at[0] && p.at[1] === me.at[1]));
+}
+
+export function peopleAtYear(year: number, src: { graph: Graph | null; movements: Feature[]; territory?: { properties: Record<string, any>; geometry: { type: string; coordinates: any } }[] }): PersonAt[] {
   const out = new Map<string, PersonAt>();
   const { graph, movements } = src;
 
@@ -45,7 +61,7 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       const point = l.from_year === year && l.to_year === year;
       const rec = {
         span: span(l), point, name: place.name,
-        at: { id: person.id, name: person.name, at: place.lonlat, place: place.id, placeName: place.name, via: 'located_in' as const, faction: person.faction },
+        at: { id: person.id, name: person.name, at: place.lonlat, place: place.id, placeName: place.name, via: 'located_in' as const, faction: person.faction, polity: null, polityName: null, asset: person.asset },
       };
       const prev = best.get(person.id);
       if (!prev || (point && !prev.point) || (point === prev.point && (rec.span < prev.span || (rec.span === prev.span && rec.name < prev.name)))) {
@@ -75,14 +91,16 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       placeName: null,
       via: 'movement',
       faction: person?.faction ?? null,
+      polity: null, polityName: null, asset: person?.asset ?? null,
     });
   }
 
-  return [...out.values()].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  return [...out.values()].map(p => attachPolity(p, year, src.territory)).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 }
 
 export interface PersonProps {
-  id: string; name: string; via: PersonAt['via']; place: string | null; placeName: string | null; color: string; faction: string | null;
+  id: string; name: string; via: PersonAt['via']; place: string | null; placeName: string | null;
+  color: string; faction: string | null; polityName: string | null; asset: string | null;
 }
 export function peopleGeoJSON(people: PersonAt[], palette: Record<string, string>):
   { type: 'FeatureCollection'; features: { type: 'Feature'; id: string; properties: PersonProps; geometry: { type: 'Point'; coordinates: [number, number] } }[] } {
@@ -93,8 +111,8 @@ export function peopleGeoJSON(people: PersonAt[], palette: Record<string, string
       id: p.id,
       properties: {
         id: p.id, name: p.name, via: p.via, place: p.place, placeName: p.placeName,
-        color: (p.faction && palette[p.faction]) || FALLBACK_COLOR,
-        faction: p.faction,
+        color: tokenColor(p.id, p.faction, palette),
+        faction: p.faction, polityName: p.polityName, asset: p.asset,
       },
       geometry: { type: 'Point' as const, coordinates: p.at },
     })),
