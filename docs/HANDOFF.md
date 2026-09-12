@@ -13,7 +13,7 @@
   (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다. `git log --oneline -5`를 보라.)
 - **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
   그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
-- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, vitest 81 통과. **수치가 다르면 이 문서가 낡은 것이다.**
+- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn. **vitest 수는 9/11 라운드 E·F·G·H로 81에서 늘었는데 재측정이 안 됐다** — 로컬에서 `npx vitest run`을 돌린 사람이 이 줄을 고쳐라. 나머지 수치가 다르면 이 문서가 낡은 것이다.
 - **라이브 실측(2026-09-10, Lighthouse desktop)**: 접근성 100 · Best Practices 96 · SEO 100 · LCP 278ms · CLS 0.01.
   Best Practices의 -4는 아래 §5의 `terrain/meta.json` 404 하나뿐이고 그건 설계대로다.
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
@@ -27,6 +27,11 @@
 문서는 9/10에 맞춰 놨다(볼트 `SPEC`·`TASKS`·MOC, 레포 `README`·`roadmap.md`).
 남은 어긋남 하나: `data/external/LICENSES.md`는 생성물인데 캐시가 비어 재생성을 못 했다.
 `fetch-external.ts` 쪽은 고쳤으니 egress 있는 데서 `npm run fetch-external` 한 번 돌리면 맞는다.
+
+### 다른 계열 에이전트가 이어받는다면
+
+`docs/HANDOFF-GPT.md`를 먼저 읽힌다. 용어집(정본·원장·제안·말판·자석·세력 vs 정치체) · 못 하는 일 표 ·
+문서 계보(무엇이 무엇의 정본인가) · 판단 관례 · 인수인계 절차가 거기 있다. 레포 밖에만 있던 것들이다.
 
 ## 2. 폴더 지도
 
@@ -85,6 +90,11 @@ DEM egress 차단·`ONTOLOGY_DIR`은 AGENTS.md에. 그 외 실측으로 확인�
   별도 프로파일이라 River의 Chrome 세션은 안 건드린다. 끝나면 `pkill -f "user-data-dir=/tmp/ca-chrome"`.
   이 경로로 지도 렌더·Lighthouse·성능 트레이스까지 전부 실측했다(2026-09-10).
 - 헤드리스 Playwright는 없다(파이썬 `playwright`는 있으나 chromium 미설치, 설치는 egress 필요). 위 방법을 쓸 것.
+
+**Cowork VM(브릿지 셸)에서는 `npx vitest`·`npm run build`가 안 돈다.** `node_modules`가 맥에서 설치돼
+darwin 네이티브 바인딩이라, 리눅스인 브릿지 셸에서는 rolldown이 `Cannot find native binding`으로 죽는다.
+레포가 깨진 게 아니다. **빌드·테스트는 River의 맥 터미널이나 샌드박스 자체 클론에서 돌린다.**
+브릿지 셸은 파일 읽기·git·짧은 스크립트용이다.
 
 ## 6. 에이전트가 지금 할 수 있는 것
 

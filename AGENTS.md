@@ -2,6 +2,9 @@
 
 정본은 볼트 `Works/비주얼파이프라인/`의 CONSTITUTION·SPEC·SCHEMA·DESIGN·TASKS다. 이 파일은 그 실행 요약.
 
+**새 세션이면 `docs/HANDOFF.md`를 먼저 읽어라** — 현재 상태·환경 함정·열린 작업. 무엇을 할지는 `docs/BACKLOG.md`(요구 원장 R01~R41)에서 고른다.
+**Claude 계열이 아닌 에이전트가 처음 이어받는다면 `docs/HANDOFF-GPT.md`부터** — 용어집·못 하는 일·문서 계보·판단 관례가 거기 있다(레포 밖에만 있던 것들).
+
 ## 빌드·검증
 - `npm i` → `ONTOLOGY_DIR=<볼트 ontology 폴더> npm run adapt` (정본 JSONL → `public/datasets/rome/`) → `npm run build` (= gen + lint + vitest + vite).
 - `npm run fetch-external` — Natural Earth 베이스맵·수심·음영·글리프 다시 굽기(캐시 `data/external/`는 커밋 안 함).
