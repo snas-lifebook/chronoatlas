@@ -161,7 +161,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
           <dl className="ins-kv">
             {here.placeName && <div><dt>장소</dt><dd>{here.placeName}</dd></div>}
             {here.polityName && <div><dt>소속</dt><dd>{here.polityName}</dd></div>}
-            <div><dt>근거</dt><dd>{here.via === 'located_in' ? '위치 관계' : '이동 경로'}</dd></div>
+            <div><dt>근거</dt><dd>{here.via === 'located_in' ? '위치 관계' : here.via === 'movement' ? '이동 경로' : here.via === 'teaching' ? '교보재' : '관계'}</dd></div>
           </dl>
           {withThem.length > 0 && <Text size="sm" color="secondary">같이: {withThem.map(p => p.name).join(' · ')}</Text>}
         </section>

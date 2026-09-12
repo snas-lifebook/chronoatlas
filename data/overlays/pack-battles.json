@@ -1,0 +1,111 @@
+{
+  "type": "FeatureCollection",
+  "teaching": true,
+  "source": "정본 ontology/_routes/caesar.geojson 정점. 좌표·연도를 지어내지 않았다. 어댑터 battles.geojson에 이 구간 전투가 암살 하나뿐이라 교보재로 얹는다.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "event:알레시아포위전",
+        "name_ko": "알레시아 포위전",
+        "year": -52,
+        "valid_from": -52,
+        "valid_to": -22,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [4.5006, 47.5392] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:일레르다",
+        "name_ko": "일레르다",
+        "year": -49,
+        "valid_from": -49,
+        "valid_to": -19,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [-1.0, 41.3667] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:디르하키움",
+        "name_ko": "디르하키움",
+        "year": -48,
+        "valid_from": -48,
+        "valid_to": -18,
+        "victor": null,
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [19.45, 41.32] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:파르살루스",
+        "name_ko": "파르살루스",
+        "year": -48,
+        "valid_from": -48,
+        "valid_to": -18,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [22.3833, 39.3] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:알렉산드리아",
+        "name_ko": "알렉산드리아",
+        "year": -47,
+        "valid_from": -47,
+        "valid_to": -17,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [29.9079, 31.1982] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:젤라",
+        "name_ko": "젤라",
+        "year": -47,
+        "valid_from": -47,
+        "valid_to": -17,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [35.883, 40.3] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:타프수스",
+        "name_ko": "타프수스",
+        "year": -46,
+        "valid_from": -46,
+        "valid_to": -16,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [11.0417, 35.6208] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "place:문다평원",
+        "name_ko": "문다 평원",
+        "year": -45,
+        "valid_from": -45,
+        "valid_to": -15,
+        "victor": "로마",
+        "teaching": true
+      },
+      "geometry": { "type": "Point", "coordinates": [-5.2167, 37.35] }
+    }
+  ]
+}

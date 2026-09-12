@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseState, serializeState, createStore, DEFAULTS, applyScene, roundCam, bookmarkOf } from '../src/state';
+import { parseState, serializeState, createStore, DEFAULTS, applyScene, roundCam, bookmarkOf, viewOfScene, rememberPitch3d } from '../src/state';
 
 describe('state ↔ URL (TASKS 1.1)', () => {
   it('URL→state→URL 왕복 동일', () => {
@@ -156,6 +156,40 @@ describe('말판 URL (R37)', () => {
     const st = createStore({ ...DEFAULTS, board: 'cannae-216', phase: 2 });
     applyScene(st, { id: 'caesar', title: '카이사르', year: -60 });
     expect(st.get()).toMatchObject({ board: null, phase: 0, scene: 'caesar' });
+  });
+});
+
+describe('장면 평면/입체 (발표 팩)', () => {
+  it('pitch 0은 평면, pitch가 있으면 입체. view가 있으면 그게 이긴다', () => {
+    expect(viewOfScene({ id: 'a', title: 'a', year: -60, pitch: 0 }, '3d')).toBe('2d');
+    expect(viewOfScene({ id: 'b', title: 'b', year: -52, pitch: 50 }, '2d')).toBe('3d');
+    expect(viewOfScene({ id: 'c', title: 'c', year: -49, view: '3d', pitch: 0 }, '2d')).toBe('3d');
+    expect(viewOfScene({ id: 'd', title: 'd', year: -60 }, '3d')).toBe('3d');
+  });
+  it('장면 탭: 판도(pitch 0)는 평면, 원정은 입체', () => {
+    const st = createStore({ ...DEFAULTS, view: '3d' });
+    applyScene(st, { id: 'pack-extent-60', title: '판도', year: -60, pitch: 0 });
+    expect(st.get().view).toBe('2d');
+    applyScene(st, { id: 'pack-gaul-52', title: '원정', year: -52, pitch: 50 });
+    expect(st.get().view).toBe('3d');
+  });
+  it('공유 링크: URL의 view가 장면값을 이긴다', () => {
+    const search = '?view=2d&scene=pack-gaul-52';
+    const st = createStore(parseState(search));
+    applyScene(st, { id: 'pack-gaul-52', title: '원정', year: -52, pitch: 50, view: '3d' }, search);
+    expect(st.get().view).toBe('2d');
+  });
+  it('탑다운 pitch를 입체 각도로 기억하지 않는다', () => {
+    expect(rememberPitch3d(50, 0, '3d')).toBe(50);
+    expect(rememberPitch3d(50, 12, '3d')).toBe(50);
+    expect(rememberPitch3d(50, 55, '3d')).toBe(55);
+    expect(rememberPitch3d(50, 55, '2d')).toBe(50);
+  });
+  it('bookmarkOf: 평면일 때만 view를 담는다', () => {
+    const b2 = bookmarkOf({ ...DEFAULTS, view: '2d' }, { id: 'x', title: 'x', layers: [] });
+    expect(b2.view).toBe('2d');
+    const b3 = bookmarkOf({ ...DEFAULTS, view: '3d' }, { id: 'y', title: 'y', layers: [] });
+    expect(b3.view).toBeUndefined();
   });
   it('bookmarkOf: 말판이 켜져 있으면 조각에 담는다', () => {
     const s = { ...DEFAULTS, year: -216, board: 'cannae-216', phase: 1, center: [16.1325, 41.3064] as [number, number], zoom: 11 };

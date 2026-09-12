@@ -33,3 +33,10 @@ data/external/__MACOSX/
 # 기하 3D DEM 타일은 크고 라이선스가 출처별로 다르다 — 받는 사람이 판단해서 커밋(기본은 무시)
 public/datasets/*/terrain/
 data/ontology-dir.txt
+
+# 발표 정지 이미지 원본 — scripts/shoot-pack.py로 재생성한다(장당 4~6MB).
+# 납품본은 볼트 assets/지도/*.jpeg와 Drive에 있다. 증거는 _contact/_shot.json만 커밋.
+docs/verify/shot/*.png
+!docs/verify/shot/_contact.png
+!docs/verify/shot/_gallia_cmp.png
+!docs/verify/shot/_egypt_cmp.png

@@ -13,11 +13,11 @@
   (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다. `git log --oneline -5`를 보라.)
 - **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
   그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
-- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn. **vitest 157** (2026-09-12, R38 후). 나머지 수치가 다르면 이 문서가 낡은 것이다.
+- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn. **vitest 176** (2026-09-13, 카이사르 팩 워킹트리). 원격 `origin/main` 끝은 `b53d1da`이고 테스트 수는 그보다 적다. 나머지 수치가 다르면 이 문서가 낡은 것이다.
 - **라이브 실측(2026-09-10, Lighthouse desktop)**: 접근성 100 · Best Practices 96 · SEO 100 · LCP 278ms · CLS 0.01.
   Best Practices의 -4는 아래 §5의 `terrain/meta.json` 404 하나뿐이고 그건 설계대로다.
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
-- 초기 JS **392.43 kB gz** (예산 400 통과). 동적 청크는 별개: three 129.4, mediabunny 45.5. 칸나이 JSON이 glob으로 초기 청크에 실렸다.
+- 초기 JS **399.62 kB gz** (예산 400, 워킹트리 실측). 한 줄만 더 실리면 게이트가 깨진다. 동적 청크는 별개: three ~130, mediabunny 45.5.
 - 첫 페인트 차단 데이터 **15.4 kB gz** (9/10 이전엔 228.9였다. landmarks 1.2MB가 끼어 있었다).
 - **`chuhan-206`은 베이스맵이 없다.** manifest에 `basemap`·`bbox`·`relief`가 없고, `rome/layers/land.geojson`은
   경도 −15~65(지중해)만 덮어 중원(100~125)에 쓸 육지·해안·강이 아예 없다. `?ds=chuhan-206`은 빈 배경 위에
@@ -56,7 +56,10 @@
 | `scripts/extent.ts` | `BBOX` 단일 출처. 범위를 바꾸면 여기 한 줄(라운드 A) |
 | `schema/board.ts` | 말판 zod. `src/`에 안 넣는다 — 초기 번들에 zod가 실린 적이 있다 |
 | `src/board.ts` | 말판 런타임 순수 함수(`phaseOf`·`unitsGeoJSON`·`nearestSettlement` 자석) |
-| `src/people.ts` | 그 해에 인물이 어디 있나(R38). 위치 판정 규칙 4개가 파일 머리에 있다 |
+| `src/people.ts` | 그 해에 인물이 어디 있나(R38). 위치 판정 규칙은 파일 머리. 2026-09-13에 교보재·rel·unstack이 더해졌다 |
+| `src/packData.ts` | 카이사르 팩 교보재 glob (`pack-pompey`·`pack-battles`·`pack-cast`·`PACK_PLACES`) |
+| `data/overlays/` | 교보재 GeoJSON. `teaching: true`. 정본이 아님 |
+| `docs/PACK-CAESAR.md` | **2회차 발표 팩 지도의 요구·진행 정본** |
 
 ## 3. 정본 볼트 경로
 
@@ -130,8 +133,13 @@ darwin 네이티브 바인딩이라, 리눅스인 브릿지 셸에서는 rolldow
 | G | 말판 + 인물 위치 + 자석 | R21·R37·R38·R39 | 대 | **◐** 2D 렌더·인물 위치 ● (2026-09-12). R39 GLB 남음 |
 | ~~H~~ | 데이터 결손·회귀 정리 | R25 + 결손 4건 | — | **◐** 코드 ●, 정본 River 대기 |
 
-**선행 없이 지금 집을 수 있는 것 둘**(2026-09-12):
+**2회차 발표 팩 지도는 [PACK-CAESAR.md](PACK-CAESAR.md)가 정본이다**(2026-09-13).
+워킹트리에 장기말·연도 구간·교보재 경로가 있고 **커밋·푸시 전**이다. 라이브는 `b53d1da`.
+착수 전에 그 문서 §0·§7을 읽어라. BACKLOG R41(미시 시뮬)과 섞지 마라.
 
+**선행 없이 지금 집을 수 있는 것**(2026-09-13):
+
+0. **River가 배포를 말하면** PACK-CAESAR 워킹트리를 커밋·푸시. gzip 399.62 kB라 더 싣지 말고.
 1. **자막 버그** — `App.tsx`의 `nearest`에 거리 상한이 없어서 BC 216 화면에 BC 60 삼두정치 자막이 뜬다(`docs/verify/` 스크린샷 두 장 다). `maxGap` 한 줄. BACKLOG 「2026-09-12 추가 — 자막」
 2. **파르살루스 말판 장면 등록** — `data/boards/pharsalus-48.json`은 들어왔고 `data/scenes/rome.json`에 `group: "말판"`으로 등록만 남았다. 렌더 확인 후 좌표 조정(손으로 찍었다)
 

@@ -28,6 +28,13 @@ describe('routeGeometry / positionByRoute (다중 route 배선)', () => {
     expect(stops[stops.length - 1].year).toBe(-202);
   });
 
+  it('카이사르 경로: valid_from이 도착 해여도 from_year면 출발점(알레시아), 원정 끝나면 없음', () => {
+    const rome: Feature[] = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'datasets', 'rome', 'layers', 'movements.geojson'), 'utf8')).features;
+    expect(positionByRoute(rome, 'caesar', -52)).toEqual([4.5006, 47.5392]);
+    expect(positionByRoute(rome, 'caesar', -50)).toBeNull();
+    expect(positionByRoute(rome, 'caesar', -44)).toBeNull();
+  });
+
   it('positionByRoute: hannibal·scipio 상호 오염 없음', () => {
     expect(positionByRoute(movements, 'hannibal', -216)).toEqual([16.13, 41.31]);
     expect(positionByRoute(movements, 'hannibal', -202)).toEqual([9.0, 36.3]);

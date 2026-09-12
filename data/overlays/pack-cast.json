@@ -1,0 +1,19 @@
+{
+ "teaching": true,
+ "source": "정본 관계 + place lonlat. 베르킹게토릭스 participated_in 알레시아포위전(-52)이고 place:알레시아 좌표가 있다. 사건 occurred_at이 없어 교보재로 잇는다.",
+ "people": [
+  {
+   "id": "person:베르킹게토릭스",
+   "place": "place:알레시아",
+   "from_year": -52,
+   "to_year": -52
+  }
+ ],
+ "gone": [
+  {
+   "id": "person:크라수스",
+   "after_year": -53,
+   "source": "정본 links.jsonl의 `카이사르 allied_with 크라수스`와 `폼페이우스 allied_with 크라수스`가 **둘 다 to_year -53**이다(카르하이 전사). 정본에 카르하이 사건도 사망 연도 필드도 없고, 어긋나는 것은 `크라수스 ruled 로마 -71..-49`(year_basis: chronology) 하나뿐이라 그 굵은 구간이 BC 52·49 장면에 죽은 사람을 세워 두었다. 연도를 지어낸 것이 아니라 정본의 두 링크를 따랐다."
+  }
+ ]
+}

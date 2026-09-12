@@ -1,11 +1,12 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
-import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../schema';
+import { type Dataset, dateWindow, OPEN_PAST, routeGeometry } from '../schema';
 import { buildStyle, type Skin } from './style';
-import { roundCam, type Store, type Scene, type State } from '../state';
+import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { tokenColor } from '../tokenColor';
+import { showGalliaOverlay, showGalliaRoman } from '../present';
+import { PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -31,12 +32,34 @@ function armIcon(arm: string, color: string): ImageData {
   return g.getImageData(0, 0, size, size);
 }
 
+function portraitIcon(img: CanvasImageSource | null, color: string, initial: string): ImageData {
+  const size = 64, c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2); g.closePath();
+  g.save(); g.clip();
+  if (img) g.drawImage(img, 4, 4, 56, 56);
+  else {
+    g.fillStyle = color; g.fillRect(0, 0, size, size);
+    g.fillStyle = '#fff';
+    g.font = '600 26px sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(initial || '·', 32, 34);
+  }
+  g.restore();
+  g.beginPath(); g.arc(32, 32, 28, 0, Math.PI * 2);
+  g.strokeStyle = '#fff'; g.lineWidth = 5; g.stroke();
+  g.beginPath(); g.arc(32, 32, 26, 0, Math.PI * 2);
+  g.strokeStyle = color; g.lineWidth = 3; g.stroke();
+  return g.getImageData(0, 0, size, size);
+}
+
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
-  territory: ['territory-fill', 'territory-outline', 'territory-label', 'gallia-free'],
+  territory: ['territory-fill', 'territory-outline', 'territory-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
-  settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
-  battles: ['battle'],
+  settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
+  battles: ['battle', 'pack-battle', 'pack-battle-label'],
   movements: ['movement'],
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
@@ -47,6 +70,21 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   board: ['board-unit', 'board-label'],
   people: ['people-dot', 'people-label'],
 };
+// 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
+// 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
+// 그 해가 되기 전이면 가린다. 원래 필터는 한 번만 읽어 두고 AND로 덧붙인다.
+const BASE_FILTER = new Map<string, unknown>();
+function hideAnachronisticPlaces(map: maplibregl.Map, year: number) {
+  const hide = hiddenPlaces(year);
+  for (const id of LAYER_GROUPS.settlements) {
+    if (!map.getLayer(id)) continue;
+    if (!BASE_FILTER.has(id)) BASE_FILTER.set(id, map.getFilter(id) ?? null);
+    const base = BASE_FILTER.get(id) as any;
+    const excl: any = ['!', ['in', ['get', 'id'], ['literal', hide]]];
+    map.setFilter(id, (hide.length ? (base ? ['all', base, excl] : excl) : base) as any);
+  }
+}
+
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
 export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '#2F7D5B', rule: '#5B4B8A', lineage: '#8A6D3B', member: '#3E6F8C', act: '#6B6F76', locate: '#8A8F98', make: '#6B6F76', other: '#8A8F98' };
 
@@ -71,10 +109,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // 카메라 → 상태 (R35·F8). URL이 지금 화면을 담아야 '링크 복사'와 북마크가 쓸모 있다.
   // move가 아니라 moveend라 팬·줌 한 동작에 한 번만 돈다. 값은 roundCam으로 깎아 넣는다 —
   // 안 그러면 부동소수 잡음마다 store가 바뀌어 앱 전체(useSyncExternalStore)가 다시 그려진다.
-  let pitch3d = s0.pitch ?? 50, bearing3d = s0.bearing ?? 0; // 평면으로 눕혔다 다시 세울 때 돌아갈 각도
+  let pitch3d = (s0.pitch != null && s0.pitch >= 15) ? s0.pitch : 50;
+  let bearing3d = s0.bearing ?? 0; // 평면으로 눕혔다 다시 세울 때 돌아갈 각도
   let echo = false; // 지금 들어온 상태 변경이 지도 자신이 낸 것인가(되먹임 차단)
   map.on('moveend', () => {
-    if (store.get().view === '3d') { pitch3d = map.getPitch(); bearing3d = map.getBearing(); }
+    const st = store.get();
+    const p = map.getPitch();
+    if (st.view === '3d' && p >= 15) { pitch3d = rememberPitch3d(pitch3d, p, st.view); bearing3d = map.getBearing(); }
     echo = true;
     store.set(roundCam(map.getCenter(), map.getZoom(), map.getPitch(), map.getBearing()));
     echo = false;
@@ -83,12 +124,62 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 250000, 5, 90000, 7, 20000]]]] as any], ['admin-line', null],
-    ['settle-major', ['<=', ['get', 'rank'], 1]], ['settle-minor', ['>=', ['get', 'rank'], 2]], ['battle', null], ['movement', null]];
+    ['settle-major', ['<=', ['get', 'rank'], 1]], ['settle-minor', ['>=', ['get', 'rank'], 2]], ['battle', null], ['pack-battle', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
+  // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
+  const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
 
   let loaded = false;
-  let tokens: { route: string; token: import('../token3d').Token }[] = [];
+  let tokenMod: typeof import('../token3d') | null = null;
+  const peopleTokens = new Map<string, import('../token3d').Token>();
+  const tokenRoutes = new Map<string, [number, number][]>();
   let peopleFc: { type: 'FeatureCollection'; features: object[] } = EMPTY_FC;
+  let peopleLayerOn = true;
+  const portraitQueued = new Set<string>();
+  function syncPeopleIcons(fc: { type: 'FeatureCollection'; features: object[] }) {
+    if (!map.getStyle()) return;
+    if (!map.hasImage('person-fallback')) map.addImage('person-fallback', portraitIcon(null, '#6B6F76', '·'), { pixelRatio: 2 });
+    for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null } }[]) {
+      const p = f.properties; if (!p?.id) continue;
+      const iid = `person-${p.id}`;
+      const initial = String(p.name || '·').replace(/\s+/g, '').slice(0, 1);
+      if (!map.hasImage(iid)) {
+        map.addImage(iid, portraitIcon(null, p.color || '#6B6F76', initial), { pixelRatio: 2 });
+        portraitQueued.delete(iid);
+      }
+      if (!p.asset || portraitQueued.has(iid)) continue;
+      portraitQueued.add(iid);
+      const img = new Image();
+      img.onload = () => {
+        if (!map.getStyle()) return;
+        const data = portraitIcon(img, p.color || '#6B6F76', initial);
+        if (map.hasImage(iid)) map.updateImage(iid, data);
+        else map.addImage(iid, data, { pixelRatio: 2 });
+      };
+      img.src = `${root}${p.asset}`;
+    }
+  }
+
+  function syncPeopleTokens(fc: { type: 'FeatureCollection'; features: object[] }) {
+    if (!tokenMod || !map.getStyle()) return;
+    const seen = new Set<string>();
+    if (peopleLayerOn) {
+      for (const f of fc.features as { properties: { id: string; name: string; color: string }; geometry: { coordinates: [number, number] } }[]) {
+        const p = f.properties; if (!p?.id) continue;
+        seen.add(p.id);
+        let t = peopleTokens.get(p.id);
+        if (!t) {
+          t = tokenMod.createToken(p.color || '#6B6F76', p.name);
+          const path = tokenRoutes.get(p.id);
+          if (path) t.setRoute(path);
+          if (!map.getLayer(t.layer.id)) map.addLayer(t.layer);
+          peopleTokens.set(p.id, t);
+        }
+        t.setPosition(f.geometry.coordinates as [number, number]);
+      }
+    }
+    for (const [id, t] of peopleTokens) if (!seen.has(id)) t.setPosition(null);
+  }
 
   // 기하 3D 지형(River 9/9 "3D인데 굴곡이 없다"): DEM 타일이 있으면 켠다.
   // 타일은 용량·라이선스 때문에 레포에 없다(.gitignore) — public/datasets/<ds>/terrain/meta.json이 있으면 그걸 보고 런타임에 켠다.
@@ -123,11 +214,20 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
     map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.45, ['==', ['get', 'actor'], '기타중립'], 0.1, 0.22] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
-    // 갈리아 교보재(발표 3·4번). Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다. year < -51.
+    // 갈리아 교보재. pack-extent-60에만 켠다. Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다.
     if (GALLIA_FREE && !map.getSource('gallia-free')) {
       map.addSource('gallia-free', { type: 'geojson', data: GALLIA_FREE as any });
       map.addLayer({ id: 'gallia-free', type: 'fill', source: 'gallia-free',
         paint: { 'fill-color': '#3E7C4F', 'fill-opacity': 0.28 } }, before);
+      map.addLayer({ id: 'gallia-free-line', type: 'line', source: 'gallia-free',
+        paint: { 'line-color': '#2F5D3A', 'line-width': 1.5, 'line-opacity': 0.9, 'line-dasharray': [2, 1] } }, before);
+      // 같은 소스를 로마색으로 한 겹 더. pack-extent-51에만 켠다 — present.showGalliaRoman 참조.
+      // 색은 정본 팔레트에서 꺼낸다(P2: 지도 유채색은 데이터 색뿐). 불투명도는 territory-fill과 같은 0.22.
+      const romeColor = d.actors.find(a => a.id === '로마')?.color ?? FALLBACK_COLOR;
+      map.addLayer({ id: 'gallia-roman', type: 'fill', source: 'gallia-free',
+        paint: { 'fill-color': romeColor, 'fill-opacity': 0.22 } }, before);
+      map.addLayer({ id: 'gallia-roman-line', type: 'line', source: 'gallia-free',
+        paint: { 'line-color': romeColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
     }
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
@@ -145,8 +245,33 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': hov(radius, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
     circle('settle-major', 3, 5); circle('settle-minor', 5, 3.5);
+    const storyFilter: any = ['in', ['get', 'id'], ['literal', [...PACK_PLACES]]];
+    map.addLayer({ id: 'story-place', type: 'circle', source: 'settlements', minzoom: 3,
+      filter: storyFilter,
+      paint: { 'circle-radius': hov(6, 2) as any, 'circle-color': '#b8860b',
+        'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any,
+        'circle-stroke-width': hov(1.4, 1) as any, 'circle-opacity': 1 } }, before);
+    map.addLayer({ id: 'story-place-label', type: 'symbol', source: 'settlements', minzoom: 3,
+      filter: storyFilter,
+      layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 3, 12, 6, 15] as any,
+        // 고정 anchor면 그 자리가 막혔을 때 이름표가 그냥 사라진다. 네 방향을 주면 옆으로
+        // 미끄러져 산다. variable-anchor는 text-offset을 무시하므로 radial-offset을 쓴다.
+        'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 1.05,
+        'text-optional': true, 'text-allow-overlap': false },
+      paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
+    if (PACK_BATTLES.length && !map.getSource('pack-battles')) {
+      map.addSource('pack-battles', { type: 'geojson', data: { type: 'FeatureCollection', features: PACK_BATTLES } as any, promoteId: 'id' });
+      map.addLayer({ id: 'pack-battle', type: 'circle', source: 'pack-battles',
+        paint: { 'circle-radius': hov(8, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
+      map.addLayer({ id: 'pack-battle-label', type: 'symbol', source: 'pack-battles',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+          'text-radial-offset': 1.1, 'text-optional': true, 'text-allow-overlap': false },
+        paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
+    }
     // 말판(R37). 페이즈마다 통째로 setData. 보간하지 않는다. 아이콘 색은 팔레트(데이터 색, P2).
     const actorIds = d.actors.map(a => a.id);
     for (const a of [...d.actors, { id: '_', color: FALLBACK_COLOR }]) {
@@ -164,20 +289,35 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'icon-opacity': ['case', ['boolean', ['feature-state', 'selected'], false], 1, ['boolean', ['feature-state', 'hover'], false], 1, 0.92] as any } }, before);
     if (!map.getSource('people')) map.addSource('people', { type: 'geojson', data: peopleFc as any, promoteId: 'id' });
     else (map.getSource('people') as maplibregl.GeoJSONSource).setData(peopleFc as any);
+    if (!map.hasImage('person-fallback')) map.addImage('person-fallback', portraitIcon(null, '#6B6F76', '·'), { pixelRatio: 2 });
+    // 말은 Three.js 장기말. 이 레이어는 클릭 히트박스 + 이름만(초상 뱃지는 줌 4에서 안 보인다).
     map.addLayer({ id: 'people-dot', type: 'circle', source: 'people',
-      paint: { 'circle-radius': ['case', ['boolean', ['feature-state', 'selected'], false], 8, ['boolean', ['feature-state', 'hover'], false], 7, 6] as any,
-        'circle-color': ['get', 'color'], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.6, 'circle-opacity': 1 } }, before);
-    map.addLayer({ id: 'people-label', type: 'symbol', source: 'people', minzoom: 4,
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-size': 12,
-        'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true, 'text-allow-overlap': false },
-      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
+      paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 18, 9, 22] as any,
+        'circle-color': '#000', 'circle-opacity': 0, 'circle-stroke-width': 0 } }, before);
+    map.addLayer({ id: 'people-label', type: 'symbol', source: 'people',
+      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 16, 9, 18] as any,
+        // 1.35em이면 장기말 받침(반지름 0.68단위 ≈ 45 CSS px)에 이름이 묻힌다.
+        // 말이 누워 있던 동안에는 안 겹쳤고, 세우고 나서 드러난 자리다.
+        'text-offset': [0, 3.3], 'text-anchor': 'top', 'text-optional': false,
+        // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
+        // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
+        // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가
+        // 검은 얼룩이 된 원인이 이것이다. false면 인물 이름이 자리를 점유하므로 남들이 비켜 간다.
+        'text-allow-overlap': true, 'text-ignore-placement': false,
+        'text-pitch-alignment': 'viewport' },
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.2 } }, before);
+    syncPeopleIcons(peopleFc);
 
     map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,
       layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
         'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
       paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
-    map.addSource('movements', { type: 'geojson', data: d.movements as any });
-    map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': fillColor, 'line-width': 2.5, 'line-dasharray': [2, 1.2], 'line-opacity': 0.9 } }, before);
+    const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS] };
+    map.addSource('movements', { type: 'geojson', data: allMoves as any });
+    map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': fillColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 2.4, 6, 4] as any,
+        'line-opacity': 0.92 } }, before);
 
     // 관계 그래프 오버레이(2.1, 하이브리드): 선택 객체 ↔ 좌표 있는 이웃 선. 좌표 없는 이웃은 GraphPanel.
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
@@ -188,37 +328,31 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 선의 끝점은 이미 settle-*·battle 원이고 이름표는 label-settle-*이라 애초에 겹쳐 그릴 것이 없다.
     if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
 
-    // Three.js 토큰은 이동 경로가 있을 때만 동적 import(DESIGN §4 JS 예산). 실패해도 베이스 지도는 유지.
-    const routeIds = [...new Set(d.movements.features.map(f => f.properties.route))];
-    const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
-    if (routeIds.length) import('../token3d').then(({ createToken }) => {
-      tokens = routeIds.map(routeId => {
-        const feat = d.movements.features.find(f => f.properties.route === routeId);
-        const owner = feat?.properties.owner as string | undefined;
-        const actorId = feat?.properties.actor as string | undefined;
-        const token = createToken(tokenColor(owner, actorId, palette));
-        token.setRoute(routeGeometry(d.movements.features, routeId).path);
-        map.addLayer(token.layer);
-        return { route: routeId, token };
-      });
-      for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, store.get().year));
-    }).catch(() => { tokens = []; });
+    // Three.js 장기말은 인물 레이어가 켤 때. 경로가 있으면 그 선을 따라 걷는다.
+    tokenRoutes.clear();
+    for (const f of allMoves.features) {
+      const owner = f.properties.owner as string | undefined;
+      const route = f.properties.route as string | undefined;
+      if (!owner || !route || tokenRoutes.has(owner)) continue;
+      tokenRoutes.set(owner, routeGeometry(allMoves.features, route).path);
+    }
+    import('../token3d').then(mod => { tokenMod = mod; syncPeopleTokens(peopleFc); }).catch(() => { tokenMod = null; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
     apply(store.get());
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'board-unit', 'people-dot', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'movement', 'board-unit', 'people-dot', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
-        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'board-unit', 'people-dot'].filter(l => map.getLayer(l)) }).length) return;
+        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'board-unit', 'people-dot'].filter(l => map.getLayer(l)) }).length) return;
         // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름.
         // marine_labels(바다 마스크)는 properties가 통째로 비어 있다 — 'landmark:undefined'를 만들지 않는다.
         const key = f.properties.pid ?? f.properties.name;
         if (key != null) store.set({ sel: `landmark:${key}` });
         return; }
-      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'board-unit', 'people-dot', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
+      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'board-unit', 'people-dot', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
       if (layerId === 'people-dot') {
         const sel = f.properties?.id;
         if (sel) store.set({ sel });
@@ -239,7 +373,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'board-unit': 'board', 'people-dot': 'people', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', 'story-place': 'settlements', battle: 'battles', 'pack-battle': 'pack-battles', 'board-unit': 'board', 'people-dot': 'people', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -301,6 +435,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       const fs = { source: 'people', id: sel };
       map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
     }
+    if (sel && map.getSource('pack-battles')) {
+      const fs = { source: 'pack-battles', id: sel };
+      map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
+    }
     if (map.getSource('board')) {
       for (const f of map.querySourceFeatures('board')) {
         if (f.id == null) continue;
@@ -310,7 +448,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         }
       }
     }
-    for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs.length ? dimExpr(0.6) : 1) as any);
+    for (const id of ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs.length ? dimExpr(0.6) : 1) as any);
   }
 
 
@@ -347,21 +485,24 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (s.year !== lastYear) {
       lastYear = s.year;
       loadTerritory(s.year);
-      for (const [id, base] of timed) map.setFilter(id, filterFor(base, s.year));
-      for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, s.year));
+      for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
+      if (map.getLayer('movement')) map.setFilter('movement', movementFilter(s.year) as any);
+      if (map.getLayer('pack-battle-label')) map.setFilter('pack-battle-label', dateWindow(s.year) as any);
     }
     const on = new Set(s.layers ?? allLayers(d));
     const key = [...on].join(',');
+    peopleLayerOn = on.has('people');
     if (key !== lastLayers || s.board !== lastBoard) {
       lastLayers = key;
       for (const [group, ids] of Object.entries(LAYER_GROUPS)) {
         const vis = group === 'board' ? !!s.board : group === 'labels' ? on.has('labels') : on.has(group);
         for (const id of ids) if (map.getLayer(id)) {
           // 정착지 라벨은 settlements와 labels 둘 다 켜져야 보인다
-          const v = id.startsWith('label-settle') ? on.has('settlements') && on.has('labels') : vis;
+          const v = id.startsWith('label-settle') || id === 'story-place-label' ? on.has('settlements') && on.has('labels') : vis;
           map.setLayoutProperty(id, 'visibility', v ? 'visible' : 'none');
         }
       }
+      syncPeopleTokens(peopleLayerOn ? peopleFc : EMPTY_FC);
     }
     if (s.board !== lastBoard || s.phase !== lastPhase) {
       lastBoard = s.board; lastPhase = s.phase;
@@ -376,9 +517,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       }
     }
     if (map.getLayer('gallia-free')) {
-      const showGaul = (s.layers == null || new Set(s.layers ?? allLayers(d)).has('territory')) && s.year < -51;
+      const onTerr = s.layers == null || new Set(s.layers).has('territory');
+      const showGaul = showGalliaOverlay(s.scene, s.year) && onTerr;
       map.setLayoutProperty('gallia-free', 'visibility', showGaul ? 'visible' : 'none');
+      if (map.getLayer('gallia-free-line')) map.setLayoutProperty('gallia-free-line', 'visibility', showGaul ? 'visible' : 'none');
+      const showRoman = showGalliaRoman(s.scene, s.year) && onTerr;
+      if (map.getLayer('gallia-roman')) map.setLayoutProperty('gallia-roman', 'visibility', showRoman ? 'visible' : 'none');
+      if (map.getLayer('gallia-roman-line')) map.setLayoutProperty('gallia-roman-line', 'visibility', showRoman ? 'visible' : 'none');
     }
+    hideAnachronisticPlaces(map, s.year);
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
@@ -419,9 +566,11 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     setPeople(fc: { type: 'FeatureCollection'; features: object[] }) {
       peopleFc = fc as typeof EMPTY_FC;
       (map.getSource('people') as maplibregl.GeoJSONSource | undefined)?.setData(fc as any);
+      syncPeopleIcons(peopleFc);
+      syncPeopleTokens(peopleFc);
     },
     onData(fn: () => void) { onData = fn; },
-    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: dur(1400), essential: true }); },
+    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : (sc.pitch ?? pitch3d), bearing: store.get().view === '2d' ? 0 : (sc.bearing ?? bearing3d), duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {
       const source = id?.startsWith('event:') ? 'battles' : id?.startsWith('place:') ? 'settlements' : null;

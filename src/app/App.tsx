@@ -15,6 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
@@ -73,7 +74,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (!s.sel || !graph || /^(landmark|territory):/.test(s.sel)) { eng.setEgo(null, '', []); return; }
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
-  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: d.movements.features, territory: d.territory.features }), [s.year, graph, d, dataTick]);
+  // zoom을 넘기는 이유: 같은 칸의 말을 벌리는 폭이 화면 기준이어야 한다(people.spreadDeg).
+  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: [...d.movements.features, ...PACK_MOVEMENTS], territory: d.territory.features, teaching: PACK_CAST, zoom: s.zoom ?? undefined }), [s.year, s.zoom, graph, d, dataTick]);
   useEffect(() => {
     const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
     engRef.current?.setPeople(peopleGeoJSON(people, palette));
@@ -133,7 +135,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   };
   const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
   // dataTick: 영토 버킷이 바뀌면 d.territory.features가 통째로 갈린다 — 그때 다시 센다.
-  const brief = useMemo(() => yearBrief(s.year, { graph, territory: d.territory.features, events: d.events, battles: d.battles.features }),
+  const brief = useMemo(() => yearBrief(s.year, { graph, territory: d.territory.features, events: d.events, battles: [...d.battles.features, ...PACK_BATTLES] }),
     [s.year, graph, dataTick]);
   // 북마크 복사(R35). 제목·그룹은 사람이 파일에서 고치는 자리라 여기선 기본값만 채운다 — 지어내지 않는다.
   const [copied, setCopied] = useState<'url' | 'json' | null>(null);
@@ -158,8 +160,9 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     ...d.battles.features.map(f => ({ id: f.properties.id as string, name: f.properties.name_ko as string, sub: fmt(f.properties.year), kind: '전투' })),
   ], [d]);
   const locate = (id: string) => {
-    const f = [...d.settlements.features, ...d.battles.features].find(f => f.properties.id === id);
-    const ll = f?.geometry.coordinates ?? graph?.nodes.get(id)?.lonlat ?? null;
+    const f = [...d.settlements.features, ...d.battles.features, ...PACK_BATTLES].find(f => f.properties.id === id);
+    const person = people.find(p => p.id === id);
+    const ll = f?.geometry.coordinates ?? person?.at ?? graph?.nodes.get(id)?.lonlat ?? null;
     store.set({ sel: id });
     if (ll) engRef.current?.map.easeTo({ center: ll, duration: 600, padding: { right: 380 } });
   };
@@ -222,8 +225,31 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         const group = presentGroupOf(scenes, s.scene);
         const list = scenesInGroup(scenes, group);
         const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
-        const title = list[i]?.title ?? scenes.find(sc => sc.id === s.scene)?.title ?? '';
-        return <div className="shell-present-hud"><div className="ph-k">{i + 1} / {list.length}</div><div className="ph-t">{title}</div><div className="ph-y">{fmt(s.year)}</div></div>;
+        const cur = list[i] ?? scenes.find(sc => sc.id === s.scene);
+        return <div className="shell-present-hud">
+          <div className="ph-k">{i + 1} / {list.length}</div>
+          <div className="ph-t">{cur?.title ?? ''}</div>
+          <div className="ph-y">{fmt(s.year)}</div>
+          {cur?.note && <div className="ph-n">{cur.note}</div>}
+          {people.length > 0 && (
+            <div className="ph-row"><span className="ph-rk">말</span>
+              <span className="ph-rv">{people.map(p => (
+                <button key={p.id} onClick={() => locate(p.id)}>{p.name}</button>
+              ))}</span></div>
+          )}
+          {brief.people.length > 0 && (
+            <div className="ph-row"><span className="ph-rk">인물</span>
+              <span className="ph-rv">{brief.people.map(p => (
+                <button key={p.id} onClick={() => locate(p.id)} title={`그 해에 활성인 관계 ${p.n}건`}>{p.name}</button>
+              ))}</span></div>
+          )}
+          {brief.happenings.length > 0 && (
+            <div className="ph-row"><span className="ph-rk">그 해</span>
+              <span className="ph-rv">{brief.happenings.map(h => (
+                h.id ? <button key={h.label} onClick={() => locate(h.id!)}>{h.label}</button> : <em key={h.label}>{h.label}</em>
+              ))}</span></div>
+          )}
+        </div>;
       })()}
 
       <header className="shell-title">

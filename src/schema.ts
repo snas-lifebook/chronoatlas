@@ -91,7 +91,11 @@ export function routeGeometry(features: Feature[], route: string): RouteGeometry
   return { path, stops };
 }
 
-/** movements 세그먼트 중 특정 route의 year 시점 토큰 위치 = valid_from<=year인 마지막 세그먼트의 끝점. 없으면 null. 순수 헬퍼. */
+/** movements 세그먼트 중 특정 route의 year 시점 토큰 위치.
+ *  기본: valid_from<=year인 마지막 세그먼트의 끝점(도착지).
+ *  원정이 그 해에 이미 끝났으면(year > 마지막 to_year) 안 그린다 — 문다 뒤에 카이사르가 스페인에 남는 일이 없게.
+ *  valid_from이 도착 해에만 찍힌 세그먼트(카이사르 첫 구간 from_year=-52, valid_from=-49)는
+ *  from_year<=year<to_year 동안 출발점에 서 있게. 중간 좌표는 보간하지 않는다. */
 export function positionByRoute(features: Feature[], route: string, year: number): [number, number] | null {
   let best: Feature | null = null;
   let bestFrom = -Infinity;
@@ -100,9 +104,26 @@ export function positionByRoute(features: Feature[], route: string, year: number
     const vf = f.properties.valid_from ?? OPEN_PAST;
     if (vf <= year && vf >= bestFrom) { best = f; bestFrom = vf; }
   }
-  if (!best) return null;
-  const line = best.geometry.coordinates as number[][];
-  return line[line.length - 1] as [number, number];
+  if (best) {
+    const ty = best.properties.to_year;
+    if (ty != null && year > ty) return null;
+    const line = best.geometry.coordinates as number[][];
+    return line[line.length - 1] as [number, number];
+  }
+  let early: Feature | null = null;
+  let earlyFrom = Infinity;
+  for (const f of features) {
+    if (f.properties.route !== route) continue;
+    const fy = f.properties.from_year;
+    const vf = f.properties.valid_from ?? OPEN_PAST;
+    if (fy == null || fy !== year || !(vf > fy)) continue; // 출발 해==year 이고 valid_from이 더 늦은 어댑터 결함만 (스키피오 -218→-209 구간을 -216에 열지 않는다)
+    const ty = f.properties.to_year;
+    if (ty != null && ty <= year) continue;
+    if (fy < earlyFrom) { early = f; earlyFrom = fy; }
+  }
+  if (!early) return null;
+  const line = early.geometry.coordinates as number[][];
+  return line[0] as [number, number];
 }
 
 const SOURCES = new Set(['book', 'web', 'book+web']);

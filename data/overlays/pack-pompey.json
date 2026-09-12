@@ -1,0 +1,75 @@
+{
+  "type": "FeatureCollection",
+  "teaching": true,
+  "source": "정본 ontology/_routes/pompey.geojson 정점·연도. 어댑터가 아직 안 구운 경로. 기원전 49~48만(삼두 시절 로마에 있던 해를 예루살렘에 두지 않기 위해 그 이전 정점은 뺐다).",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pompey@brundisium",
+        "route": "pompey",
+        "owner": "person:폼페이우스",
+        "actor": "로마",
+        "label": "브린디시",
+        "name_ko": "폼페이우스의 정복과 몰락",
+        "from_year": -49,
+        "to_year": -49,
+        "valid_from": -49,
+        "valid_to": -47,
+        "teaching": true
+      },
+      "geometry": { "type": "LineString", "coordinates": [[17.933, 40.633], [20.4, 39.4]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pompey@pharsalus",
+        "route": "pompey",
+        "owner": "person:폼페이우스",
+        "actor": "로마",
+        "label": "파르살루스",
+        "name_ko": "폼페이우스의 정복과 몰락",
+        "from_year": -49,
+        "to_year": -48,
+        "valid_from": -48,
+        "valid_to": -47,
+        "teaching": true
+      },
+      "geometry": { "type": "LineString", "coordinates": [[20.4, 39.4], [22.3833, 39.3]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pompey@larissa",
+        "route": "pompey",
+        "owner": "person:폼페이우스",
+        "actor": "로마",
+        "label": "라리사",
+        "name_ko": "폼페이우스의 정복과 몰락",
+        "from_year": -48,
+        "to_year": -48,
+        "valid_from": -48,
+        "valid_to": -47,
+        "teaching": true
+      },
+      "geometry": { "type": "LineString", "coordinates": [[22.3833, 39.3], [22.4167, 39.6417]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "pompey@alexandria",
+        "route": "pompey",
+        "owner": "person:폼페이우스",
+        "actor": "로마",
+        "label": "알렉산드리아",
+        "name_ko": "폼페이우스의 정복과 몰락",
+        "from_year": -48,
+        "to_year": -48,
+        "valid_from": -48,
+        "valid_to": -47,
+        "teaching": true
+      },
+      "geometry": { "type": "LineString", "coordinates": [[22.4167, 39.6417], [29.9079, 31.1982]] }
+    }
+  ]
+}

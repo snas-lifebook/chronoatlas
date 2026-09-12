@@ -24,10 +24,25 @@ export interface Scene {
   id: string; title: string; year: number;
   to?: number /* 재생·MP4 구간 끝 */; sel?: string | null;
   center?: [number, number]; zoom?: number; pitch?: number; bearing?: number;
+  view?: View;                     // 판도(탑다운)와 원정(입체)을 장면이 직접 고른다
   skin?: Skin; layers?: string[];  // R35 북마크: 스킨·켜진 레이어까지 담는다
   group?: string;                  // 프로젝트(발표자) 묶음. 장면 탭에서 머리글이 된다
   note?: string;
   board?: string; phase?: number;  // 말판 북마크 (R37)
+}
+
+/** 장면이 평면을 시키면 눕히고, 각도가 있으면 세운다. view가 있으면 그게 이긴다. */
+export function viewOfScene(scene: Scene, fallback: View): View {
+  if (scene.view === '2d' || scene.view === '3d') return scene.view;
+  if (scene.pitch === 0) return '2d';
+  if (scene.pitch != null && scene.pitch > 0) return '3d';
+  return fallback;
+}
+
+/** 탑다운(pitch 0)을 '마지막 입체 각도'로 기억하면 V가 다시 눕힌 채로 돌아온다. */
+export function rememberPitch3d(prev: number, pitch: number, view: View): number {
+  if (view !== '3d' || pitch < 15) return prev;
+  return pitch;
 }
 
 export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0, present: false };
@@ -112,6 +127,7 @@ export function applyScene(store: Store, scene: Scene, search = '') {
     zoom: q.has('z') ? cur.zoom : scene.zoom ?? cur.zoom,
     pitch: q.has('p') ? cur.pitch : scene.pitch ?? cur.pitch,
     bearing: q.has('b') ? cur.bearing : scene.bearing ?? cur.bearing,
+    view: q.has('view') ? cur.view : viewOfScene(scene, cur.view),
     skin: q.has('skin') ? cur.skin : scene.skin ?? cur.skin,
     layers: q.has('layers') ? cur.layers : scene.layers ?? cur.layers,
     board: q.has('board') ? cur.board : scene.board ?? null,
@@ -127,6 +143,7 @@ export function bookmarkOf(s: State, opts: { id: string; title: string; group?: 
     year: s.year, sel: s.sel,
     ...(s.center ? { center: s.center } : {}), ...(s.zoom != null ? { zoom: s.zoom } : {}),
     ...(s.pitch != null ? { pitch: s.pitch } : {}), ...(s.bearing != null ? { bearing: s.bearing } : {}),
+    ...(s.view !== DEFAULTS.view ? { view: s.view } : {}),
     skin: s.skin, layers: opts.layers,
     ...(s.board ? { board: s.board, phase: s.phase } : {}),
   };

@@ -11,13 +11,28 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell.is-present .shell-toolbar,
 .shell.is-present .shell-timeline,
 .shell.is-present .shell-footnote,
-.shell.is-present .shell-right,
 .shell.is-present .shell-board { display: none !important; }
-.shell.is-present .shell-year-brief { left: 24px; right: 24px; top: 72px; }
-.shell-present-hud { position: absolute; top: 20px; left: 24px; pointer-events: none; display: grid; gap: 2px; }
+.shell.is-present .shell-year-brief { display: none !important; } /* HUD에 합침 */
+.shell.is-present .shell-graph { display: none !important; }
+.shell.is-present .shell-right { top: 20px; left: auto; right: 24px; width: 360px; max-height: calc(100% - 48px); }
+.shell-present-hud { position: absolute; top: 20px; left: 24px; max-width: min(480px, 42vw); pointer-events: none; display: grid; gap: 4px;
+  padding: 10px 14px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--color-background-surface) 82%, transparent); backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border); box-shadow: var(--shadow-med, 0 4px 16px rgba(0,0,0,.08)); }
 .shell-present-hud .ph-k { font-size: 12px; color: var(--color-text-secondary); letter-spacing: 0.04em; }
 .shell-present-hud .ph-t { font-size: 22px; font-weight: 600; color: var(--color-text-primary); }
 .shell-present-hud .ph-y { font-size: 14px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.shell-present-hud .ph-n { font-size: 13px; line-height: 1.45; color: var(--color-text-secondary); }
+.shell-present-hud .ph-row { display: grid; grid-template-columns: 36px 1fr; gap: 8px; align-items: baseline; }
+.shell-present-hud .ph-rk { font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.04em; }
+.shell-present-hud .ph-rv { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13px; line-height: 1.35; }
+.shell-present-hud button { pointer-events: auto; border: 0; background: none; padding: 0; font: inherit; color: var(--color-text-primary); cursor: pointer; border-bottom: 1px solid transparent; }
+.shell-present-hud button:hover { border-bottom-color: var(--color-text-secondary); }
+.shell-present-hud em { font-style: normal; color: var(--color-text-primary); }
+@media (max-width: 1099px) {
+  .shell.is-present .shell-present-hud { max-width: calc(100% - 48px); }
+  .shell.is-present .shell-right { left: auto; right: 12px; width: min(360px, calc(100% - 24px)); }
+}
 .shell-map { position: absolute; inset: 0; }
 .shell > *:not(.shell-map) { z-index: 2; }
 

@@ -1,12 +1,18 @@
 import * as THREE from 'three';
 import * as maplibregl from 'maplibre-gl';
 
-// MapLibre 위 Three.js 토큰(장군 말). 경로 폴리라인을 따라 행군한다(Rome:Total War식).
-// render 매트릭스는 MapLibre v6 계약: args.defaultProjectionData.mainMatrix (문서 확인).
-// 위치는 MercatorCoordinate + meterInMercatorCoordinateUnits() 스케일.
+// MapLibre 위 Three.js 장기말. 경로 폴리라인을 따라 행군한다(Rome: Total War 캠페인 맵).
+// 뱃지(초상 원)는 줌 4에서 10px도 안 된다. 말은 화면 픽셀을 거의 일정하게 유지한다.
+// 탑다운 = 장기 팔각 + 글자. pitch = 폰 실루엣.
 
-const TOKEN_METERS = 60000; // ponytail: 토큰 높이(약 60km) — zoom 3~9 가독성 튜닝 노브. 안 보이면 키운다.
 const ANIM_MS = 1200; // 북마크 점프가 텔레포트로 안 읽히게. 연도 슬라이더도 같은 속도로 걷는다.
+const SCREEN_PX = 64; // 지중해 줌에서 말 한 알.
+const M_PER_PX_Z0 = 40075016.686 / 512; // Web Mercator, 512px 타일
+
+export function tokenMeters(zoom: number): number {
+  const m = (M_PER_PX_Z0 / Math.pow(2, zoom)) * SCREEN_PX;
+  return Math.max(14000, Math.min(180000, m));
+}
 
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
@@ -16,7 +22,6 @@ function pointsEqual(a: [number, number], b: [number, number]) {
   return Math.abs(a[0] - b[0]) < 1e-9 && Math.abs(a[1] - b[1]) < 1e-9;
 }
 
-// pos→next 구간을 route 폴리라인 위 정점들을 따라 잇는다(직선 lerp 아님). 둘 다 route 위에 없으면 2점 직선 폴백.
 function walkRoute(route: [number, number][], from: [number, number], to: [number, number]): [number, number][] {
   const iFrom = route.findIndex(p => pointsEqual(p, from));
   const iTo = route.findIndex(p => pointsEqual(p, to));
@@ -24,34 +29,47 @@ function walkRoute(route: [number, number][], from: [number, number], to: [numbe
   return iFrom < iTo ? route.slice(iFrom, iTo + 1) : route.slice(iTo, iFrom + 1).reverse();
 }
 
-let tokenSeq = 0; // 인스턴스마다 고유 CustomLayer id 발급용
+function pieceMesh(color: string) {
+  const mat = new THREE.MeshBasicMaterial({ color });
+  const dark = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(0.72).getHex() });
+  const ring = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const group = new THREE.Group();
+
+  const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.68, 0.14, 24), dark);
+  plinth.position.y = 0.07;
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.52, 0.62, 8), mat);
+  body.position.y = 0.45;
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.04, 8), ring);
+  rim.position.y = 0.78;
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 0.16, 12), dark);
+  neck.position.y = 0.84;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 16), mat);
+  head.position.y = 1.1;
+
+  group.add(plinth, body, rim, neck, head);
+  // three +y(위) → mercator +z(고도). 모델 행렬이 y를 뒤집어 쓰므로(.scale(s,-s,s))
+  // 부호는 **+**다. -로 두면 말이 서지 않고 **땅에 누워** 받침에서 머리로 가는
+  // 물방울 실루엣이 된다 — 9/12 캡처 넷이 다 그 모양이었다(docs/verify/pack-rubicon.png).
+  group.rotation.x = Math.PI / 2;
+  return group;
+}
+
+let tokenSeq = 0;
 
 export type Token = ReturnType<typeof createToken>;
-export function createToken(color: string) {
+export function createToken(color: string, name = '') {
   const camera = new THREE.Camera();
   const scene = new THREE.Scene();
-  // 장기 말 = 원뿔 + 받침 디스크. pitch 0(탑다운)에선 원으로, pitch를 주면 서 있는 말로 보인다.
-  const cone = new THREE.Mesh(
-    new THREE.ConeGeometry(0.45, 1.0, 24),
-    new THREE.MeshBasicMaterial({ color }), // 조명 무관 — 항상 보임(검증 불가 환경 대비)
-  );
-  cone.position.y = 0.65; // 받침 위에 얹힌 원뿔
-  const base = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.55, 0.55, 0.15, 24),
-    new THREE.MeshBasicMaterial({ color }),
-  );
-  base.position.y = 0.075; // 바닥 받침 디스크
-  const group = new THREE.Group();
-  group.add(cone, base);
-  group.rotation.x = -Math.PI / 2; // three +y(그룹 위) → mercator +z(위)
+  const group = pieceMesh(color);
+  group.userData.name = name;
   scene.add(group);
 
   let renderer: THREE.WebGLRenderer | null = null;
   let map: maplibregl.Map | null = null;
-  let pos: [number, number] | null = null; // 현재 렌더 위치(행군 중엔 매 프레임 갱신)
-  let route: [number, number][] = []; // setRoute로 받은 전체 경로 폴리라인
-  let animPath: [number, number][] | null = null; // 이번 행군 구간의 경유 정점들
-  let animCum: number[] = []; // animPath 각 정점까지 누적 호길이
+  let pos: [number, number] | null = null;
+  let route: [number, number][] = [];
+  let animPath: [number, number][] | null = null;
+  let animCum: number[] = [];
   let animStart = 0;
   let rafId: number | null = null;
 
@@ -76,7 +94,7 @@ export function createToken(color: string) {
     if (t < 1) {
       rafId = requestAnimationFrame(tick);
     } else {
-      pos = animPath[animPath.length - 1]; // 부동소수 오차 없이 정확히 착지
+      pos = animPath[animPath.length - 1];
       animPath = null;
     }
   }
@@ -91,9 +109,9 @@ export function createToken(color: string) {
       renderer.autoClear = false;
     },
     render(_gl, args: any) {
-      if (!pos || !renderer) return; // 원정 전 연도엔 안 그림
+      if (!pos || !renderer || !map) return;
       const mc = maplibregl.MercatorCoordinate.fromLngLat(pos, 0);
-      const s = mc.meterInMercatorCoordinateUnits() * TOKEN_METERS;
+      const s = mc.meterInMercatorCoordinateUnits() * tokenMeters(map.getZoom());
       const model = new THREE.Matrix4()
         .makeTranslation(mc.x, mc.y, mc.z)
         .scale(new THREE.Vector3(s, -s, s));
@@ -102,17 +120,15 @@ export function createToken(color: string) {
         .multiply(model);
       renderer.resetState();
       renderer.render(scene, camera);
-      map!.triggerRepaint();
+      map.triggerRepaint();
     },
   };
 
   return {
     layer,
-    /** 행군할 경로 폴리라인(연도순 [lng,lat]). setPosition이 이 정점들을 경유해 이동한다. */
     setRoute(path: [number, number][]) {
       route = path;
     },
-    /** 토큰을 [lng,lat]로 이동. route가 설정돼 있으면 경유 정점을 따라 호길이 보간(직선 lerp 아님). null이면 즉시 숨김. */
     setPosition(next: [number, number] | null) {
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
@@ -120,12 +136,12 @@ export function createToken(color: string) {
       }
       animPath = null;
       if (next === null) {
-        pos = null; // 즉시 숨김 — render()가 pos 없으면 그리지 않음
+        pos = null;
         map?.triggerRepaint();
         return;
       }
       if (pos === null) {
-        pos = next; // 첫 등장은 이징 없이 즉시 표시(이전 위치가 없음)
+        pos = next;
         map?.triggerRepaint();
         return;
       }
@@ -142,5 +158,4 @@ export function createToken(color: string) {
   };
 }
 
-// 호환 alias — 구 API(단일 한니발 토큰) 호출부가 남아있어도 동작.
 export const createHannibalToken = createToken;
