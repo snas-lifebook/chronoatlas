@@ -13,6 +13,8 @@ import { timeSlice, pointsCsv } from '../export/data';
 import { renderMp4 } from '../export/mp4';
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
+import { phaseOf, pickBoard, type BoardData } from '../board';
+import { peopleAtYear, peopleGeoJSON } from '../people';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
 import './shell.css';
@@ -26,13 +28,15 @@ const CATALOG: { id: string; label: string; p1?: boolean }[] = [
   { id: 'battles', label: '전투' }, { id: 'movements', label: '이동 경로' },
   { id: 'relief', label: '지형 음영' }, { id: 'bathy', label: '수심' }, { id: 'rivers', label: '강·호수' }, { id: 'labels', label: '지명' },
   { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물' }, { id: 'graph', label: '관계 그래프' },
+  { id: 'people', label: '인물 위치' },
+  { id: 'board', label: '말판' },
 ];
 
 type Theme = 'system' | 'light' | 'dark';
 const readTheme = (): Theme => { try { return (localStorage.getItem('theme') as Theme) || 'system'; } catch { return 'system'; } };
 const isDark = (t: Theme) => t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
 
-export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; root: string; ds: string; scenes: Scene[] }) {
+export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store: Store; root: string; ds: string; scenes: Scene[]; boards: BoardData[] }) {
   const s = useSyncExternalStore(store.subscribe, store.get);
   const mapRef = useRef<HTMLDivElement>(null);
   const engRef = useRef<Engine | null>(null);
@@ -68,8 +72,13 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
     if (!s.sel || !graph || /^(landmark|territory):/.test(s.sel)) { eng.setEgo(null, '', []); return; }
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
+  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: d.movements.features }), [s.year, graph, d]);
+  useEffect(() => {
+    const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
+    engRef.current?.setPeople(peopleGeoJSON(people, palette));
+  }, [people, d]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme())); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -104,7 +113,16 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
   }, []);
 
   const on = new Set(s.layers ?? allLayers(d));
-  const toggleLayer = (id: string) => { const st = store.get(); const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] }); };
+  const toggleLayer = (id: string) => {
+    const st = store.get();
+    if (id === 'board') {
+      if (st.board) { store.set({ board: null, phase: 0 }); return; }
+      const b = pickBoard(boards, st.year); if (!b) return;
+      store.set({ board: b.id, phase: 0, year: b.year, center: b.center, zoom: b.zoom ?? 11, bearing: b.bearing ?? 0, pitch: 0 });
+      return;
+    }
+    const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] });
+  };
   const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
   // dataTick: 영토 버킷이 바뀌면 d.territory.features가 통째로 갈린다 — 그때 다시 센다.
   const brief = useMemo(() => yearBrief(s.year, { graph, territory: d.territory.features, events: d.events, battles: d.battles.features }),
@@ -151,8 +169,16 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
       const groups = new Set(neighborsOf(graph, s.sel, s.year).map(n => n.group));
       for (const g of ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make']) if (groups.has(g)) items.push({ swatch: { background: GROUP_COLOR[g], height: 2, alignSelf: 'center' }, label: GROUP_LABEL[g] });
     }
+    if (on.has('people')) items.push({ swatch: { background: '#A4243B', borderRadius: '50%', border: '1.5px solid #fff' }, label: '인물 위치' });
+    if (s.board) items.push({ swatch: { background: 'transparent', border: '1.5px solid var(--color-text-secondary)', borderRadius: 2 }, label: '말판 · 교보재' });
     return items;
-  }, [d, s.year, s.sel, s.layers, graph, dataTick]);
+  }, [d, s.year, s.sel, s.layers, s.board, graph, dataTick]);
+  const liveBoard = useMemo(() => {
+    const b = boards.find(x => x.id === s.board);
+    if (!b) return null;
+    const phase = phaseOf(b, s.phase);
+    return { board: b, phase, idx: Math.max(0, b.phases.findIndex(p => p.t === phase.t)) };
+  }, [boards, s.board, s.phase]);
 
   return (
     <div className="shell">
@@ -222,7 +248,7 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
             </div>
             {CATALOG.map((c, i) => (
               <div key={c.id} className={`row${c.p1 ? ' is-p1' : ''}`}>
-                <Switch label={c.label} value={!c.p1 && on.has(c.id)} onChange={() => toggleLayer(c.id)} size="sm" isDisabled={!!c.p1} />
+                <Switch label={c.label} value={c.id === 'board' ? !!s.board : !c.p1 && on.has(c.id)} onChange={() => toggleLayer(c.id)} size="sm" isDisabled={!!c.p1} />
                 {c.p1 ? <Badge label="P1" /> : i < 9 && <Kbd keys={String(i + 1)} />}
               </div>
             ))}
@@ -321,6 +347,18 @@ export function App({ d, store, root, ds, scenes }: { d: Dataset; store: Store; 
           <div className="shell-legend">{legend.map(l => <span key={l.label}><i style={l.swatch} />{l.label}</span>)}</div>
         </div>
       </footer>
+
+      {liveBoard && <Card padding={3} elevation="low" className={`shell-board${explorerOpen ? ' is-shift' : ''}`}>
+        <Text size="sm" color="secondary">말판 · 교보재</Text>
+        <div className="bd-title">{liveBoard.board.title}</div>
+        <input type="range" className="bd-slider" min={0} max={liveBoard.board.phases.length - 1} step={1} value={liveBoard.idx}
+          aria-label="말판 페이즈"
+          onChange={e => store.set({ phase: liveBoard.board.phases[Number(e.currentTarget.value)].t })} />
+        <div className="bd-ticks">{liveBoard.board.phases.map(p => <span key={p.t}>{p.title}</span>)}</div>
+        <div className="bd-phase">{liveBoard.phase.title}</div>
+        {liveBoard.phase.note && <div className="bd-note">{liveBoard.phase.note}</div>}
+        <div className="bd-source">{liveBoard.board.source}</div>
+      </Card>}
 
       <div className="shell-footnote">
         <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>

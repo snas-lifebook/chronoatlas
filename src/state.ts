@@ -16,6 +16,8 @@ export interface State {
   pitch: number | null;
   bearing: number | null;
   skin: Skin;                // 지도 스킨. 테마(밝게/어둡게)와 별개 축이다(DESIGN P12)
+  board: string | null;      // 말판 id (R37). null = 꺼짐
+  phase: number;             // 말판 페이즈 t. board가 있을 때만 의미
 }
 export interface Scene {
   id: string; title: string; year: number;
@@ -24,11 +26,12 @@ export interface Scene {
   skin?: Skin; layers?: string[];  // R35 북마크: 스킨·켜진 레이어까지 담는다
   group?: string;                  // 프로젝트(발표자) 묶음. 장면 탭에서 머리글이 된다
   note?: string;
+  board?: string; phase?: number;  // 말판 북마크 (R37)
 }
 
-export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light' };
+export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0 };
 
-const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin' };
+const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin', board: 'board', bt: 'phase' };
 
 // 카메라 반올림. 상태에 들어가기 전에 깎는다 — URL을 짧게 하고, 부동소수 잡음으로
 // store.set이 매번 "바뀌었다"고 판정해 리렌더가 도는 것을 막는다.
@@ -58,6 +61,8 @@ export function parseState(search: string, defaults: State = DEFAULTS): State {
     pitch: num('p') ?? defaults.pitch,
     bearing: num('b') ?? defaults.bearing,
     skin: (q.get('skin') as Skin) || defaults.skin,
+    board: q.get('board') || defaults.board,
+    phase: (() => { const n = Number(q.get('bt')); return q.has('bt') && Number.isInteger(n) ? n : defaults.phase; })(),
   };
 }
 
@@ -106,6 +111,8 @@ export function applyScene(store: Store, scene: Scene, search = '') {
     bearing: q.has('b') ? cur.bearing : scene.bearing ?? cur.bearing,
     skin: q.has('skin') ? cur.skin : scene.skin ?? cur.skin,
     layers: q.has('layers') ? cur.layers : scene.layers ?? cur.layers,
+    board: q.has('board') ? cur.board : scene.board ?? null,
+    phase: q.has('bt') ? cur.phase : scene.phase ?? 0,
   });
 }
 
@@ -118,6 +125,7 @@ export function bookmarkOf(s: State, opts: { id: string; title: string; group?: 
     ...(s.center ? { center: s.center } : {}), ...(s.zoom != null ? { zoom: s.zoom } : {}),
     ...(s.pitch != null ? { pitch: s.pitch } : {}), ...(s.bearing != null ? { bearing: s.bearing } : {}),
     skin: s.skin, layers: opts.layers,
+    ...(s.board ? { board: s.board, phase: s.phase } : {}),
   };
 }
 

@@ -68,3 +68,60 @@ export function containingPolity(at: LonLat, territory: Feat[], year: number):
 export function snap(at: LonLat, ctx: { settlements: Feat[]; territory: Feat[]; year: number }, maxKm = 30) {
   return { settlement: nearestSettlement(at, ctx.settlements, maxKm), polity: containingPolity(at, ctx.territory, ctx.year) };
 }
+
+// ── 렌더 계약 (R37). 뷰는 이 산출물을 그리기만 한다. 페이즈 사이를 보간하지 않는다. ────────
+// schema/board.ts의 zod를 여기로 들이지 않는다 — 예전에 graph가 상수 하나 때문에 zod를 번들에 실었다.
+export const ARM_KO = { infantry: '중보병', cavalry: '기병', light: '경보병', elephant: '전투코끼리', command: '지휘' } as const;
+export type Arm = keyof typeof ARM_KO;
+export const FALLBACK_COLOR = '#8A8F98'; // 팔레트 밖·기타중립. 지어낸 색이 아니다.
+
+export interface BoardUnit {
+  id: string; at: LonLat; actor: string; arm: Arm; label: string;
+  strength?: number; facing?: number; entity?: string;
+}
+export interface BoardPhase { t: number; title: string; note?: string; units: BoardUnit[] }
+export interface BoardData {
+  id: string; title: string; year: number; event?: string;
+  center: LonLat; zoom?: number; bearing?: number;
+  teaching: true; source: string; phases: BoardPhase[];
+}
+
+export function clampPhase(board: BoardData, t: number): number {
+  const ts = board.phases.map(p => p.t);
+  if (ts.includes(t)) return t;
+  return ts.reduce((best, x) => Math.abs(x - t) < Math.abs(best - t) ? x : best, ts[0]);
+}
+
+export function phaseOf(board: BoardData, t: number): BoardPhase {
+  const n = clampPhase(board, t);
+  return board.phases.find(p => p.t === n) ?? board.phases[0];
+}
+
+export function pickBoard(boards: BoardData[], year: number): BoardData | null {
+  if (!boards.length) return null;
+  return boards.find(b => b.year === year) ?? boards[0];
+}
+
+export interface UnitProps {
+  id: string; actor: string; arm: Arm; label: string; color: string;
+  strength: number | null; facing: number; entity: string | null;
+  teaching: true; event: string | null;
+}
+export function unitsGeoJSON(phase: BoardPhase, palette: Record<string, string>, meta: { event?: string } = {}):
+  { type: 'FeatureCollection'; features: { type: 'Feature'; id: string; properties: UnitProps; geometry: { type: 'Point'; coordinates: LonLat } }[] } {
+  return {
+    type: 'FeatureCollection',
+    features: phase.units.map(u => ({
+      type: 'Feature' as const,
+      id: u.id,
+      properties: {
+        id: u.id, actor: u.actor, arm: u.arm, label: u.label,
+        color: palette[u.actor] ?? FALLBACK_COLOR,
+        strength: u.strength ?? null, facing: u.facing ?? 0,
+        entity: u.entity ?? null, teaching: true as const,
+        event: meta.event ?? null,
+      },
+      geometry: { type: 'Point' as const, coordinates: u.at },
+    })),
+  };
+}

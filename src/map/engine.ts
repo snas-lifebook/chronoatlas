@@ -4,6 +4,29 @@ import { type Dataset, dateWindow, positionByRoute, routeGeometry } from '../sch
 import { buildStyle, type Skin } from './style';
 import { roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
+import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
+
+const MAP_MAX_ZOOM = 9;
+const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다.
+const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
+
+function armIcon(arm: string, color: string): ImageData {
+  const size = 64, c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  g.translate(size / 2, size / 2);
+  g.fillStyle = color;
+  g.strokeStyle = '#fff';
+  g.lineWidth = 3;
+  g.beginPath();
+  if (arm === 'cavalry') { g.moveTo(0, -18); g.lineTo(14, 0); g.lineTo(0, 18); g.lineTo(-14, 0); }
+  else if (arm === 'light') g.arc(0, 0, 11, 0, Math.PI * 2);
+  else if (arm === 'elephant') g.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2);
+  else if (arm === 'command') { g.moveTo(0, -18); g.lineTo(16, 14); g.lineTo(-16, 14); }
+  else g.rect(-12, -14, 24, 28);
+  g.closePath(); g.fill(); g.stroke();
+  return g.getImageData(0, 0, size, size);
+}
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
@@ -18,11 +41,13 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   labels: ['label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
+  board: ['board-unit', 'board-label'],
+  people: ['people-dot', 'people-label'],
 };
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
 export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '#2F7D5B', rule: '#5B4B8A', lineage: '#8A6D3B', member: '#3E6F8C', act: '#6B6F76', locate: '#8A8F98', make: '#6B6F76', other: '#8A8F98' };
 
-export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false) {
+export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false, boards: BoardData[] = []) {
   const s0 = store.get();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; // DESIGN §4: 즉시 전환
   const dur = (ms: number) => (reduced ? 0 : ms);
@@ -33,7 +58,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const style = buildStyle(d.manifest, root, ds, s0.skin && s0.skin !== themeSkin ? { skin: s0.skin } : { dark });
   // 카메라는 상태에서 온다. main.tsx가 URL·장면을 이미 상태에 접어 넣은 뒤 엔진을 만든다.
   const bb = d.manifest.bbox;
-  const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: s0.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: 9,
+  const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: s0.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: s0.board ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM,
     pitch: s0.view === '2d' ? 0 : (s0.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (s0.bearing ?? 0),
     maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖이 안 보이게 — P13
     attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } }); // 내보내기(3.1)가 캔버스를 읽는다
@@ -60,6 +85,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   let loaded = false;
   let tokens: { route: string; token: import('../token3d').Token }[] = [];
+  let peopleFc: { type: 'FeatureCollection'; features: object[] } = EMPTY_FC;
 
   // 기하 3D 지형(River 9/9 "3D인데 굴곡이 없다"): DEM 타일이 있으면 켠다.
   // 타일은 용량·라이선스 때문에 레포에 없다(.gitignore) — public/datasets/<ds>/terrain/meta.json이 있으면 그걸 보고 런타임에 켠다.
@@ -112,6 +138,35 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     circle('settle-major', 3, 5); circle('settle-minor', 5, 3.5);
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
+    // 말판(R37). 페이즈마다 통째로 setData. 보간하지 않는다. 아이콘 색은 팔레트(데이터 색, P2).
+    const actorIds = d.actors.map(a => a.id);
+    for (const a of [...d.actors, { id: '_', color: FALLBACK_COLOR }]) {
+      for (const arm of Object.keys(ARM_KO)) {
+        const iid = `board-${arm}-${a.id}`;
+        if (!map.hasImage(iid)) map.addImage(iid, armIcon(arm, a.color), { pixelRatio: 2 });
+      }
+    }
+    if (!map.getSource('board')) map.addSource('board', { type: 'geojson', data: EMPTY_FC as any, promoteId: 'id' });
+    const boardIcon: any = ['concat', 'board-', ['get', 'arm'], '-', ['case', ['in', ['get', 'actor'], ['literal', actorIds]], ['get', 'actor'], '_']];
+    map.addLayer({ id: 'board-unit', type: 'symbol', source: 'board',
+      layout: { 'icon-image': boardIcon, 'icon-size': ['match', ['get', 'arm'], 'command', 1, 'elephant', 1.1, 'light', 0.7, 0.9] as any,
+        'icon-rotate': ['get', 'facing'], 'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'viewport',
+        'icon-allow-overlap': true, 'icon-ignore-placement': true },
+      paint: { 'icon-opacity': ['case', ['boolean', ['feature-state', 'selected'], false], 1, ['boolean', ['feature-state', 'hover'], false], 1, 0.92] as any } }, before);
+    if (!map.getSource('people')) map.addSource('people', { type: 'geojson', data: peopleFc as any, promoteId: 'id' });
+    else (map.getSource('people') as maplibregl.GeoJSONSource).setData(peopleFc as any);
+    map.addLayer({ id: 'people-dot', type: 'circle', source: 'people',
+      paint: { 'circle-radius': ['case', ['boolean', ['feature-state', 'selected'], false], 8, ['boolean', ['feature-state', 'hover'], false], 7, 6] as any,
+        'circle-color': ['get', 'color'], 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.6, 'circle-opacity': 1 } }, before);
+    map.addLayer({ id: 'people-label', type: 'symbol', source: 'people', minzoom: 4,
+      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-size': 12,
+        'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true, 'text-allow-overlap': false },
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
+
+    map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,
+      layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
+        'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
     map.addSource('movements', { type: 'geojson', data: d.movements as any });
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': fillColor, 'line-width': 2.5, 'line-dasharray': [2, 1.2], 'line-opacity': 0.9 } }, before);
 
@@ -136,22 +191,32 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       });
       for (const { route, token } of tokens) token.setPosition(positionByRoute(d.movements.features, route, store.get().year));
     }).catch(() => { tokens = []; });
-    loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; selectedFs = [];
+    loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
     apply(store.get());
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'battle', 'movement', 'board-unit', 'people-dot', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
-        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle'].filter(l => map.getLayer(l)) }).length) return;
+        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'board-unit', 'people-dot'].filter(l => map.getLayer(l)) }).length) return;
         // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름.
         // marine_labels(바다 마스크)는 properties가 통째로 비어 있다 — 'landmark:undefined'를 만들지 않는다.
         const key = f.properties.pid ?? f.properties.name;
         if (key != null) store.set({ sel: `landmark:${key}` });
         return; }
-      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
+      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'battle', 'board-unit', 'people-dot', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
+      if (layerId === 'people-dot') {
+        const sel = f.properties?.id;
+        if (sel) store.set({ sel });
+        return;
+      }
+      if (layerId === 'board-unit') {
+        const sel = f.properties?.entity || f.properties?.event;
+        if (sel) store.set({ sel });
+        return;
+      }
       // 한 사건이 두 곳에서 벌어지면 두 번째 점의 id는 '<사건>#2'다(adapt). 선택은 언제나 사건 id로 한다.
       const sel = f.properties?.entity ?? f.properties?.id;
       if (sel) store.set({ sel });
@@ -162,7 +227,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', battle: 'battles', 'board-unit': 'board', 'people-dot': 'people', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -177,7 +242,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       setHover({ source, id: f.id });
       if (tipTimer) clearTimeout(tipTimer);
       const p = f.properties, yr = p.year ?? p.valid_from;
-      const label = p.name_ko ?? p.name ?? p.id, sub = yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.kind_ko ?? p.featurecla ?? '';
+      const label = p.label ?? p.name_ko ?? p.name ?? p.id;
+      const sub = p.arm
+        ? [ARM_KO[p.arm as keyof typeof ARM_KO], p.strength != null ? `${Number(p.strength).toLocaleString()}명` : '', p.teaching ? '교보재' : ''].filter(Boolean).join(' · ')
+        : p.via
+          ? [p.via === 'located_in' ? (p.placeName ?? '위치') : '경로'].filter(Boolean).join(' · ')
+        : yr != null ? (yr < 0 ? `BC ${-yr}` : `AD ${yr}`) : p.kind_ko ?? p.featurecla ?? '';
       // marine_labels(바다 마스크)는 properties가 비어 있어 이름이 없다. 그대로 두면 툴팁에 'undefined'가 뜬다.
       if (label == null) { tip.remove(); return; }
       // setHTML이 아니라 DOM으로 넣는다: 이름은 Pleiades·Cliopatria·NE에서 온 남의 문자열이라
@@ -215,6 +285,19 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         if (f && f.id != null) { const fs = { source: src, id: f.id as any }; map.setFeatureState(fs, { selected: true }); selectedFs.push(fs); break; }
       }
     }
+    if (sel?.startsWith('person:') && map.getSource('people')) {
+      const fs = { source: 'people', id: sel };
+      map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
+    }
+    if (map.getSource('board')) {
+      for (const f of map.querySourceFeatures('board')) {
+        if (f.id == null) continue;
+        if (sel && (f.properties?.entity === sel || f.properties?.event === sel)) {
+          const fs = { source: 'board', id: f.id };
+          map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
+        }
+      }
+    }
     for (const id of ['settle-major', 'settle-minor', 'battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs.length ? dimExpr(0.6) : 1) as any);
   }
 
@@ -244,6 +327,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
+  let lastBoard: string | null | undefined = undefined, lastPhase: number | undefined = undefined;
   // 지도를 이 카메라로 만들었으니 첫 apply에서 같은 자리로 다시 날아가지 않게 미리 채워 둔다
   let lastCam = `${s0.center?.join(',') ?? ''}|${s0.zoom ?? ''}|${s0.pitch ?? ''}|${s0.bearing ?? ''}`;
   function apply(s: State) {
@@ -256,15 +340,27 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     const on = new Set(s.layers ?? allLayers(d));
     const key = [...on].join(',');
-    if (key !== lastLayers) {
+    if (key !== lastLayers || s.board !== lastBoard) {
       lastLayers = key;
       for (const [group, ids] of Object.entries(LAYER_GROUPS)) {
-        const vis = group === 'labels' ? (on.has('labels')) : on.has(group);
+        const vis = group === 'board' ? !!s.board : group === 'labels' ? on.has('labels') : on.has(group);
         for (const id of ids) if (map.getLayer(id)) {
           // 정착지 라벨은 settlements와 labels 둘 다 켜져야 보인다
           const v = id.startsWith('label-settle') ? on.has('settlements') && on.has('labels') : vis;
           map.setLayoutProperty(id, 'visibility', v ? 'visible' : 'none');
         }
+      }
+    }
+    if (s.board !== lastBoard || s.phase !== lastPhase) {
+      lastBoard = s.board; lastPhase = s.phase;
+      const b = boards.find(x => x.id === s.board);
+      const src = map.getSource('board') as maplibregl.GeoJSONSource | undefined;
+      map.setMaxZoom(b ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM);
+      if (!b) src?.setData(EMPTY_FC as any);
+      else {
+        const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
+        src?.setData(unitsGeoJSON(phaseOf(b, s.phase), palette, { event: b.event }) as any);
+        if (s.sel) applySel(s.sel);
       }
     }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
@@ -304,6 +400,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   return {
     map,
     setEgo,
+    setPeople(fc: { type: 'FeatureCollection'; features: object[] }) {
+      peopleFc = fc as typeof EMPTY_FC;
+      (map.getSource('people') as maplibregl.GeoJSONSource | undefined)?.setData(fc as any);
+    },
     onData(fn: () => void) { onData = fn; },
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : sc.pitch, bearing: store.get().view === '2d' ? 0 : sc.bearing, duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.

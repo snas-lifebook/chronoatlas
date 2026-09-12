@@ -6,7 +6,7 @@ describe('state ↔ URL (TASKS 1.1)', () => {
     const q = '?y=-52&sel=person%3A%EC%B9%B4%EC%9D%B4%EC%82%AC%EB%A5%B4&layers=territory%2Cbattles&view=2d&ds=rome';
     const s = parseState(q);
     expect(s).toEqual({ year: -52, sel: 'person:카이사르', layers: ['territory', 'battles'], view: '2d', ds: 'rome', scene: null,
-      center: null, zoom: null, pitch: null, bearing: null, skin: 'light' });
+      center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0 });
     expect(parseState(serializeState(s))).toEqual(s);
   });
   it('기본값은 URL에서 생략', () => {
@@ -126,5 +126,40 @@ describe('북마크 — 카메라·스킨 왕복 (R35, F8)', () => {
     const st = createStore({ ...DEFAULTS });
     applyScene(st, b);
     expect(st.get()).toMatchObject({ ...s, scene: 'rt' });
+  });
+});
+
+// 말판은 URL에 실린다(R37). 장면·북마크가 페이즈까지 담아야 발표 화면이 그대로 열린다.
+describe('말판 URL (R37)', () => {
+  it('board·phase가 URL에 실리고 그대로 돌아온다', () => {
+    const s = { ...DEFAULTS, board: 'cannae-216', phase: 2, year: -216 };
+    const url = serializeState(s);
+    expect(url).toContain('board=cannae-216');
+    expect(url).toContain('bt=2');
+    expect(parseState(url)).toMatchObject({ board: 'cannae-216', phase: 2, year: -216 });
+  });
+  it('phase 0·board 없음은 URL에서 생략', () => {
+    expect(serializeState({ ...DEFAULTS })).toBe('');
+    expect(serializeState({ ...DEFAULTS, board: 'cannae-216', phase: 0 })).toBe('?board=cannae-216');
+  });
+  it('장면이 board·phase를 적용하고, URL 값이 이긴다', () => {
+    const scene = { id: 'cannae-board', title: '칸나이', year: -216, board: 'cannae-216', phase: 0 };
+    const st = createStore({ ...DEFAULTS });
+    applyScene(st, scene);
+    expect(st.get()).toMatchObject({ board: 'cannae-216', phase: 0, year: -216, scene: 'cannae-board' });
+    const search = '?board=cannae-216&bt=1&scene=cannae-board';
+    const st2 = createStore(parseState(search));
+    applyScene(st2, scene, search);
+    expect(st2.get()).toMatchObject({ board: 'cannae-216', phase: 1 });
+  });
+  it('장면 탭: 말판 없는 장면은 말판을 끈다', () => {
+    const st = createStore({ ...DEFAULTS, board: 'cannae-216', phase: 2 });
+    applyScene(st, { id: 'caesar', title: '카이사르', year: -60 });
+    expect(st.get()).toMatchObject({ board: null, phase: 0, scene: 'caesar' });
+  });
+  it('bookmarkOf: 말판이 켜져 있으면 조각에 담는다', () => {
+    const s = { ...DEFAULTS, year: -216, board: 'cannae-216', phase: 1, center: [16.1325, 41.3064] as [number, number], zoom: 11 };
+    const b = bookmarkOf(s, { id: 'cannae-t1', title: '중앙이 밀린다', layers: ['territory', 'board'] });
+    expect(b).toMatchObject({ board: 'cannae-216', phase: 1, year: -216, zoom: 11 });
   });
 });

@@ -6,6 +6,7 @@ import '@astryxdesign/theme-neutral';
 import { createRoot } from 'react-dom/client';
 import type { Dataset } from './schema';
 import { createStore, parseState, bindUrl, applyScene, DEFAULTS, type Scene } from './state';
+import type { BoardData } from './board';
 import { App } from './app/App';
 
 // ?ds= 가 정식, ?dataset= 은 옛 링크 호환.
@@ -33,15 +34,28 @@ async function load(): Promise<Dataset> {
 const SCENE_FILES = import.meta.glob<Scene[]>('../data/scenes/*.json', { eager: true, import: 'default' });
 const scenesFor = (ds: string, manifest: { scenes?: Scene[] }): Scene[] =>
   SCENE_FILES[`../data/scenes/${ds}.json`] ?? manifest.scenes ?? [];
+// 말판도 사람이 쓰는 파일. 어댑터·정본 밖이다(BACKLOG §G).
+const BOARD_FILES = import.meta.glob<BoardData>('../data/boards/*.json', { eager: true, import: 'default' });
+const boards = Object.values(BOARD_FILES);
 
 load().then(d => {
   // 첫 진입 = 장면 프리셋(DESIGN §4). URL에 연도가 있으면 존중.
   const scenes = scenesFor(DS, d.manifest);
   const q = new URLSearchParams(location.search);
-  // 자료실 딥링크(?sel=, ?y=)가 있으면 장면을 덮어쓰지 않는다
-  const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') ? null : scenes[0]);
-  if (wanted) applyScene(store, wanted, location.search); else if (!q.has('y') && !q.has('sel')) store.set({ year: d.manifest.time.to });
+  // 자료실 딥링크(?sel=, ?y=)나 말판 딥링크(?board=)가 있으면 장면을 덮어쓰지 않는다
+  const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') || q.has('board') ? null : scenes[0]);
+  if (wanted) applyScene(store, wanted, location.search); else if (!q.has('y') && !q.has('sel') && !q.has('board')) store.set({ year: d.manifest.time.to });
+  const b = boards.find(x => x.id === store.get().board);
+  if (b && q.has('board') && !wanted) {
+    store.set({
+      year: q.has('y') ? store.get().year : b.year,
+      center: q.has('c') ? store.get().center : b.center,
+      zoom: q.has('z') ? store.get().zoom : (b.zoom ?? 11),
+      bearing: q.has('b') ? store.get().bearing : (b.bearing ?? 0),
+      pitch: q.has('p') ? store.get().pitch : 0,
+    });
+  }
   bindUrl(store);
   document.title = `${d.manifest.title} — 크로노아틀라스`;
-  createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} scenes={scenes} />);
+  createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} scenes={scenes} boards={boards} />);
 }).catch(err => { document.body.innerHTML = `<pre style="padding:20px">로드 실패: ${err.message}</pre>`; });

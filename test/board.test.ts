@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { Board, lintBoard, ARMS } from '../schema/board';
-import { inPolygon, nearestSettlement, containingPolity, distanceKm, snap } from '../src/board';
+import { inPolygon, nearestSettlement, containingPolity, distanceKm, snap, phaseOf, clampPhase, unitsGeoJSON, pickBoard, ARM_KO } from '../src/board';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const rd = (p: string) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
@@ -62,6 +62,58 @@ describe('말판 계약 (R37, BACKLOG 라운드 G)', () => {
   });
   it('모든 유닛이 중심에서 5km 안이다 — 전장 규모를 벗어나면 배치가 아니라 오타다', () => {
     for (const p of board.phases) for (const u of p.units) expect(distanceKm(board.center, u.at)).toBeLessThan(5);
+  });
+});
+
+// 렌더 계약 (R37 나머지). 뷰는 이 산출물을 그리기만 한다 — 페이즈 사이를 보간하지 않는다.
+describe('말판 렌더 (R37)', () => {
+  const board = Board.parse(raw);
+  const palette: Record<string, string> = { 로마: '#A4243B', 카르타고: '#5B2A86', 누미디아: '#C79A2E', 갈리아: '#3E7C4F' };
+
+  it('phaseOf: t로 그 순간의 전체 배치를 고른다. 없는 t는 가장 가까운 페이즈', () => {
+    expect(phaseOf(board, 0).title).toBe('배치');
+    expect(phaseOf(board, 1).units).toHaveLength(13);
+    expect(phaseOf(board, 2).units.map(u => u.id)).not.toContain('rom-cav-r');
+    expect(clampPhase(board, 99)).toBe(2);
+    expect(clampPhase(board, -3)).toBe(0);
+    expect(phaseOf(board, 99).t).toBe(2);
+  });
+
+  it('unitsGeoJSON: 좌표는 at 그대로, 색은 팔레트, 팔레트 밖은 회색. 지어내지 않는다', () => {
+    const fc = unitsGeoJSON(phaseOf(board, 0), palette);
+    expect(fc.type).toBe('FeatureCollection');
+    expect(fc.features).toHaveLength(14);
+    const hannibal = fc.features.find(f => f.properties.id === 'car-cmd')!;
+    expect(hannibal.geometry).toEqual({ type: 'Point', coordinates: [16.1325, 41.2864] });
+    expect(hannibal.properties.color).toBe('#5B2A86');
+    expect(hannibal.properties.arm).toBe('command');
+    expect(hannibal.properties.entity).toBe('person:한니발');
+    expect(hannibal.properties.teaching).toBe(true);
+    const unknown = unitsGeoJSON({ t: 0, title: 'x', units: [{ id: 'x', at: [0, 0], actor: '페르시아', arm: 'infantry', label: 'x' }] }, palette);
+    expect(unknown.features[0].properties.color).toBe('#8A8F98');
+  });
+
+  it('unitsGeoJSON: 병종마다 심볼 키가 갈리고, 정본 신뢰도 필드는 안 실린다', () => {
+    const fc = unitsGeoJSON(phaseOf(board, 0), palette);
+    const arms = new Set(fc.features.map(f => f.properties.arm));
+    expect([...arms].sort()).toEqual(['cavalry', 'command', 'infantry', 'light']);
+    for (const a of arms) expect(a in ARM_KO).toBe(true);
+    const flat = JSON.stringify(fc);
+    expect(flat).not.toContain('"src"');
+    expect(flat).not.toContain('"confidence"');
+  });
+
+  it('페이즈를 갈아끼우면 그 순간의 배치로 통째로 바뀐다 — 보간하지 않는다', () => {
+    const a = unitsGeoJSON(phaseOf(board, 0), palette).features.find(f => f.properties.id === 'car-cen-2')!;
+    const b = unitsGeoJSON(phaseOf(board, 1), palette).features.find(f => f.properties.id === 'car-cen-2')!;
+    expect(a.geometry.coordinates).not.toEqual(b.geometry.coordinates);
+    expect(b.geometry.coordinates).toEqual([16.1325, 41.2844]);
+  });
+
+  it('pickBoard: 그 해의 말판, 없으면 목록의 첫 것. 빈 목록은 null', () => {
+    expect(pickBoard([board], -216)?.id).toBe('cannae-216');
+    expect(pickBoard([board], 117)?.id).toBe('cannae-216'); // 지금은 칸나이 하나
+    expect(pickBoard([], -216)).toBe(null);
   });
 });
 

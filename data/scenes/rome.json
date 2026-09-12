@@ -44,5 +44,19 @@
     "bearing": 0,
     "to": -42,
     "group": "첫 장면 · 카이사르"
+  },
+  {
+    "id": "cannae-board",
+    "title": "칸나이 — 자루가 닫히는 세 장면",
+    "year": -216,
+    "sel": "event:칸나이전투",
+    "center": [16.1325, 41.3064],
+    "zoom": 11,
+    "pitch": 0,
+    "bearing": 0,
+    "board": "cannae-216",
+    "phase": 0,
+    "group": "말판",
+    "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다."
   }
 ]
