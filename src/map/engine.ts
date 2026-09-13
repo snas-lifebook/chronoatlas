@@ -145,6 +145,39 @@ function portraitIcon(img: CanvasImageSource | null, color: string, initial: str
   return g.getImageData(0, 0, size, size);
 }
 
+/** 피처를 **대푯점 하나**로 줄인 점 FeatureCollection.
+ *
+ *  **circle 레이어를 폴리곤 소스에 얹으면 MapLibre가 정점마다 점을 찍는다.** River가
+ *  알렉산드리아에서 「빨간점이 많어. 에러」로 잡은 것이 그것이다 — 대항구(정점 다수)와
+ *  브루케이온의 외곽선이 붉은 점렬로 그려졌다. 알레시아 구원군 진영(정점 19·15)도 같은
+ *  병으로 초록 점 호(弧)가 됐다. 점 피처만 있는 필터는 멀쩡해서 오래 안 드러났다.
+ *
+ *  대푯점은 **가장 큰 고리의 정점 평균**이다. 전체 평균은 조각이 멀면 엉뚱한 자리에
+ *  떨어진다(peoples-label에서 같은 선택을 했다). */
+function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>) => boolean) {
+  const out: unknown[] = [];
+  for (const f of features as { properties?: Record<string, unknown>; geometry?: { type: string; coordinates: unknown } }[]) {
+    const props = f.properties ?? {};
+    if (!pick(props)) continue;
+    const g = f.geometry;
+    if (!g) continue;
+    let c: number[] | null = null;
+    if (g.type === 'Point') c = g.coordinates as number[];
+    else {
+      const rings: number[][][] = g.type === 'MultiPolygon' ? (g.coordinates as number[][][][]).map(x => x[0])
+        : g.type === 'Polygon' ? [(g.coordinates as number[][][])[0]]
+        : g.type === 'LineString' ? [g.coordinates as number[][]]
+        : [];
+      if (!rings.length) continue;
+      const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
+      const sum = big.reduce((a, q) => [a[0] + q[0], a[1] + q[1]], [0, 0]);
+      c = [sum[0] / big.length, sum[1] / big.length];
+    }
+    if (c) out.push({ type: 'Feature', properties: props, geometry: { type: 'Point', coordinates: c } });
+  }
+  return { type: 'FeatureCollection', features: out };
+}
+
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
   territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
@@ -682,7 +715,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'circle-radius': 3.4, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 } } as any);
       add({ id: 'alesia-camp', type: 'circle', source: 'alesia', filter: only('camp'),
         paint: { 'circle-radius': 7, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
-      add({ id: 'alesia-gaulcamp', type: 'circle', source: 'alesia', filter: only('gaul_camp'),
+      // 진영 둘이 폴리곤(정점 19·15)이라 정점마다 초록 점이 찍혔다. 대푯점만 쓴다.
+      map.addSource('alesia-pt', { type: 'geojson', data: repPointsFC(
+        (ALESIA!.features as unknown[]), pr => pr.kind === 'gaul_camp') as any });
+      add({ id: 'alesia-gaulcamp', type: 'circle', source: 'alesia-pt',
         paint: { 'circle-radius': 8, 'circle-color': gaulC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
       add({ id: 'alesia-label', type: 'symbol', source: 'alesia',
         filter: only('oppidum', 'camp', 'gaul_camp', 'hill', 'river', 'plain', 'inner_line', 'outer_line'),
@@ -746,8 +782,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       // 알렉산드리아 전쟁의 세 자리. `roma-ides`(3월 15일 자리)와 같은 역할이다 —
       // 함대 소각(대항구) · 카이사르가 갇힌 곳(브루케이온) · 수영 탈출(파로스 등대).
       // 데이터가 플래그로 표시해 뒀고(pack-alexandria.json), 이 세 점이 그 전쟁의 줄기다.
-      addA({ id: 'alx-siege', type: 'circle', source: 'alexandria',
-        filter: ['any', ['==', ['get', 'fleet_fire'], true], ['==', ['get', 'siege'], true], ['==', ['get', 'caesar_swim'], true]] as any,
+      // 대항구·브루케이온은 **폴리곤**이라 폴리곤 소스에 circle을 얹으면 정점마다 점이 찍힌다.
+      // 대푯점만 뽑은 점 소스를 따로 둔다(repPointsFC 주석 참고).
+      map.addSource('alexandria-pt', { type: 'geojson', data: repPointsFC(
+        (ALEXANDRIA!.features as unknown[]),
+        pr => !!(pr.fleet_fire || pr.siege || pr.caesar_swim)) as any });
+      addA({ id: 'alx-siege', type: 'circle', source: 'alexandria-pt',
         paint: { 'circle-radius': 11, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3, 'circle-opacity': 0.85 } });
       addA({ id: 'alx-label', type: 'symbol', source: 'alexandria',
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],

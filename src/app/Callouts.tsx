@@ -80,9 +80,13 @@ export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: 
   // 제목은 남긴다 — 지금 몇 번째 장인지는 계속 보여야 한다.
   useEffect(() => {
     const el = document.documentElement;
-    if (which && open) el.dataset.micro = which; else delete el.dataset.micro;
+    // **`open`을 보지 않는다.** 예전엔 콜아웃을 끄면 이 값이 지워져, 미시 축척에서
+    // 접어 뒀던 대륙 크롬(왼쪽 위 연도·가운데 위 「그 해」)이 되살아났다 — River의
+    // 알렉산드리아 화면이 정확히 그 상태였다(설명 닫힘 + BC 47 큰 글씨 + 인물 이름 줄).
+    // 미시 지도에 들어와 있다는 사실은 콜아웃을 보든 말든 그대로다.
+    if (which) el.dataset.micro = which; else delete el.dataset.micro;
     return () => { delete el.dataset.micro; };
-  }, [which, open]);
+  }, [which]);
 
   // C로 껐다 켠다. 발표 중에 그림만 보여 주고 싶을 때가 있다.
   useEffect(() => {

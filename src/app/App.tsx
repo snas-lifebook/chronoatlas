@@ -63,6 +63,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   // 지금 어느 미시 지도인가. Callouts가 `documentElement.dataset.micro`에 적는 값을 읽는다 —
   // 판정 로직을 두 군데 두면 갈린다(콜아웃은 줌 + 거리를 같이 본다).
   const [micro, setMicro] = useState<string | null>(null);
+  // 범례는 **화면에 실제로 그려진 것**만 세는데(아래 legend), 그 판정은 지도가 한 번
+  // 그려진 뒤에만 참이다. 첫 계산 때는 아직 아무것도 안 그려져 있어 전부 보여 주는
+  // 쪽으로 떨어졌다 — 실측 23줄. idle에서 한 번 흔들어 다시 세게 한다.
+  const [drawTick, setDrawTick] = useState(0);
   // 지도 스킨(P1 Azgaar식). 웹 UI 크롬은 안 바뀐다(P12).
   // 북마크가 스킨까지 담아야 해서 store에 있다 — URL로 나가고 URL에서 돌아온다(R35).
   const skin = s.skin, setSkin = (k: Skin) => store.set({ skin: k });
@@ -93,7 +97,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     engRef.current?.setPeople(peopleGeoJSON(people, palette, id => legionsAt(id, s.year)));
   }, [people, d, s.year]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1));
+    engRef.current.map.on('idle', () => setDrawTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -188,7 +193,19 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (on.has('territory')) {
       // **폴리티 단위로** 센다. 예전엔 actor 단위라 「기타중립」 한 줄이 파르티아·아르메니아·
       // 트라키아·나바테아·유대를 통째로 대표했다 — 지도에서 색이 갈렸으니 범례도 갈려야 한다.
-      const live = d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6));
+      //
+      // 다만 **그 해에 살아 있는 것**이 아니라 **지금 화면에 그려진 것**만 센다. 연도만
+      // 보면 인도스키타이·월지·쿠시·Himyarite처럼 프레임 밖 폴리티까지 들어와 실측 23줄이
+      // 됐다(River의 알렉산드리아 화면). 지도에 없는 색을 범례가 설명할 이유가 없다.
+      const drawn = new Set<string>();
+      try {
+        const mp = engRef.current?.map;
+        if (mp?.getLayer('territory-fill')) for (const f of mp.queryRenderedFeatures({ layers: ['territory-fill'] })) {
+          const n = (f.properties as { name?: string })?.name; if (n) drawn.add(String(n));
+        }
+      } catch { /* 스타일 전환 중이면 조용히 */ }
+      const live = d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6)
+        && (drawn.size === 0 || drawn.has(String((f.properties as { name?: string }).name ?? ''))));
       const byName = new Map<string, string>();
       for (const f of live) {
         const n = String((f.properties as { name?: string }).name ?? '');
@@ -225,7 +242,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (on.has('people')) items.push({ swatch: { background: '#A4243B', borderRadius: '50%', border: '1.5px solid #fff' }, label: '인물 위치' });
     if (s.board) items.push({ swatch: { background: 'transparent', border: '1.5px solid var(--color-text-secondary)', borderRadius: 2 }, label: '말판 · 교보재' });
     return items;
-  }, [d, s.year, s.sel, s.layers, s.board, graph, dataTick]);
+  }, [d, s.year, s.sel, s.layers, s.board, graph, dataTick, drawTick, micro]);
   // dataset.micro는 Callouts가 effect로 쓴다 — 같은 tick에 읽으면 한 프레임 늦으므로 관찰한다.
   useEffect(() => {
     const el = document.documentElement;

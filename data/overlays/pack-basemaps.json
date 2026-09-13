@@ -15,7 +15,7 @@
     "n": 41.907201,
     "s": 41.873025
    },
-   "opacity": 0.85,
+   "opacity": 0.425,
    "min_zoom": 12,
    "rotation_deg": 0.0,
    "title": "Kiepert, Atlas Antiquus Tab. IX, Roma Urbs (1877)",
@@ -109,7 +109,8 @@
    ],
    "rms_m": 56.5,
    "max_잔차_m": 81.3,
-   "short_caveat": "바탕 도판 Kiepert 1877 「Roma Urbs」 — 붉은 성벽은 서기 271년, 번호 구역은 기원전 7년"
+   "short_caveat": "바탕 도판 Kiepert 1877 「Roma Urbs」 — 붉은 성벽은 서기 271년, 번호 구역은 기원전 7년",
+   "opacity_note": "River: \"로마 시내 지도의 투명도를 50% 줄여주시오\" → 0.85 × 0.5 = 0.425. 도판이 우리 마킹(포메리움·3월 15일 자리·콜아웃 핀)과 세기를 다투고 있었다. 도판은 배경이고 마킹이 주인공이다."
   },
   {
    "id": "alexandria",
@@ -124,7 +125,7 @@
     "n": 31.217,
     "s": 31.181
    },
-   "opacity": 0.85,
+   "opacity": 0.595,
    "min_zoom": 12,
    "rotation_deg": 0.0,
    "title": "Mahmoud-Bey (el-Falaki), Carte de l'antique Alexandrie et de ses faubourgs, 1866",
@@ -182,7 +183,8 @@
    ],
    "rms_m": 111.8,
    "max_잔차_m": 167.1,
-   "short_caveat": "바탕 도판 팔라키 1866 — 1866년 당시 도시가 함께 그려져 있다"
+   "short_caveat": "바탕 도판 팔라키 1866 — 1866년 당시 도시가 함께 그려져 있다",
+   "opacity_note": "River: \"지도 투명도 30% 줄이기\" → 0.85 × 0.7 = 0.595. 팔라키 도판은 1866년 도시까지 그려 넣어 선이 많다 — 배경으로 물러나야 우리 마킹이 읽힌다."
   }
  ],
  "skipped": [
