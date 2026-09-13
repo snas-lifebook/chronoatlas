@@ -3,7 +3,9 @@
 빌드·구조·MCP·DEM 받는 법은 [AGENTS.md](../AGENTS.md)에 있다. 중복하지 않는다.
 이 파일은 **지금 어디까지 됐고, 다음에 뭘 집을 수 있는지**만 적는다.
 
-작성 2026-09-10. 이 문서가 실제와 어긋나면 이 문서가 틀린 것이다. 레포와 볼트를 믿어라.
+작성 2026-09-10, §1 갱신 2026-09-13. 이 문서가 실제와 어긋나면 이 문서가 틀린 것이다. 레포와 볼트를 믿어라.
+
+> **2회차 발표(「로마토탈워: 카이사르 팩」) 트랙을 넘겨받는다면 여기가 아니라 [PACK-CAESAR.md](PACK-CAESAR.md) §0을 먼저 읽어라.** 그쪽이 그 슬라이스의 정본이고, 장면 19장·교보재 19파일·검수 하네스·남은 항목의 주인이 표로 정리돼 있다. River의 요청 원문은 [REQUESTS.md](REQUESTS.md)에 **요약하지 않고** 있다 — 이 슬라이스에서 요약이 원인을 지워 버린 일이 여러 번 있었다.
 
 ## 1. 지금 상태
 
@@ -13,7 +15,8 @@
   (커밋 해시는 여기 안 적는다. 한 커밋마다 낡는다. `git log --oneline -5`를 보라.)
 - **CI의 node는 22여야 한다.** `lint`·`adapt`·`mcp`가 `node --experimental-strip-types`로 `.ts`를 직접 돌리는데
   그 플래그는 22.6+다. 첫 배포가 node 20에서 정확히 여기서 죽었다.
-- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn. **vitest 176** (2026-09-13, 카이사르 팩 워킹트리). 원격 `origin/main` 끝은 `b53d1da`이고 테스트 수는 그보다 적다. 나머지 수치가 다르면 이 문서가 낡은 것이다.
+- `npm run build` 초록: lint 0 new / 11 baseline / 23 warn, typecheck 클린, **vitest 217** (2026-09-13 밤). 9/13 회차에 176 → 217로 늘었다. 수치가 다르면 이 문서가 낡은 것이다.
+- **`origin/main`이 곧 라이브다.** 9/13 회차 커밋 여덟이 다 올라가 있다. 해시는 여기 안 적는다 — `git log --oneline -10`과 `gh run list --limit 1`을 보라.
 - **라이브 실측(2026-09-10, Lighthouse desktop)**: 접근성 100 · Best Practices 96 · SEO 100 · LCP 278ms · CLS 0.01.
   Best Practices의 -4는 아래 §5의 `terrain/meta.json` 404 하나뿐이고 그건 설계대로다.
 - `npm run validate` = gen → lint → **typecheck** → vitest. typecheck는 9/10에 붙였다(그전엔 게이트에 없었다).
