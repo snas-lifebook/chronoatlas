@@ -7,7 +7,7 @@ import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenAdmin, hiddenPlaces } from '../packData';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_MOVEMENTS, PACK_PLACES, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -101,6 +101,28 @@ function seqIcon(color: string, n: number): ImageData {
   return g.getImageData(0, 0, S, S);
 }
 
+/** 사선 무늬. 「속국(client kingdom)」 표시에 쓴다.
+ *
+ *  왜 무늬인가. 속국은 **자기 색이 있으면서 동시에 로마 세력권**이다. 로마색으로 덮으면
+ *  속주와 구별이 안 되고, 테두리만 두르면 축척이 작아 안 보인다. 역사 지도책이 이 자리에서
+ *  쓰는 문법이 사선이다 — 바탕색(그 나라)이 비쳐 보이면서 사선(로마)이 겹친다.
+ *
+ *  16px 타일이고 세 줄을 타일 경계 너머까지 그어 **이어 붙어도 끊기지 않는다.** 한 줄만
+ *  그으면 타일마다 계단이 생긴다. */
+function hatchIcon(color: string, size = 16): ImageData {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const g = c.getContext('2d')!;
+  g.strokeStyle = color; g.lineWidth = 2; g.lineCap = 'butt';
+  for (const k of [-1, 0, 1]) {
+    g.beginPath();
+    g.moveTo(k * size, size);
+    g.lineTo((k + 1) * size, 0);
+    g.stroke();
+  }
+  return g.getImageData(0, 0, size, size);
+}
+
 function portraitIcon(img: CanvasImageSource | null, color: string, initial: string): ImageData {
   const size = 64, c = document.createElement('canvas');
   c.width = c.height = size;
@@ -125,7 +147,7 @@ function portraitIcon(img: CanvasImageSource | null, color: string, initial: str
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
-  territory: ['territory-fill', 'territory-outline', 'territory-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
+  territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
@@ -137,7 +159,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
-  labels: ['label-settle-1', 'label-settle-2', 'label-settle-3'],
+  labels: ['label-settle-1', 'label-settle-2', 'label-settle-3', 'region-name'],
   // label-region이 여기 있는 이유: Natural Earth의 SAHARA·LIBYAN DESERT·ATLAS MOUNTAINS 같은
   // **라틴 대문자** 지명이다. 사양서가 「한글 이름표를 켠다. 라틴어 표기는 쓰지 않는다」로 못 박았고
   // 옅은 회색이라 읽히지도 않았다(River: "지리지역 텍스트 가독성이 안 좋다"). 지리 지명은 한글
@@ -265,10 +287,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     echo = false;
   });
 
+  const notRegion: any = ['!=', ['get', 'kind'], 'region'];
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
-    ['settle-major', ['<=', ['get', 'rank'], 1]], ['settle-minor', ['>=', ['get', 'rank'], 2]], ['battle', null], ['pack-battle', null]];
+    // `kind: region`은 **region-name 층이 가져갔다.** 여기 남겨 두면 같은 점을 두 층이 찍고,
+    // 허용 목록에서 버린 이름(소아시아·북아프리카·독일…)이 이쪽으로 새어 나온다 — 실측으로 그랬다.
+    ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion]], ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], notRegion]], ['battle', null], ['pack-battle', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
   const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
@@ -437,6 +462,26 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'fill-color': fillColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
+    //
+    // River: 기원전 60년 판에서 누미디아·마우레타니아·갈라티아·카파도키아·폰토스·유대·
+    // 나바테아·트라키아가 전부 남의 나라 색으로 칠해져 「지중해는 이미 로마」라는 해설과
+    // 그림이 어긋난다. 맞는 지적인데 **정본이 틀린 건 아니다** — 그들은 속주가 아니라
+    // 속국이었고, 폴리티 단위 데이터셋은 속국을 별도 폴리티로 잡는 것이 맞다.
+    //
+    // 그래서 **기하를 새로 만들지 않는다.** 정본 폴리곤 그대로에 사선을 한 겹 얹고,
+    // 어느 폴리티가 몇 년부터 몇 년까지 속국이었는지만 표로 둔다(pack-clients.json).
+    // 그러면 「직접 지배 + 세력권」이 한 그림에서 갈려 보인다.
+    if (PACK_CLIENTS.length) {
+      const romeColor = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
+      if (!map.hasImage('hatch-client')) map.addImage('hatch-client', hatchIcon(romeColor), { pixelRatio: 2 });
+      map.addLayer({ id: 'client-hatch', type: 'fill', source: 'territory',
+        filter: ['in', ['get', 'name'], ['literal', []]] as any,   // apply()가 해마다 갈아 넣는다
+        paint: { 'fill-pattern': 'hatch-client', 'fill-opacity': 0.5 } } as any, before);
+      map.addLayer({ id: 'client-edge', type: 'line', source: 'territory',
+        filter: ['in', ['get', 'name'], ['literal', []]] as any,
+        paint: { 'line-color': romeColor, 'line-width': 1.4, 'line-dasharray': [3, 2], 'line-opacity': 0.7 } as any }, before);
+    }
     // 갈리아 교보재. **연도로** 켠다(present.showGalliaOverlay). Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다.
     if (GALLIA_FREE && !map.getSource('gallia-free')) {
       map.addSource('gallia-free', { type: 'geojson', data: GALLIA_FREE as any });
@@ -598,6 +643,28 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
         paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } });
+    }
+    // **지역 이름.** River: "다른 왕국들도 나오면 좋겠다. 지금 나오는 왕국들이 조금 적다."
+    //
+    // 없던 게 아니라 **묻혀 있었다.** 정본 `settlements.geojson`에 `kind: region` 58개가
+    // 이미 있는데(다키아·일리리쿰·킬리키아·카파도키아·폰투스·스키타이·모이시아…) 대부분
+    // `rank: 3`이라 label-settle-3이 높은 줌에서만 띄운다 — 발표 축척 z4.2에서는 rank 1
+    // 여섯 개(갈리아·브리타니아·에스파냐·이집트·소아시아·페르시아)만 떴다.
+    //
+    // 그래서 지역 이름만 따로 한 층으로 뺀다. 허용 목록(PACK_REGIONS)이 시대를 거른다.
+    // **스타일은 폴리티 이름표와 일부러 다르다** — 자간을 벌린 옅은 회갈색 소문자 느낌.
+    // 역사 지도책이 「지역」과 「나라」를 구별하는 문법이고, 그래야 같은 화면에 둘이 같이
+    // 있어도 층위가 읽힌다. 우선권도 낮다(`text-optional`) — 도시·전투·인물에 밀린다.
+    if (PACK_REGIONS.length) {
+      map.addLayer({ id: 'region-name', type: 'symbol', source: 'settlements',
+        filter: ['all', ['==', ['get', 'kind'], 'region'],
+                 ['in', ['get', 'name_ko'], ['literal', PACK_REGIONS]]] as any,
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 12, 5, 15, 8, 18] as any,
+          'text-letter-spacing': 0.12, 'text-max-width': 7,
+          'text-allow-overlap': false, 'text-optional': true,
+          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.5 } as any,
+        paint: { 'text-color': '#6B6353', 'text-halo-color': halo(), 'text-halo-width': 2, 'text-opacity': 0.92 } }, before);
     }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
@@ -945,6 +1012,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       lastYear = s.year;
       loadTerritory(s.year);
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
+      // 속국 사선은 해마다 다시 고른다. 폰토스가 기원전 48~47년에 빠지는 자리다(clientsAt).
+      const cl = clientsAt(s.year);
+      for (const id of ['client-hatch', 'client-edge']) if (map.getLayer(id))
+        map.setFilter(id, ['all', ['==', ['geometry-type'], 'Polygon'], ['in', ['get', 'name'], ['literal', cl]], ...dateWindow(s.year).slice(1)] as any);
       for (const id of ['movement', 'movement-halo']) if (map.getLayer(id)) map.setFilter(id, movementFilter(s.year) as any);
       // 배지는 'seq'가 있는 구간만. 해 필터를 덮어쓰면 안 간 구간의 번호까지 뜬다.
       if (map.getLayer('movement-seq')) map.setFilter('movement-seq', ['all', ['has', 'seq'], movementFilter(s.year)] as any);

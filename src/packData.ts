@@ -12,6 +12,33 @@ type HideRow = { id: string; valid_from: number; source: string };
 const anachro = Object.values(import.meta.glob('../data/overlays/pack-anachronisms.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; hide_before: HideRow[]; hide_admin_before?: HideRow[] } | undefined;
 
+const regions = Object.values(import.meta.glob('../data/overlays/pack-regions.json', { eager: true, import: 'default' }))[0] as
+  { show?: string[] } | undefined;
+/** 발표 축척에서 띄울 **지역 이름** 허용 목록. 기하는 정본(`settlements.geojson`의
+ *  `kind: region` 58개)에 이미 있고, 이 목록은 그중 기원전 1세기에 통용된 이름만 고른다 —
+ *  「독일」·「러시아」·「팔레스티나」처럼 시대가 안 맞는 것과 중복(`유다`/`유대`)을 뺀다.
+ *  버린 근거는 pack-regions.json의 `drop`에 이름마다 한 줄로 적혀 있다. */
+export const PACK_REGIONS: string[] = regions?.show ?? [];
+
+export type ClientRow = { name: string; from: number; to: number; kind?: 'client' | 'ally' | 'hostile'; why?: string; source?: string; confidence?: string };
+const clients = Object.values(import.meta.glob('../data/overlays/pack-clients.json', { eager: true, import: 'default' }))[0] as
+  { teaching?: boolean; clients?: ClientRow[] } | undefined;
+/** 「로마의 속국」 연표. **기하가 없다** — 정본 폴리곤 이름만 가리킨다. */
+export const PACK_CLIENTS: ClientRow[] = clients?.clients ?? [];
+
+/** 그 해에 로마의 세력권이던 폴리티 이름들.
+ *
+ *  `hostile` 구간은 **뺀다.** 폰토스가 그 자리다 — 기원전 63년 폼페이우스가 왕국을 해체한
+ *  뒤로는 속국이지만, 기원전 48~47년에는 파르나케스 2세가 반기를 들어 되찾으려 했고
+ *  카이사르가 젤라에서 그를 쳤다. 그 두 해에 폰토스에 사선을 얹으면 일곱째 장이
+ *  「로마 세력권을 로마가 친다」가 된다. */
+export function clientsAt(year: number): string[] {
+  const hostile = new Set(PACK_CLIENTS.filter(c => c.kind === 'hostile' && c.from <= year && year < c.to).map(c => c.name));
+  return [...new Set(PACK_CLIENTS
+    .filter(c => c.kind !== 'hostile' && c.from <= year && year < c.to && !hostile.has(c.name))
+    .map(c => c.name))];
+}
+
 export const PACK_MOVEMENTS: Feature[] = pompey?.features ?? [];
 export const PACK_BATTLES: Feature[] = battles?.features ?? [];
 export const PACK_CAST = cast ?? { teaching: true as const, people: [] };

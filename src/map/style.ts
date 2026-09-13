@@ -99,7 +99,9 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
       { 'text-field': ['get', 'name_ko'], 'text-font': [...font], 'text-size': size, 'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
         'text-radial-offset': 0.7, 'text-justify': 'auto' },
       { 'text-color': c.label, 'text-halo-color': c.halo, 'text-halo-width': 2.2 },   // 가독성: 후광 1.4 → 2.2
-      { minzoom, filter: ['==', ['get', 'rank'], rank] as any }));
+      // `kind: region`(다키아·트라키아…)은 engine의 region-name 층이 가져갔다. 여기 남기면
+      // 같은 점을 두 층이 찍고, 시대가 안 맞는 이름(독일·소아시아·팔레스티나)까지 새어 나온다.
+      { minzoom, filter: ['all', ['==', ['get', 'rank'], rank], ['!=', ['get', 'kind'], 'region']] as any }));
   }
   return { version: 8, glyphs: `${root}glyphs/{fontstack}/{range}.pbf`, sources, layers };
 }
