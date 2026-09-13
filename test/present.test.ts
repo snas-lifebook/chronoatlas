@@ -82,11 +82,11 @@ describe('카이사르 팩 교보재', () => {
 });
 
 describe('카이사르 팩 장면 파일', () => {
-  it('열 장면 모두 설명과 평면/입체를 가진다', () => {
+  it('아홉 장면 모두 설명과 평면/입체를 가진다', () => {
     const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; group?: string; note?: string; view?: string; skin?: string }[];
     const pack = raw.filter(s => s.group === PRESENT_GROUP);
     expect(pack.map(s => s.id)).toEqual([
-      'pack-intro-med', 'pack-gaul-52', 'pack-alesia-52', 'pack-extent-60', 'pack-extent-51',
+      'pack-intro-med', 'pack-gaul-52', 'pack-extent-60', 'pack-extent-51',
       'pack-rubicon', 'pack-greece-48', 'pack-egypt-47', 'pack-extent-44', 'pack-augustan-27',
     ]);
     for (const s of pack) {
@@ -123,6 +123,7 @@ describe('알레시아 세부 장면', () => {
     const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; zoom?: number; center?: [number, number] }[];
     const a = raw.find(s => s.id === 'pack-alesia-52')!;
     expect(a.zoom).toBeGreaterThan(11);              // 나머지 아홉은 4.2
+    expect(raw.filter(x => (x as { group?: string }).group === '2회차 발표 · 카이사르 팩')).toHaveLength(9);
     expect(a.center![0]).toBeCloseTo(4.5, 1);        // 몽 옥수아
     expect(a.center![1]).toBeCloseTo(47.53, 1);
   });

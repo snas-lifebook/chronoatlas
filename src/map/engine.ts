@@ -90,7 +90,12 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number) {
     const base = BASE_FILTER.get(id) as any;
     // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다. 발표 줌에서
     // rank2를 켜면서 「로마」·「알렉산드리아」가 두 번 찍혔다. 겹치는 쪽을 뺀다.
-    const dup = id.startsWith('label-settle') ? [...PACK_PLACES] : [];
+    // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다.
+    // 그리고 전투점 교보재에 place:일레르다처럼 **정착지와 같은 id**가 있어서
+    // story-place-label과 pack-battle-label이 같은 이름을 두 번 찍었다.
+    const battleIds = PACK_BATTLES.map(f => String((f as { properties: { id?: string } }).properties?.id ?? ''));
+    const dup = id.startsWith('label-settle') ? [...PACK_PLACES]
+      : id === 'story-place-label' ? battleIds : [];
     const out = [...hide, ...dup];
     const excl: any = ['!', ['in', ['get', 'id'], ['literal', out]]];
     map.setFilter(id, (out.length ? (base ? ['all', base, excl] : excl) : base) as any);
@@ -209,7 +214,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (ex === lastEx && map.getTerrain()) return;
     lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
   };
-  map.on('zoom', syncTerrain); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
+  map.on('zoom', syncTerrain);
+  map.on('zoomend', () => { const st = store.get(); if (map.getLayer('alesia-inner')) { const on = showAlesia(st.scene, map.getZoom()); for (const id of LAYER_GROUPS.alesia) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); } }); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
 
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
@@ -578,7 +584,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     hideAnachronisticPlaces(map, s.year);
     if (map.getLayer('alesia-inner')) {
-      const on = showAlesia(s.scene);
+      const on = showAlesia(s.scene, map.getZoom());
       for (const id of LAYER_GROUPS.alesia) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
     }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }

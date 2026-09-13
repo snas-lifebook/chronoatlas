@@ -1,0 +1,327 @@
+{
+  "teaching": true,
+  "doc": "docs/LEGIONS.md",
+  "source": "고대 사료 직접 인용 우선(카이사르 BG·BC, 아울루스 히르티우스 계열 Bellum Alexandrinum·Africum·Hispaniense, 플루타르코스, 아피아노스, 수에토니우스, 디오). 군단 수는 사료가 적은 값을 그대로 옮겼고, 사료가 총수를 적지 않은 해는 legions를 null로 두었다(추정치를 정수로 박지 않는다). 병력 범위(men_low·men_high)는 군단 수 x 5,000이 아니라 그 해에 실제로 전해지는 수치나 현대 추정치를 쓴다. 카이사르 시대 군단 정원은 약 4,800~5,000이지만 원정 중 실제 정원은 3,000~3,500으로 떨어졌고, 파르살루스의 군단당 2,750명(BC 3.89)과 알렉산드리아의 두 군단 3,200명(BC 3.106)이 그 증거다. 갈리아인 병력에 대한 카이사르의 숫자는 선전 목적의 과장으로 보는 것이 현대 학계의 통설이라 주장과 추정치를 함께 적었다.",
+  "paper_strength": {
+    "polybius_republican": 4200,
+    "caesarian_paper": 4800,
+    "caesarian_field_typical_low": 3000,
+    "caesarian_field_typical_high": 3500,
+    "note_ko": "정원은 폴리비오스 6.20(4,200, 위급 시 5,000)과 카이사르기 통용치 4,800~5,000. 야전 실제치는 골즈워디 등이 3,000~3,500으로 본다. 이 팩의 어떤 men 값도 군단 수에 정원을 곱해 만들지 않았다.",
+    "source": "Polybius 6.20.8~9; Adrian Goldsworthy, The Roman Army at War 100 BC~AD 200 (1996) ch.1"
+  },
+  "reading_rules": {
+    "missing_year_means": "해당 연도에 항목이 없으면 그 인물은 그해 지휘관이 아니다(사망·미성년·재위 전). 마커를 띄우지 않는다.",
+    "legions_null_means": "지휘권은 있었으나 군단 수를 적은 고대 사료가 없다는 뜻. 숫자 대신 물음표를 띄우는 편이 정직하다.",
+    "legions_end": "그해 안에 수가 크게 바뀐 경우에만 붙는다. legions는 그해를 대표하는 장면의 수치다.",
+    "roman_garrison": "본인 군대가 아니라 그 영토에 주둔한 로마 군단 수(클레오파트라 전용). legions와 합산하면 중복이다."
+  },
+  "by_person": {
+    "person:카이사르": [
+      {
+        "year": -60,
+        "legions": 0,
+        "men_low": 0,
+        "men_high": 0,
+        "note_ko": "히스파니아 총독직을 마치고 개선식을 포기한 채 집정관 선거에 나선 해. 이 해에 그가 지휘한 군단은 없다.",
+        "source": "Plutarch, Caesar 13; Suetonius, Divus Iulius 18~19",
+        "confidence": "high"
+      },
+      {
+        "year": -58,
+        "legions": 4,
+        "legions_end": 6,
+        "men_low": 20000,
+        "men_high": 30000,
+        "note_ko": "속주를 인수할 때 4개 군단(7·8·9·10)이었고, 헬베티족 전쟁 직전 갈리아 키살피나에서 2개(11·12)를 새로 징집해 6개가 됐다.",
+        "source": "Caesar, BG 1.7, 1.10, 1.24",
+        "confidence": "high"
+      },
+      {
+        "year": -55,
+        "legions": 8,
+        "men_low": 28000,
+        "men_high": 40000,
+        "note_ko": "라인강에 다리를 놓고 1차 브리타니아 원정을 한 해. 브리타니아에는 8개 중 2개(7·10군단)만 태워 갔다.",
+        "source": "Caesar, BG 4.17~19, 4.22, 4.38",
+        "confidence": "high"
+      },
+      {
+        "year": -53,
+        "legions": 10,
+        "men_low": 35000,
+        "men_high": 50000,
+        "note_ko": "전해 겨울 사비누스와 코타가 15개 대대를 잃자 2개 군단을 새로 징집하고 폼페이우스에게 1개를 빌려, 잃은 대대 수를 두 배로 채워 10개가 됐다.",
+        "source": "Caesar, BG 5.37, 6.1",
+        "confidence": "high"
+      },
+      {
+        "year": -52,
+        "legions": 10,
+        "men_low": 40000,
+        "men_high": 60000,
+        "note_ko": "알레시아의 해. 카이사르는 총수를 밝히지 않았지만 게르고비아에서 라비에누스 4개와 본인 6개로 갈라졌고 7권 끝의 동영지 배치도 10개로 맞는다. 여기에 속주에서 급조한 22개 대대와 게르만 기병이 붙는다. 알라우다이 군단을 더해 11~12로 세는 학자도 있다.",
+        "source": "Caesar, BG 7.34, 7.65, 7.90; Suetonius, Divus Iulius 24.2",
+        "confidence": "high"
+      },
+      {
+        "year": -49,
+        "legions": 1,
+        "legions_end": 11,
+        "men_low": 2500,
+        "men_high": 5000,
+        "note_ko": "1월 루비콘을 건널 때 곁에 있던 것은 13군단 하나뿐이었다. 나머지는 알프스 너머에 있었다. 보병 수는 플루타르코스와 아피아노스가 5,000, 리비우스를 따른 오로시우스는 5개 대대(약 2,500)로 갈린다. 개전 시점의 총 지휘권은 10개 군단이었으니, 갈리아의 10개와 루비콘의 1개가 이 해의 전부다.",
+        "source": "Plutarch, Caesar 32; Appian, BC 2.34~35; Suetonius, Divus Iulius 31~32; 총 10개 군단은 Appian, BC 2.49; 연말 확장은 Caesar, BC 1.39(히스파니아 6개)·2.1(마실리아 3개)·2.23(아프리카 4개)",
+        "confidence": "high"
+      },
+      {
+        "year": -48,
+        "legions": 8,
+        "men_low": 22000,
+        "men_high": 25000,
+        "note_ko": "파르살루스 전열에 80개 대대 22,000명을 세웠다. 카이사르 본인의 숫자이며 군단당 2,750명, 정원의 6할에 못 미친다. 기병은 1,000이었다.",
+        "source": "Caesar, BC 3.89",
+        "confidence": "high"
+      },
+      {
+        "year": -47,
+        "legions": 2,
+        "men_low": 3200,
+        "men_high": 4000,
+        "note_ko": "알렉산드리아에 상륙했을 때 두 군단을 합쳐 3,200명, 기병 800이었다. 부상과 행군의 고초로 나머지가 따라오지 못했다고 본인이 적었다. 8월 젤라에서는 고참 6군단이 1,000명 아래였다.",
+        "source": "Caesar, BC 3.106; Bellum Alexandrinum 69",
+        "confidence": "high"
+      },
+      {
+        "year": -46,
+        "legions": 12,
+        "men_low": 40000,
+        "men_high": 60000,
+        "note_ko": "탑수스. 고참 7개(5·7·8·9·10·13·14)와 신병 5개(25·26·28·29·30)로 보는 재구성이 많지만 사료가 총수를 적지 않아 11~12로 갈린다. 실제 전열에 세운 것은 9개였고 고참 군단은 심하게 줄어 있었다.",
+        "source": "Bellum Africum 60, 81; 전투서열 재구성은 현대 연구(Wikipedia·UNRV 등 2차 문헌이 11~12로 갈림)",
+        "confidence": "medium"
+      },
+      {
+        "year": -45,
+        "legions": 8,
+        "men_low": 32000,
+        "men_high": 40000,
+        "note_ko": "문다에서 80개 대대와 기병 8,000. 상대인 그나이우스 폼페이우스는 13개 군단이었고, 카이사르가 죽을 뻔했다고 스스로 말한 유일한 전투다.",
+        "source": "Appian, BC 2.103~104; Bellum Hispaniense 30~31; Plutarch, Caesar 56",
+        "confidence": "high"
+      },
+      {
+        "year": -44,
+        "legions": 16,
+        "men_low": 60000,
+        "men_high": 80000,
+        "note_ko": "파르티아 원정용으로 모으던 16개 군단과 기병 10,000. 이미 6개가 아드리아해 건너 아폴로니아에 가 있었다. 3월 15일에 멈춘다.",
+        "source": "Appian, BC 2.110(장절 표기가 판본마다 흔들려 2차 문헌 인용도 섞인다); 아폴로니아 주둔군은 Appian, BC 3.24; 원정 계획은 Plutarch, Caesar 58, Suetonius, Divus Iulius 44",
+        "confidence": "medium"
+      }
+    ],
+    "person:폼페이우스": [
+      {
+        "year": -60,
+        "legions": 0,
+        "men_low": 0,
+        "men_high": 0,
+        "note_ko": "동방 원정에서 돌아와 브룬디시움에서 군대를 해산한 뒤였다. 로마에서 가장 많은 병사의 충성을 받던 사람이 지휘권은 0이었고, 삼두정이 필요했던 이유가 이것이다.",
+        "source": "Plutarch, Pompey 43; Cassius Dio 37.20",
+        "confidence": "high"
+      },
+      {
+        "year": -58,
+        "legions": 0,
+        "men_low": 0,
+        "men_high": 0,
+        "note_ko": "클로디우스에게 밀려 자기 집에 갇혀 지낸 해. 지휘하는 군대가 없었다. 이듬해 곡물 감독관직을 받지만 그것도 군대가 아니라 보급 권한이었다.",
+        "source": "Plutarch, Pompey 48~49; Cicero, Pro Sestio 67~69",
+        "confidence": "high"
+      },
+      {
+        "year": -55,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "2차 집정관. 렉스 트레보니아로 5년 임기의 히스파니아 총독직을 받았으나 본인은 로마 근교에 머물고 아프라니우스·페트레이우스·바로가 대신 다스렸다. 이 해의 군단 수를 적은 사료는 없다. 믿을 수 있는 값은 기원전 49년의 7개뿐이다.",
+        "source": "Plutarch, Pompey 52; Cassius Dio 39.33~36; 49년의 7개는 Caesar, BC 1.38",
+        "confidence": "low"
+      },
+      {
+        "year": -53,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "히스파니아를 레가투스에게 맡긴 채 로마에 있었다. 이 해 카이사르에게 군단 하나를 빌려준 것은 확인되지만 본인 휘하 총수는 사료에 없다.",
+        "source": "Caesar, BG 6.1; Cassius Dio 40.44~46",
+        "confidence": "low"
+      },
+      {
+        "year": -52,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "단독 집정관. 밀로 재판 때 이탈리아에서 징집한 병사를 로마 시내에 들여 법정을 에워쌌다는 기록은 있으나 군단 수를 적은 사료는 없다.",
+        "source": "Asconius, In Milonianam 30~41C; Plutarch, Pompey 54~55",
+        "confidence": "low"
+      },
+      {
+        "year": -49,
+        "legions": 5,
+        "men_low": 20000,
+        "men_high": 25000,
+        "note_ko": "3월 브룬디시움에서 이탈리아를 버리고 배로 빠져나갈 때의 규모. 히스파니아에 레가투스 휘하 7개(아프라니우스 3, 페트레이우스 2, 바로 2)가 더 있었으나 8월 일레르다에서 통째로 잃었다.",
+        "source": "Caesar, BC 1.25, 1.38~39; Plutarch, Pompey 62",
+        "confidence": "medium"
+      },
+      {
+        "year": -48,
+        "legions": 11,
+        "men_low": 45000,
+        "men_high": 60000,
+        "note_ko": "파르살루스에서 110개 대대 45,000명에 재복무병 약 2,000, 기병 7,000. 적장이 남긴 숫자라 부풀림을 의심할 만하지만, 그리스에 모은 9개 군단(BC 3.4)에 스키피오의 시리아 2개를 더하면 11개로 맞아 대체로 받아들여진다. 9월 28일 펠루시온에서 살해된다.",
+        "source": "Caesar, BC 3.4, 3.88; Plutarch, Pompey 77~80",
+        "confidence": "high"
+      }
+    ],
+    "person:크라수스": [
+      {
+        "year": -60,
+        "legions": 0,
+        "men_low": 0,
+        "men_high": 0,
+        "note_ko": "스파르타쿠스를 진압한 기원전 71년 이후로 지휘권이 없었다. 기원전 60년에 삼두 세 사람 모두 군단이 0이다. 동맹의 동기가 거기 있다.",
+        "source": "Plutarch, Crassus 11~12; Appian, BC 1.118~120",
+        "confidence": "high"
+      },
+      {
+        "year": -58,
+        "legions": 0,
+        "men_low": 0,
+        "men_high": 0,
+        "note_ko": "로마에서 재력과 정치로 움직인 해. 지휘하는 군대가 없었다.",
+        "source": "Plutarch, Crassus 13~14",
+        "confidence": "high"
+      },
+      {
+        "year": -55,
+        "legions": 7,
+        "men_low": 30000,
+        "men_high": 40000,
+        "note_ko": "2차 집정관. 렉스 트레보니아로 시리아를 받아 11월에 출항했다. 7개라는 수는 플루타르코스가 53년 원정 시점으로 적은 것이고 55년 출발 당시의 정확한 수는 사료에 없다.",
+        "source": "Plutarch, Crassus 15~17; 7개 군단은 Crassus 20; Cassius Dio 39.33~39",
+        "confidence": "medium"
+      },
+      {
+        "year": -53,
+        "legions": 7,
+        "men_low": 35000,
+        "men_high": 45000,
+        "note_ko": "카르하이. 7개 군단, 기병 약 4,000, 경보병 약 4,000. 원정 전체에서 20,000이 죽고 10,000이 포로가 됐다고 플루타르코스는 적었다. 크라수스는 여기서 죽고 삼두정도 같이 끝난다.",
+        "source": "Plutarch, Crassus 20, 31; Cassius Dio 40.12~27",
+        "confidence": "high"
+      }
+    ],
+    "person:베르킹게토릭스": [
+      {
+        "year": -52,
+        "legions": null,
+        "men_low": 80000,
+        "men_high": 130000,
+        "note_ko": "로마 지휘관이 아니므로 군단 수는 없다. 카이사르는 알레시아 농성군 8만(BG 7.71)과 구원군 보병 25만·기병 8천(BG 7.76), 합쳐 약 33만을 적었다. 갈리아인 수에 대한 카이사르의 숫자는 승리를 키우려는 과장으로 보는 것이 현대 학계의 통설이다. 알레시아 포위선 발굴에 기댄 추정은 구원군을 8만~10만으로 낮춰 잡으며, 여기 적은 범위가 그 현대 추정치다.",
+        "source": "Caesar, BG 7.71, 7.75~76; 과장 평가와 현대 추정은 Michel Reddé & Siegmar von Schnurbein, Alésia (2001) 프랑스·독일 공동 발굴 보고; Adrian Goldsworthy, Caesar: Life of a Colossus (2006) ch.15; Hans Delbrück, Geschichte der Kriegskunst I",
+        "confidence": "low"
+      }
+    ],
+    "person:클레오파트라7세": [
+      {
+        "year": -49,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "프톨레마이오스 13세와 공동 통치 중이었고 따로 지휘한 군대가 없다. 이 해 이집트 궁정은 폼페이우스에게 배 60척과 가비니우스가 남긴 병사 500을 보냈다.",
+        "source": "Caesar, BC 3.4; Appian, BC 2.49",
+        "confidence": "medium"
+      },
+      {
+        "year": -48,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "궁정에서 밀려나 시리아 쪽 아스칼론 일대에서 병력을 모아 펠루시온에서 동생의 군대와 대치했다. 이 군대의 규모를 적은 고대 사료는 없다.",
+        "source": "Caesar, BC 3.103; Duane W. Roller, Cleopatra: A Biography (2010) ch.3",
+        "confidence": "low"
+      },
+      {
+        "year": -47,
+        "legions": 0,
+        "roman_garrison": 3,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "알렉산드리아 전쟁이 끝나고 왕좌에 앉았다. 이집트에 남은 군단 3개는 그녀의 군대가 아니라 카이사르가 남긴 로마군이고, 지키는 동시에 감시했다. 지휘관은 해방노예의 아들 루피오였다.",
+        "source": "Bellum Alexandrinum 33; Suetonius, Divus Iulius 76.3",
+        "confidence": "high"
+      },
+      {
+        "year": -46,
+        "legions": 0,
+        "roman_garrison": 3,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "로마로 건너와 테베레강 건너 카이사르의 별장에 머문 해. 이집트의 로마 군단 3개는 그대로였다.",
+        "source": "Cassius Dio 43.27; Bellum Alexandrinum 33",
+        "confidence": "medium"
+      },
+      {
+        "year": -45,
+        "legions": 0,
+        "roman_garrison": 3,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "로마 체류가 이어졌다. 직접 지휘한 병력은 없다.",
+        "source": "Cassius Dio 43.27",
+        "confidence": "medium"
+      },
+      {
+        "year": -44,
+        "legions": 0,
+        "roman_garrison": 3,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "3월 15일 뒤 로마를 떠나 이집트로 돌아갔다. 이집트의 로마 군단 3개는 이듬해 돌라벨라와 카시우스가 가져간다.",
+        "source": "Cicero, Ad Atticum 14.8, 14.20, 15.15; Appian, BC 3.78, 4.59",
+        "confidence": "medium"
+      }
+    ],
+    "person:프톨레마이오스13세": [
+      {
+        "year": -49,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "열세 살 안팎의 공동 왕이고 실권은 환관 포티누스에게 있었다. 이 해 궁정은 폼페이우스에게 배 60척과 가비니우스의 병사 500을 보냈다.",
+        "source": "Caesar, BC 3.4, 3.103; Appian, BC 2.49",
+        "confidence": "medium"
+      },
+      {
+        "year": -48,
+        "legions": null,
+        "men_low": 20000,
+        "men_high": 22000,
+        "note_ko": "아킬라스 휘하 왕군은 보병 20,000, 기병 2,000이었다. 가비니우스가 남긴 로마 병사, 시리아·킬리키아 출신 해적과 도적, 추방자와 도망 노예가 섞인 부대라고 카이사르는 적었다. 9월에 폼페이우스를 죽인 것이 이 궁정이다.",
+        "source": "Caesar, BC 3.103~104, 3.110",
+        "confidence": "high"
+      },
+      {
+        "year": -47,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "1월 나일강 전투에서 패해 강에 빠져 죽었다. 이 마지막 전투의 병력 수를 믿을 만하게 적은 사료는 없다.",
+        "source": "Bellum Alexandrinum 27~31; Cassius Dio 42.43",
+        "confidence": "low"
+      }
+    ]
+  }
+}

@@ -67,6 +67,8 @@ BASE = "http://127.0.0.1:4180/chronoatlas/"
 # 1920x1080 @ dsf 2 = 3840x2160. 기존 납품본 넷이 3200x1800이라 그보다 크고 16:9가 정확하다.
 VIEW_W, VIEW_H, DSF = 1920, 1080, 2
 SCALE = 1.5        # 라벨 배율. ponytail: 상수 하나. 프로젝터에서 안 읽히면 --scale로 올린다
+CAPTIONS = json.loads((REPO / "data/overlays/pack-captions.json").read_text("utf8"))["scenes"]
+FONT_TTC = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
 SEA = (0xC7, 0xD2, 0xCB)  # campaign 스킨의 바다색(src/map/style.ts). 투명 구멍을 이 색으로 받친다
 HALO = 1.4         # 후광도 같이 키운다. 글자만 키우면 배경에 묻힌다
 IDLE_MS = 25000    # 타일·글리프·영토 폴리곤까지. 지중해 전역 장은 느리다
@@ -75,7 +77,6 @@ IDLE_MS = 25000    # 타일·글리프·영토 폴리곤까지. 지중해 전역
 SCENES = [
     ("pack-intro-med",   "intro_지도_지중해판도_BC60_v2"),
     ("pack-gaul-52",     "M2_지도_갈리아원정_BC52_v2"),
-    ("pack-alesia-52",   "M2_지도_알레시아포위전_BC52_v1"),
     ("pack-extent-60",   "M2_지도_판도_BC60_v2"),
     ("pack-extent-51",   "M2_지도_판도_BC51_v2"),
     ("pack-rubicon",     "M3_지도_루비콘_BC49_v2"),
@@ -173,6 +174,68 @@ COUNT = """
 """
 
 
+
+def caption(im, scene: str):
+    """사건 한 줄 + 설명 + 명언을 지도 위에 직접 굽는다.
+
+    **왜 파이썬에서 합성하나.** 내보내기는 캔버스만 읽으므로(HUD·인스펙터를 빼려고 일부러
+    그렇게 짰다) DOM으로 그린 캡션은 이미지에 안 들어온다. MapLibre 심볼로 넣으면 지명들과
+    자리다툼을 하고 축척마다 자리가 달라진다. 이미지에 확실히 남기려면 여기서 굽는 게 맞다.
+
+    자리는 **왼쪽 위**다. 게임에서 아래 64~95%를 파피루스 대사창이 덮으므로 아래는 못 쓴다.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    c = CAPTIONS.get(scene)
+    if not c:
+        return im
+    W, H = im.size
+    S = W / 3840                                  # 3840 기준으로 잡고 배율만 맞춘다
+    f_ev = ImageFont.truetype(FONT_TTC, int(58 * S), index=2)   # Bold
+    f_sub = ImageFont.truetype(FONT_TTC, int(36 * S), index=0)
+    f_q = ImageFont.truetype(FONT_TTC, int(64 * S), index=2)
+    f_ci = ImageFont.truetype(FONT_TTC, int(27 * S), index=0)
+
+    pad, x0, y0 = int(44 * S), int(96 * S), int(86 * S)
+    lines = [("ev", c["event"], f_ev), ("sub", c.get("sub", ""), f_sub)]
+    if c.get("quote"):
+        lines.append(("q", "\u201c" + c["quote"] + "\u201d", f_q))
+        lines.append(("ci", c.get("cite", ""), f_ci))
+    lines = [l for l in lines if l[1]]
+
+    d = ImageDraw.Draw(im)
+    wrapped = []
+    maxw = int(W * 0.42)
+    for kind, text, f in lines:
+        words, cur = text.split(" "), ""
+        for w in words:
+            t = (cur + " " + w).strip()
+            if d.textlength(t, font=f) <= maxw or not cur:
+                cur = t
+            else:
+                wrapped.append((kind, cur, f)); cur = w
+        wrapped.append((kind, cur, f))
+
+    hs = [int((f.getbbox(t)[3] - f.getbbox(t)[1]) + (22 if k in ("ev", "q") else 12) * S) for k, t, f in wrapped]
+    boxh = sum(hs) + pad * 2 + int(18 * S)
+    boxw = max(int(d.textlength(t, font=f)) for _, t, f in wrapped) + pad * 2
+
+    plate = Image.new("RGBA", (boxw, boxh), (26, 24, 21, 214))
+    im = im.convert("RGBA")
+    im.alpha_composite(plate, (x0 - pad, y0 - pad))
+    d = ImageDraw.Draw(im)
+    y = y0
+    for (kind, text, f), h in zip(wrapped, hs):
+        col = {"ev": (245, 241, 232, 255), "sub": (214, 208, 196, 235),
+               "q": (232, 200, 138, 255), "ci": (170, 164, 152, 220)}[kind]
+        if kind == "q":
+            y += int(16 * S)
+            d.line([(x0, y + int(6 * S)), (x0 + int(120 * S), y + int(6 * S))], fill=(232, 200, 138, 150), width=max(1, int(3 * S)))
+            y += int(22 * S)
+        d.text((x0, y), text, font=f, fill=col)
+        y += h
+    return im.convert("RGB")
+
+
 def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
     url = f"{BASE}?present=1&scene={scene}&skin=campaign"   # layers= 절대 금지
     page.goto(url, wait_until="load")
@@ -199,6 +262,8 @@ def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
     holes = 0 if alpha is None else sum(1 for v in alpha.getdata() if v == 0)
     flat = Image.new("RGB", im.size, SEA)
     flat.paste(im, (0, 0), im if im.mode == "RGBA" else None)
+
+    flat = caption(flat, scene)          # 사건·명언을 이미지에 굽는다
 
     SHOT.mkdir(parents=True, exist_ok=True)
     flat.save(SHOT / f"{stem}.png")

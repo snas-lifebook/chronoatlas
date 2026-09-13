@@ -6,9 +6,12 @@ export const GALLIA_SCENE = 'pack-extent-60';
 export const GALLIA_ROMAN_SCENE = 'pack-extent-51';
 export const ALESIA_SCENE = 'pack-alesia-52';
 
-/** 알레시아 세부 지도는 그 장면에서만. 지중해 축척에서 켜면 점 하나로 뭉친다. */
-export function showAlesia(scene: string | null): boolean {
-  return scene === ALESIA_SCENE;
+/** 알레시아 세부는 **줌으로** 켠다 — 장면 수는 아홉으로 묶여 있고(River), 세부는
+ *  「거기로 들어가면 보인다」가 맞는 동작이다. 지중해 축척(z4.2)에서 켜면 점 하나로 뭉친다.
+ *  z11이면 포위선 두 겹이 화면을 채운다. 장면으로 직접 점프해도 그 장면이 z12.4라 켜진다. */
+export const ALESIA_MIN_ZOOM = 11;
+export function showAlesia(scene: string | null, zoom = 0): boolean {
+  return scene === ALESIA_SCENE || zoom >= ALESIA_MIN_ZOOM;
 }
 
 /** 갈리아 교보재는 판도 BC60 장면에만. 다른 해에 얹으면 Cliopatria 위를 덮어 영역이 깨진다. */
