@@ -24,7 +24,7 @@ type Pin = { c: Callout; x: number; y: number };
 /** 카드가 세로로 쌓이는 칸. 화면 높이에 맞춰 잘라 쓴다. */
 const CARD_W = 300;
 
-export function Callouts({ map }: { map: maplibregl.Map | null }) {
+export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: string; ds: string }) {
   const [pins, setPins] = useState<Pin[]>([]);
   const [size, setSize] = useState<[number, number]>([0, 0]);
   const [which, setWhich] = useState<MicroMap | null>(null);
@@ -172,10 +172,23 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
             <article key={p.c.id} ref={el => { cardRef.current[p.c.id] = el; }} className="ca-card">
               <h4><span className="ca-card-num">{p.c.num}</span>{p.c.title}</h4>
               <p>{p.c.body}</p>
+              {/* 사진은 **구운 것만** 인라인으로 띄운다. 런타임에 커먼즈를 부르면 레포
+                  `AGENTS.md`의 「런타임 외부 호출 0」에 걸리고, 카피레프트는 구울 수 없다
+                  (`src/callouts.ts`의 THUMBS 주석). 못 구운 것은 아래 링크 칩으로 남는다.
+                  눌러서 커먼즈 파일 페이지로 나가면 원본·라이선스·작자가 거기 있다. */}
+              {p.c.thumb && (
+                <a className="ca-thumb" href={p.c.thumb.page || p.c.image?.url}
+                   target="_blank" rel="noreferrer noopener"
+                   title={`${p.c.image?.alt ?? ''} — ${p.c.image?.credit ?? ''}`}>
+                  <img src={`${root}datasets/${ds}/callouts/${p.c.thumb.file}`}
+                       alt={p.c.image?.alt ?? p.c.title} loading="lazy" />
+                  <span>{p.c.thumb.license}</span>
+                </a>
+              )}
               {p.c.cite && <div className="ca-cite">{p.c.cite}</div>}
-              {(p.c.links?.length || p.c.image) && (
+              {(p.c.links?.length || (p.c.image && !p.c.thumb)) && (
                 <div className="ca-links">
-                  {p.c.image && (
+                  {p.c.image && !p.c.thumb && (
                     <a href={p.c.image.url} target="_blank" rel="noreferrer noopener"
                        title={`${p.c.image.alt} — ${p.c.image.credit}`}>사진</a>
                   )}

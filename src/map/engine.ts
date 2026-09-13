@@ -445,11 +445,23 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 알렉산드리아와 로마는 문턱이 같다(z12). 둘 다 켜지면 화면에 없는 쪽은 그냥 안 보인다 —
     // 지도 밖이라 그린 것이 없다. 굳이 위치로 가르지 않는다(콜아웃은 위치까지 본다).
     if (map.getLayer('alx-causeway')) set(LAYER_GROUPS.alexandria, showAlexandria(z));
-    // 미시 축척에서 **이동 경로를 끈다.** 지중해를 건너는 자취라 도시 지도에서는 화면을
-    // 통째로 가로지르는 붉은 선 몇 개일 뿐이다 — 알렉산드리아 시내 판에서 실제로 그랬다.
-    // 층 자체를 끄지 않고 여기서만 가린다(넓은 축척으로 나가면 다시 켜진다).
+    // 미시 축척에서 **대륙 축척의 것들을 끈다.** 층 자체를 끄지 않고 여기서만 가린다
+    // (넓은 축척으로 나가면 다시 켜진다).
+    //
+    // 이동 경로: 지중해를 건너는 자취라 도시 지도에서는 화면을 통째로 가로지르는 선 몇
+    // 개일 뿐이다 — 알렉산드리아 시내 판에서 실제로 그랬다.
+    //
+    // 이름표: River가 알렉산드리아 도시 판에서 **「프톨레마이오스 왕국」이 뜨는 것**을
+    // 잡았다. 폴리티 이름표는 면적 문턱(z7 이상 2만 km²)만 보므로 64만 km²짜리 왕국이
+    // z14에서도 통과하고, 그 이름표 앵커가 이집트 안에 있어 도시 화면에 들어온다. 지역
+    // 이름(`이집트`·`아프리카`)과 민족 이름도 같은 층위라 같이 끈다. **세력권 사선도
+    // 끈다** — 도시 한 판을 덮는 대각선 무늬가 되어 도판을 통째로 가린다.
     const micro = showRomaUrbs(z) || showAlexandria(z) || showAlesia(scene, z);
-    if (micro) set(LAYER_GROUPS.movements, false);
+    if (micro) {
+      set(LAYER_GROUPS.movements, false);
+      set(['territory-label', 'territory-outline', 'region-name', 'peoples-label',
+           'peoples-line', 'client-hatch', 'client-edge'], false);
+    }
   }
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
 

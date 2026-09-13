@@ -1,0 +1,119 @@
+{
+ "teaching": true,
+ "source": "콜아웃 사진 썸네일. 라이선스를 커먼즈 API(`prop=imageinfo&iiextmetadatafilter=LicenseShortName`)로 **파일마다 직접 확인**했다 — 데이터에 적힌 credit 문자열을 믿지 않았다. 퍼블릭 도메인과 CC BY만 레포에 굽고, CC BY-SA는 `AGENTS.md`의 「카피레프트 데이터는 재배포하지 않는다」에 걸려 링크만 둔다. 런타임 외부 호출 0 — 구운 것은 로컬 경로로 읽고 안 구운 것은 사용자가 눌러서 커먼즈로 나간다.",
+ "thumbs": {
+  "alesia:call-fossa": {
+   "license": "CC BY-SA 2.0",
+   "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons, MuseoParc Alésia 복원 시설물 실사)",
+   "page": "https://commons.wikimedia.org/wiki/File:The_space_between_two_fortification_lines%2C_Alesia_%287700281642%29.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/The_space_between_two_fortification_lines%2C_Alesia_%287700281642%29.jpg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "alesia:call-traps": {
+   "license": "CC BY-SA 2.0",
+   "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons, MuseoParc Alésia 복원 함정 실사)",
+   "page": "https://commons.wikimedia.org/wiki/File:Reconstruction_of_obstacles_and_traps_of_the_circumvallation%2C_Alesia_%287700305528%29.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Reconstruction_of_obstacles_and_traps_of_the_circumvallation%2C_Alesia_%287700305528%29.jpg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "roma:call-serviuswall": {
+   "license": "CC BY 3.0",
+   "credit": "Kleuske, CC BY 3.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:ServianWallRome2005.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/ServianWallRome2005.jpg",
+   "baked": true,
+   "file": "roma_call-serviuswall.jpg",
+   "size": [
+    314,
+    420
+   ],
+   "bytes": 35174
+  },
+  "roma:call-curiapompei": {
+   "license": "Public domain",
+   "credit": "Adolf Schill, Public Domain (Wikimedia Commons, 폼페이우스 극장 복원도)",
+   "page": "https://commons.wikimedia.org/wiki/File:Le_th%C3%A9%C3%A2tre_de_Pomp%C3%A9e_avec_le_temple_de_V%C3%A9nus_Victrix%2C_Adolf_Schill.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Le_th%C3%A9%C3%A2tre_de_Pomp%C3%A9e_avec_le_temple_de_V%C3%A9nus_Victrix%2C_Adolf_Schill.jpg",
+   "baked": true,
+   "file": "roma_call-curiapompei.jpg",
+   "size": [
+    420,
+    270
+   ],
+   "bytes": 24014
+  },
+  "roma:call-campusmartius": {
+   "license": "Public domain",
+   "credit": "Public Domain (Wikimedia Commons, 고전 지형학 문헌 삽화)",
+   "page": "https://commons.wikimedia.org/wiki/File:Campus_Martius_-_Theatre_of_Pompeius.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Campus_Martius_-_Theatre_of_Pompeius.jpg",
+   "baked": true,
+   "file": "roma_call-campusmartius.jpg",
+   "size": [
+    420,
+    217
+   ],
+   "bytes": 34068
+  },
+  "roma:call-sevenhills": {
+   "license": "CC BY-SA 4.0",
+   "credit": "Renata3, CC BY-SA 4.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Seven_Hills_of_Rome.svg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Seven_Hills_of_Rome.svg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "roma:call-tiber": {
+   "license": "CC BY-SA 2.0",
+   "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Pons_Fabricius%2C_it_connects_the_left_bank_of_the_Tiber_to_the_Isola_Tiberina_and_was_built_in_62_BC_by_Lucius_Fabricius%2C_Fields_of_Mars_%28Campus_Martius%29%2C_Rome_%2831904067874%29.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Pons_Fabricius%2C_it_connects_the_left_bank_of_the_Tiber_to_the_Isola_Tiberina_and_was_built_in_62_BC_by_Lucius_Fabricius%2C_Fields_of_Mars_%28Campus_Martius%29%2C_Rome_%2831904067874%29.jpg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "alexandria:call-pharos": {
+   "license": "Public domain",
+   "credit": "Antonio Tempesta (1555-1630), Public Domain (LACMA 소장, Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:The_Lighthouse_at_Alexandria_LACMA_65.37.294.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/The_Lighthouse_at_Alexandria_LACMA_65.37.294.jpg",
+   "baked": true,
+   "file": "alexandria_call-pharos.jpg",
+   "size": [
+    420,
+    323
+   ],
+   "bytes": 44267
+  },
+  "alexandria:call-heptastadion": {
+   "license": "CC BY-SA 3.0",
+   "credit": "Otto Puchstein(1890년대 원안) / Philg88 영역, CC BY-SA 3.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Plan_of_Alexandria_c_30_BC_Otto_Puchstein_1890s_EN.svg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Plan_of_Alexandria_c_30_BC_Otto_Puchstein_1890s_EN.svg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "alexandria:call-mouseion": {
+   "license": "Public domain",
+   "credit": "O. Von Corven(19세기 삽화), Public Domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Ancientlibraryalex.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Ancientlibraryalex.jpg",
+   "baked": true,
+   "file": "alexandria_call-mouseion.jpg",
+   "size": [
+    413,
+    420
+   ],
+   "bytes": 71166
+  },
+  "alexandria:call-serapeum": {
+   "license": "CC BY-SA 3.0",
+   "credit": "Semsema rody, CC BY-SA 3.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Pompey%27s_Pillar_%28column%29.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Pompey%27s_Pillar_%28column%29.jpg",
+   "baked": false,
+   "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  }
+ }
+}

@@ -19,8 +19,27 @@ export interface Callout {
   cite?: string | null;
   links?: { label: string; url: string }[];
   image?: { url: string; credit: string; alt: string } | null;
+  /** 레포에 구운 썸네일. **라이선스가 허락한 것만 있다** — 자세한 것은 `THUMBS` 참고. */
+  thumb?: { file: string; license: string; page: string } | null;
   at: [number, number];
 }
+
+const thumbRaw = Object.values(import.meta.glob('../data/overlays/pack-callout-thumbs.json', { eager: true, import: 'default' }))[0] as
+  { thumbs?: Record<string, { baked?: boolean; file?: string; license?: string; page?: string; why?: string }> } | undefined;
+/** 콜아웃 id → 구운 썸네일.
+ *
+ *  River: "각 설명에서 사진이 있으면 작게 사진을 해당 콜아웃 안에 넣으면 좋을듯."
+ *
+ *  그런데 사진을 **런타임에 커먼즈에서 불러올 수 없다** — 레포 `AGENTS.md`가 「런타임 외부
+ *  호출 0」이다. 그래서 빌드 전에 구워 레포에 넣는데, 거기에 두 번째 제약이 걸린다:
+ *  같은 문서가 「카피레프트 데이터는 재배포하지 않는다」고 못 박는다. 열한 장의 라이선스를
+ *  커먼즈 API로 **파일마다 직접 확인**한 결과(데이터에 적힌 credit 문자열을 믿지 않았다)
+ *  퍼블릭 도메인 넷 + CC BY 하나만 구울 수 있고, CC BY-SA 여섯은 링크로 남는다.
+ *  그래서 카드에 **썸네일이 있는 것과 없는 것이 섞인다** — 게으름이 아니라 라이선스다. */
+export const THUMBS: Record<string, { file: string; license: string; page: string }> = Object.fromEntries(
+  Object.entries(thumbRaw?.thumbs ?? [])
+    .filter(([, v]) => v.baked && v.file)
+    .map(([k, v]) => [k, { file: v.file!, license: v.license ?? '', page: v.page ?? '' }]));
 
 type Geom = { type: string; coordinates: unknown };
 type Feat = { properties?: { id?: string }; geometry?: Geom };
@@ -68,7 +87,7 @@ export const CALLOUTS: Callout[] = (raw?.callouts ?? []).flatMap(c => {
   const at = anchorPoint(c.map, c.anchor);
   if (!at) { if (import.meta.env?.DEV) console.warn('콜아웃 앵커를 못 찾았다', c.id, c.anchor); return []; }
   const { anchor: _drop, ...rest } = c;
-  return [{ ...rest, at }];
+  return [{ ...rest, at, thumb: THUMBS[c.id] ?? null }];
 });
 
 /** 지금 화면이 어느 미시 지도인가. 줌이 문턱을 넘고 **그 지도 근처**여야 한다 —
