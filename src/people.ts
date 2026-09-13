@@ -61,6 +61,16 @@ export function companionsOf(people: PersonAt[], id: string): PersonAt[] {
 
 const REL_RANK: Record<string, number> = { ruled: 0, participated_in: 1 }; // member_of 갈리아 같은 권역 중심점은 사람을 허공에 둔다
 
+/** 권역(나라·지방)인가. 권역 중심점은 사람을 사막 한가운데 세운다.
+ *
+ *  실제로 클레오파트라가 알렉산드리아가 아니라 **이집트 권역 중심점**에 서 있었다.
+ *  `ruled 알레산드리아 -51..-30`(21년)과 `ruled 이집트 -51..-44`(7년)가 둘 다 있는데
+ *  동점 처리가 「짧은 구간이 이긴다」라서 권역이 이겼다. 도시가 있으면 도시가 낫다 —
+ *  바로 위 주석이 `member_of`에 대해 이미 같은 말을 하고 있다. */
+function isRegion(place: { attrs?: Record<string, unknown> }): boolean {
+  return place.attrs?.type === 'region';
+}
+
 function occurredPlace(graph: Graph, eventId: string): { id: string; name: string; lonlat: [number, number] } | null {
   for (const e of graph.edges) {
     if (e.rel !== 'occurred_at' || e.from !== eventId) continue;
@@ -161,7 +171,7 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
   }
 
   if (graph) {
-    const bestRel = new Map<string, { rank: number; span: number; point: boolean; name: string; at: PersonAt }>();
+    const bestRel = new Map<string, { rank: number; span: number; point: boolean; name: string; region: boolean; at: PersonAt }>();
     for (const l of graph.edges) {
       const rank = REL_RANK[l.rel];
       if (rank == null) continue;
@@ -181,14 +191,22 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
         placeId = place.id; placeName = place.name; at = place.lonlat;
       }
       const point = l.from_year === year && l.to_year === year;
+      const placeNode = l.rel === 'participated_in' ? null : graph.nodes.get(l.to);
       const rec = {
         rank, span: span(l), point, name: placeName!,
+        region: placeNode ? isRegion(placeNode) : false,   // 도시 > 권역 중심점
         at: { id: person.id, name: person.name, at: at!, place: placeId, placeName, via: 'rel' as const, faction: person.faction, polity: null, polityName: null, asset: person.asset },
       };
       const prev = bestRel.get(person.id);
-      if (!prev || rec.rank < prev.rank || (rec.rank === prev.rank && ((point && !prev.point) || (point === prev.point && (rec.span < prev.span || (rec.span === prev.span && rec.name < prev.name)))))) {
-        bestRel.set(person.id, rec);
-      }
+      const better = !prev
+        || rec.rank < prev.rank
+        || (rec.rank === prev.rank && (
+             (!rec.region && prev.region)                       // 권역보다 도시
+             || (rec.region === prev.region && (
+                  (point && !prev.point)
+                  || (point === prev.point && (rec.span < prev.span
+                       || (rec.span === prev.span && rec.name < prev.name)))))));
+      if (better) bestRel.set(person.id, rec);
     }
     for (const [id, r] of bestRel) if (!out.has(id)) out.set(id, r.at);
   }

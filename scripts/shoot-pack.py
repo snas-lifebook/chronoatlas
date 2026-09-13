@@ -131,11 +131,27 @@ SETTLE = """
 """
 
 # 뽑은 판에 다섯 층이 실제로 있는지 센다. 「빈 지도는 실패」 판정을 눈보다 먼저 거른다.
+#
+# 안전영역도 같이 잰다. 에셋 사양서가 「가로 20~80%, 세로 18~62% 안에 중요한 것을 두라」고
+# 못 박았다 — 바깥은 UI가 덮는다(좌우 패널·타이틀·파피루스 대사창). 말이 어디 서는지는
+# 카메라에 딸린 값이라 눈으로는 매번 다시 봐야 하는데, project()로 화면 좌표를 물으면
+# 숫자로 나온다. **판정을 눈에서 자로 옮기는 것이 요점이다.**
 COUNT = """
 () => {
   const m = window.__ca.map;
   const vis = id => m.getLayer(id) && m.getLayoutProperty(id, 'visibility') !== 'none';
   const n = (src, filt) => { try { return m.querySourceFeatures(src, filt || {}).length; } catch { return -1; } };
+  const W = m.getCanvas().clientWidth, H = m.getCanvas().clientHeight;
+  const people = [];
+  if (vis('people-label')) {
+    const seen = new Set();
+    for (const f of m.querySourceFeatures('people')) {
+      const id = f.properties.id; if (seen.has(id)) continue; seen.add(id);
+      const p = m.project(f.geometry.coordinates);
+      people.push({ 이름: f.properties.name, x: +(100*p.x/W).toFixed(1), y: +(100*p.y/H).toFixed(1) });
+    }
+  }
+  const out = people.filter(p => p.y < 18 || p.y > 62 || p.x < 20 || p.x > 80);
   return {
     영역: vis('territory-fill') ? n('territory') : 0,
     도시: vis('settle-major') ? n('settlements') : 0,
@@ -144,6 +160,13 @@ COUNT = """
     말:   vis('people-label') ? n('people') : 0,
     갈리아자유: vis('gallia-free') ? 1 : 0,
     갈리아로마: vis('gallia-roman') ? 1 : 0,
+    말위치: people,
+    실제줌: +m.getZoom().toFixed(2), 실제pitch: Math.round(m.getPitch()),
+    실제center: [+m.getCenter().lng.toFixed(2), +m.getCenter().lat.toFixed(2)],
+    중심투영y: +(100*m.project(m.getCenter()).y/H).toFixed(1),
+    캔버스: [W, H], 컨테이너: [m.getContainer().clientWidth, m.getContainer().clientHeight],
+    상태center: window.__ca.store.get().center,
+    안전영역밖: out.map(p => `${p.이름}(${p.x},${p.y})`),
   };
 }
 """
@@ -218,7 +241,11 @@ def main() -> int:
                     r = shoot(page, cdp, scene, stem, a.scale)
                     rows.append(r)
                     thin = [k for k in ("영역", "도시", "경로", "전투", "말") if r[k] == 0]
-                    print(f" {r['size']}  {r['settle']}" + (f"  ⚠ 빈 층: {','.join(thin)}" if thin else "  ✓"))
+                    msg = f" {r['size']}  {r['settle']}"
+                    msg += f"  ⚠ 빈 층: {','.join(thin)}" if thin else "  ✓"
+                    if r["안전영역밖"]:
+                        msg += f"  ⚠ 안전영역 밖: {' '.join(r['안전영역밖'])}"
+                    print(msg)
                 except Exception as e:
                     print(f" 실패 — {e}")
         finally:

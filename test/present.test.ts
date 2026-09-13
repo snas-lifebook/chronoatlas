@@ -83,7 +83,7 @@ describe('카이사르 팩 교보재', () => {
 
 describe('카이사르 팩 장면 파일', () => {
   it('아홉 장면 모두 설명과 평면/입체를 가진다', () => {
-    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; group?: string; note?: string; view?: string }[];
+    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; group?: string; note?: string; view?: string; skin?: string }[];
     const pack = raw.filter(s => s.group === PRESENT_GROUP);
     expect(pack.map(s => s.id)).toEqual([
       'pack-intro-med', 'pack-gaul-52', 'pack-extent-60', 'pack-extent-51',
@@ -92,6 +92,9 @@ describe('카이사르 팩 장면 파일', () => {
     for (const s of pack) {
       expect(s.note && s.note.length > 8, s.id).toBeTruthy();
       expect(s.view === '2d' || s.view === '3d', s.id).toBeTruthy();
+      // 에셋 사양서 B절 「스킨은 campaign으로 고정한다. 아홉 장 전부」 —
+      // 장마다 바꾸면 지도끼리 따로 논다. 라이브와 내보낸 이미지도 같은 톤이어야 한다.
+      expect(s.skin, s.id).toBe('campaign');
     }
   });
 });

@@ -146,3 +146,18 @@ describe('말 벌림은 화면 기준이다 (spreadDeg)', () => {
     expect(dLng).toBeCloseTo(2 * r, 2);   // 고리 지름만큼 벌어진다
   });
 });
+
+describe('권역 중심점보다 도시 (ruled 동점 처리)', () => {
+  it('클레오파트라는 이집트 권역 한가운데가 아니라 알렉산드리아에 선다', () => {
+    // 정본에 `ruled 알렉산드리아 -51..-30`(21년)과 `ruled 이집트 -51..-44`(7년)가 둘 다 있다.
+    // 「짧은 구간이 이긴다」만 보면 권역이 이겨 여왕이 사막 한가운데 선다.
+    const c = peopleAtYear(-47, { graph, movements }).find(p => p.id === 'person:클레오파트라7세');
+    expect(c?.place).toBe('place:알렉산드리아');
+    const alex = graph.nodes.get('place:알렉산드리아')!;
+    expect(c!.at).toEqual(alex.lonlat);
+  });
+  it('도시 근거가 없으면 권역이라도 쓴다 — 위치를 버리지는 않는다', () => {
+    const p = peopleAtYear(-47, { graph, movements }).find(x => x.id === 'person:프톨레마이오스13세');
+    expect(p).toBeTruthy();   // ruled 이집트뿐이라 권역 중심점이라도 선다
+  });
+});

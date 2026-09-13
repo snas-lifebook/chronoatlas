@@ -68,6 +68,7 @@
     "pitch": 0,
     "bearing": 0,
     "view": "2d",
+    "skin": "campaign",
     "layers": ["territory", "admin_regions", "settlements", "people", "relief", "rivers", "labels"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "기원전 60년. 제1차 삼두가 막 짜인 해의 지중해. 폼페이우스·크라수스는 로마에 있다."
@@ -82,6 +83,7 @@
     "pitch": 50,
     "bearing": -8,
     "view": "3d",
+    "skin": "campaign",
     "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "알레시아. 베르킹게토릭스가 항복하고 갈리아 원정이 끝난다."
@@ -95,6 +97,7 @@
     "pitch": 0,
     "bearing": 0,
     "view": "2d",
+    "skin": "campaign",
     "layers": ["territory", "admin_regions", "relief", "rivers"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "갈리아 대부분은 아직 로마 속주가 아니다. 나르보넨시스만 기원전 121년부터 로마. 점선은 교보재."
@@ -108,6 +111,7 @@
     "pitch": 0,
     "bearing": 0,
     "view": "2d",
+    "skin": "campaign",
     "layers": ["territory", "admin_regions", "relief", "rivers"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "갈리아 원정이 끝난 해. Cliopatria는 100년 버킷이라 직전과 같은 면이 나올 수 있다."
@@ -122,6 +126,7 @@
     "pitch": 55,
     "bearing": -20,
     "view": "3d",
+    "skin": "campaign",
     "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "기원전 49년. 갈리아 키살피나와 이탈리아를 가르던 강을 건넌다."
@@ -136,6 +141,7 @@
     "pitch": 28,
     "bearing": 0,
     "view": "3d",
+    "skin": "campaign",
     "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "파르살로스. 폼페이우스가 패하고 이집트로 달아난다."
@@ -150,6 +156,7 @@
     "pitch": 45,
     "bearing": 0,
     "view": "3d",
+    "skin": "campaign",
     "layers": ["territory", "settlements", "movements", "battles", "people", "relief", "rivers", "labels"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "알렉산드리아. 폼페이우스는 이미 죽었다."
@@ -163,6 +170,7 @@
     "pitch": 0,
     "bearing": 0,
     "view": "2d",
+    "skin": "campaign",
     "layers": ["territory", "admin_regions", "settlements", "relief", "rivers"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "카이사르가 암살된 해. 종신 독재관."
@@ -176,6 +184,7 @@
     "pitch": 0,
     "bearing": 0,
     "view": "2d",
+    "skin": "campaign",
     "layers": ["territory", "admin_regions", "relief", "rivers"],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "옥타비아누스가 아우구스투스가 된 해. 제정의 시작."
