@@ -1,0 +1,1939 @@
+{
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "교보재용 재구성. 앵커는 이 프로젝트 정본 좌표 47.5392N/4.5006E(몽 옥수아, Alise-Sainte-Reine). 비정은 알리즈생트렌 설을 따른다(나폴레옹 3세 1861~1865 발굴, 1991~1997 프랑스·독일 공동조사로 확정). 소수설 Chaux-des-Crotenay(Berthier)는 따르지 않는다. 치수는 카이사르 『갈리아 전기』 7.69·7.72·7.73·7.74·7.83. 지명·하천·마을 좌표는 OpenStreetMap 실측이고, 포위선·진영·보루 위치는 지형과 카이사르의 거리 수치에 맞춘 근사 복원이다. 측량 성과가 아니다. 용어 주의: 여기서 inner_line/outer_line으로 구분한다. 학계에서 circumvallatio/contravallatio를 안팎 어느 쪽에 붙이는지는 문헌마다 엇갈리므로 라벨 대신 kind 값을 신뢰할 것.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:oppidum",
+    "name_ko": "알레시아 오피둠 (몽 옥수아)",
+    "name_la": "Alesia, oppidum Mandubiorum",
+    "kind": "oppidum",
+    "note_ko": "만두비족의 성읍. 베르킹게토릭스가 보병 8만·기병 1만 5천과 함께 농성했다.",
+    "source": "BG 7.68~7.69 '매우 높은 언덕 꼭대기, 양쪽 기슭을 두 강이 씻는다'. 고고학상 약 97ha 대지. 윤곽은 몽 옥수아 대지 형상에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.51101,
+       47.5392
+      ],
+      [
+       4.51069,
+       47.54008
+      ],
+      [
+       4.50976,
+       47.54092
+      ],
+      [
+       4.50827,
+       47.54165
+      ],
+      [
+       4.5063,
+       47.54224
+      ],
+      [
+       4.50397,
+       47.54265
+      ],
+      [
+       4.50142,
+       47.54287
+      ],
+      [
+       4.49878,
+       47.54287
+      ],
+      [
+       4.49623,
+       47.54265
+      ],
+      [
+       4.4939,
+       47.54224
+      ],
+      [
+       4.49193,
+       47.54165
+      ],
+      [
+       4.49044,
+       47.54092
+      ],
+      [
+       4.48951,
+       47.54008
+      ],
+      [
+       4.48919,
+       47.5392
+      ],
+      [
+       4.48951,
+       47.53832
+      ],
+      [
+       4.49044,
+       47.53748
+      ],
+      [
+       4.49193,
+       47.53675
+      ],
+      [
+       4.4939,
+       47.53616
+      ],
+      [
+       4.49623,
+       47.53575
+      ],
+      [
+       4.49878,
+       47.53553
+      ],
+      [
+       4.50142,
+       47.53553
+      ],
+      [
+       4.50397,
+       47.53575
+      ],
+      [
+       4.5063,
+       47.53616
+      ],
+      [
+       4.50827,
+       47.53675
+      ],
+      [
+       4.50976,
+       47.53748
+      ],
+      [
+       4.51069,
+       47.53832
+      ],
+      [
+       4.51101,
+       47.5392
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:inner",
+    "name_ko": "안쪽 포위선 (성안을 향한 선)",
+    "name_la": "munitiones interiores",
+    "kind": "inner_line",
+    "length_roman_miles": 11,
+    "length_km": 16.3,
+    "note_ko": "둘레 11로마마일. 폭 20피트 수직호 1줄, 그 뒤 폭·깊이 15피트 참호 2줄(안쪽 1줄에는 오즈·오즈랭 물을 끌어 댔다), 높이 12피트 보루와 흉벽, 80피트마다 망루.",
+    "source": "BG 7.69(11마일·보루 23개), 7.72(참호 20피트/15피트, 보루 12피트, 망루 80피트 간격). 선형은 지형 근사 복원.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.53425,
+       47.5392
+      ],
+      [
+       4.5339,
+       47.54155
+      ],
+      [
+       4.53284,
+       47.54386
+      ],
+      [
+       4.53111,
+       47.5461
+      ],
+      [
+       4.52872,
+       47.54821
+      ],
+      [
+       4.52573,
+       47.55017
+      ],
+      [
+       4.52217,
+       47.55194
+      ],
+      [
+       4.51811,
+       47.5535
+      ],
+      [
+       4.51363,
+       47.5548
+      ],
+      [
+       4.50879,
+       47.55585
+      ],
+      [
+       4.50368,
+       47.5566
+      ],
+      [
+       4.49838,
+       47.55706
+      ],
+      [
+       4.493,
+       47.55722
+      ],
+      [
+       4.48762,
+       47.55706
+      ],
+      [
+       4.48232,
+       47.5566
+      ],
+      [
+       4.47721,
+       47.55585
+      ],
+      [
+       4.47237,
+       47.5548
+      ],
+      [
+       4.46789,
+       47.5535
+      ],
+      [
+       4.46383,
+       47.55194
+      ],
+      [
+       4.46027,
+       47.55017
+      ],
+      [
+       4.45728,
+       47.54821
+      ],
+      [
+       4.45489,
+       47.5461
+      ],
+      [
+       4.45316,
+       47.54386
+      ],
+      [
+       4.4521,
+       47.54155
+      ],
+      [
+       4.45175,
+       47.5392
+      ],
+      [
+       4.4521,
+       47.53685
+      ],
+      [
+       4.45316,
+       47.53454
+      ],
+      [
+       4.45489,
+       47.5323
+      ],
+      [
+       4.45728,
+       47.53019
+      ],
+      [
+       4.46027,
+       47.52823
+      ],
+      [
+       4.46383,
+       47.52646
+      ],
+      [
+       4.46789,
+       47.5249
+      ],
+      [
+       4.47237,
+       47.5236
+      ],
+      [
+       4.47721,
+       47.52255
+      ],
+      [
+       4.48232,
+       47.5218
+      ],
+      [
+       4.48762,
+       47.52134
+      ],
+      [
+       4.493,
+       47.52118
+      ],
+      [
+       4.49838,
+       47.52134
+      ],
+      [
+       4.50368,
+       47.5218
+      ],
+      [
+       4.50879,
+       47.52255
+      ],
+      [
+       4.51363,
+       47.5236
+      ],
+      [
+       4.51811,
+       47.5249
+      ],
+      [
+       4.52217,
+       47.52646
+      ],
+      [
+       4.52573,
+       47.52823
+      ],
+      [
+       4.52872,
+       47.53019
+      ],
+      [
+       4.53111,
+       47.5323
+      ],
+      [
+       4.53284,
+       47.53454
+      ],
+      [
+       4.5339,
+       47.53685
+      ],
+      [
+       4.53425,
+       47.5392
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:outer",
+    "name_ko": "바깥 포위선 (구원군을 향한 선)",
+    "name_la": "munitiones exteriores",
+    "kind": "outer_line",
+    "length_roman_miles": 14,
+    "length_km": 20.7,
+    "note_ko": "둘레 14로마마일. 안쪽 선과 같은 규격을 바깥을 향해 한 벌 더 쌓았다. 북서쪽 몽 레아 구간은 둘레가 너무 커서 산을 선 안에 넣지 못했고, 그 틈이 결전의 약점이 된다.",
+    "source": "BG 7.74(14마일·30일치 군량), 7.83(북쪽 산을 포위선에 넣지 못함). 몽 레아 앞 안쪽 굴곡은 7.83의 '넣을 수 없었다'를 형상화한 교보재용 변형이다.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.5449,
+       47.5392
+      ],
+      [
+       4.54449,
+       47.54225
+      ],
+      [
+       4.54327,
+       47.54525
+      ],
+      [
+       4.54125,
+       47.54815
+      ],
+      [
+       4.53848,
+       47.55092
+      ],
+      [
+       4.53498,
+       47.5535
+      ],
+      [
+       4.53083,
+       47.55585
+      ],
+      [
+       4.52608,
+       47.55794
+      ],
+      [
+       4.5208,
+       47.55974
+      ],
+      [
+       4.51508,
+       47.5612
+      ],
+      [
+       4.50901,
+       47.56229
+      ],
+      [
+       4.50267,
+       47.56295
+      ],
+      [
+       4.49621,
+       47.56311
+      ],
+      [
+       4.48985,
+       47.56267
+      ],
+      [
+       4.48389,
+       47.56159
+      ],
+      [
+       4.47859,
+       47.55999
+      ],
+      [
+       4.474,
+       47.55812
+      ],
+      [
+       4.4698,
+       47.55633
+      ],
+      [
+       4.46546,
+       47.5548
+      ],
+      [
+       4.46066,
+       47.55344
+      ],
+      [
+       4.45552,
+       47.55196
+      ],
+      [
+       4.45062,
+       47.55012
+      ],
+      [
+       4.44653,
+       47.54782
+      ],
+      [
+       4.44359,
+       47.54515
+      ],
+      [
+       4.44186,
+       47.54223
+      ],
+      [
+       4.44122,
+       47.5392
+      ],
+      [
+       4.44155,
+       47.53615
+      ],
+      [
+       4.44274,
+       47.53315
+      ],
+      [
+       4.44475,
+       47.53025
+      ],
+      [
+       4.44752,
+       47.52748
+      ],
+      [
+       4.45102,
+       47.5249
+      ],
+      [
+       4.45517,
+       47.52255
+      ],
+      [
+       4.45992,
+       47.52046
+      ],
+      [
+       4.46519,
+       47.51866
+      ],
+      [
+       4.4709,
+       47.51719
+      ],
+      [
+       4.47696,
+       47.51607
+      ],
+      [
+       4.48328,
+       47.51531
+      ],
+      [
+       4.48974,
+       47.51492
+      ],
+      [
+       4.49626,
+       47.51492
+      ],
+      [
+       4.50272,
+       47.51531
+      ],
+      [
+       4.50904,
+       47.51607
+      ],
+      [
+       4.5151,
+       47.51719
+      ],
+      [
+       4.52081,
+       47.51866
+      ],
+      [
+       4.52608,
+       47.52046
+      ],
+      [
+       4.53083,
+       47.52255
+      ],
+      [
+       4.53498,
+       47.5249
+      ],
+      [
+       4.53848,
+       47.52748
+      ],
+      [
+       4.54125,
+       47.53025
+      ],
+      [
+       4.54327,
+       47.53315
+      ],
+      [
+       4.54449,
+       47.53615
+      ],
+      [
+       4.5449,
+       47.5392
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campA",
+    "name_ko": "로마군 A 진영 (플라비니 산)",
+    "name_la": "castra A, montagne de Flavigny",
+    "kind": "camp",
+    "camp_letter": "A",
+    "attested": true,
+    "note_ko": "보병 진영 2.3ha. 발굴로 확인됨.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.509,
+     47.5245
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campB",
+    "name_ko": "로마군 B 진영 (플라비니 산)",
+    "name_la": "castra B, montagne de Flavigny",
+    "kind": "camp",
+    "camp_letter": "B",
+    "attested": true,
+    "note_ko": "보병 진영 7.3ha. 발굴로 확인됨. 카이사르 본영으로 보는 견해가 있다.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.498,
+     47.5265
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campC",
+    "name_ko": "로마군 C 진영 (뷔시 산)",
+    "name_la": "castra C, montagne de Bussy",
+    "kind": "camp",
+    "camp_letter": "C",
+    "attested": true,
+    "note_ko": "보병 진영 6.9ha. 발굴로 확인됨. 라비에누스가 맡은 구역으로 본다.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.5145,
+     47.5585
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campG",
+    "name_ko": "로마군 G 진영 (그레지니 마을 아래)",
+    "name_la": "castra G, sous Grésigny",
+    "kind": "camp",
+    "camp_letter": "G",
+    "attested": false,
+    "note_ko": "나폴레옹 3세 도면의 진영. 포위선 바깥이고 라뷔탱 개울이 가로질러 공성 진영으로 보기 어렵다.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.501,
+     47.5555
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campH",
+    "name_ko": "로마군 H 진영 (레 롬 역 아래)",
+    "name_la": "castra H, sous la gare des Laumes",
+    "kind": "camp",
+    "camp_letter": "H",
+    "attested": false,
+    "note_ko": "역 확장으로 매몰되어 검증 불가.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.464,
+     47.542
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campI",
+    "name_ko": "로마군 I 진영 (롬 평원)",
+    "name_la": "castra I, plaine des Laumes",
+    "kind": "camp",
+    "camp_letter": "I",
+    "attested": false,
+    "note_ko": "1991~1997 조사에서 카이사르 참호를 메운 뒤 판 후대 유구로 판명.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.468,
+     47.535
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campK",
+    "name_ko": "로마군 K 진영 (롬 평원)",
+    "name_la": "castra K, plaine des Laumes",
+    "kind": "camp",
+    "camp_letter": "K",
+    "attested": false,
+    "note_ko": "갈로로만 토기가 다량 나왔으나 미발굴. 진정성 논란.",
+    "source": "나폴레옹 3세 도면의 진영 부호 A~K. 위치는 alesiaparc.fr 정리와 지형에 맞춘 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.478,
+     47.53
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:campD",
+    "name_ko": "북쪽 진영 (몽 레아 사면, 결전지)",
+    "name_la": "castra D, flanc du Mont Réa",
+    "kind": "camp",
+    "camp_letter": "D",
+    "attested": false,
+    "decisive": true,
+    "note_ko": "가파르고 불리한 비탈에 놓인 2개 군단 진영. 레기누스와 레빌루스가 지휘했다. 베르카시벨라우누스가 정예 6만으로 산 뒤에 숨었다가 정오에 이곳을 쳤고, 카이사르가 직접 예비대와 게르만 기병을 몰아 배후를 돌면서 포위전의 승패가 갈렸다.",
+    "source": "BG 7.83(북쪽 산·2개 군단·레기누스와 레빌루스·베르카시벨라우누스 6만), 7.85~7.88. 위치는 나폴레옹 3세의 D 진영 비정. 1991~1997 조사에서 이 2개 군단 진영은 끝내 확인되지 않았다.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.4795,
+     47.5497
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum01",
+    "name_ko": "보루 1",
+    "name_la": "castellum 1",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.53061,
+     47.5318
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum02",
+    "name_ko": "보루 2",
+    "name_la": "castellum 2",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.52464,
+     47.52764
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum03",
+    "name_ko": "보루 3",
+    "name_la": "castellum 3",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.51633,
+     47.52434
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum04",
+    "name_ko": "보루 4",
+    "name_la": "castellum 4",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.50628,
+     47.52214
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum05",
+    "name_ko": "보루 5",
+    "name_la": "castellum 5",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.49525,
+     47.52121
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum06",
+    "name_ko": "보루 6",
+    "name_la": "castellum 6",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.48406,
+     47.52161
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum07",
+    "name_ko": "보루 7",
+    "name_la": "castellum 7",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.47352,
+     47.52332
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum08",
+    "name_ko": "보루 8",
+    "name_la": "castellum 8",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.46444,
+     47.5262
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum09",
+    "name_ko": "보루 9",
+    "name_la": "castellum 9",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45747,
+     47.53005
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum10",
+    "name_ko": "보루 10",
+    "name_la": "castellum 10",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45313,
+     47.53458
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum11",
+    "name_ko": "보루 11",
+    "name_la": "castellum 11",
+    "kind": "redoubt",
+    "attested": true,
+    "note_ko": "발굴로 확인된 보루.",
+    "source": "BG 7.69의 보루 23개. 확인된 것은 11·15·18번 세 곳뿐이고 18번은 그레지니생트렌 남동쪽에 흙돌 둔덕으로 남아 있다.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45175,
+     47.53945
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum12",
+    "name_ko": "보루 12",
+    "name_la": "castellum 12",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45343,
+     47.5443
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum13",
+    "name_ko": "보루 13",
+    "name_la": "castellum 13",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45805,
+     47.54877
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum14",
+    "name_ko": "보루 14",
+    "name_la": "castellum 14",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.46526,
+     47.55254
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum15",
+    "name_ko": "보루 15",
+    "name_la": "castellum 15",
+    "kind": "redoubt",
+    "attested": true,
+    "note_ko": "발굴로 확인된 보루.",
+    "source": "BG 7.69의 보루 23개. 확인된 것은 11·15·18번 세 곳뿐이고 18번은 그레지니생트렌 남동쪽에 흙돌 둔덕으로 남아 있다.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.47452,
+     47.55531
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum16",
+    "name_ko": "보루 16",
+    "name_la": "castellum 16",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.48516,
+     47.55689
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum17",
+    "name_ko": "보루 17",
+    "name_la": "castellum 17",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.49638,
+     47.55716
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum18",
+    "name_ko": "보루 18",
+    "name_la": "castellum 18",
+    "kind": "redoubt",
+    "attested": true,
+    "note_ko": "발굴로 확인된 보루.",
+    "source": "BG 7.69의 보루 23개. 확인된 것은 11·15·18번 세 곳뿐이고 18번은 그레지니생트렌 남동쪽에 흙돌 둔덕으로 남아 있다.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.5065,
+     47.5535
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum19",
+    "name_ko": "보루 19",
+    "name_la": "castellum 19",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.51725,
+     47.55378
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum20",
+    "name_ko": "보루 20",
+    "name_la": "castellum 20",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.52535,
+     47.55038
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum21",
+    "name_ko": "보루 21",
+    "name_la": "castellum 21",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.53106,
+     47.54615
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum22",
+    "name_ko": "보루 22",
+    "name_la": "castellum 22",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.53394,
+     47.54141
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:castellum23",
+    "name_ko": "보루 23",
+    "name_la": "castellum 23",
+    "kind": "redoubt",
+    "attested": false,
+    "note_ko": "카이사르가 23개라 적었을 뿐 개별 위치는 확인되지 않았다.",
+    "source": "BG 7.69의 보루 23개. 개수만 전거이고 배치는 안쪽 선을 따라 등간격으로 배분한 교보재용 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.53379,
+     47.5365
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:reliefcamp",
+    "name_ko": "갈리아 구원군 진영",
+    "name_la": "castra auxiliorum Gallorum",
+    "kind": "gaul_camp",
+    "note_ko": "코미우스·베르카시벨라우누스·에포레도릭스·비리도마루스가 이끈 구원군이 포위선에서 1마일 안쪽 언덕에 진을 쳤다. 뮈시 산 일대로 본다.",
+    "source": "BG 7.79('우리 방어선에서 1마일 못 미친 언덕'). 위치는 뮈시라포스(47.5205N/4.4376E) 기준 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.45431,
+       47.534
+      ],
+      [
+       4.45363,
+       47.53585
+      ],
+      [
+       4.45166,
+       47.53747
+      ],
+      [
+       4.44866,
+       47.53868
+      ],
+      [
+       4.44496,
+       47.53932
+      ],
+      [
+       4.44104,
+       47.53932
+      ],
+      [
+       4.43734,
+       47.53868
+      ],
+      [
+       4.43434,
+       47.53747
+      ],
+      [
+       4.43237,
+       47.53585
+      ],
+      [
+       4.43169,
+       47.534
+      ],
+      [
+       4.43237,
+       47.53215
+      ],
+      [
+       4.43434,
+       47.53053
+      ],
+      [
+       4.43734,
+       47.52932
+      ],
+      [
+       4.44104,
+       47.52868
+      ],
+      [
+       4.44496,
+       47.52868
+      ],
+      [
+       4.44866,
+       47.52932
+      ],
+      [
+       4.45166,
+       47.53053
+      ],
+      [
+       4.45363,
+       47.53215
+      ],
+      [
+       4.45431,
+       47.534
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:vercingetorixcamp",
+    "name_ko": "베르킹게토릭스 진영 (동쪽 사면)",
+    "name_la": "castra Vercingetorigis",
+    "kind": "gaul_camp",
+    "note_ko": "성벽 아래 해 뜨는 쪽 사면을 갈리아군이 가득 메웠고, 앞에 참호와 높이 6피트 돌담을 둘렀다.",
+    "source": "BG 7.69. 이 지도에서 문헌 근거가 가장 직접적인 지물이다. 범위는 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.51549,
+       47.5385
+      ],
+      [
+       4.5151,
+       47.53936
+      ],
+      [
+       4.51399,
+       47.54005
+      ],
+      [
+       4.51239,
+       47.54043
+      ],
+      [
+       4.51061,
+       47.54043
+      ],
+      [
+       4.50901,
+       47.54005
+      ],
+      [
+       4.5079,
+       47.53936
+      ],
+      [
+       4.50751,
+       47.5385
+      ],
+      [
+       4.5079,
+       47.53764
+      ],
+      [
+       4.50901,
+       47.53695
+      ],
+      [
+       4.51061,
+       47.53657
+      ],
+      [
+       4.51239,
+       47.53657
+      ],
+      [
+       4.51399,
+       47.53695
+      ],
+      [
+       4.5151,
+       47.53764
+      ],
+      [
+       4.51549,
+       47.5385
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:hill:rea",
+    "name_ko": "몽 레아",
+    "name_la": "Mont Réa",
+    "kind": "hill",
+    "altitude_m": 375,
+    "note_ko": "둘레 약 7km. 포위선에 넣지 못한 '북쪽 산'으로 19세기부터 비정된다. 엄밀히는 북서쪽이고, 이 점이 알리즈 설의 오랜 약점으로 지적된다.",
+    "source": "BG 7.69 '사방으로 알맞은 거리에 비슷한 높이의 언덕들이 성읍을 둘러쌌다'. 고도·둘레는 프랑스 지형 자료, 좌표는 OpenStreetMap 지명 기준.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.479,
+     47.552
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:hill:bussy",
+    "name_ko": "뷔시 산",
+    "name_la": "Montagne de Bussy",
+    "kind": "hill",
+    "altitude_m": 418,
+    "note_ko": "둘레 약 14km. 북동쪽. C 진영이 놓인 고지.",
+    "source": "BG 7.69 '사방으로 알맞은 거리에 비슷한 높이의 언덕들이 성읍을 둘러쌌다'. 고도·둘레는 프랑스 지형 자료, 좌표는 OpenStreetMap 지명 기준.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.516,
+     47.562
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:hill:pennevelle",
+    "name_ko": "펜느벨 산",
+    "name_la": "Mont Pennevelle",
+    "kind": "hill",
+    "altitude_m": 430,
+    "note_ko": "남동쪽. 오즈와 오즈랭 사이로 길게 뻗는다.",
+    "source": "BG 7.69 '사방으로 알맞은 거리에 비슷한 높이의 언덕들이 성읍을 둘러쌌다'. 고도·둘레는 프랑스 지형 자료, 좌표는 OpenStreetMap 지명 기준.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.5228,
+     47.5329
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:hill:flavigny",
+    "name_ko": "플라비니 산",
+    "name_la": "Montagne de Flavigny",
+    "kind": "hill",
+    "altitude_m": 430,
+    "note_ko": "둘레 약 12km. 남쪽. A·B 진영이 놓인 고지.",
+    "source": "BG 7.69 '사방으로 알맞은 거리에 비슷한 높이의 언덕들이 성읍을 둘러쌌다'. 고도·둘레는 프랑스 지형 자료, 좌표는 OpenStreetMap 지명 기준.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.515,
+     47.523
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:river:oze",
+    "name_ko": "오즈 강",
+    "name_la": "l'Oze",
+    "kind": "river",
+    "side": "north",
+    "note_ko": "오피둠 북쪽 기슭을 씻으며 서쪽으로 흘러 롬 평원에서 오즈랭과 합류한다. 카이사르는 이 물을 안쪽 참호 한 줄에 끌어 댔다.",
+    "source": "OpenStreetMap 실제 하천 선형(Overpass)을 전장 범위로 잘라 간략화. 참호 급수는 BG 7.72.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.55937,
+      47.53177
+     ],
+     [
+      4.55531,
+      47.53306
+     ],
+     [
+      4.54946,
+      47.53415
+     ],
+     [
+      4.54672,
+      47.53445
+     ],
+     [
+      4.54424,
+      47.53391
+     ],
+     [
+      4.54193,
+      47.53462
+     ],
+     [
+      4.53756,
+      47.53497
+     ],
+     [
+      4.53444,
+      47.53458
+     ],
+     [
+      4.53304,
+      47.53473
+     ],
+     [
+      4.52864,
+      47.53623
+     ],
+     [
+      4.5247,
+      47.53735
+     ],
+     [
+      4.52077,
+      47.53888
+     ],
+     [
+      4.51862,
+      47.54009
+     ],
+     [
+      4.51657,
+      47.54089
+     ],
+     [
+      4.5148,
+      47.54257
+     ],
+     [
+      4.51017,
+      47.54379
+     ],
+     [
+      4.50935,
+      47.54466
+     ],
+     [
+      4.50442,
+      47.54721
+     ],
+     [
+      4.5009,
+      47.54779
+     ],
+     [
+      4.49509,
+      47.54772
+     ],
+     [
+      4.49076,
+      47.54712
+     ],
+     [
+      4.48789,
+      47.54602
+     ],
+     [
+      4.4841,
+      47.54767
+     ],
+     [
+      4.48195,
+      47.54543
+     ],
+     [
+      4.47895,
+      47.54663
+     ],
+     [
+      4.47706,
+      47.54726
+     ],
+     [
+      4.47309,
+      47.54719
+     ],
+     [
+      4.47097,
+      47.54583
+     ],
+     [
+      4.46894,
+      47.54632
+     ],
+     [
+      4.46422,
+      47.54568
+     ],
+     [
+      4.46192,
+      47.54604
+     ],
+     [
+      4.45964,
+      47.54606
+     ],
+     [
+      4.45668,
+      47.54771
+     ],
+     [
+      4.45303,
+      47.54884
+     ],
+     [
+      4.45088,
+      47.55011
+     ],
+     [
+      4.44772,
+      47.54948
+     ],
+     [
+      4.44569,
+      47.55031
+     ],
+     [
+      4.44393,
+      47.55055
+     ],
+     [
+      4.44304,
+      47.55349
+     ],
+     [
+      4.44281,
+      47.55275
+     ],
+     [
+      4.44268,
+      47.55224
+     ],
+     [
+      4.44258,
+      47.55199
+     ],
+     [
+      4.44219,
+      47.55059
+     ],
+     [
+      4.44199,
+      47.55172
+     ],
+     [
+      4.4404,
+      47.55471
+     ],
+     [
+      4.4393,
+      47.5546
+     ],
+     [
+      4.43713,
+      47.55404
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:river:ozerain",
+    "name_ko": "오즈랭 강",
+    "name_la": "l'Ozerain",
+    "kind": "river",
+    "side": "south",
+    "note_ko": "오피둠 남쪽 기슭을 씻는다. 북쪽 오즈와 함께 카이사르가 말한 '두 강'이다.",
+    "source": "OpenStreetMap 실제 하천 선형(Overpass)을 전장 범위로 잘라 간략화. BG 7.69.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      4.55999,
+      47.5069
+     ],
+     [
+      4.558,
+      47.50773
+     ],
+     [
+      4.55417,
+      47.50829
+     ],
+     [
+      4.55246,
+      47.50843
+     ],
+     [
+      4.55099,
+      47.50929
+     ],
+     [
+      4.54973,
+      47.50988
+     ],
+     [
+      4.54808,
+      47.51074
+     ],
+     [
+      4.54634,
+      47.5122
+     ],
+     [
+      4.54515,
+      47.5122
+     ],
+     [
+      4.54406,
+      47.51243
+     ],
+     [
+      4.54201,
+      47.51375
+     ],
+     [
+      4.53946,
+      47.51407
+     ],
+     [
+      4.53807,
+      47.51626
+     ],
+     [
+      4.53684,
+      47.51722
+     ],
+     [
+      4.53512,
+      47.51867
+     ],
+     [
+      4.53449,
+      47.5192
+     ],
+     [
+      4.53387,
+      47.52037
+     ],
+     [
+      4.53204,
+      47.52122
+     ],
+     [
+      4.53082,
+      47.52326
+     ],
+     [
+      4.52842,
+      47.52329
+     ],
+     [
+      4.52719,
+      47.52391
+     ],
+     [
+      4.52588,
+      47.52432
+     ],
+     [
+      4.52497,
+      47.52545
+     ],
+     [
+      4.52232,
+      47.52702
+     ],
+     [
+      4.51928,
+      47.52856
+     ],
+     [
+      4.51675,
+      47.52898
+     ],
+     [
+      4.51322,
+      47.52903
+     ],
+     [
+      4.51194,
+      47.52869
+     ],
+     [
+      4.50863,
+      47.52893
+     ],
+     [
+      4.50644,
+      47.52898
+     ],
+     [
+      4.50477,
+      47.52905
+     ],
+     [
+      4.50255,
+      47.52892
+     ],
+     [
+      4.50013,
+      47.52966
+     ],
+     [
+      4.49869,
+      47.52981
+     ],
+     [
+      4.49671,
+      47.53022
+     ],
+     [
+      4.4937,
+      47.53009
+     ],
+     [
+      4.49137,
+      47.53086
+     ],
+     [
+      4.48961,
+      47.53132
+     ],
+     [
+      4.48849,
+      47.53146
+     ],
+     [
+      4.48431,
+      47.53077
+     ],
+     [
+      4.48096,
+      47.53164
+     ],
+     [
+      4.47753,
+      47.53172
+     ],
+     [
+      4.47365,
+      47.53082
+     ],
+     [
+      4.47055,
+      47.53092
+     ],
+     [
+      4.4661,
+      47.53036
+     ],
+     [
+      4.46336,
+      47.53059
+     ],
+     [
+      4.46016,
+      47.53114
+     ],
+     [
+      4.45725,
+      47.5319
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "alesia:plain",
+    "name_ko": "롬 평원",
+    "name_la": "Plaine des Laumes",
+    "kind": "plain",
+    "extent_roman_miles": 3,
+    "note_ko": "성읍 앞 서쪽으로 3로마마일(약 4.4km) 뻗은 평지. 포위선을 쌓기 전 기병전이 벌어졌고, 뒤에는 구원군과 갈리아 기병의 주전장이 된다. 평원의 정확한 범위는 카르코피노·르 갈·부아쟁이 서로 다르게 잡는 논쟁거리다.",
+    "source": "BG 7.69 '성읍 앞에 약 3마일 길이의 평지가 펼쳐졌다', 7.70(기병전). 범위는 논쟁 중이며 여기서는 오즈·오즈랭 합류부 일대로 잡은 근사.",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       4.488,
+       47.55
+      ],
+      [
+       4.47,
+       47.552
+      ],
+      [
+       4.452,
+       47.548
+      ],
+      [
+       4.44,
+       47.54
+      ],
+      [
+       4.438,
+       47.532
+      ],
+      [
+       4.447,
+       47.5265
+      ],
+      [
+       4.465,
+       47.525
+      ],
+      [
+       4.48,
+       47.527
+      ],
+      [
+       4.488,
+       47.531
+      ],
+      [
+       4.49,
+       47.54
+      ],
+      [
+       4.488,
+       47.55
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

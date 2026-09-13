@@ -4,6 +4,12 @@ import type { Scene } from './state';
 export const PRESENT_GROUP = '2회차 발표 · 카이사르 팩';
 export const GALLIA_SCENE = 'pack-extent-60';
 export const GALLIA_ROMAN_SCENE = 'pack-extent-51';
+export const ALESIA_SCENE = 'pack-alesia-52';
+
+/** 알레시아 세부 지도는 그 장면에서만. 지중해 축척에서 켜면 점 하나로 뭉친다. */
+export function showAlesia(scene: string | null): boolean {
+  return scene === ALESIA_SCENE;
+}
 
 /** 갈리아 교보재는 판도 BC60 장면에만. 다른 해에 얹으면 Cliopatria 위를 덮어 영역이 깨진다. */
 export function showGalliaOverlay(scene: string | null, year: number): boolean {

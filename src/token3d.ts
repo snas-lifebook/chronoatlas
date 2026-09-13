@@ -6,12 +6,12 @@ import * as maplibregl from 'maplibre-gl';
 // 탑다운 = 장기 팔각 + 글자. pitch = 폰 실루엣.
 
 const ANIM_MS = 1200; // 북마크 점프가 텔레포트로 안 읽히게. 연도 슬라이더도 같은 속도로 걷는다.
-const SCREEN_PX = 72; // 지중해 줌에서 말 한 알.
+const SCREEN_PX = 60; // 지중해 줌에서 말 한 알.
 const M_PER_PX_Z0 = 40075016.686 / 512; // Web Mercator, 512px 타일
 // 발표 시점이 지중해 전역(z4.2)으로 고정돼 있어 여기서는 **상한이 실제로 물린다.**
 // 옛 상한 180km는 말을 받침 57px로 눌러 얼굴이 안 보였고, 360km는 115px로 판을 덮었다
-// (River: "장기말이 너무 커"). 200km면 받침 ~64px · 얼굴 ~43px — 얼굴은 읽히고 지도는 안 가린다.
-const MIN_M = 14000, MAX_M = 200000;
+// (River가 두 번 "너무 크다"). 145km면 받침 ~46px · 얼굴 ~31px — 얼굴은 알아보이고 판은 안 덮는다.
+const MIN_M = 14000, MAX_M = 145000;
 
 export function tokenMeters(zoom: number): number {
   const m = (M_PER_PX_Z0 / Math.pow(2, zoom)) * SCREEN_PX;

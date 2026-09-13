@@ -15,7 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
@@ -231,6 +231,15 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           <div className="ph-t">{cur?.title ?? ''}</div>
           <div className="ph-y">{fmt(s.year)}</div>
           {cur?.note && <div className="ph-n">{cur.note}</div>}
+          {(() => {                      // 북마크 사건 설명 — 발표자가 점프하면 읽을 것
+            const b = sceneBrief(cur?.id ?? null);
+            if (!b) return null;
+            return <>
+              {b.stat && <div className="ph-stat"><b>{b.stat.value}</b><span>{b.stat.label}</span></div>}
+              {b.event_ko && <div className="ph-ev">{b.event_ko}</div>}
+              {b.look_for && <div className="ph-look">볼 것 · {b.look_for}</div>}
+            </>;
+          })()}
           {people.length > 0 && (
             <div className="ph-row"><span className="ph-rk">말</span>
               <span className="ph-rv">{people.map(p => (

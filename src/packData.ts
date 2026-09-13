@@ -15,6 +15,18 @@ export const PACK_MOVEMENTS: Feature[] = pompey?.features ?? [];
 export const PACK_BATTLES: Feature[] = battles?.features ?? [];
 export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 
+export const ALESIA = Object.values(import.meta.glob('../data/overlays/pack-alesia.json', { eager: true, import: 'default' }))[0] as
+  { teaching?: boolean; features: unknown[] } | undefined;
+
+const sceneText = Object.values(import.meta.glob('../data/overlays/pack-scene-text.json', { eager: true, import: 'default' }))[0] as
+  { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> } | undefined;
+
+/** 북마크로 점프했을 때 발표자가 읽을 사건 설명. 장면 파일의 한 줄 note와 별개로,
+ *  「무슨 일이 벌어지는가 · 왜 중요한가 · 지도에서 무엇을 볼 것인가」를 담는다. */
+export function sceneBrief(id: string | null) {
+  return (id && sceneText?.scenes?.[id]) || null;
+}
+
 /** 그 해에 아직 없는 이름의 정착지 id. 정착지 레이어에 연도 필드가 없어서 생기는 구멍이다
  *  — 어느 해를 띄워도 220개가 다 뜬다. 연도를 지어내지 않고, 확실히 후대인 이름만 가린다. */
 export function hiddenPlaces(year: number): string[] {

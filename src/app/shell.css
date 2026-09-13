@@ -198,3 +198,12 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ins-profile .line { fill: none; stroke: var(--color-text-primary); stroke-width: 1.2; stroke-linejoin: round; }
 .ins-profile .peak { fill: var(--color-accent); }
 .ins-profile .tag { font-size: 9px; fill: var(--color-text-secondary); }
+
+/* 북마크 사건 설명 — 발표자가 점프했을 때 읽는 블록.
+   note 한 줄 아래에 숫자 하나, 서술 두세 문장, 「볼 것」 한 줄 순서로 앉힌다. */
+.ph-stat { display: flex; align-items: baseline; gap: .5rem; margin: .55rem 0 .35rem; }
+.ph-stat b { font-size: 1.35rem; font-weight: 700; letter-spacing: -.01em; }
+.ph-stat span { font-size: .78rem; opacity: .72; line-height: 1.3; }
+.ph-ev { font-size: .86rem; line-height: 1.62; opacity: .92; margin: .35rem 0 .3rem; max-width: 44ch; }
+.ph-look { font-size: .78rem; opacity: .7; border-top: 1px solid currentColor; padding-top: .3rem; margin-top: .35rem; }
+.ph-look::first-letter { font-weight: 700; }

@@ -5,8 +5,8 @@ import { buildStyle, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { showGalliaOverlay, showGalliaRoman } from '../present';
-import { PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
+import { showAlesia, showGalliaOverlay, showGalliaRoman } from '../present';
+import { ALESIA, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -64,11 +64,19 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
-  labels: ['label-region', 'label-settle-1', 'label-settle-2', 'label-settle-3'],
-  landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades'],
+  labels: ['label-settle-1', 'label-settle-2', 'label-settle-3'],
+  // label-region이 여기 있는 이유: Natural Earth의 SAHARA·LIBYAN DESERT·ATLAS MOUNTAINS 같은
+  // **라틴 대문자** 지명이다. 사양서가 「한글 이름표를 켠다. 라틴어 표기는 쓰지 않는다」로 못 박았고
+  // 옅은 회색이라 읽히지도 않았다(River: "지리지역 텍스트 가독성이 안 좋다"). 지리 지명은 한글
+  // 영역·정착지 이름표가 댄다. **그룹에서 그냥 빼면 안 된다** — 관리 대상이 아니게 되어
+  // 아무도 끄지 않아 오히려 항상 켜진다. 팩 장면이 안 켜는 landmarks로 옮겨서 끈다.
+  landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'label-region'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
   board: ['board-unit', 'board-label'],
   people: ['people-dot', 'people-label'],
+  // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
+  alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-outer', 'alesia-inner',
+           'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label'],
 };
 // 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
 // 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
@@ -243,7 +251,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, ['case', ['>', ['get', 'area'], 2000000], 13, 11], 7, ['case', ['>', ['get', 'area'], 2000000], 18, 14]],
         'symbol-sort-key': ['-', 0, ['get', 'area']] } as any,
-      paint: { 'text-color': fillColor, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.6, 'text-opacity': 0.95 },
+      // 가독성(River: "지리지역 텍스트 가독성이 안 좋다"). 세력색 글자가 같은 색 면 위에 얹혀
+      // 대비가 낮았다. 후광을 두껍게 하고 불투명도를 올린다.
+      paint: { 'text-color': fillColor, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.6, 'text-opacity': 1 },
       filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 250000, 5, 90000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
@@ -269,6 +279,38 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 1.05,
         'text-optional': true, 'text-allow-overlap': false },
       paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
+    // ── 알레시아 세부(BG 7.68~7.74). 포위선 두 겹이 이 장면의 전부다 —
+    //    안쪽은 농성군을, 바깥쪽은 구원군을 막는다. 그 두 선이 보이면 「이중 포위」가 설명된다.
+    if (ALESIA?.features?.length && !map.getSource('alesia')) {
+      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
+      const gaulC = d.actors.find(a => a.id === '갈리아')?.color ?? '#3E7C4F';
+      const only = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
+      map.addSource('alesia', { type: 'geojson', data: { type: 'FeatureCollection', features: ALESIA.features } as any });
+      const add = (l: maplibregl.LayerSpecification) => map.addLayer({ ...l, layout: { ...(l as any).layout, visibility: 'none' } } as any, before);
+      add({ id: 'alesia-plain', type: 'fill', source: 'alesia', filter: only('plain'),
+        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.25 } } as any);
+      add({ id: 'alesia-oppidum', type: 'fill', source: 'alesia', filter: only('oppidum'),
+        paint: { 'fill-color': gaulC, 'fill-opacity': 0.45, 'fill-outline-color': gaulC } } as any);
+      add({ id: 'alesia-river', type: 'line', source: 'alesia', filter: only('river'),
+        paint: { 'line-color': '#5B86A8', 'line-width': 2.4, 'line-opacity': 0.9 } } as any);
+      // 바깥선은 점선 — 「밖을 향한 선」임을 선 모양으로 구분한다
+      add({ id: 'alesia-outer', type: 'line', source: 'alesia', filter: only('outer_line'),
+        paint: { 'line-color': romeC, 'line-width': 3.4, 'line-opacity': 0.95, 'line-dasharray': [3, 1.6] } } as any);
+      add({ id: 'alesia-inner', type: 'line', source: 'alesia', filter: only('inner_line'),
+        paint: { 'line-color': romeC, 'line-width': 3.4, 'line-opacity': 0.95 } } as any);
+      add({ id: 'alesia-redoubt', type: 'circle', source: 'alesia', filter: only('redoubt'),
+        paint: { 'circle-radius': 3.4, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 } } as any);
+      add({ id: 'alesia-camp', type: 'circle', source: 'alesia', filter: only('camp'),
+        paint: { 'circle-radius': 7, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
+      add({ id: 'alesia-gaulcamp', type: 'circle', source: 'alesia', filter: only('gaul_camp'),
+        paint: { 'circle-radius': 8, 'circle-color': gaulC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
+      add({ id: 'alesia-label', type: 'symbol', source: 'alesia',
+        filter: only('oppidum', 'camp', 'gaul_camp', 'hill', 'river', 'plain', 'inner_line', 'outer_line'),
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
+          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
+        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } } as any);
+    }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
     if (PACK_BATTLES.length && !map.getSource('pack-battles')) {
@@ -308,7 +350,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 16, 9, 18] as any,
         // 말이 커질 때마다 여기가 문제가 된다. 얼굴 판을 넣은 뒤 말 반지름이 ~32 CSS px이고,
         // 이름표는 후광까지 그 밖으로 나가야 한다. 말 크기를 바꾸면 여기도 같이 본다.
-        'text-offset': [0, 2.6], 'text-anchor': 'top', 'text-optional': false,
+        'text-offset': [0, 1.9], 'text-anchor': 'top', 'text-optional': false,
         // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
         // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
         // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가
@@ -535,6 +577,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       if (map.getLayer('gallia-roman-line')) map.setLayoutProperty('gallia-roman-line', 'visibility', showRoman ? 'visible' : 'none');
     }
     hideAnachronisticPlaces(map, s.year);
+    if (map.getLayer('alesia-inner')) {
+      const on = showAlesia(s.scene);
+      for (const id of LAYER_GROUPS.alesia) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
+    }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.

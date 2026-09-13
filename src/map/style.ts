@@ -98,7 +98,7 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
     layers.push(sym(`label-settle-${rank}`, 'settlements',
       { 'text-field': ['get', 'name_ko'], 'text-font': [...font], 'text-size': size, 'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
         'text-radial-offset': 0.7, 'text-justify': 'auto' },
-      { 'text-color': c.label, 'text-halo-color': c.halo, 'text-halo-width': 1.4 },
+      { 'text-color': c.label, 'text-halo-color': c.halo, 'text-halo-width': 2.2 },   // 가독성: 후광 1.4 → 2.2
       { minzoom, filter: ['==', ['get', 'rank'], rank] as any }));
   }
   return { version: 8, glyphs: `${root}glyphs/{fontstack}/{range}.pbf`, sources, layers };

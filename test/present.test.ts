@@ -82,11 +82,11 @@ describe('카이사르 팩 교보재', () => {
 });
 
 describe('카이사르 팩 장면 파일', () => {
-  it('아홉 장면 모두 설명과 평면/입체를 가진다', () => {
+  it('열 장면 모두 설명과 평면/입체를 가진다', () => {
     const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; group?: string; note?: string; view?: string; skin?: string }[];
     const pack = raw.filter(s => s.group === PRESENT_GROUP);
     expect(pack.map(s => s.id)).toEqual([
-      'pack-intro-med', 'pack-gaul-52', 'pack-extent-60', 'pack-extent-51',
+      'pack-intro-med', 'pack-gaul-52', 'pack-alesia-52', 'pack-extent-60', 'pack-extent-51',
       'pack-rubicon', 'pack-greece-48', 'pack-egypt-47', 'pack-extent-44', 'pack-augustan-27',
     ]);
     for (const s of pack) {
@@ -115,5 +115,24 @@ describe('후대 이름 가리기 (정착지에 연도 필드가 없다)', () =>
   it('가리는 근거를 항목마다 적어 둔다 — 연도를 지어내지 않는다', () => {
     expect(pack.teaching).toBe(true);
     for (const h of pack.hide_before) expect(String(h.source).length).toBeGreaterThan(20);
+  });
+});
+
+describe('알레시아 세부 장면', () => {
+  it('세부 축척이라 지중해 고정 시점의 예외다 — 그래서 따로 적어 둔다', () => {
+    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; zoom?: number; center?: [number, number] }[];
+    const a = raw.find(s => s.id === 'pack-alesia-52')!;
+    expect(a.zoom).toBeGreaterThan(11);              // 나머지 아홉은 4.2
+    expect(a.center![0]).toBeCloseTo(4.5, 1);        // 몽 옥수아
+    expect(a.center![1]).toBeCloseTo(47.53, 1);
+  });
+  it('포위선이 두 겹이고 진영 8·보루 23이다 (BG 7.69)', () => {
+    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/overlays/pack-alesia.json'), 'utf8'));
+    expect(raw.teaching).toBe(true);
+    const k = (n: string) => raw.features.filter((f: { properties: { kind: string } }) => f.properties.kind === n).length;
+    expect(k('inner_line')).toBe(1);
+    expect(k('outer_line')).toBe(1);
+    expect(k('camp')).toBe(8);
+    expect(k('redoubt')).toBe(23);
   });
 });

@@ -73,15 +73,16 @@ IDLE_MS = 25000    # 타일·글리프·영토 폴리곤까지. 지중해 전역
 
 # 장면 id → 납품 파일명. 사양서 B절 §「아홉 장」 표의 파일명이다.
 SCENES = [
-    ("pack-intro-med",   "intro_지도_지중해판도_BC60_v1"),
-    ("pack-gaul-52",     "M2_지도_갈리아원정_BC52_v1"),
-    ("pack-extent-60",   "M2_지도_판도_BC60_v1"),
-    ("pack-extent-51",   "M2_지도_판도_BC51_v1"),
-    ("pack-rubicon",     "M3_지도_루비콘_BC49_v1"),
-    ("pack-greece-48",   "M3_지도_그리스내전_BC48_v1"),
-    ("pack-egypt-47",    "M4_지도_이집트_BC47_v1"),
-    ("pack-extent-44",   "M4_지도_판도_BC44_v1"),
-    ("pack-augustan-27", "epilogue_지도_제정_BC27_v1"),
+    ("pack-intro-med",   "intro_지도_지중해판도_BC60_v2"),
+    ("pack-gaul-52",     "M2_지도_갈리아원정_BC52_v2"),
+    ("pack-alesia-52",   "M2_지도_알레시아포위전_BC52_v1"),
+    ("pack-extent-60",   "M2_지도_판도_BC60_v2"),
+    ("pack-extent-51",   "M2_지도_판도_BC51_v2"),
+    ("pack-rubicon",     "M3_지도_루비콘_BC49_v2"),
+    ("pack-greece-48",   "M3_지도_그리스내전_BC48_v2"),
+    ("pack-egypt-47",    "M4_지도_이집트_BC47_v2"),
+    ("pack-extent-44",   "M4_지도_판도_BC44_v2"),
+    ("pack-augustan-27", "epilogue_지도_제정_BC27_v2"),
 ]
 
 # 캡처 직전에 페이지에서 실행한다. 반환값이 리포트로 올라온다.
