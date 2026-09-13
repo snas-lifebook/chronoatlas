@@ -69,7 +69,7 @@ export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pac
 export type BasemapScan = {
   id: string; file: string; size?: [number, number];
   corners: { w: number; e: number; n: number; s: number };
-  opacity?: number; min_zoom?: number; title?: string; caveat?: string; source?: string; rms_m?: number;
+  opacity?: number; min_zoom?: number; title?: string; caveat?: string; short_caveat?: string; source?: string; rms_m?: number;
 };
 /** 미시 지도 밑에 깔 고지도 도판. **없으면 층이 안 생긴다** — 도판이 없을 때
  *  회색 상자가 깔리는 것보다 안 깔리는 게 낫다. */

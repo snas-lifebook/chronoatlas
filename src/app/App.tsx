@@ -15,7 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
+import { PACK_BASEMAPS, PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { Callouts } from './Callouts';
@@ -60,6 +60,9 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const [pathTo, setPathTo] = useState<string | null>(null); // F14: 선택 → 이 객체까지 최단 관계 경로
   const [exporting, setExporting] = useState<number | null>(null);
   const [dataTick, setDataTick] = useState(0); // 영토 버킷이 바뀌면 범례 다시
+  // 지금 어느 미시 지도인가. Callouts가 `documentElement.dataset.micro`에 적는 값을 읽는다 —
+  // 판정 로직을 두 군데 두면 갈린다(콜아웃은 줌 + 거리를 같이 본다).
+  const [micro, setMicro] = useState<string | null>(null);
   // 지도 스킨(P1 Azgaar식). 웹 UI 크롬은 안 바뀐다(P12).
   // 북마크가 스킨까지 담아야 해서 store에 있다 — URL로 나가고 URL에서 돌아온다(R35).
   const skin = s.skin, setSkin = (k: Skin) => store.set({ skin: k });
@@ -223,6 +226,15 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (s.board) items.push({ swatch: { background: 'transparent', border: '1.5px solid var(--color-text-secondary)', borderRadius: 2 }, label: '말판 · 교보재' });
     return items;
   }, [d, s.year, s.sel, s.layers, s.board, graph, dataTick]);
+  // dataset.micro는 Callouts가 effect로 쓴다 — 같은 tick에 읽으면 한 프레임 늦으므로 관찰한다.
+  useEffect(() => {
+    const el = document.documentElement;
+    const read = () => setMicro(el.dataset.micro ?? null);
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(el, { attributes: true, attributeFilter: ['data-micro'] });
+    return () => mo.disconnect();
+  }, []);
   const liveBoard = useMemo(() => {
     const b = boards.find(x => x.id === s.board);
     if (!b) return null;
@@ -312,6 +324,16 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
               ))}</span></div>
           )}
         </div>;
+      })()}
+
+      {/* 바탕 도판 고지 · 시대 불일치 한 줄.
+          **JSON에만 적어 두면 발표자가 모른다.** 로마 도판은 아우렐리아누스 성벽(서기 271년)과
+          아우구스투스 14구역(기원전 7년)을, 알렉산드리아 도판은 1866년 당시 도시를 함께 그린다.
+          화면에서 무대에 서는 사람이 그 한마디를 할 수 있어야 한다. 전문은 title 속성에. */}
+      {s.present && (() => {
+        const bm = PACK_BASEMAPS.find(m => m.id === micro);
+        if (!bm) return null;
+        return <div className="shell-scan-note" title={bm.caveat ?? ''}>{bm.short_caveat ?? bm.title}</div>;
       })()}
 
       {/* 장면 넘기기 — 손가락용. `[` `]`는 키보드가 없으면 못 쓴다(River: 모바일).

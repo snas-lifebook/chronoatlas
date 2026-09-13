@@ -357,3 +357,16 @@ html[data-micro] .shell-year-brief { display: none; }
   color: #fff; background: rgb(0 0 0 / 0.52); border-top-left-radius: 4px;
 }
 .ca-thumb:hover img { filter: brightness(1.06); }
+
+/* 바탕 도판 고지. 위 가운데 — 설명창(왼쪽 위)·콜아웃 토글(오른쪽 위)·카드 칸(좌우 끝)
+   사이의 빈 자리다. 발표 중에 「이 붉은 선은 300년 뒤 성벽입니다」를 말할 수 있어야 한다. */
+.shell-scan-note {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 4; max-width: min(560px, 40vw); padding: 4px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--color-background-surface) 86%, transparent);
+  border: 1px solid var(--color-border);
+  font: 500 11.5px/1.5 var(--font-family-body); color: var(--color-text-secondary);
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  pointer-events: auto; cursor: help;
+}
+@media (max-width: 620px) { .shell-scan-note { display: none; } }
