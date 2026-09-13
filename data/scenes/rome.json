@@ -141,6 +141,58 @@
     "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다."
   },
   {
+    "id": "pack-roma-urbs",
+    "title": "로마 시내 · BC 44",
+    "year": -44,
+    "center": [
+      12.4866,
+      41.8929
+    ],
+    "zoom": 13.6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels",
+      "roma"
+    ],
+    "group": "세부 지도",
+    "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다."
+  },
+  {
+    "id": "pack-alexandria-47",
+    "title": "알렉산드리아 · BC 48–47",
+    "year": -47,
+    "center": [
+      29.898,
+      31.199
+    ],
+    "zoom": 13.6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels",
+      "alexandria"
+    ],
+    "group": "세부 지도",
+    "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다."
+  },
+  {
     "id": "pack-extent-51",
     "title": "갈리아, 로마 안으로 · BC 51",
     "year": -51,

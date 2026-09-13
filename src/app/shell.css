@@ -370,3 +370,11 @@ html[data-micro] .shell-year-brief { display: none; }
   pointer-events: auto; cursor: help;
 }
 @media (max-width: 620px) { .shell-scan-note { display: none; } }
+
+/* 그룹 오가는 고리. 세부 지도는 본 발표 여덟 장과 따로 걷지만 도달은 되어야 한다. */
+.shell-scene-nav .sn-jump {
+  min-width: auto; height: 32px; margin: 0 6px 0 2px; padding: 0 11px;
+  border-radius: 999px; background: color-mix(in srgb, var(--color-background-muted) 70%, transparent);
+  font: 500 12px/1 var(--font-family-body); color: var(--color-text-secondary); white-space: nowrap;
+}
+.shell-scene-nav .sn-jump:hover { color: var(--color-text-primary); }

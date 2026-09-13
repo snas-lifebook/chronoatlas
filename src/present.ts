@@ -2,6 +2,13 @@
 import type { Scene } from './state';
 
 export const PRESENT_GROUP = '2회차 발표 · 카이사르 팩';
+/** 세부(미시) 지도 장면들이 모여 있는 그룹.
+ *
+ *  본 발표 여덟 장과 **따로 둔다** — 여덟 장은 지중해 축척의 이야기 흐름이고 세부 지도는
+ *  「거기로 들어가면 보이는」 것이라 같은 줄에 끼우면 흐름이 끊긴다. 대신 **넘어갈 수는
+ *  있어야 한다**(River: "세부지도들도 깃허브 io에서 북마크 따라갈 수 있게 하라") —
+ *  장면 단추가 두 그룹을 오가는 고리를 준다. */
+export const DETAIL_GROUP = '세부 지도';
 /** 자유 갈리아 교보재를 켜는 대표 장면. 예전에는 전용 장면(`pack-extent-60`)이 있었는데
  *  `pack-intro-med`와 같은 그림이라 뺐다 — 이제 첫 장이 그 역할을 겸한다. */
 export const GALLIA_SCENE = 'pack-intro-med';

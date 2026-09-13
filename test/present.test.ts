@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { parseState, serializeState, DEFAULTS } from '../src/state';
-import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE, fitZoom } from '../src/present';
+import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE, fitZoom, DETAIL_GROUP } from '../src/present';
 
 const pack = [
   { id: 'a', title: '1', year: -60, group: PRESENT_GROUP },
@@ -171,5 +171,34 @@ describe('좁은 화면 줌 (모바일)', () => {
   });
   it('폭이 0이면(아직 붙기 전) 그대로 둔다', () => {
     expect(fitZoom(4.2, 0)).toBe(4.2);
+  });
+});
+
+describe('세부 지도 그룹', () => {
+  const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as
+    { id: string; year: number; group?: string; zoom?: number; center?: [number, number]; layers?: string[]; skin?: string }[];
+  const detail = raw.filter(s => s.group === DETAIL_GROUP);
+
+  it('세 장이고 각각 자기 미시 레이어를 켠다', () => {
+    // River: "세부지도들도 깃허브 io에서 북마크 따라갈 수 있게 하라." 장면이 없으면
+    // 줌으로만 도달하고 손가락으로는 못 간다 — 로마·알렉산드리아가 그 상태였다.
+    expect(detail.map(s => s.id)).toEqual(['pack-alesia-52', 'pack-roma-urbs', 'pack-alexandria-47']);
+    const want: Record<string, string> = {
+      'pack-alesia-52': 'alesia', 'pack-roma-urbs': 'roma', 'pack-alexandria-47': 'alexandria',
+    };
+    for (const s of detail) expect(s.layers, s.id).toContain(want[s.id]);
+  });
+
+  it('문턱을 넘는 줌이라야 미시 지도가 실제로 켜진다', () => {
+    for (const s of detail) {
+      expect(s.zoom, s.id).toBeGreaterThan(11);
+      expect(s.skin, s.id).toBe('campaign');
+    }
+  });
+
+  it('본 발표 그룹과 겹치지 않는다 — 여덟 장 흐름을 끊지 않는 것이 분리 이유다', () => {
+    const pack = raw.filter(s => s.group === PRESENT_GROUP).map(s => s.id);
+    for (const s of detail) expect(pack).not.toContain(s.id);
+    expect(pack).toHaveLength(8);
   });
 });

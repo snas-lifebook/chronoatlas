@@ -16,7 +16,7 @@ import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
 import { PACK_BASEMAPS, PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
-import { scenesInGroup, stepScene, presentGroupOf } from '../present';
+import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { Callouts } from './Callouts';
 import { GraphPanel } from './GraphPanel';
@@ -344,12 +344,23 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         if (list.length < 2) return null;
         const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
         const go = (dir: -1 | 1) => { const n = stepScene(list, s.scene, dir); if (n) goScene(n); };
+        // 두 그룹을 오간다. 세부 지도는 본 발표 여덟 장과 따로 걸어야 흐름이 안 끊기는데,
+        // 그렇다고 손가락으로 갈 길이 없으면 github.io에서 도달 자체가 안 된다(River).
+        const inDetail = group === DETAIL_GROUP;
+        const other = inDetail ? PRESENT_GROUP : DETAIL_GROUP;
+        const otherList = scenesInGroup(scenes, other);
         return (
           <nav className="shell-scene-nav" aria-label="장면 넘기기">
             <button onClick={() => go(-1)} title="앞 장면 ([)" aria-label="앞 장면">◀</button>
             <span className="sn-n">{i + 1} / {list.length}</span>
             <button onClick={() => go(1)} title="다음 장면 (])" aria-label="다음 장면">▶</button>
             <span className="sn-t">{list[i]?.title ?? ''}</span>
+            {otherList.length > 0 && (
+              <button className="sn-jump" onClick={() => goScene(otherList[0])}
+                      title={inDetail ? '발표 장면으로 돌아간다' : `세부 지도 ${otherList.length}장`}>
+                {inDetail ? '↩ 발표' : `세부 ${otherList.length} ▸`}
+              </button>
+            )}
           </nav>
         );
       })()}
