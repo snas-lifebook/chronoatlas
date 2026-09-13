@@ -49,7 +49,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
   // 발표 설명창. **지도를 가린다는 지적**(River)에 세 단계와 좌우 전환을 붙였다.
   // slim에서도 연도와 말 이름은 남는다 — 「가려도 년도나 핵심 인물 정도는 뜨게」.
-  const [hud, setHud] = useState<'full' | 'slim' | 'off'>('full');
+  // 좁은 화면에서는 **간략으로 시작한다.** 전체 설명창은 실측 620px이라 390px 폰에서
+  // 화면을 통째로 덮어 지도가 한 픽셀도 안 보였다. H로 언제든 전체로 펼친다.
+  const [hud, setHud] = useState<'full' | 'slim' | 'off'>(
+    () => (matchMedia('(max-width: 620px)').matches ? 'slim' : 'full'));
   const [hudSide, setHudSide] = useState<'left' | 'right'>('left');
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
@@ -290,6 +293,24 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
               ))}</span></div>
           )}
         </div>;
+      })()}
+
+      {/* 장면 넘기기 — 손가락용. `[` `]`는 키보드가 없으면 못 쓴다(River: 모바일).
+          발표 모드에서만 띄운다. 일반 모드는 툴바·타임라인이 이미 아래를 채운다. */}
+      {s.present && (() => {
+        const group = presentGroupOf(scenes, s.scene);
+        const list = scenesInGroup(scenes, group);
+        if (list.length < 2) return null;
+        const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
+        const go = (dir: -1 | 1) => { const n = stepScene(list, s.scene, dir); if (n) goScene(n); };
+        return (
+          <nav className="shell-scene-nav" aria-label="장면 넘기기">
+            <button onClick={() => go(-1)} title="앞 장면 ([)" aria-label="앞 장면">◀</button>
+            <span className="sn-n">{i + 1} / {list.length}</span>
+            <button onClick={() => go(1)} title="다음 장면 (])" aria-label="다음 장면">▶</button>
+            <span className="sn-t">{list[i]?.title ?? ''}</span>
+          </nav>
+        );
       })()}
 
       <header className="shell-title">

@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { parseState, serializeState, DEFAULTS } from '../src/state';
-import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE } from '../src/present';
+import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE, fitZoom } from '../src/present';
 
 const pack = [
   { id: 'a', title: '1', year: -60, group: PRESENT_GROUP },
@@ -154,5 +154,22 @@ describe('알레시아 세부 장면', () => {
     expect(k('outer_line')).toBe(1);
     expect(k('camp')).toBe(8);
     expect(k('redoubt')).toBe(23);
+  });
+});
+
+describe('좁은 화면 줌 (모바일)', () => {
+  it('데스크톱 폭에서는 장면 줌을 안 건드린다', () => {
+    expect(fitZoom(4.2, 1600)).toBe(4.2);
+    expect(fitZoom(4.2, 1920)).toBe(4.2);
+  });
+  it('폭이 절반이면 줌 1을 깎는다 — 담기는 경도 폭이 같아진다', () => {
+    expect(fitZoom(6, 800)).toBe(5);
+    expect(fitZoom(6, 400)).toBe(4);
+  });
+  it('minZoom에서 멈춘다 — 390px 폰에서 4.2는 2.17이 되지만 지도 하한이 3이다', () => {
+    expect(fitZoom(4.2, 390)).toBe(3);
+  });
+  it('폭이 0이면(아직 붙기 전) 그대로 둔다', () => {
+    expect(fitZoom(4.2, 0)).toBe(4.2);
   });
 });

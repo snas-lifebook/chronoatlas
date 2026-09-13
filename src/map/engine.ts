@@ -5,7 +5,7 @@ import { buildStyle, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
+import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
 import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenAdmin, hiddenPlaces } from '../packData';
 
@@ -225,7 +225,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const halo = () => MAP[activeSkin].halo as string;
   // 카메라는 상태에서 온다. main.tsx가 URL·장면을 이미 상태에 접어 넣은 뒤 엔진을 만든다.
   const bb = d.manifest.bbox;
-  const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: s0.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: s0.board ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM,
+  const bootZoom = fitZoom(s0.zoom ?? d.manifest.zoom, container.clientWidth);
+  const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: bootZoom, minZoom: 3, maxZoom: s0.board ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM,
     pitch: s0.view === '2d' ? 0 : (s0.pitch ?? 50), bearing: s0.view === '2d' ? 0 : (s0.bearing ?? 0),
     maxBounds: bb ? [[bb[0], bb[1]], [bb[2], bb[3]]] : undefined, // 베이스맵 밖이 안 보이게 — P13
     attributionControl: false, canvasContextAttributes: { preserveDrawingBuffer: true } }); // 내보내기(3.1)가 캔버스를 읽는다
@@ -1035,7 +1036,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       syncPeopleTokens(peopleFc);
     },
     onData(fn: () => void) { onData = fn; },
-    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom, pitch: store.get().view === '2d' ? 0 : (sc.pitch ?? pitch3d), bearing: store.get().view === '2d' ? 0 : (sc.bearing ?? bearing3d), duration: dur(1400), essential: true }); },
+    // 좁은 화면에서는 줌을 깎는다 — 장면은 데스크톱 프레임으로 잡혀 있다(present.fitZoom).
+    flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom != null ? fitZoom(sc.zoom, container.clientWidth) : undefined, pitch: store.get().view === '2d' ? 0 : (sc.pitch ?? pitch3d), bearing: store.get().view === '2d' ? 0 : (sc.bearing ?? bearing3d), duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {
       const source = id?.startsWith('event:') ? 'battles' : id?.startsWith('place:') ? 'settlements' : null;

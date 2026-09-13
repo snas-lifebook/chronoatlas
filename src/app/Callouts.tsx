@@ -30,9 +30,13 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
   const [which, setWhich] = useState<MicroMap | null>(null);
   const [open, setOpen] = useState(true);
   const [hudBox, setHud] = useState<{ side: 'left' | 'right'; bottom: number }>({ side: 'left', bottom: 0 });
+  // 일반 모드에서 왼쪽·오른쪽에 앱 패널이 서 있다. 그 폭만큼 칸을 밀어 넣는다 —
+  // River의 알레시아 화면에서 왼쪽 카드 넷이 탐색 패널 **밑에 깔려** 아예 안 보였다.
+  const [inset, setInset] = useState<{ left: number; right: number }>({ left: 10, right: 10 });
   const [anchors, setAnchors] = useState<Record<string, { x: number; y: number }>>({});
   const cardRef = useRef<Record<string, HTMLElement | null>>({});
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const squeezeRef = useRef(false);
 
   useEffect(() => {
     if (!map) return;
@@ -46,6 +50,19 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
       const hud = document.querySelector('.shell-present-hud, .shell-hud-peek') as HTMLElement | null;
       setHud(hud ? { side: hud.classList.contains('is-right') ? 'right' : 'left',
                      bottom: hud.getBoundingClientRect().bottom } : { side: 'left', bottom: 0 });
+      // 앱 패널을 실측해서 비킨다. 높이를 예측하지 않는 것과 같은 원칙 —
+      // 탐색 패널은 열림·닫힘과 탭에 따라 폭이 달라지고, 인스펙터는 선택이 있을 때만 뜬다.
+      const edge = (sel: string, side: 'left' | 'right') => {
+        const el = document.querySelector(sel) as HTMLElement | null;
+        if (!el || !el.offsetParent) return 10;
+        const r = el.getBoundingClientRect();
+        if (r.width < 1) return 10;
+        return Math.max(10, side === 'left' ? r.right + 12 : innerWidth - r.left + 12);
+      };
+      setInset(prev => {
+        const next = { left: edge('.shell-explorer', 'left'), right: edge('.shell-right', 'right') };
+        return prev.left === next.left && prev.right === next.right ? prev : next;
+      });
       if (!m) { setPins([]); return; }
       setPins(CALLOUTS.filter(c => c.map === m).map(c => {
         const p = map.project(c.at);
@@ -90,7 +107,8 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
     for (const [id, el] of Object.entries(cardRef.current)) {
       if (!el) continue;
       const r = el.getBoundingClientRect();
-      const side = CALLOUTS.find(c => c.id === id)?.side ?? 'left';
+      const c0 = CALLOUTS.find(c => c.id === id);
+      const side: 'left' | 'right' = !c0 ? 'left' : (squeezeRef.current ? 'right' : c0.side);
       next[id] = {
         x: (side === 'left' ? r.right : r.left) - base.left,
         y: r.top - base.top + Math.min(24, r.height / 2),
@@ -111,8 +129,15 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
   }
   if (!which || !pins.length) return null;
   const [W, H] = size;
+  // 왼쪽에 앱 패널(탐색)이 서 있으면 **카드를 전부 오른쪽으로 몰아넣는다.** 패널을 비켜
+  // 오른쪽으로 밀면 카드가 지도 한가운데(x 336~636)를 덮어 알레시아 포위선의 서쪽 절반을
+  // 가렸다 — 여백에 두려고 만든 장치가 여백을 벗어나면 뜻이 없다. 발표 모드는 패널이
+  // 없으니 원래대로 양쪽을 쓴다.
+  const squeeze = inset.left > 40;
+  squeezeRef.current = squeeze;
+  const sideOf = (c: Callout): 'left' | 'right' => (squeeze ? 'right' : c.side);
   const cols: Record<'left' | 'right', Pin[]> = { left: [], right: [] };
-  for (const p of [...pins].sort((a, b) => a.c.num - b.c.num)) cols[p.c.side].push(p);
+  for (const p of [...pins].sort((a, b) => a.c.num - b.c.num)) cols[sideOf(p.c)].push(p);
 
   // 카드 높이는 글 길이에 따라 다르지만, 지시선을 그리려면 **그리기 전에** 자리를 알아야
   // 한다. 칸 높이를 n등분해 균등히 놓고 카드 안은 스크롤 없이 흐르게 둔다 — 본문이
@@ -125,7 +150,7 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
           const a = anchors[p.c.id];
           if (!a) return null;
           // 꺾임 한 번. 곧은 대각선은 지도 위를 길게 가로질러 지형을 덮는다.
-          const mid = p.c.side === 'left' ? a.x + (p.x - a.x) * 0.35 : a.x - (a.x - p.x) * 0.35;
+          const mid = sideOf(p.c) === 'left' ? a.x + (p.x - a.x) * 0.35 : a.x - (a.x - p.x) * 0.35;
           return (
             <g key={p.c.id} className="ca-leader">
               <path d={`M ${a.x} ${a.y} L ${mid} ${a.y} L ${p.x} ${p.y}`} />
@@ -139,9 +164,10 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
           </g>
         ))}
       </svg>
-      {(['left', 'right'] as const).map(side => (
+      {(['left', 'right'] as const).filter(side => cols[side].length).map(side => (
         <div key={side} className={`ca-callout-col is-${side}`}
-             style={{ width: CARD_W, top: side === hudBox.side ? Math.max(H * 0.05, hudBox.bottom + 12) : H * 0.05 }}>
+             style={{ width: CARD_W, [side]: inset[side],
+                      top: side === hudBox.side ? Math.max(H * 0.05, hudBox.bottom + 12) : H * 0.05 }}>
           {cols[side].map(p => (
             <article key={p.c.id} ref={el => { cardRef.current[p.c.id] = el; }} className="ca-card">
               <h4><span className="ca-card-num">{p.c.num}</span>{p.c.title}</h4>

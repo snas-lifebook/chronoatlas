@@ -81,3 +81,14 @@ export function presentGroupOf(scenes: Scene[], currentId: string | null): strin
   const cur = scenes.find(s => s.id === currentId);
   return cur?.group ?? PRESENT_GROUP;
 }
+
+/** 좁은 화면에서 장면 줌을 내린다.
+ *
+ *  장면 카메라는 16:9 데스크톱 프레임(가로 1600px 기준)으로 잡혀 있다. 390px 폰에서
+ *  같은 줌 4.2를 쓰면 **「지중해 판도」가 이탈리아만 보여 준다** — 실측으로 그랬다.
+ *  가로 비율만큼 줌을 깎으면 담기는 경도 폭이 데스크톱과 같아진다(줌 1 = 폭 2배).
+ *  지도 minZoom이 3이라 거기서 멈춘다. 넓은 화면에서는 아무것도 안 바꾼다. */
+export function fitZoom(sceneZoom: number, width: number, minZoom = 3, ref = 1600): number {
+  if (!(width > 0) || width >= ref) return sceneZoom;
+  return Math.max(minZoom, Math.round((sceneZoom - Math.log2(ref / width)) * 100) / 100);
+}
