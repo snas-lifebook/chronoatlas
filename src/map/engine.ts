@@ -198,6 +198,23 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // MapLibre는 ResizeObserver 첫 콜백을 버린다 — 컨테이너가 0×0에서 시작하면(숨긴 패널·iframe) 400×300에 갇힌다. 우리가 직접 본다.
   new ResizeObserver(() => map.resize()).observe(container);
 
+  /** 컨테이너 배경을 지금 스킨의 바다색으로 맞춘다.
+   *
+   *  **지형(DEM)을 켜면 커버리지 밖이 통째로 투명해진다.** `setTerrain()` 뒤에는 background
+   *  레이어조차 DEM 타일이 없는 곳에 안 그려진다 — 실측으로 경도 -15 서쪽 대서양이
+   *  알파 0이 되고, 페이지 배경이 흰색이라 **바다가 흰 얼룩으로** 보인다.
+   *  `scripts/shoot-pack.py`가 내보낼 때 바다색으로 받치고 있던 그 구멍이다.
+   *
+   *  지금 github.io에는 타일이 없어서(용량·라이선스로 .gitignore) 이 증상이 안 나지만,
+   *  타일을 올리는 날 조용히 되살아난다. 컨테이너 배경 한 줄이면 어느 쪽이든 바다로 읽힌다. */
+  function syncBackdrop() {
+    const bg = map.getStyle()?.layers?.find(l => l.type === 'background');
+    const c = (bg as { paint?: { 'background-color'?: string } } | undefined)?.paint?.['background-color'];
+    if (typeof c === 'string') container.style.background = c;
+  }
+  map.on('style.load', syncBackdrop);
+  map.once('load', syncBackdrop);
+
   // 카메라 → 상태 (R35·F8). URL이 지금 화면을 담아야 '링크 복사'와 북마크가 쓸모 있다.
   // move가 아니라 moveend라 팬·줌 한 동작에 한 번만 돈다. 값은 roundCam으로 깎아 넣는다 —
   // 안 그러면 부동소수 잡음마다 store가 바뀌어 앱 전체(useSyncExternalStore)가 다시 그려진다.
