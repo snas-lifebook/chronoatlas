@@ -15,7 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, legionsAt, sceneBrief } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { Callouts } from './Callouts';
@@ -90,7 +90,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     engRef.current?.setPeople(peopleGeoJSON(people, palette, id => legionsAt(id, s.year)));
   }, [people, d, s.year]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -183,8 +183,27 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const legend = useMemo(() => {
     const items: { swatch: React.CSSProperties; label: string }[] = [];
     if (on.has('territory')) {
-      const present = new Set(d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6)).map(f => f.properties.actor));
-      for (const a of d.actors) if (present.has(a.id)) items.push({ swatch: { background: a.color, opacity: 0.7 }, label: a.label });
+      // **폴리티 단위로** 센다. 예전엔 actor 단위라 「기타중립」 한 줄이 파르티아·아르메니아·
+      // 트라키아·나바테아·유대를 통째로 대표했다 — 지도에서 색이 갈렸으니 범례도 갈려야 한다.
+      const live = d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6));
+      const byName = new Map<string, string>();
+      for (const f of live) {
+        const n = String((f.properties as { name?: string }).name ?? '');
+        if (!n || byName.has(n)) continue;
+        const actor = d.actors.find(a => a.id === f.properties.actor);
+        byName.set(n, PACK_POLITY_COLORS[n] ?? actor?.color ?? '#8A8F98');
+      }
+      for (const [n, c] of byName) items.push({ swatch: { background: c, opacity: 0.7 }, label: n });
+    }
+    // 속국·동맹 사선. 지금 해에 실제로 칠해진 것이 있을 때만 — 없는 범례는 안 띄운다.
+    if (on.has('territory')) {
+      const cl = clientsAt(s.year);
+      const rome = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
+      const hatch = (o: number): React.CSSProperties => ({
+        backgroundImage: `repeating-linear-gradient(45deg, ${rome} 0 2px, transparent 2px 5px)`,
+        opacity: o, border: '1px solid var(--color-border)' });
+      if (cl.client.length) items.push({ swatch: hatch(0.85), label: '로마의 속국' });
+      if (cl.ally.length) items.push({ swatch: hatch(0.5), label: '로마의 동맹' });
     }
     if (on.has('settlements')) items.push({ swatch: { background: '#b8860b', borderRadius: '50%', border: '1px solid #3a2f22' }, label: '도시' });
     if (on.has('battles') && d.battles.features.some(f => (f.properties.valid_from ?? -1e6) <= s.year)) items.push({ swatch: { background: '#333', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 0 1px #999' }, label: '전투·사건' });

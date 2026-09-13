@@ -20,10 +20,26 @@ const regions = Object.values(import.meta.glob('../data/overlays/pack-regions.js
  *  버린 근거는 pack-regions.json의 `drop`에 이름마다 한 줄로 적혀 있다. */
 export const PACK_REGIONS: string[] = regions?.show ?? [];
 
+const polityColors = Object.values(import.meta.glob('../data/overlays/pack-polity-colors.json', { eager: true, import: 'default' }))[0] as
+  { colors?: Record<string, { color: string; why?: string }> } | undefined;
+/** 폴리티 이름 → 색. 정본 `actor` 팔레트를 **덮는다**(기하·연도는 그대로).
+ *
+ *  정본 색은 세력 계열 단위라 한 계열에 여러 나라가 묶이면 같은 색이 된다 — 기원전 60년
+ *  프레임에서 `기타중립` 하나에 12개 폴리티가 몰려 파르티아·아르메니아·트라키아·나바테아·
+ *  유대가 전부 같은 회색이었다. 여기서 이름마다 색을 준다. 안 덮는 것(갈라티아 = 갈리아
+ *  초록)은 그 색이 **맞는 정보**이기 때문이고, 근거는 JSON의 `keep`에 적혀 있다. */
+export const PACK_POLITY_COLORS: Record<string, string> = Object.fromEntries(
+  Object.entries(polityColors?.colors ?? {}).map(([k, v]) => [k, v.color]));
+
 export type ClientRow = { name: string; from: number; to: number; kind?: 'client' | 'ally' | 'hostile'; why?: string; source?: string; confidence?: string };
 const clients = Object.values(import.meta.glob('../data/overlays/pack-clients.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; clients?: ClientRow[] } | undefined;
-/** 「로마의 속국」 연표. **기하가 없다** — 정본 폴리곤 이름만 가리킨다. */
+/** 「로마의 속국」 연표. **기하가 없다** — 정본 폴리곤 이름만 가리킨다.
+ *
+ *  **구간은 반열림 `[from, to)`이다.** 자연어 「기원전 48~47년」을 `to: -47`로 옮기면
+ *  기원전 47년이 빠져 젤라 장에서 폰토스가 속국으로 칠해진다 — 정답은 `to: -46`.
+ *  「기원전 27년까지」를 `to: -27`로 옮기면 아우구스투스 장에서 무늬가 통째로 사라진다 —
+ *  정답은 `to: -26`. 둘 다 실제로 났고 **렌더는 에러를 안 내서 눈으로는 못 잡는다.** */
 export const PACK_CLIENTS: ClientRow[] = clients?.clients ?? [];
 
 /** 그 해에 로마의 세력권이던 폴리티 이름들.
@@ -32,11 +48,12 @@ export const PACK_CLIENTS: ClientRow[] = clients?.clients ?? [];
  *  뒤로는 속국이지만, 기원전 48~47년에는 파르나케스 2세가 반기를 들어 되찾으려 했고
  *  카이사르가 젤라에서 그를 쳤다. 그 두 해에 폰토스에 사선을 얹으면 일곱째 장이
  *  「로마 세력권을 로마가 친다」가 된다. */
-export function clientsAt(year: number): string[] {
-  const hostile = new Set(PACK_CLIENTS.filter(c => c.kind === 'hostile' && c.from <= year && year < c.to).map(c => c.name));
-  return [...new Set(PACK_CLIENTS
-    .filter(c => c.kind !== 'hostile' && c.from <= year && year < c.to && !hostile.has(c.name))
-    .map(c => c.name))];
+export function clientsAt(year: number): { client: string[]; ally: string[]; all: string[] } {
+  const live = (k?: string) => PACK_CLIENTS.filter(c => (c.kind ?? 'client') === k && c.from <= year && year < c.to);
+  const hostile = new Set(live('hostile').map(c => c.name));
+  const pick = (k: 'client' | 'ally') => [...new Set(live(k).filter(c => !hostile.has(c.name)).map(c => c.name))];
+  const client = pick('client'), ally = pick('ally');
+  return { client, ally, all: [...new Set([...client, ...ally])] };
 }
 
 export const PACK_MOVEMENTS: Feature[] = pompey?.features ?? [];

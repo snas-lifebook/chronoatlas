@@ -72,6 +72,7 @@ CAPTIONS = json.loads((REPO / "data/overlays/pack-captions.json").read_text("utf
 SCENE_LAYERS = {s["id"]: s.get("layers")
                 for s in json.loads((REPO / "data/scenes/rome.json").read_text("utf8"))}
 FONT_TTC = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
+ROME_RGB = (0xA4, 0x24, 0x3B)   # 정본 actors의 로마색. 사선 견본이 지도와 같은 색이어야 한다
 SEA = (0xC7, 0xD2, 0xCB)  # campaign 스킨의 바다색(src/map/style.ts). 투명 구멍을 이 색으로 받친다
 HALO = 1.4         # 후광도 같이 키운다. 글자만 키우면 배경에 묻힌다
 IDLE_MS = 25000    # 타일·글리프·영토 폴리곤까지. 지중해 전역 장은 느리다
@@ -192,6 +193,14 @@ COUNT = """
     }
     ph.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));   // 범례는 연대순이어야 읽힌다
   }
+  // 속국·동맹 사선이 이 판에 실제로 칠려 있나. 범례를 굽는 데 쓴다.
+  // 렌더된 피처만 보면 속국과 동맹을 가를 수 없다(같은 무늬, 불투명도만 다르다) —
+  // 그래서 앱이 `__ca.clientsAt`을 내어 준다. 한 군데서 판정하면 범례와 그림이 안 갈린다.
+  const cl = (window.__ca.clientsAt ? window.__ca.clientsAt(window.__ca.store.get().year) : { client: [], ally: [] });
+  const painted = new Set(vis('client-hatch')
+    ? m.queryRenderedFeatures({ layers: ['client-hatch'] }).map(f => f.properties.name) : []);
+  const 속국 = cl.client.filter(n => painted.has(n));
+  const 동맹 = cl.ally.filter(n => painted.has(n));
   return {
     영역: vis('territory-fill') ? n('territory') : 0,
     도시: vis('settle-major') ? n('settlements') : 0,
@@ -208,22 +217,27 @@ COUNT = """
     상태center: window.__ca.store.get().center,
     안전영역밖: out.map(p => `${p.이름}(${p.x},${p.y})`),
     국면: ph,
+    속국: 속국, 동맹: 동맹,
   };
 }
 """
 
 
 
-def route_legend(im, phases):
-    """여정 색 범례를 오른쪽 위에 굽는다.
+def route_legend(im, phases, clients=None, allies=None):
+    """오른쪽 위 범례. 여정 색 + 세력권 사선.
 
     **왜 이미지에 굽나.** 앱 범례는 DOM이라 캔버스 내보내기에 안 들어온다(캡션과 같은
     이유). 색을 여섯 갈래로 갈라 놓고 범례를 안 주면 무슨 색이 무슨 원정인지 알 길이
-    없다 — River가 준 레퍼런스 지도도 범례를 오른쪽 위에 단다.
+    없다 — River가 실제로 "빗금은 무슨 표시인가?"라고 물었다. 그 질문이 나오면 범례가
+    없는 것이다.
 
     자리는 **오른쪽 위**다. 왼쪽 위는 캡션 판이 쓰고 아래 64~95%는 게임 대사창이 덮는다.
     """
-    if not phases:
+    phases = [p for p in (phases or []) if p.get("label")]
+    clients = clients or []
+    allies = allies or []
+    if not phases and not clients and not allies:
         return im
     from PIL import Image, ImageDraw, ImageFont
     W, H = im.size
@@ -231,29 +245,57 @@ def route_legend(im, phases):
     f = ImageFont.truetype(FONT_TTC, int(34 * S), index=0)
     f_h = ImageFont.truetype(FONT_TTC, int(30 * S), index=2)
     pad, gap, sw = int(30 * S), int(16 * S), int(54 * S)
-    d = ImageDraw.Draw(im)
-    head = "이동 경로"
-    phases = [p for p in phases if p.get("label")]   # 라벨 없는 국면은 범례에 못 적는다
-    if not phases:
-        return im
-    rows = [p["label"] for p in phases]
-    tw = max([d.textlength(t, font=f) for t in rows] + [d.textlength(head, font=f_h)])
     lh = int(46 * S)
+    d = ImageDraw.Draw(im)
+
+    # (종류, 라벨, 그리기함수) 한 줄씩
+    rows = []
+    if phases:
+        rows.append(("head", "이동 경로", None))
+        for p in phases:
+            rows.append(("line", p["label"], _rgb(p["color"])))
+    if clients or allies:
+        rows.append(("head", "세력권", None))
+        if clients:
+            rows.append(("hatch", "로마의 속국", 0.9))
+        if allies:
+            rows.append(("hatch", "로마의 동맹", 0.5))
+
+    labels = [t for k, t, _ in rows]
+    tw = max([d.textlength(t, font=(f_h if k == "head" else f)) for k, t, _ in rows])
     boxw = int(pad * 2 + sw + gap + tw)
-    boxh = int(pad * 2 + lh * (len(rows) + 1))
+    boxh = int(pad * 2 + lh * len(rows))
     x0, y0 = W - int(96 * S) - boxw, int(86 * S)
 
     im = im.convert("RGBA")
     im.alpha_composite(Image.new("RGBA", (boxw, boxh), (26, 24, 21, 206)), (x0, y0))
     d = ImageDraw.Draw(im)
-    d.text((x0 + pad, y0 + pad), head, font=f_h, fill=(232, 200, 138, 255))
-    y = y0 + pad + lh
-    for p in phases:
-        cy = y + int(lh * 0.34)
-        d.line([(x0 + pad, cy), (x0 + pad + sw, cy)], fill=_rgb(p["color"]), width=max(2, int(7 * S)))
-        d.text((x0 + pad + sw + gap, y), p["label"], font=f, fill=(226, 221, 210, 240))
+    y = y0 + pad
+    for kind, label, arg in rows:
+        if kind == "head":
+            d.text((x0 + pad, y), label, font=f_h, fill=(232, 200, 138, 255))
+        elif kind == "line":
+            cy = y + int(lh * 0.34)
+            d.line([(x0 + pad, cy), (x0 + pad + sw, cy)], fill=arg, width=max(2, int(7 * S)))
+            d.text((x0 + pad + sw + gap, y), label, font=f, fill=(226, 221, 210, 240))
+        else:
+            sh = int(lh * 0.58)
+            im.alpha_composite(_hatch_tile(sw, sh, ROME_RGB, arg), (x0 + pad, y + int(lh * 0.06)))
+            d = ImageDraw.Draw(im)
+            d.text((x0 + pad + sw + gap, y), label, font=f, fill=(226, 221, 210, 240))
         y += lh
     return im.convert("RGB")
+
+
+def _hatch_tile(w, h, rgb, alpha):
+    """사선 견본. 지도에 칠린 무늬와 같은 문법이라야 범례가 범례가 된다."""
+    from PIL import Image, ImageDraw
+    tile = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    g = ImageDraw.Draw(tile)
+    col = tuple(rgb[:3]) + (int(255 * alpha),)
+    for k in range(-h, w + h, 5):
+        g.line([(k, h), (k + h, 0)], fill=col, width=2)
+    return tile
 
 
 def _rgb(c):
@@ -358,7 +400,8 @@ def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
     flat.paste(im, (0, 0), im if im.mode == "RGBA" else None)
 
     flat = caption(flat, scene)          # 사건·명언을 이미지에 굽는다
-    flat = route_legend(flat, layers.get("국면") or [])   # 여정 색 범례(오른쪽 위)
+    flat = route_legend(flat, layers.get("국면") or [],
+                        layers.get("속국") or [], layers.get("동맹") or [])   # 오른쪽 위 범례
 
     SHOT.mkdir(parents=True, exist_ok=True)
     flat.save(SHOT / f"{stem}.png")

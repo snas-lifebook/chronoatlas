@@ -7,7 +7,7 @@ import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_MOVEMENTS, PACK_PLACES, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -289,6 +289,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   const notRegion: any = ['!=', ['get', 'kind'], 'region'];
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
+  /** 폴리티 이름이 팔레트에 있으면 그 색, 없으면 세력색. 영토 채움·테·이름표가 같은 식을
+   *  써야 「면 색과 글자 색이 다르다」가 안 생긴다. */
+  const polityColor: any = Object.keys(PACK_POLITY_COLORS).length
+    ? (() => { const m: any = ['match', ['get', 'name']];
+        for (const [n, c] of Object.entries(PACK_POLITY_COLORS)) m.push(n, c);
+        m.push(fillColor); return m; })()
+    : fillColor;
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
     // `kind: region`은 **region-name 층이 가져갔다.** 여기 남겨 두면 같은 점을 두 층이 찍고,
@@ -459,9 +466,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const terrOpacity = (k: number): any =>
       ['case', ['boolean', ['feature-state', 'hover'], false], 0.45 * k, ['==', ['get', 'actor'], '기타중립'], 0.1 * k, 0.22 * k];
     map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory',
-      paint: { 'fill-color': fillColor,
+      paint: { 'fill-color': polityColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
-    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
     // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
     //
     // River: 기원전 60년 판에서 누미디아·마우레타니아·갈라티아·카파도키아·폰토스·유대·
@@ -522,7 +529,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'symbol-sort-key': ['-', 0, ['get', 'area']] } as any,
       // 가독성(River: "지리지역 텍스트 가독성이 안 좋다"). 세력색 글자가 같은 색 면 위에 얹혀
       // 대비가 낮았다. 후광을 두껍게 하고 불투명도를 올린다.
-      paint: { 'text-color': fillColor, 'text-halo-color': halo(), 'text-halo-width': 2.6, 'text-opacity': 1 },
+      paint: { 'text-color': polityColor, 'text-halo-color': halo(), 'text-halo-width': 2.6, 'text-opacity': 1 },
       filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
@@ -1015,7 +1022,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       // 속국 사선은 해마다 다시 고른다. 폰토스가 기원전 48~47년에 빠지는 자리다(clientsAt).
       const cl = clientsAt(s.year);
       for (const id of ['client-hatch', 'client-edge']) if (map.getLayer(id))
-        map.setFilter(id, ['all', ['==', ['geometry-type'], 'Polygon'], ['in', ['get', 'name'], ['literal', cl]], ...dateWindow(s.year).slice(1)] as any);
+        map.setFilter(id, ['all', ['==', ['geometry-type'], 'Polygon'], ['in', ['get', 'name'], ['literal', cl.all]], ...dateWindow(s.year).slice(1)] as any);
+      // 동맹(형식상 대등)은 속국보다 옅게. 마우레타니아·트라키아가 그쪽이다 — 조공국과
+      // 같은 세기로 칠하면 없는 종속을 주장하게 된다.
+      if (map.getLayer('client-hatch'))
+        map.setPaintProperty('client-hatch', 'fill-opacity',
+          ['case', ['in', ['get', 'name'], ['literal', cl.ally]], 0.3, 0.52] as any);
       for (const id of ['movement', 'movement-halo']) if (map.getLayer(id)) map.setFilter(id, movementFilter(s.year) as any);
       // 배지는 'seq'가 있는 구간만. 해 필터를 덮어쓰면 안 간 구간의 번호까지 뜬다.
       if (map.getLayer('movement-seq')) map.setFilter('movement-seq', ['all', ['has', 'seq'], movementFilter(s.year)] as any);
