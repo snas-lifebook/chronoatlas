@@ -16,9 +16,12 @@ const M_PER_PX_Z0 = 40075016.686 / 512; // Web Mercator, 512px 타일
 // 막으면 되고, 크기 유지는 상한이 한다. 120m이면 z15에서도 ~67px다.
 const MIN_M = 120, MAX_M = 145000;
 
-export function tokenMeters(zoom: number): number {
+/** `scale`은 주역 1, 조역 0.62다(people.COMPANION_SCALE). **상·하한을 물린 뒤에 곱한다** —
+ *  먼저 곱하면 상한 145km에 조역도 같이 걸려서 주역과 같은 크기가 되어 버린다.
+ *  지중해 줌(z4.2)이 정확히 그 상한에 걸리는 자리라, 순서를 바꾸면 차등이 통째로 사라진다. */
+export function tokenMeters(zoom: number, scale = 1): number {
   const m = (M_PER_PX_Z0 / Math.pow(2, zoom)) * SCREEN_PX;
-  return Math.max(MIN_M, Math.min(MAX_M, m));
+  return Math.max(MIN_M, Math.min(MAX_M, m)) * scale;
 }
 
 function easeOutCubic(t: number) {
@@ -60,9 +63,12 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
   // 커진다 — 지중해 줌에서도 얼굴이 말 지름만큼(≈87 CSS px) 나온다. 같은 그림, 다른 자리.
   //
   // 윗면인 이유는 발표 시점이 탑다운(pitch 0)이라서다. 위에서 내려다보면 이 면이 정면이다.
+  // 초상이 없으면 **흰 원반**이 남는다. 로마 시내 판에서 카스카가 정확히 그 모양으로
+  // 떴다 — 얼굴 없는 흰 동전 하나가 도시 한복판에 놓인다. 초상이 없을 때는 세력색으로
+  // 칠해 적어도 「누구 편인가」는 말하게 한다.
   const face = new THREE.Mesh(
     new THREE.CircleGeometry(0.46, 48),
-    new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    new THREE.MeshBasicMaterial({ color: portrait ? 0xffffff : new THREE.Color(color).multiplyScalar(0.85).getHex() }));
   face.rotation.x = -Math.PI / 2;   // 국소 +y(말의 위)를 보게
   face.position.y = 0.58;
   group.add(face);
@@ -84,7 +90,7 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
 let tokenSeq = 0;
 
 export type Token = ReturnType<typeof createToken>;
-export function createToken(color: string, name = '', portrait?: string | null) {
+export function createToken(color: string, name = '', portrait?: string | null, scale = 1) {
   const camera = new THREE.Camera();
   const scene = new THREE.Scene();
   let renderer: THREE.WebGLRenderer | null = null;
@@ -139,7 +145,7 @@ export function createToken(color: string, name = '', portrait?: string | null) 
     render(_gl, args: any) {
       if (!pos || !renderer || !map) return;
       const mc = maplibregl.MercatorCoordinate.fromLngLat(pos, 0);
-      const s = mc.meterInMercatorCoordinateUnits() * tokenMeters(map.getZoom());
+      const s = mc.meterInMercatorCoordinateUnits() * tokenMeters(map.getZoom(), scale);
       const model = new THREE.Matrix4()
         .makeTranslation(mc.x, mc.y, mc.z)
         .scale(new THREE.Vector3(s, -s, s));

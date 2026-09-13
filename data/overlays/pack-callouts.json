@@ -1,0 +1,487 @@
+{
+  "teaching": true,
+  "source": "미시 지도(알레시아·로마 시내·알렉산드리아) 위에 얹는 어노테이션/콜아웃 인포그래픽 데이터. 카이사르 『갈리아 전기』·『내전기』·『알렉산드리아 전쟁기』, 플루타르코스·수에토니우스·아피아노스·카시우스 디오·스트라본 등 고대 사료와 현대 학계(Goldsworthy, Reddé & von Schnurbein, Canfora, Lintott, Coarelli)를 근거로 삼았다. 학계가 갈리는 항목(구원군 규모, 몽 레아 비정, 도서관 화재 범위)은 논쟁 자체를 본문에 적었다. 위키백과 링크는 ko.wikipedia.org/en.wikipedia.org API로, 이미지는 Wikimedia Commons API(imageinfo)로 2026-09-13에 실존을 확인했다. 앵커는 이 프로젝트 정본 오버레이(pack-alesia.json·pack-roma-urbs.json·pack-alexandria.json)의 feature id를 그대로 참조한다.",
+  "callouts": [
+    {
+      "id": "alesia:call-turris",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:inner"
+      },
+      "side": "right",
+      "num": 1,
+      "title": "망루 — 80로마피트마다 하나",
+      "body": "카이사르는 포위선 전체에 망루를 80로마피트(약 24m)마다 세웠다고 적었다. 다만 망루 자체 높이는 사료에 없다. 함께 세운 보루의 높이가 12피트, 약 3.6m였다.",
+      "cite": "카이사르, 『갈리아 전기』 7.72",
+      "links": [
+        {
+          "label": "포위·차단전(Investment)",
+          "url": "https://en.wikipedia.org/wiki/Investment_(military)"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-fossa",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:inner"
+      },
+      "side": "left",
+      "num": 2,
+      "title": "참호 세 줄 — 수직호와 물 댄 해자",
+      "body": "적과 가장 가까운 곳에 폭 20피트(약 5.9m) 수직호 하나를 파고, 400피트(약 118m) 물러난 자리에 폭·깊이 15피트(약 4.4m) 참호 두 줄을 더 팠다. 안쪽 한 줄에는 강물을 끌어 댔다.",
+      "cite": "카이사르, 『갈리아 전기』 7.72",
+      "links": [
+        {
+          "label": "알레시아 전투",
+          "url": "https://ko.wikipedia.org/wiki/알레시아_전투"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/The_space_between_two_fortification_lines%2C_Alesia_%287700281642%29.jpg",
+        "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons, MuseoParc Alésia 복원 시설물 실사)",
+        "alt": "알리즈생트렌 MuseoParc에 복원된 두 포위선 사이 공간 사진"
+      }
+    },
+    {
+      "id": "alesia:call-traps",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:inner"
+      },
+      "side": "right",
+      "num": 3,
+      "title": "세 겹 함정 — 킵피·릴리아·스티물루스",
+      "body": "성벽 쪽에 함정을 심었다. 킵피는 사슴뿔처럼 다듬은 통나무 5줄, 릴리아는 깊이 3피트(약 0.9m) 구덩이에 말뚝을 박고 흙으로 위장한 8줄, 스티물루스는 쇠갈고리 말뚝을 땅에 묻은 것이다. 이름은 병사들이 붙였다.",
+      "cite": "카이사르, 『갈리아 전기』 7.73",
+      "links": [
+        {
+          "label": "알레시아 전투(요새 시설 서술 포함)",
+          "url": "https://en.wikipedia.org/wiki/Battle_of_Alesia"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Reconstruction_of_obstacles_and_traps_of_the_circumvallation%2C_Alesia_%287700305528%29.jpg",
+        "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons, MuseoParc Alésia 복원 함정 실사)",
+        "alt": "알리즈생트렌 MuseoParc에 복원된 카이사르의 함정(킵피·릴리아 추정) 사진"
+      }
+    },
+    {
+      "id": "alesia:call-innerwall",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:inner"
+      },
+      "side": "left",
+      "num": 4,
+      "title": "안쪽 벽 — 11마일, 농성군을 가둔 고리",
+      "body": "베르킹게토릭스의 8만 병력을 가두려고 두른 첫 번째 고리다. 둘레 11로마마일, 약 16.3km. 보루(castella) 23개를 세워 지켰다.",
+      "cite": "카이사르, 『갈리아 전기』 7.69",
+      "links": [
+        {
+          "label": "포위·차단전(Investment)",
+          "url": "https://en.wikipedia.org/wiki/Investment_(military)"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-outerwall",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:outer"
+      },
+      "side": "right",
+      "num": 5,
+      "title": "바깥 벽 — 14마일, 구원군을 막은 고리",
+      "body": "구원군이 온다는 소식에 안쪽과 같은 규격으로 바깥에 하나 더 쌓았다. 둘레 14로마마일, 약 20.7km. 두 벽 사이 로마군은 30일치 식량과 마초를 비축했다.",
+      "cite": "카이사르, 『갈리아 전기』 7.74",
+      "links": [
+        {
+          "label": "알레시아 전투",
+          "url": "https://ko.wikipedia.org/wiki/알레시아_전투"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-hillrivers",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:oppidum"
+      },
+      "side": "right",
+      "num": 6,
+      "title": "몽 옥수아 — 언덕과 두 강이 만든 요새",
+      "body": "언덕 꼭대기의 성읍을 오즈·오즈랭 두 강이 좌우로 감쌌다. 앞에는 3로마마일(약 4.4km) 평지, 사방은 비슷한 높이의 구릉이다. 이 지형 덕에 두 겹 포위선이 가능했다.",
+      "cite": "카이사르, 『갈리아 전기』 7.69",
+      "links": [
+        {
+          "label": "알레시아 전투",
+          "url": "https://ko.wikipedia.org/wiki/알레시아_전투"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-legions",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:campB"
+      },
+      "side": "right",
+      "num": 7,
+      "title": "카이사르의 군단 — 10개, 정원대로는 아니다",
+      "body": "라비에누스의 4개와 자신의 6개, 합쳐 10개 군단으로 포위했다. 군단 정원은 약 5천 명이지만 원정 중 실제 병력은 3천~3천5백 명이 보통이었다. 파르살루스에서는 군단당 2,750명까지 줄었다.",
+      "cite": "카이사르, 『갈리아 전기』 7.34, 7.65; 『내전기』 3.89; Goldsworthy, The Roman Army at War (1996)",
+      "links": [
+        {
+          "label": "로마 군단",
+          "url": "https://ko.wikipedia.org/wiki/로마_군단"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-reliefsize",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:reliefcamp"
+      },
+      "side": "left",
+      "num": 8,
+      "title": "구원군 33만? 카이사르의 숫자와 학계의 반박",
+      "body": "카이사르는 구원군을 보병 약 25만·기병 8천이라 적었다. 그의 병력은 10개 군단, 4만~6만이었다. 현대 학계는 이를 과장으로 보고 포위선 실측을 근거로 8만~13만으로 낮춰 잡는다.",
+      "cite": "카이사르, 『갈리아 전기』 7.76(농성군은 7.71); Reddé & von Schnurbein, Alésia (2001); Goldsworthy, Caesar: Life of a Colossus (2006)",
+      "links": [
+        {
+          "label": "베르킨게토릭스",
+          "url": "https://ko.wikipedia.org/wiki/베르킨게토릭스"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alesia:call-montrea",
+      "map": "alesia",
+      "anchor": {
+        "feature": "alesia:hill:rea"
+      },
+      "side": "left",
+      "num": 9,
+      "title": "몽 레아 — 알리즈생트렌 비정의 약점",
+      "body": "카이사르는 '북쪽 산'을 포위선에 못 넣었다고 적었다. 몽 레아로 비정하나 실제로는 몽 옥수아의 북서쪽이다. 1741년 지리학자 당빌은 지도를 돌려 정북에 맞췄고, 하르망은 뷔시 산을 대안으로 제시했다.",
+      "cite": "카이사르, 『갈리아 전기』 7.83; 지도 회전은 J.-B. d'Anville 1741년판; 대안 비정은 Jacques Harmand",
+      "links": [
+        {
+          "label": "알레시아 전투",
+          "url": "https://ko.wikipedia.org/wiki/알레시아_전투"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "roma:call-pomerium",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:pomerium"
+      },
+      "side": "right",
+      "num": 1,
+      "title": "포메리움 — 장군이 못 넘는 선",
+      "body": "무장한 장군이 넘을 수 없던 신성 경계다. 속주 총독은 이 선을 넘는 순간 명령권(임페리움)을 잃었다. 루비콘 도하가 반역이 된 것도, 카이사르가 개선식 전까지 시내에 못 들어온 것도 이 규칙 때문이다.",
+      "cite": "아울루스 겔리우스, 『아티카의 밤』 13.14; 타키투스, 『연대기』 12.24",
+      "links": [
+        {
+          "label": "Pomerium",
+          "url": "https://en.wikipedia.org/wiki/Pomerium"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "roma:call-serviuswall",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:murus-servii"
+      },
+      "side": "right",
+      "num": 2,
+      "title": "세르비우스 성벽 — 전승과 고고학이 다른 연대",
+      "body": "전승은 6대 왕 세르비우스 툴리우스(기원전 6세기)가 쌓았다고 하지만, 실제 남은 구간은 기원전 4세기 초 축조로 발굴에서 확인된다. 기원전 44년에는 방어벽보다 법적 경계로 기능했다.",
+      "cite": "발굴 개요는 Wikipedia Servian Wall; 축조 연대 재검토는 F. Coarelli, Rome and Environs (2007, 영역판)",
+      "links": [
+        {
+          "label": "Servian Wall",
+          "url": "https://en.wikipedia.org/wiki/Servian_Wall"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/ServianWallRome2005.jpg",
+        "credit": "Kleuske, CC BY 3.0 (Wikimedia Commons)",
+        "alt": "테르미니역 앞 친퀘첸토 광장에 남은 세르비우스 성벽 응회암 구간"
+      }
+    },
+    {
+      "id": "roma:call-curiapompei",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:curia-pompei"
+      },
+      "side": "left",
+      "num": 3,
+      "title": "폼페이우스 회의장 — 이데스의 자리",
+      "body": "기원전 44년 3월 15일 카이사르가 살해된 곳이다. 원로원 의사당이 아니라 폼페이우스가 자기 극장 회랑 끝에 지어 기부한 회의실이었다. 본래 의사당이 불타 없어 원로원이 이곳에 모였다.",
+      "cite": "수에토니우스, 『신격 율리우스』 80~82; 플루타르코스, 『카이사르전』 66",
+      "links": [
+        {
+          "label": "Curia of Pompey",
+          "url": "https://en.wikipedia.org/wiki/Curia_of_Pompey"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Le_th%C3%A9%C3%A2tre_de_Pomp%C3%A9e_avec_le_temple_de_V%C3%A9nus_Victrix%2C_Adolf_Schill.jpg",
+        "credit": "Adolf Schill, Public Domain (Wikimedia Commons, 폼페이우스 극장 복원도)",
+        "alt": "폼페이우스 극장과 베누스 빅트릭스 신전 복원 삽화, 회의장은 회랑 반대쪽 끝"
+      }
+    },
+    {
+      "id": "roma:call-campusmartius",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:campus-martius"
+      },
+      "side": "left",
+      "num": 4,
+      "title": "마르스 광장 — 군대가 설 수 있던 유일한 시내 공간",
+      "body": "포메리움 밖이라 무장 군대가 합법적으로 주둔할 수 있었다. 집정관을 뽑는 켄투리아 민회도 반드시 여기서 열렸다. 선거와 군대가 같은 땅을 쓴 것 자체가 로마 정치의 구조다.",
+      "cite": "아울루스 겔리우스, 『아티카의 밤』 13.14(포메리움 정의); A. Lintott, The Constitution of the Roman Republic (1999)(켄투리아 민회의 성벽 밖 개최)",
+      "links": [
+        {
+          "label": "캄푸스 마르티우스",
+          "url": "https://ko.wikipedia.org/wiki/캄푸스_마르티우스"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Campus_Martius_-_Theatre_of_Pompeius.jpg",
+        "credit": "Public Domain (Wikimedia Commons, 고전 지형학 문헌 삽화)",
+        "alt": "마르스 광장과 폼페이우스 극장을 함께 보여주는 고지도풍 삽화"
+      }
+    },
+    {
+      "id": "roma:call-sevenhills",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:capitolium"
+      },
+      "side": "left",
+      "num": 5,
+      "title": "일곱 언덕 — 카피톨리누스가 정치의 정점",
+      "body": "카피톨리누스·팔라티누스·아벤티누스·퀴리날리스·비미날리스·에스퀼리누스·카일리우스 중 카피톨리누스가 가장 작지만 가장 무겁다. 유피테르 신전과 성채가 있고, 모든 개선식이 이 언덕에서 끝났다.",
+      "cite": "Platner & Ashby, A Topographical Dictionary of Ancient Rome (1929), Capitolium 항목",
+      "links": [
+        {
+          "label": "로마의 일곱 언덕",
+          "url": "https://ko.wikipedia.org/wiki/로마의_일곱_언덕"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Seven_Hills_of_Rome.svg",
+        "credit": "Renata3, CC BY-SA 4.0 (Wikimedia Commons)",
+        "alt": "로마 일곱 언덕의 이름과 위치를 표시한 지도"
+      }
+    },
+    {
+      "id": "roma:call-forumromanum",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:forum-romanum"
+      },
+      "side": "right",
+      "num": 6,
+      "title": "포룸 로마눔 — 카이사르의 화장터",
+      "body": "재판·연설·선거·장례가 벌어진 도시의 심장이다. 암살 며칠 뒤 이 광장에서 시신이 화장됐고, 안토니우스의 추도 연설에 격앙된 군중이 그 자리에서 즉석 장작더미를 쌓았다.",
+      "cite": "수에토니우스, 『신격 율리우스』 84; 아피아노스, 『내전기』 2.143~148",
+      "links": [
+        {
+          "label": "포룸 로마눔",
+          "url": "https://ko.wikipedia.org/wiki/포룸_로마눔"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "roma:call-tiber",
+      "map": "roma",
+      "anchor": {
+        "feature": "roma:insula-tiberina"
+      },
+      "side": "left",
+      "num": 7,
+      "title": "티베리스강과 섬 — 이미 다리로 이어진 땅",
+      "body": "로마는 이 강 동안에서 자랐다. 티베리나섬은 기원전 62년 파브리키우스 다리로 이미 좌안과 이어져 있었다. 이 다리는 비문으로 연대가 확정된, 로마에 현존하는 가장 오래된 다리다.",
+      "cite": "Wikipedia Tiber Island / Pons Fabricius (교각 비문으로 기원전 62년 연대 확정)",
+      "links": [
+        {
+          "label": "테베레강",
+          "url": "https://ko.wikipedia.org/wiki/테베레강"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Pons_Fabricius%2C_it_connects_the_left_bank_of_the_Tiber_to_the_Isola_Tiberina_and_was_built_in_62_BC_by_Lucius_Fabricius%2C_Fields_of_Mars_%28Campus_Martius%29%2C_Rome_%2831904067874%29.jpg",
+        "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons)",
+        "alt": "파브리키우스 다리와 티베리나섬, 기원전 62년 건설"
+      }
+    },
+    {
+      "id": "alexandria:call-pharos",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:pharos-lighthouse"
+      },
+      "side": "left",
+      "num": 1,
+      "title": "파로스 등대 — 높이는 추정, 정확한 수치는 없다",
+      "body": "고대 세계 7대 불가사의 중 하나다. 높이는 사료마다 갈려 100m 안팎으로 추정할 뿐 확정치가 없다. 1994년 앞바다에서 등대 잔해로 보이는 화강암 석재가 대량으로 확인됐다.",
+      "cite": "고대 전승은 높이를 일치시키지 않음(확정치 없음); 수중 조사는 Jean-Yves Empereur, 1994년 이후",
+      "links": [
+        {
+          "label": "알렉산드리아의 등대",
+          "url": "https://ko.wikipedia.org/wiki/알렉산드리아의_등대"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/The_Lighthouse_at_Alexandria_LACMA_65.37.294.jpg",
+        "credit": "Antonio Tempesta (1555-1630), Public Domain (LACMA 소장, Wikimedia Commons)",
+        "alt": "17세기 판화가 상상한 파로스 등대의 모습"
+      }
+    },
+    {
+      "id": "alexandria:call-heptastadion",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:heptastadion"
+      },
+      "side": "left",
+      "num": 2,
+      "title": "헵타스타디온 — 카이사르를 가둔 둑길",
+      "body": "본토와 파로스섬을 잇는 7스타디온(약 1,260m) 둑길이다. 기원전 48년 알렉산드리아 전쟁에서 카이사르 쪽이 이 둑 위 전투에서 밀려 바다로 뛰어들었다. 지금은 퇴적이 쌓여 반도가 됐다.",
+      "cite": "스트라본, 『지리지』 17.1.8~10(대항구 부두가 헵타스타디온까지 이어지고 그 너머 에우노스토스 항구); 카이사르(계열), 『알렉산드리아 전쟁기』 관련 서술",
+      "links": [
+        {
+          "label": "Heptastadion",
+          "url": "https://en.wikipedia.org/wiki/Heptastadion"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Plan_of_Alexandria_c_30_BC_Otto_Puchstein_1890s_EN.svg",
+        "credit": "Otto Puchstein(1890년대 원안) / Philg88 영역, CC BY-SA 3.0 (Wikimedia Commons)",
+        "alt": "기원전 30년경 알렉산드리아 복원 평면도, 헵타스타디온·대항구·왕궁 구역 표시"
+      }
+    },
+    {
+      "id": "alexandria:call-mouseion",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:mouseion-library"
+      },
+      "side": "right",
+      "num": 3,
+      "title": "무세이온과 대도서관 — 화재는 언제, 얼마나",
+      "body": "기원전 48년 카이사르가 함대를 불태우자 불이 항구까지 번졌다. 세네카는 리비우스를 인용해 두루마리 4만 권이 탔다고 적었고, 오로시우스는 40만이라 적었는데 필사 과정의 숫자 오기로 보는 견해가 유력하다. 도서관 본체가 탔는지는 지금도 논쟁이다.",
+      "cite": "세네카, 『평온에 관하여』 9.5(리비우스 인용, 4만 권); 오로시우스, 『이교도 반박사』 6.15.31(40만 권); 플루타르코스, 『카이사르전』 49.5(도서관 소실을 최초로 명시하나 수량은 언급 없음); 스트라본은 화재 자체를 언급하지 않음",
+      "links": [
+        {
+          "label": "Library of Alexandria",
+          "url": "https://en.wikipedia.org/wiki/Library_of_Alexandria"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Ancientlibraryalex.jpg",
+        "credit": "O. Von Corven(19세기 삽화), Public Domain (Wikimedia Commons)",
+        "alt": "19세기에 상상해 그린 알렉산드리아 대도서관 열람실"
+      }
+    },
+    {
+      "id": "alexandria:call-bruchion",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:bruchion"
+      },
+      "side": "right",
+      "num": 4,
+      "title": "브루케이온 — 카이사르가 갇힌 왕궁 구역",
+      "body": "기원전 48~47년 폼페이우스를 쫓아온 카이사르가 이곳에 갇혀 겨울을 났다. 스트라본은 이 구역이 '도시의 3분의 1'에 달했다고 적었다. 궁전·무세이온·도서관·왕실 정원이 모여 있었다.",
+      "cite": "스트라본, 『지리지』 17.1.6(왕궁 구역이 도시의 4분의 1 내지 3분의 1); 카이사르(계열), 『알렉산드리아 전쟁기』 1~33",
+      "links": [
+        {
+          "label": "Siege of Alexandria (47 BC)",
+          "url": "https://en.wikipedia.org/wiki/Siege_of_Alexandria_(47_BC)"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alexandria:call-canopicway",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:canopic-way"
+      },
+      "side": "right",
+      "num": 5,
+      "title": "카노포스 대로 — 격자로 설계된 도시",
+      "body": "디노크라테스가 기원전 331년 그은 동서 중심축이다. 소마 대로와 직각으로 만나 격자 도시의 뼈대를 이뤘다. 오늘날 엘호레야 거리가 대체로 이 노선을 그대로 잇는다.",
+      "cite": "스트라본, 『지리지』 17.1.6(직각으로 교차하는 두 대로); 디오도로스 시켈로스, 『역사총서』 17.52.3(간선도로 규모); 비트루비우스, 『건축서』 2권 서문(설계자 디노크라테스)",
+      "links": [
+        {
+          "label": "알렉산드리아",
+          "url": "https://ko.wikipedia.org/wiki/알렉산드리아"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alexandria:call-greatharbor",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:portus-magnus"
+      },
+      "side": "left",
+      "num": 6,
+      "title": "대항구 — 카이사르가 자기 배를 태우다",
+      "body": "카이사르는 함대가 적 손에 넘어가는 것을 막으려 정박한 배에 불을 질렀는데, 불이 부두 창고로 번졌다. 이 불이 도서관까지 태웠는지는 무세이온 항목의 논쟁으로 이어진다.",
+      "cite": "세네카, 『평온에 관하여』 9.5; 플루타르코스, 『카이사르전』 49.5",
+      "links": [
+        {
+          "label": "Alexandrian war",
+          "url": "https://en.wikipedia.org/wiki/Alexandrian_war"
+        }
+      ],
+      "image": null
+    },
+    {
+      "id": "alexandria:call-serapeum",
+      "map": "alexandria",
+      "anchor": {
+        "feature": "alexandria:serapeum"
+      },
+      "side": "left",
+      "num": 7,
+      "title": "세라페움 — 기둥은 카이사르 시대 것이 아니다",
+      "body": "세라피스 신전이자 도서관의 '딸 서고'가 있던 자리다. 지금 선 붉은 기둥('폼페이우스의 기둥')은 이름과 달리 서기 298~303년 디오클레티아누스를 기린 것이다. 카이사르 시대엔 프톨레마이오스 3세의 신전이 서 있었다.",
+      "cite": "기둥 헌정 비문(그리스어, 디오클레티아누스 언급); Wikipedia Serapeum of Alexandria",
+      "links": [
+        {
+          "label": "Serapeum of Alexandria",
+          "url": "https://en.wikipedia.org/wiki/Serapeum_of_Alexandria"
+        }
+      ],
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Pompey%27s_Pillar_%28column%29.jpg",
+        "credit": "Semsema rody, CC BY-SA 3.0 (Wikimedia Commons)",
+        "alt": "알렉산드리아 세라페움 자리에 서 있는 '폼페이우스의 기둥'(서기 298~303년)"
+      }
+    }
+  ]
+}

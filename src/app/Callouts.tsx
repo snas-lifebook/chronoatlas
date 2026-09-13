@@ -1,0 +1,157 @@
+// 미시 지도 위의 어노테이션 콜아웃. 지도 위 번호 핀 → 지시선 → 여백의 글상자.
+//
+// River가 붙인 레퍼런스가 전부 같은 문법이었다 — 수사 유적 번호 지도, 아크레 1291년
+// 성벽·탑 이름표, 스페인 내전 참호 분해도, 로크루아 전투 배치도. 지도 위 지점에 번호를
+// 찍고 **여백까지 지시선을 끌어** 거기서 설명한다. 이름표를 지도 안에 욱여넣지 않는 것이
+// 요점이다 — 그래야 지형이 안 가려지고 설명은 길게 쓸 수 있다.
+//
+// ## 왜 DOM인가 (MapLibre 심볼이 아니라)
+//
+// 여백 글상자는 **지도 좌표에 없다.** 화면 왼쪽·오른쪽 끝에 세로로 쌓이고, 지도가 움직여도
+// 그 자리에 있어야 한다. 심볼 레이어는 전부 지도 좌표에 매이므로 이 배치를 못 한다.
+// 지시선만 지도 좌표(핀)와 화면 좌표(카드)를 잇는 혼합이라 SVG로 직접 그린다.
+//
+// 대신 **정지 이미지로 구울 때는 안 담긴다** — 내보내기가 캔버스만 읽기 때문이다
+// (HUD·인스펙터를 빼려고 일부러 그렇게 짰다, scripts/shoot-pack.py). 미시 지도는
+// 아홉 장에 안 들어가고 「들어가면 보이는」 대화형이라 그게 맞다. 미시 지도를 이미지로
+// 뽑아야 할 날이 오면 shoot-pack의 caption()처럼 PIL로 같은 JSON에서 합성하면 된다.
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type * as maplibregl from 'maplibre-gl';
+import { CALLOUTS, microMapAt, type Callout, type MicroMap } from '../callouts';
+
+type Pin = { c: Callout; x: number; y: number };
+
+/** 카드가 세로로 쌓이는 칸. 화면 높이에 맞춰 잘라 쓴다. */
+const CARD_W = 300;
+
+export function Callouts({ map }: { map: maplibregl.Map | null }) {
+  const [pins, setPins] = useState<Pin[]>([]);
+  const [size, setSize] = useState<[number, number]>([0, 0]);
+  const [which, setWhich] = useState<MicroMap | null>(null);
+  const [open, setOpen] = useState(true);
+  const [hudBottom, setHud] = useState(0);
+  const [anchors, setAnchors] = useState<Record<string, { x: number; y: number }>>({});
+  const cardRef = useRef<Record<string, HTMLElement | null>>({});
+  const hostRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!map) return;
+    const sync = () => {
+      const m = microMapAt(map.getZoom(), map.getCenter().toArray() as [number, number]);
+      setWhich(m);
+      const cv = map.getCanvas();
+      setSize([cv.clientWidth, cv.clientHeight]);
+      const hud = document.querySelector('.shell-present-hud');
+      setHud(hud ? (hud as HTMLElement).getBoundingClientRect().bottom : 0);
+      if (!m) { setPins([]); return; }
+      setPins(CALLOUTS.filter(c => c.map === m).map(c => {
+        const p = map.project(c.at);
+        return { c, x: p.x, y: p.y };
+      }));
+    };
+    sync();
+    map.on('move', sync); map.on('zoom', sync); map.on('resize', sync);
+    return () => { map.off('move', sync); map.off('zoom', sync); map.off('resize', sync); };
+  }, [map]);
+
+  // 미시 지도에 들어왔음을 문서 루트에 적는다. 발표 HUD가 그걸 보고 **본문을 접는다** —
+  // HUD는 지중해 장면을 설명하는 글이라 도시 지도에서는 맞지도 않고, 실측 446px이라
+  // 왼쪽 카드 칸을 그만큼 밀어내 넷째 카드가 화면 밖(bottom 1249 / 1080)으로 나갔다.
+  // 제목은 남긴다 — 지금 몇 번째 장인지는 계속 보여야 한다.
+  useEffect(() => {
+    const el = document.documentElement;
+    if (which && open) el.dataset.micro = which; else delete el.dataset.micro;
+    return () => { delete el.dataset.micro; };
+  }, [which, open]);
+
+  // C로 껐다 켠다. 발표 중에 그림만 보여 주고 싶을 때가 있다.
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      if (e.key !== 'c' && e.key !== 'C') return;
+      if (e.target instanceof HTMLElement && /input|textarea/i.test(e.target.tagName)) return;
+      setOpen(o => !o);
+    };
+    addEventListener('keydown', k);
+    return () => removeEventListener('keydown', k);
+  }, []);
+
+  // **카드 높이를 재고 나서 지시선을 그린다.** 처음엔 칸 높이를 n등분해 균등히 놓았는데
+  // 실제로 겹쳤다 — 로마 시내 판에서 왼쪽 넷이 서로 위에 올라탔다. 본문을 160자로 묶어도
+  // 사료 줄과 링크 줄이 붙으면 카드 높이가 두 배씩 벌어진다. 그래서 **쌓는 것은 브라우저에
+  // 맡기고**(flex column) 그 결과를 읽어 선을 건다. 내가 높이를 예측하지 않는다.
+  useLayoutEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const base = host.getBoundingClientRect();
+    const next: Record<string, { x: number; y: number }> = {};
+    for (const [id, el] of Object.entries(cardRef.current)) {
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      const side = CALLOUTS.find(c => c.id === id)?.side ?? 'left';
+      next[id] = {
+        x: (side === 'left' ? r.right : r.left) - base.left,
+        y: r.top - base.top + Math.min(24, r.height / 2),
+      };
+    }
+    setAnchors(prev => {
+      const same = Object.keys(next).length === Object.keys(prev).length
+        && Object.entries(next).every(([k, v]) => prev[k] && Math.abs(prev[k].x - v.x) < 0.5 && Math.abs(prev[k].y - v.y) < 0.5);
+      return same ? prev : next;
+    });
+  });
+
+  if (!which || !open || !pins.length) return null;
+  const [W, H] = size;
+  const cols: Record<'left' | 'right', Pin[]> = { left: [], right: [] };
+  for (const p of [...pins].sort((a, b) => a.c.num - b.c.num)) cols[p.c.side].push(p);
+
+  // 카드 높이는 글 길이에 따라 다르지만, 지시선을 그리려면 **그리기 전에** 자리를 알아야
+  // 한다. 칸 높이를 n등분해 균등히 놓고 카드 안은 스크롤 없이 흐르게 둔다 — 본문이
+  // 160자 이내로 묶여 있어(data/overlays/pack-callouts.json) 넘칠 일이 거의 없다.
+  return (
+    <div className="ca-callouts" ref={hostRef} aria-hidden={false}>
+      <svg className="ca-callout-lines" width={W} height={H}>
+        {pins.map(p => {
+          const a = anchors[p.c.id];
+          if (!a) return null;
+          // 꺾임 한 번. 곧은 대각선은 지도 위를 길게 가로질러 지형을 덮는다.
+          const mid = p.c.side === 'left' ? a.x + (p.x - a.x) * 0.35 : a.x - (a.x - p.x) * 0.35;
+          return (
+            <g key={p.c.id} className="ca-leader">
+              <path d={`M ${a.x} ${a.y} L ${mid} ${a.y} L ${p.x} ${p.y}`} />
+            </g>
+          );
+        })}
+        {pins.map(p => (
+          <g key={`pin-${p.c.id}`} className="ca-leader">
+            <circle cx={p.x} cy={p.y} r={11} className="ca-pin" />
+            <text x={p.x} y={p.y + 4} className="ca-pin-num">{p.c.num}</text>
+          </g>
+        ))}
+      </svg>
+      {(['left', 'right'] as const).map(side => (
+        <div key={side} className={`ca-callout-col is-${side}`}
+             style={{ width: CARD_W, top: side === 'left' ? Math.max(H * 0.05, hudBottom + 12) : H * 0.05 }}>
+          {cols[side].map(p => (
+            <article key={p.c.id} ref={el => { cardRef.current[p.c.id] = el; }} className="ca-card">
+              <h4><span className="ca-card-num">{p.c.num}</span>{p.c.title}</h4>
+              <p>{p.c.body}</p>
+              {p.c.cite && <div className="ca-cite">{p.c.cite}</div>}
+              {(p.c.links?.length || p.c.image) && (
+                <div className="ca-links">
+                  {p.c.image && (
+                    <a href={p.c.image.url} target="_blank" rel="noreferrer noopener"
+                       title={`${p.c.image.alt} — ${p.c.image.credit}`}>사진</a>
+                  )}
+                  {p.c.links?.map(l => (
+                    <a key={l.url} href={l.url} target="_blank" rel="noreferrer noopener">{l.label}</a>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}

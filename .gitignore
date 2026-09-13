@@ -40,3 +40,4 @@ docs/verify/shot/*.png
 !docs/verify/shot/_contact.png
 !docs/verify/shot/_gallia_cmp.png
 !docs/verify/shot/_egypt_cmp.png
+scripts/__pycache__/

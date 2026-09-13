@@ -17,6 +17,7 @@ import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
 import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
+import { Callouts } from './Callouts';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
 import './shell.css';
@@ -194,6 +195,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   return (
     <div className={`shell${s.present ? ' is-present' : ''}`}>
       <div ref={mapRef} className="shell-map" />
+      {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
+      <Callouts map={engRef.current?.map ?? null} />
 
       {searching && <Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} />}
 

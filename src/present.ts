@@ -21,9 +21,29 @@ export function showRomaUrbs(zoom = 0): boolean {
   return zoom >= ROMA_MIN_ZOOM;
 }
 
-/** 갈리아 교보재는 판도 BC60 장면에만. 다른 해에 얹으면 Cliopatria 위를 덮어 영역이 깨진다. */
+/** 알렉산드리아 미시 지도도 같은 규칙 — 줌으로 켠다. 파로스·헵타스타디온·왕궁 구역은
+ *  지중해 축척에서 점 하나다. 로마와 같은 문턱을 쓴다. */
+export const ALEXANDRIA_MIN_ZOOM = 12;
+export function showAlexandria(zoom = 0): boolean {
+  return zoom >= ALEXANDRIA_MIN_ZOOM;
+}
+
+/** 자유 갈리아 교보재를 켤 해.
+ *
+ *  예전에는 `pack-extent-60` 장면에만 켰다. 그래서 **갈리아 원정 장면(기원전 52년)에
+ *  갈리아가 없었다** — 카이사르와 베르킹게토릭스가 흰 땅 위에 서 있고 화면 어디에도
+ *  갈리아라는 면이 없다. River: "갈리아 영역이 제대로 되어 있지 않다."
+ *
+ *  진짜 원인은 정본에 있다. Cliopatria 영토(`layers/territory/-100.geojson`, 기원전
+ *  100~1년을 한 칸에 담는 100년 버킷)에 **유럽 갈리아 폴리티가 아예 없다.** actor가
+ *  '갈리아'인 것은 아나톨리아의 갈라티아 넷뿐이다 — 국가 단위 데이터셋이라 부족 연합인
+ *  갈리아가 안 들어 있다. 그러다 기원전 50년 무렵부터 로마 피처 하나가 그 자리를 덮어
+ *  분홍이 된다. 그래서 화면에서 갈리아는 「없다가 갑자기 로마」가 된다.
+ *
+ *  장면이 아니라 **연도로** 가른다. 자유 갈리아는 어느 장면에서 보든 기원전 51년까지
+ *  자유 갈리아다. 정복 완료를 기원전 51년으로 잡는 것은 `showGalliaRoman`과 같은 기준이다. */
 export function showGalliaOverlay(scene: string | null, year: number): boolean {
-  return scene === GALLIA_SCENE && year < -51;
+  return year < -51 && scene != null && scene.startsWith('pack-');
 }
 
 /** 같은 폴리곤을 로마색으로. 판도 BC51 장면에만.
@@ -34,9 +54,14 @@ export function showGalliaOverlay(scene: string | null, year: number): boolean {
  * 점선(로마 밖)으로, BC51은 **같은 폴리곤**을 로마색으로 칠해 원정의 결과를 보인다.
  *
  * 폴리곤을 새로 만들지 않고 `gallia-free` 소스를 그대로 쓰는 것이 요점이다. 두 장이
- * 기하학적으로 동일함이 보장되므로 색 말고는 아무것도 안 달라진다. */
+ * 기하학적으로 동일함이 보장되므로 색 말고는 아무것도 안 달라진다.
+ *
+ * **기원전 50년에서 끊는다.** 정본을 재어 보면 `로마 공화정` 폴리곤이 그 해에 북쪽
+ * 경계를 위도 46.2에서 52.1로 올리고 면적이 161만에서 222만 km²로 뛴다 — Cliopatria가
+ * 갈리아 병합을 -50으로 찍은 것이다. 그 뒤로도 교보재를 얹으면 같은 땅이 두 겹이 된다.
+ * 기원전 51년 한 해만 교보재가 메운다(정복 완료를 51년으로 보는 통설과 -50 스냅의 차). */
 export function showGalliaRoman(scene: string | null, year: number): boolean {
-  return scene === GALLIA_ROMAN_SCENE && year >= -51;
+  return year >= -51 && year < -50 && scene != null && scene.startsWith('pack-');
 }
 
 export function scenesInGroup(scenes: Scene[], group: string): Scene[] {

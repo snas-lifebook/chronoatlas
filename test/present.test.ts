@@ -23,36 +23,51 @@ describe('발표 장면 넘김', () => {
 });
 
 describe('갈리아 교보재 오버레이', () => {
-  it('판도 BC60 장면에만 켠다', () => {
+  // 장면이 아니라 **연도로** 가른다. 예전에는 pack-extent-60 한 장에만 켜서, 정작
+  // 갈리아 원정 장면(BC52)에 갈리아가 없었다 — 카이사르와 베르킹게토릭스가 흰 땅 위에
+  // 서 있었다. 자유 갈리아는 어느 장면에서 보든 BC51까지 자유 갈리아다.
+  it('기원전 51년 전이면 팩 장면 어디서나 켠다', () => {
     expect(showGalliaOverlay(GALLIA_SCENE, -60)).toBe(true);
-    expect(showGalliaOverlay('pack-intro-med', -60)).toBe(false);
-    expect(showGalliaOverlay('pack-gaul-52', -52)).toBe(false);
-    expect(showGalliaOverlay('pack-extent-51', -51)).toBe(false);
+    expect(showGalliaOverlay('pack-intro-med', -60)).toBe(true);
+    expect(showGalliaOverlay('pack-gaul-52', -52)).toBe(true);   // 원정 장면 — 여기가 비어 있었다
+    expect(showGalliaOverlay('pack-extent-51', -51)).toBe(false); // 정복 후
     expect(showGalliaOverlay(null, -60)).toBe(false);
+    expect(showGalliaOverlay('chuhan-1', -60)).toBe(false);       // 다른 데이터셋 장면엔 안 얹는다
   });
-  it('자유 갈리아 폴리곤 셋(나르보넨시스 제외)', () => {
+  it('자유 갈리아는 세 부분이고 나르보넨시스를 안 담는다', () => {
     const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/overlays/gallia-free.json'), 'utf8'));
     expect(raw.teaching).toBe(true);
-    expect(raw.features).toHaveLength(3);
-    const names = raw.features.map((f: { properties: { name: string } }) => f.properties.name).join(' ');
-    expect(names).toMatch(/아퀴타니아/);
-    expect(names).toMatch(/루그두넨시스/);
-    expect(names).toMatch(/벨기카/);
-    expect(names).not.toMatch(/나르보넨시스/);
+    expect(String(raw.source).length).toBeGreaterThan(40);  // 어디서 왔는지 적혀 있어야 한다
+    expect(raw.features).toHaveLength(3);                   // 카이사르가 센 셋 (BG 1.1)
+    // 나르보넨시스는 기원전 121년부터 정식 속주라 정본 로마 영토가 이미 그린다. 두 겹 금지.
+    expect(raw.features.map((f: { properties: { name: string } }) => f.properties.name).join(' ')).not.toMatch(/나르보넨시스/);
+    // 갈리아 전역을 덮나. 예전 손그림은 북동쪽만 덮어 아키텐·아르모리카가 통째로 비었다.
+    const xs: number[] = [], ys: number[] = [];
+    const walk = (c: unknown): void => {
+      if (typeof (c as number[])[0] === 'number') { xs.push((c as number[])[0]); ys.push((c as number[])[1]); }
+      else for (const x of c as unknown[]) walk(x);
+    };
+    for (const f of raw.features) walk(f.geometry.coordinates);
+    expect(Math.min(...xs)).toBeLessThan(-2);    // 아르모리카(브르타뉴)까지 서쪽으로
+    expect(Math.max(...xs)).toBeGreaterThan(6);  // 라인강까지 동쪽으로
+    expect(Math.min(...ys)).toBeLessThan(44);    // 아키텐까지 남쪽으로
+    expect(Math.max(...ys)).toBeGreaterThan(50); // 벨가이까지 북쪽으로
   });
 });
 
-describe('갈리아 로마색 오버레이 (판도 BC51)', () => {
-  it('판도 BC51 장면에만 켠다', () => {
+describe('갈리아 로마색 오버레이 (기원전 51년)', () => {
+  it('기원전 51년 한 해만 — 정본이 -50에 갈리아를 덮으므로 거기서 끊는다', () => {
     expect(showGalliaRoman(GALLIA_ROMAN_SCENE, -51)).toBe(true);
+    expect(showGalliaRoman('pack-intro-med', -51)).toBe(true);
     expect(showGalliaRoman(GALLIA_SCENE, -60)).toBe(false);
     expect(showGalliaRoman('pack-gaul-52', -52)).toBe(false);
+    expect(showGalliaRoman('pack-rubicon', -49)).toBe(false);   // 정본이 이미 칠한다 — 두 겹 금지
     expect(showGalliaRoman('pack-extent-44', -44)).toBe(false);
     expect(showGalliaRoman(null, -51)).toBe(false);
   });
-  it('BC60과 BC51이 서로 배타적이다 — 한 장에 두 색이 겹치면 안 된다', () => {
-    for (const [scene, year] of [[GALLIA_SCENE, -60], [GALLIA_ROMAN_SCENE, -51]] as const)
-      expect(showGalliaOverlay(scene, year) && showGalliaRoman(scene, year)).toBe(false);
+  it('어느 해에도 두 색이 겹치지 않는다', () => {
+    for (let y = -70; y <= -20; y++)
+      expect(showGalliaOverlay('pack-extent-60', y) && showGalliaRoman('pack-extent-60', y), `BC ${-y}`).toBe(false);
   });
 });
 

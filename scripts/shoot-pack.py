@@ -68,6 +68,9 @@ BASE = "http://127.0.0.1:4180/chronoatlas/"
 VIEW_W, VIEW_H, DSF = 1920, 1080, 2
 SCALE = 1.5        # 라벨 배율. ponytail: 상수 하나. 프로젝터에서 안 읽히면 --scale로 올린다
 CAPTIONS = json.loads((REPO / "data/overlays/pack-captions.json").read_text("utf8"))["scenes"]
+# 장면마다 켜는 층. 「빈 층」 판정을 이 목록 안에서만 한다.
+SCENE_LAYERS = {s["id"]: s.get("layers")
+                for s in json.loads((REPO / "data/scenes/rome.json").read_text("utf8"))}
 FONT_TTC = "/System/Library/Fonts/AppleSDGothicNeo.ttc"
 SEA = (0xC7, 0xD2, 0xCB)  # campaign 스킨의 바다색(src/map/style.ts). 투명 구멍을 이 색으로 받친다
 HALO = 1.4         # 후광도 같이 키운다. 글자만 키우면 배경에 묻힌다
@@ -97,21 +100,35 @@ PREP = """
   // 관계 그래프 오버레이를 끈다. 카이사르가 선택돼 있으면 이웃까지 직선이 한 다발 그어진다.
   ca.store.set({ sel: null });
 
-  // 심볼 레이어의 글자를 일괄로 키운다. 표현식을 곱으로 감싸므로 interpolate도 상수도 통한다.
-  let bumped = 0;
+  // 심볼 레이어의 글자를 일괄로 키운다.
+  //
+  // **표현식을 그냥 곱으로 감싸면 안 된다.** `['*', k, ['interpolate', …['zoom']…]]`은
+  // MapLibre가 「zoom 표현식은 최상위 step/interpolate의 입력으로만」이라며 거부한다.
+  // 예전 코드가 그렇게 감싸고 try/catch로 삼켰는데, 그래서 **줌 보간을 쓰는 레이어는
+  // 하나도 안 커졌다** — 도시·영역·전투 이름표가 전부 그쪽이라 실제로 커진 것은 상수
+  // text-size를 쓰는 다섯 개뿐이었다(옛 리포트의 `bumped: 5`가 그 흔적이다).
+  // 곱을 **각 정점의 출력 쪽에** 넣으면 zoom이 최상위 입력으로 남아 통과한다.
+  const mul = (e, k) => {
+    if (typeof e === 'number') return e * k;
+    if (!Array.isArray(e)) return e;
+    if (e[0] === 'interpolate') { const o = e.slice(); for (let i = 4; i < o.length; i += 2) o[i] = mul(o[i], k); return o; }
+    if (e[0] === 'step')        { const o = e.slice(); for (let i = 2; i < o.length; i += 2) o[i] = mul(o[i], k); return o; }
+    return ['*', k, e];
+  };
+  let bumped = 0, failed = [];
   for (const l of m.getStyle().layers) {
     if (l.type !== 'symbol') continue;
     let ts;
     try { ts = m.getLayoutProperty(l.id, 'text-size'); } catch { continue; }
     if (ts == null) continue;
     try {
-      m.setLayoutProperty(l.id, 'text-size', ['*', scale, ts]);
+      m.setLayoutProperty(l.id, 'text-size', mul(ts, scale));
       const hw = m.getPaintProperty(l.id, 'text-halo-width');
-      if (hw != null) m.setPaintProperty(l.id, 'text-halo-width', ['*', halo, hw]);
+      if (hw != null) m.setPaintProperty(l.id, 'text-halo-width', mul(hw, halo));
       bumped++;
-    } catch (e) { /* 못 바꾸는 레이어는 건너간다 */ }
+    } catch (e) { failed.push(l.id); }
   }
-  return { ok: true, bumped };
+  return { ok: true, bumped, 배율실패: failed };
 }
 """
 
@@ -239,10 +256,19 @@ def caption(im, scene: str):
 def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
     url = f"{BASE}?present=1&scene={scene}&skin=campaign"   # layers= 절대 금지
     page.goto(url, wait_until="load")
-    page.wait_for_function("() => !!(window.__ca && window.__ca.map)", timeout=30000)
+    # **데이터 레이어가 얹힌 뒤에 기다린다.** `__ca.map`이 생기는 것은 addData()보다 이르다
+    # (addData는 map.on('load')에 걸려 있다). 거기서 바로 글자 배율을 얹으면 베이스맵의
+    # 심볼 다섯 개만 커지고 우리가 그리는 이름표 — 도시·영역·전투·인물 — 는 하나도 안 커진다.
+    # 옛 리포트의 `bumped: 5`가 그 증거다. 「충분히 큰 텍스트」 요구가 그동안 반만 들어갔다.
+    page.wait_for_function(
+        "() => { const m = window.__ca && window.__ca.map;"
+        " return !!(m && m.getLayer && m.getLayer('territory-label') && m.getLayer('people-label')); }",
+        timeout=30000)
     prep = page.evaluate(PREP, {"scale": scale, "halo": HALO})
     if not prep.get("ok"):
         raise RuntimeError(f"{scene}: {prep.get('why')}")
+    if prep["bumped"] < 12:
+        raise RuntimeError(f"{scene}: 글자를 키운 레이어가 {prep['bumped']}개뿐이다 — 데이터 레이어가 아직 없다")
     settle = page.evaluate(SETTLE, IDLE_MS)
     page.wait_for_timeout(1200)          # 장기말 행군 보간 1.2s가 끝나고 제자리에 선다
     layers = page.evaluate(COUNT)
@@ -306,7 +332,13 @@ def main() -> int:
                 try:
                     r = shoot(page, cdp, scene, stem, a.scale)
                     rows.append(r)
-                    thin = [k for k in ("영역", "도시", "경로", "전투", "말") if r[k] == 0]
+                    # **장면이 켠 층만 본다.** 판도 넉 장은 경로·전투를 일부러 안 켠다 —
+                    # 같은 카메라로 색 하나만 바꿔 보여 주는 비교 컷이라 자취가 끼면 비교가 흐려진다.
+                    # 안 켠 층을 「빈 층」으로 경고하면 경고가 매번 떠서 아무도 안 본다.
+                    want = {"영역": "territory", "도시": "settlements",
+                            "경로": "movements", "전투": "story_battles", "말": "people"}
+                    on = set(SCENE_LAYERS.get(scene) or want.values())
+                    thin = [k for k, g in want.items() if g in on and r[k] == 0]
                     msg = f" {r['size']}  {r['settle']}"
                     msg += f"  ⚠ 빈 층: {','.join(thin)}" if thin else "  ✓"
                     if r["안전영역밖"]:

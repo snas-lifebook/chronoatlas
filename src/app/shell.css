@@ -207,3 +207,56 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .ph-ev { font-size: .86rem; line-height: 1.62; opacity: .92; margin: .35rem 0 .3rem; max-width: 44ch; }
 .ph-look { font-size: .78rem; opacity: .7; border-top: 1px solid currentColor; padding-top: .3rem; margin-top: .35rem; }
 .ph-look::first-letter { font-weight: 700; }
+
+/* ── 미시 지도 콜아웃 (src/app/Callouts.tsx)
+   지도 위 번호 핀 → 지시선 → 여백의 글상자. River가 붙인 레퍼런스(아크레 1291·수사 유적·
+   참호 분해도)가 전부 이 문법이다. 설명을 지도 안에 욱여넣지 않는 것이 요점 —
+   그래야 지형이 안 가려진다. 줌으로 켜지고 C로 토글. */
+.ca-callouts { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.ca-callout-lines { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.ca-leader path { fill: none; stroke: var(--color-text-primary); stroke-width: 1.1; opacity: 0.42; }
+.ca-pin { fill: #B8860B; stroke: #FFFFFF; stroke-width: 2; }
+.ca-pin-num { fill: #FFFFFF; font: 700 12px/1 var(--font-family-body); text-anchor: middle; }
+
+/* 쌓는 것은 브라우저에 맡긴다. 예전엔 칸을 n등분해 절대 배치했는데 카드 높이가
+   글 길이에 따라 두 배씩 벌어져 로마 시내 판에서 넷이 서로 위에 올라탔다.
+   지시선 끝점은 이 결과를 useLayoutEffect로 되읽어 잡는다. */
+.ca-callout-col {
+  position: absolute; bottom: 3%; display: flex; flex-direction: column;
+  gap: 10px; justify-content: flex-start; overflow: hidden;
+}
+.ca-callout-col.is-left { left: 10px; }
+.ca-callout-col.is-right { right: 10px; }
+
+.ca-card {
+  flex: 0 0 auto; width: 100%; pointer-events: auto;
+  background: color-mix(in srgb, var(--color-bg-primary) 92%, transparent);
+  border: 1px solid var(--color-border-primary); border-radius: 6px;
+  padding: 9px 11px 10px; box-shadow: 0 2px 10px rgb(0 0 0 / 0.10);
+}
+.ca-card h4 { margin: 0 0 5px; font-size: 14px; line-height: 1.3; font-weight: 700; color: var(--color-text-primary); }
+.ca-card-num {
+  display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 6px;
+  border-radius: 50%; background: #B8860B; color: #fff; font-size: 11px; font-weight: 700; vertical-align: 1px;
+}
+.ca-card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary); }
+.ca-cite { margin-top: 5px; font-size: 11px; line-height: 1.4; color: var(--color-text-tertiary); }
+.ca-links { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
+.ca-links a {
+  font-size: 11px; padding: 2px 7px; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--color-border-primary); color: var(--color-text-secondary);
+}
+.ca-links a:hover { border-color: #B8860B; color: var(--color-text-primary); }
+
+/* 발표 모드에서는 지도만 남기는 규칙이 있는데(위 .is-present 목록) 콜아웃은 예외다 —
+   미시 지도에서 설명이 곧 내용이라 그것까지 지우면 빈 그림만 남는다. */
+
+/* 미시 지도에 들어오면 발표 HUD의 본문을 접는다. HUD는 지중해 장면을 설명하는 글이라
+   도시 지도에서는 맞지도 않고, 실측 446px이라 왼쪽 콜아웃 칸을 그만큼 밀어내
+   넷째 카드가 화면 밖(bottom 1249 / 1080)으로 나갔다. 제목·번호는 남긴다. */
+html[data-micro] .shell-present-hud .ph-n,
+html[data-micro] .shell-present-hud .ph-row,
+html[data-micro] .shell-present-hud .ph-stat,
+html[data-micro] .shell-present-hud .ph-ev,
+html[data-micro] .shell-present-hud .ph-look,
+html[data-micro] .shell-present-hud hr { display: none; }

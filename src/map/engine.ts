@@ -5,8 +5,9 @@ import { buildStyle, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { showAlesia, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
-import { ALESIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
+import { showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
+import { curveMovements } from '../routes';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -16,6 +17,9 @@ const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-f
 // 그 축척의 내용은 벡터 오버레이가 댄다.
 const MAP_MAX_ZOOM = 15;
 const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다.
+// 경로가 다 옅어지는 데 걸리는 해. 카이사르 원정이 기원전 58~45년 열세 해라
+// 8이면 발표 장면 안에서 「올해 · 최근 · 옛날」 세 단계가 눈에 갈린다.
+const FADE_SPAN = 8;
 const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
 
 function armIcon(arm: string, color: string): ImageData {
@@ -57,6 +61,21 @@ function standardIcon(color: string, n: number | null): ImageData {
   return g.getImageData(0, 0, W, H);
 }
 
+/** 경로 화살촉. 선 위를 따라 일정 간격으로 앉는다(symbol-placement: 'line').
+ *  속을 채우지 않고 갈매기(chevron) 두 획으로 그린다 — 채운 삼각형은 연한 선 위에서
+ *  저 혼자 진해져 점렬처럼 보인다. 획이면 선의 일부로 읽힌다. */
+function arrowIcon(color: string): ImageData {
+  const W = 28, H = 28, c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d')!;
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  g.strokeStyle = '#FFFFFF'; g.lineWidth = 7;   // 종이색 테 — 영토 위에서도 화살표가 산다
+  g.beginPath(); g.moveTo(9, 7); g.lineTo(20, 14); g.lineTo(9, 21); g.stroke();
+  g.strokeStyle = color; g.lineWidth = 3.6;
+  g.beginPath(); g.moveTo(9, 7); g.lineTo(20, 14); g.lineTo(9, 21); g.stroke();
+  return g.getImageData(0, 0, W, H);
+}
+
 function portraitIcon(img: CanvasImageSource | null, color: string, initial: string): ImageData {
   const size = 64, c = document.createElement('canvas');
   c.width = c.height = size;
@@ -84,8 +103,12 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   territory: ['territory-fill', 'territory-outline', 'territory-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
-  battles: ['battle', 'pack-battle', 'pack-battle-label'],
-  movements: ['movement'],
+  // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
+  // 다른 세기의 전투다. 그래서 팩 장면은 이걸 안 켜고 story_battles만 켠다.
+  battles: ['battle'],
+  // 이 발표가 말하는 전투 넷(알레시아·파르살루스·젤라·문다). 교보재 오버레이라 수가 적다.
+  story_battles: ['pack-battle', 'pack-battle-label'],
+  movements: ['movement', 'movement-halo', 'movement-arrow'],
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
@@ -98,7 +121,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'label-region'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
   board: ['board-unit', 'board-label'],
-  people: ['people-dot', 'people-label', 'people-standard', 'people-force'],
+  people: ['people-dot', 'people-pad', 'people-label', 'people-standard', 'people-force'],
   // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
   alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-outer', 'alesia-inner',
            'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label'],
@@ -106,17 +129,40 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   // 장군이 무장한 채 넘을 수 없던 선이고, 루비콘이 왜 사건인지가 거기서 설명된다.
   roma: ['roma-field', 'roma-hill', 'roma-pomerium', 'roma-wall', 'roma-river', 'roma-road',
          'roma-site', 'roma-ides', 'roma-label'],
+  // 알렉산드리아 미시 지도. 헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길
+  // 하나가 항구를 둘로 가르고, 카이사르의 알렉산드리아 전쟁이 그 둑길에서 갈렸다.
+  alexandria: ['alx-lake', 'alx-harbor', 'alx-island', 'alx-district', 'alx-causeway',
+               'alx-road', 'alx-site', 'alx-label'],
 };
 // 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
 // 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
-// 그 해가 되기 전이면 가린다. 원래 필터는 한 번만 읽어 두고 AND로 덧붙인다.
+// 그 해가 되기 전이면 가린다.
+//
+// **원래 필터를 지도에서 되읽으면 안 된다.** 이 함수는 apply() 안에서 `timed` 루프
+// **뒤에** 돈다. 그 시점의 필터에는 이미 그 해의 dateWindow가 섞여 있어서, 그걸 「원래
+// 것」으로 캐시해 두면 해가 바뀌어도 **첫 해의 창이 계속 덧씌워진다** — settle-major와
+// admin-line의 연도 필터가 통째로 얼어붙는다(나르보넨시스 valid_from -121도 같이).
+// 그래서 시간 필터를 쓰는 레이어는 `timed` 표의 원본을 보고 여기서 직접 조립한다.
 const BASE_FILTER = new Map<string, unknown>();
-function hideAnachronisticPlaces(map: maplibregl.Map, year: number) {
+function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
+                                 timedBase: (id: string) => { timed: boolean; base: any },
+                                 compose: (base: any, y: number) => any) {
   const hide = hiddenPlaces(year);
+  const apply = (id: string, out: string[]) => {
+    const t = timedBase(id);
+    let base: any;
+    if (t.timed) base = compose(t.base, year);
+    else {
+      if (!BASE_FILTER.has(id)) BASE_FILTER.set(id, map.getFilter(id) ?? null);
+      base = BASE_FILTER.get(id);
+    }
+    const excl: any = ['!', ['in', ['get', 'id'], ['literal', out]]];
+    map.setFilter(id, (out.length ? (base ? ['all', base, excl] : excl) : base) as any);
+  };
+  // 속주 경계에도 같은 구멍이 있다 — 아우구스투스 속주 셋이 연도 없이 늘 그려진다.
+  if (map.getLayer('admin-line')) apply('admin-line', hiddenAdmin(year));
   for (const id of LAYER_GROUPS.settlements) {
     if (!map.getLayer(id)) continue;
-    if (!BASE_FILTER.has(id)) BASE_FILTER.set(id, map.getFilter(id) ?? null);
-    const base = BASE_FILTER.get(id) as any;
     // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다. 발표 줌에서
     // rank2를 켜면서 「로마」·「알렉산드리아」가 두 번 찍혔다. 겹치는 쪽을 뺀다.
     // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다.
@@ -125,9 +171,7 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number) {
     const battleIds = PACK_BATTLES.map(f => String((f as { properties: { id?: string } }).properties?.id ?? ''));
     const dup = id.startsWith('label-settle') ? [...PACK_PLACES]
       : id === 'story-place-label' ? battleIds : [];
-    const out = [...hide, ...dup];
-    const excl: any = ['!', ['in', ['get', 'id'], ['literal', out]]];
-    map.setFilter(id, (out.length ? (base ? ['all', base, excl] : excl) : base) as any);
+    apply(id, [...hide, ...dup]);
   }
 }
 
@@ -174,6 +218,32 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
   const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
+  // 그 해로부터 얼마나 지난 구간인가(0 = 올해, 1 = FADE_SPAN년 전 이상).
+  const legAge = (y: number): any =>
+    ['min', 1, ['max', 0, ['/', ['-', y, ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], y]], FADE_SPAN]]];
+  /** 경로를 나이순으로 재운다. River: "조금 연할 필요가 있고."
+   *  올해 구간 0.78 → 여덟 해 전 0.14. 굵기와 테도 같이 줄어 세 층이 한 몸으로 옅어진다. */
+  function fadeMovements(y: number) {
+    const a = legAge(y);
+    const lerp = (hi: number, lo: number): any => ['interpolate', ['linear'], a, 0, hi, 1, lo];
+    // 굵기는 줌과 나이 둘 다에 걸린다. **zoom interpolate를 곱 안에 넣으면 안 된다** —
+    // MapLibre가 거부하고 그 속성만 조용히 안 먹는다(people-label은 같은 실수로 레이어째
+    // 사라졌다). 곱을 각 줌 정점의 출력 쪽에 넣으면 zoom이 최상위 입력으로 남는다.
+    const byZoom = (lo: number, hi: number, fade: any): any =>
+      ['interpolate', ['linear'], ['zoom'], 3, ['*', lo, fade], 6, ['*', hi, fade]];
+    if (map.getLayer('movement')) {
+      map.setPaintProperty('movement', 'line-opacity', lerp(0.78, 0.14) as any);
+      map.setPaintProperty('movement', 'line-width', byZoom(1.6, 2.6, lerp(1, 0.62)));
+    }
+    if (map.getLayer('movement-halo')) {
+      map.setPaintProperty('movement-halo', 'line-opacity', lerp(0.5, 0.1) as any);
+      map.setPaintProperty('movement-halo', 'line-width', byZoom(5, 8, lerp(1, 0.62)));
+    }
+    // 화살표는 **올해 구간에만** 남긴다. 열세 구간에 전부 찍으면 화살촉이 예순 개가 되어
+    // 연하게 만든 보람이 없다. 방향이 필요한 것은 지금 움직이는 줄기 하나다.
+    if (map.getLayer('movement-arrow')) map.setFilter('movement-arrow',
+      ['all', movementFilter(y), ['>=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y - 1]] as any);
+  }
 
   let loaded = false;
   let tokenMod: typeof import('../token3d') | null = null;
@@ -214,13 +284,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (!tokenMod || !map.getStyle()) return;
     const seen = new Set<string>();
     if (peopleLayerOn) {
-      for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null }; geometry: { coordinates: [number, number] } }[]) {
+      for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null; scale?: number }; geometry: { coordinates: [number, number] } }[]) {
         const p = f.properties; if (!p?.id) continue;
         seen.add(p.id);
         let t = peopleTokens.get(p.id);
         if (!t) {
           // 초상을 말 윗면에 얹는다 — 말이 누구인지 색만으로는 안 갈린다(로마 안에서 편이 갈린다)
-          t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null);
+          // scale은 주역 1 · 조역 0.62(people.COMPANION_SCALE). 사람마다 고정이라 생성 때 한 번.
+          t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null, p.scale ?? 1);
           const path = tokenRoutes.get(p.id);
           if (path) t.setRoute(path);
           if (!map.getLayer(t.layer.id)) map.addLayer(t.layer);
@@ -255,6 +326,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const set = (ids: string[], on: boolean) => { for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); };
     if (map.getLayer('alesia-inner')) set(LAYER_GROUPS.alesia, showAlesia(scene, z));
     if (map.getLayer('roma-pomerium')) set(LAYER_GROUPS.roma, showRomaUrbs(z));
+    // 알렉산드리아와 로마는 문턱이 같다(z12). 둘 다 켜지면 화면에 없는 쪽은 그냥 안 보인다 —
+    // 지도 밖이라 그린 것이 없다. 굳이 위치로 가르지 않는다(콜아웃은 위치까지 본다).
+    if (map.getLayer('alx-causeway')) set(LAYER_GROUPS.alexandria, showAlexandria(z));
+    // 미시 축척에서 **이동 경로를 끈다.** 지중해를 건너는 자취라 도시 지도에서는 화면을
+    // 통째로 가로지르는 붉은 선 몇 개일 뿐이다 — 알렉산드리아 시내 판에서 실제로 그랬다.
+    // 층 자체를 끄지 않고 여기서만 가린다(넓은 축척으로 나가면 다시 켜진다).
+    const micro = showRomaUrbs(z) || showAlexandria(z) || showAlesia(scene, z);
+    if (micro) set(LAYER_GROUPS.movements, false);
   }
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
 
@@ -272,7 +351,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
     terrainReady.then(() => { if (map.getStyle()) addTerrain(map.getLayer('label-marine') ? 'label-marine' : undefined); });
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
-    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory', paint: { 'fill-color': fillColor, 'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.45, ['==', ['get', 'actor'], '기타중립'], 0.1, 0.22] as any } }, before);
+    // 미시 축척에서는 영역 채움을 걷어낸다. 도시 지도 전체에 깔린 세력색 한 겹이
+    // 지형 음영과 건물 색을 통째로 덮어 **분홍 베일**이 된다 — 로마 시내 판이 그랬다.
+    // 그 축척에서 「여기가 로마 땅」은 이미 자명하고, 정작 봐야 할 것은 언덕과 성벽이다.
+    // 곱을 zoom interpolate **밖에** 두면 MapLibre가 거부하므로 정점마다 값을 따로 준다.
+    const terrOpacity = (k: number): any =>
+      ['case', ['boolean', ['feature-state', 'hover'], false], 0.45 * k, ['==', ['get', 'actor'], '기타중립'], 0.1 * k, 0.22 * k];
+    map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory',
+      paint: { 'fill-color': fillColor,
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
     // 갈리아 교보재. pack-extent-60에만 켠다. Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다.
     if (GALLIA_FREE && !map.getSource('gallia-free')) {
@@ -388,6 +475,33 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
         paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } });
     }
+    // ── 알렉산드리아(기원전 48~47). 카이사르가 갇혀 싸운 도시다.
+    if (ALEXANDRIA?.features?.length && !map.getSource('alexandria')) {
+      const kin = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
+      map.addSource('alexandria', { type: 'geojson', data: { type: 'FeatureCollection', features: ALEXANDRIA.features } as any });
+      const addA = (l: object) => map.addLayer({ ...(l as object), layout: { ...((l as { layout?: object }).layout ?? {}), visibility: 'none' } } as any, before);
+      addA({ id: 'alx-lake', type: 'fill', source: 'alexandria', filter: kin('lake'),
+        paint: { 'fill-color': '#7FA6BE', 'fill-opacity': 0.35 } });
+      // 항구는 물이다 — 호수보다 짙게 해서 「바다에서 파고든 만」으로 읽히게.
+      addA({ id: 'alx-harbor', type: 'fill', source: 'alexandria', filter: kin('harbor'),
+        paint: { 'fill-color': '#5B86A8', 'fill-opacity': 0.3 } });
+      addA({ id: 'alx-island', type: 'fill', source: 'alexandria', filter: kin('island'),
+        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.34, 'fill-outline-color': '#8A7B5C' } });
+      addA({ id: 'alx-district', type: 'fill', source: 'alexandria', filter: kin('district'),
+        paint: { 'fill-color': '#9C8C63', 'fill-opacity': 0.22, 'fill-outline-color': '#6B6353' } });
+      // 헵타스타디온 — 7스타디온(약 1.2km) 둑길. 굵게, 실선으로. 이 지도의 주인공이다.
+      addA({ id: 'alx-causeway', type: 'line', source: 'alexandria', filter: kin('causeway'),
+        paint: { 'line-color': '#6B5D45', 'line-width': 6, 'line-opacity': 0.95 } });
+      addA({ id: 'alx-road', type: 'line', source: 'alexandria', filter: kin('road'),
+        paint: { 'line-color': '#8A7B5C', 'line-width': 2.6, 'line-dasharray': [6, 3], 'line-opacity': 0.85 } });
+      addA({ id: 'alx-site', type: 'circle', source: 'alexandria', filter: kin('lighthouse', 'building', 'temple', 'cape'),
+        paint: { 'circle-radius': 6, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.4 } });
+      addA({ id: 'alx-label', type: 'symbol', source: 'alexandria',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
+          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
+        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } });
+    }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
     if (PACK_BATTLES.length && !map.getSource('pack-battles')) {
@@ -397,7 +511,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.addLayer({ id: 'pack-battle-label', type: 'symbol', source: 'pack-battles',
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
-          'text-radial-offset': 1.1, 'text-optional': true, 'text-allow-overlap': false },
+          'text-radial-offset': 1.4, 'text-optional': true, 'text-allow-overlap': false },
         paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
     }
     // 말판(R37). 페이즈마다 통째로 setData. 보간하지 않는다. 아이콘 색은 팔레트(데이터 색, P2).
@@ -422,12 +536,39 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'people-dot', type: 'circle', source: 'people',
       paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 18, 9, 22] as any,
         'circle-color': '#000', 'circle-opacity': 0, 'circle-stroke-width': 0 } }, before);
+    // **말의 발자국.** 장기말은 Three.js custom layer라 MapLibre 충돌 색인에 없다. 그래서
+    // 도시·전투 이름표가 말이 거기 있는 줄도 모르고 말 밑으로 깔린다 — 기원전 48년 판에서
+    // 「파르살루스」와 「그리스」가 카이사르 얼굴에 반쯤 묻혔다. 투명 아이콘을 말 크기로
+    // 한 겹 얹어 자리만 점유한다. 그리는 것은 없고(opacity 0) 남들이 비켜 가기만 한다.
+    if (!map.hasImage('token-pad')) {
+      const pc = document.createElement('canvas'); pc.width = pc.height = 72;
+      map.addImage('token-pad', pc.getContext('2d')!.getImageData(0, 0, 72, 72), { pixelRatio: 2 });
+    }
+    map.addLayer({ id: 'people-pad', type: 'symbol', source: 'people',
+      layout: { 'icon-image': 'token-pad', 'icon-size': ['*', 1.15, ['coalesce', ['get', 'scale'], 1]],
+        'icon-allow-overlap': true, 'icon-ignore-placement': false } as any,
+      paint: { 'icon-opacity': 0 } }, before);
     map.addLayer({ id: 'people-label', type: 'symbol', source: 'people',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-        'text-size': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 16, 9, 18] as any,
+        // 조역은 이름도 작다(scale 0.62). 말만 줄이고 이름을 그대로 두면 작은 말 옆에
+        // 큰 이름이 붙어 오히려 조역이 더 눈에 띈다. offset은 em 단위라 같이 줄어든다.
+        //
+        // **배율을 interpolate 밖에서 곱하면 안 된다.** `['*', k, ['interpolate', …['zoom']…]]`은
+        // MapLibre가 「zoom 표현식은 최상위 step/interpolate의 입력으로만」이라며 거부하고,
+        // addLayer가 조용히 **레이어를 안 만든다**. 실제로 그 한 줄 때문에 인물 이름표가
+        // 통째로 사라진 채로 지도가 멀쩡히 떴다(에러 이벤트만 나고 화면은 그대로다).
+        // 그래서 곱은 **출력 쪽에** 넣는다 — zoom은 여전히 최상위 입력이다.
+        'text-size': ['interpolate', ['linear'], ['zoom'],
+          3, ['*', 14, ['coalesce', ['get', 'scale'], 1]],
+          6, ['*', 16, ['coalesce', ['get', 'scale'], 1]],
+          9, ['*', 18, ['coalesce', ['get', 'scale'], 1]]] as any,
         // 말이 커질 때마다 여기가 문제가 된다. 얼굴 판을 넣은 뒤 말 반지름이 ~32 CSS px이고,
         // 이름표는 후광까지 그 밖으로 나가야 한다. 말 크기를 바꾸면 여기도 같이 본다.
-        'text-offset': [0, 1.9], 'text-anchor': 'top', 'text-optional': false,
+        // 한 칸에 여럿이면 이름이 서로 위에 겹쳐 찍힌다. 말을 더 벌려서는 못 푼다 —
+        // 한글 이름표가 150px쯤이라 안 겹치게 벌리면 폼페이우스가 리비아로 간다.
+        // 그래서 **이름을 말 둘레 바깥으로 돌려 붙인다**(people.labelSide). 혼자면 예전대로 아래.
+        'text-offset': ['array', 'number', 2, ['get', 'nameOffset']],
+        'text-anchor': ['coalesce', ['get', 'anchor'], 'top'], 'text-optional': false,
         // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
         // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
         // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가
@@ -435,30 +576,82 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'text-allow-overlap': true, 'text-ignore-placement': false,
         'text-pitch-alignment': 'viewport' },
       paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.2 } }, before);
-    // 군기 + 병력. 이름표는 말 아래, 군기는 오른쪽 — 서로 안 싸운다.
+    // 군기 + 병력. **말 위로 세로로 쌓는다** — 깃발 / 말 / 이름 / 병력.
+    //
+    // 예전에는 깃발이 오른쪽(anchor bottom-left, offset [26,10])에 섰다. 그러면 옆에 다른
+    // 말이 있을 때 깃발이 **그쪽으로 걸어 들어간다** — 기원전 52년에 카이사르의 10군단기가
+    // 80px 떨어진 베르킹게토릭스를 절반 덮었다. 머리 위는 옆 사람과 안 싸우고, 실제로도
+    // 군기는 장군 뒤에 서는 물건이라 그림으로도 맞다.
+    //
+    // icon-offset은 icon-size를 곱한 뒤 픽셀이 된다. 그래서 size에 scale을 물리면
+    // 조역의 깃발은 작아지면서 **자리도 같이 당겨져** 작은 말에 딱 붙는다.
     map.addLayer({ id: 'people-standard', type: 'symbol', source: 'people',
       filter: ['>', ['coalesce', ['get', 'legions'], 0], 0] as any,
       layout: { 'icon-image': ['concat', 'std-', ['get', 'color'], '-', ['to-string', ['get', 'legions']]],
-        'icon-size': 0.8, 'icon-anchor': 'bottom-left', 'icon-offset': [26, 10],
-        'icon-allow-overlap': true, 'icon-ignore-placement': true } as any }, before);
+        'icon-size': ['*', 0.7, ['coalesce', ['get', 'scale'], 1]], 'icon-anchor': 'bottom', 'icon-offset': [0, -30],
+        // ignore-placement를 껐다. true면 깃발이 충돌 색인에 안 올라가서 **도시 이름표가
+        // 깃발이 거기 있는 줄도 모르고 밑으로 깔린다**(River: "지명이나 지리나 도시 위치를
+        // 가리면 안 된다"). false면 깃발이 자리를 점유하므로 이름표들이 비켜 간다.
+        // allow-overlap은 유지 — 군기는 무조건 뜬다, 다만 남이 피해 간다.
+        'icon-allow-overlap': true, 'icon-ignore-placement': false } as any }, before);
     map.addLayer({ id: 'people-force', type: 'symbol', source: 'people',
       filter: ['has', 'force'] as any,
       layout: { 'text-field': ['coalesce', ['get', 'force'], ''], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         // 이름표가 1.9em(24px 기준 46px)에 앉고 높이가 있으니 그 아래로 확실히 내린다
-        'text-size': 12, 'text-offset': [0, 4.9], 'text-anchor': 'top',
+        'text-size': ['*', 12, ['coalesce', ['get', 'scale'], 1]] as any,
+        'text-offset': ['array', 'number', 2, ['get', 'forceOffset']],
+        'text-anchor': ['coalesce', ['get', 'anchor'], 'top'],
         'text-allow-overlap': true, 'text-optional': true, 'text-pitch-alignment': 'viewport' } as any,
       paint: { 'text-color': ['get', 'color'] as any, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.4 } }, before);
     syncPeopleIcons(peopleFc);
+    // **이야기 전투 이름을 도시 이름보다 먼저 놓는다.** MapLibre는 스타일 배열 순서대로
+    // 자리를 잡아서, 먼저 온 레이어가 자리를 이긴다. 정착지 이름표가 먼저라 기원전 48년
+    // 판에서 「라리사」가 자리를 먹고 **정작 그 장면의 제목인 「파르살루스」가 사라졌다.**
+    // 그린 뒤에 한 번 옮겨서 우선권만 바꾼다(그림 순서는 둘 다 라벨 층이라 티가 안 난다).
+    if (map.getLayer('pack-battle-label') && map.getLayer('story-place-label')) {
+      map.moveLayer('pack-battle-label', 'story-place-label');
+    }
 
     map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,
       layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
         'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
       paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
     const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS] };
-    map.addSource('movements', { type: 'geojson', data: allMoves as any });
+    // 화면에 깔리는 것은 **휜 사본**이다. 원본은 tokenRoutes가 그대로 쓴다 —
+    // 말은 실제 정점을 밟아야 하고(walkRoute가 좌표 일치로 구간을 찾는다) 선만 활이 된다.
+    map.addSource('movements', { type: 'geojson', data: { type: 'FeatureCollection', features: curveMovements(allMoves.features as any) } as any });
+    // 경로는 세 겹이다. 아래에서부터 **테(paper) → 선(세력색) → 화살표**.
+    //
+    // 테를 까는 이유: 선을 연하게 만들면(River의 요구가 그것이다) 지형 음영·영토 색 위에서
+    // 끊겨 보인다. 밑에 종이색 테를 한 겹 두면 연한 선도 끝까지 이어져 읽힌다. 지도에서
+    // 흔히 쓰는 casing이고, 연하게 만들기와 읽히게 만들기를 동시에 푸는 유일한 방법이다.
+    map.addLayer({ id: 'movement-halo', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': isDark ? '#11161C' : '#F3EFE4',
+        'line-width': ['interpolate', ['linear'], ['zoom'], 3, 5, 6, 8] as any,
+        'line-opacity': 0.55 } }, before);
+    // **지난 구간일수록 옅다.** 옛 값은 전 구간이 0.92라 열세 줄이 똑같은 목소리로 떠들었다.
+    // 지금 해의 구간이 제일 진하고 여덟 해 전 것이 제일 옅다. 선이 「지나온 길」이 아니라
+    // 「지금 어디로 가는 중인가」를 먼저 말한다. 굵기도 같이 줄어 원근이 생긴다.
+    // 실제 값은 연도를 알아야 나오므로 apply()의 fadeMovements가 해마다 다시 얹는다.
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': fillColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 2.4, 6, 4] as any,
-        'line-opacity': 0.92 } }, before);
+      paint: { 'line-color': fillColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.6, 6, 2.6] as any,
+        'line-opacity': 0.7 } }, before);
+    // 방향. symbol-placement: 'line'이 선의 진행 방향을 그대로 따르므로 **좌표 순서가 곧 화살표**다.
+    // 세력색 사본을 미리 굽는다 — icon-color는 SDF 아이콘에만 듣고, 알파를 거리장으로 속여
+    // 쓰면 삼각형 모서리가 뭉갠다. armIcon·standardIcon이 이미 같은 방식이다.
+    for (const a of [...d.actors, { id: '_', color: FALLBACK_COLOR }]) {
+      const iid = `arrow-${a.id}`;
+      if (!map.hasImage(iid)) map.addImage(iid, arrowIcon(a.color), { pixelRatio: 2 });
+    }
+    map.addLayer({ id: 'movement-arrow', type: 'symbol', source: 'movements',
+      layout: { 'symbol-placement': 'line', 'symbol-spacing': 140,
+        'icon-image': ['concat', 'arrow-', ['case', ['in', ['get', 'actor'], ['literal', d.actors.map(a => a.id)]], ['get', 'actor'], '_']] as any,
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 3, 0.85, 6, 1.15] as any,
+        'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'viewport',
+        // 화살촉은 작고 선의 일부다. 충돌 검사에 넣으면 도시 이름표에 밀려 **한 개도 안 뜬다** —
+        // 실제로 그랬다. 자리를 뺏지도 않게 ignore-placement까지 켠다.
+        'icon-allow-overlap': true, 'icon-ignore-placement': true } as any,
+      paint: { 'icon-opacity': 0.85 } as any }, before);
 
     // 관계 그래프 오버레이(2.1, 하이브리드): 선택 객체 ↔ 좌표 있는 이웃 선. 좌표 없는 이웃은 GraphPanel.
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
@@ -627,7 +820,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       lastYear = s.year;
       loadTerritory(s.year);
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
-      if (map.getLayer('movement')) map.setFilter('movement', movementFilter(s.year) as any);
+      for (const id of ['movement', 'movement-halo']) if (map.getLayer(id)) map.setFilter(id, movementFilter(s.year) as any);
+      fadeMovements(s.year);
       if (map.getLayer('pack-battle-label')) map.setFilter('pack-battle-label', dateWindow(s.year) as any);
     }
     const on = new Set(s.layers ?? allLayers(d));
@@ -666,7 +860,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       if (map.getLayer('gallia-roman')) map.setLayoutProperty('gallia-roman', 'visibility', showRoman ? 'visible' : 'none');
       if (map.getLayer('gallia-roman-line')) map.setLayoutProperty('gallia-roman-line', 'visibility', showRoman ? 'visible' : 'none');
     }
-    hideAnachronisticPlaces(map, s.year);
+    hideAnachronisticPlaces(map, s.year,
+      id => { const row = timed.find(t => t[0] === id); return { timed: !!row, base: row ? row[1] : null }; },
+      filterFor);
     syncDetailMaps(s.scene);
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
@@ -732,4 +928,4 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 }
 export type Engine = ReturnType<typeof createEngine>;
 
-export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels', 'landmarks', 'graph'];
+export const allLayers = (d: Dataset) => [...(d.manifest.layers ?? []), 'relief', 'bathy', 'rivers', 'labels', 'landmarks', 'graph', 'story_battles'];

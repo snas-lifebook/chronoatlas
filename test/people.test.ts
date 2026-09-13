@@ -141,8 +141,8 @@ describe('말 벌림은 화면 기준이다 (spreadDeg)', () => {
   it('넓은 줌에서 말이 커지므로 벌림도 커진다', () => {
     // 말은 화면에서 거의 일정한 크기다 → 도(度) 벌림은 줌이 낮을수록 커야 한다
     expect(spreadDeg(4.2)).toBeGreaterThan(spreadDeg(7));
-    // BC48 알렉산드리아가 겹쳤던 줌. 말 폭(≈1.36 × tokenMeters)의 절반보다 커야 떨어진다
-    expect(spreadDeg(4.9)).toBeGreaterThan(0.9);
+    // BC48 알렉산드리아가 겹쳤던 줌. 화면에서 잰 말 지름(≈74px)보다 고리 지름이 커야 한다
+    expect(spreadDeg(4.9)).toBeGreaterThan(1.3);
     // 바짝 당긴 줌에서는 도시에서 말이 멀리 튀지 않아야 한다
     expect(spreadDeg(8)).toBeLessThan(0.3);
     // 발표 시점(지중해 전역 z4.2)에서는 상한에 물려 일정하다 — 말이 서로 안 겹칠 만큼 크다
@@ -174,5 +174,49 @@ describe('권역 중심점보다 도시 (ruled 동점 처리)', () => {
   it('도시 근거가 없으면 권역이라도 쓴다 — 위치를 버리지는 않는다', () => {
     const p = peopleAtYear(-47, { graph, movements }).find(x => x.id === 'person:프톨레마이오스13세');
     expect(p).toBeTruthy();   // ruled 이집트뿐이라 권역 중심점이라도 선다
+  });
+});
+
+describe('주역과 조역 (River: "부하라던지 동료가 있다면 크기를 다르게 해서 따라다녀야 한다")', () => {
+  const cast = JSON.parse(readFileSync(join(ROOT, 'data/overlays/pack-cast.json'), 'utf8'));
+
+  it('주역 명단은 사실 주장이 아니라 편집 판단이라 근거를 적어 둔다', () => {
+    expect(cast.teaching).toBe(true);
+    expect(cast.principals.ids).toContain('person:카이사르');
+    expect(String(cast.principals.note).length).toBeGreaterThan(40);
+  });
+
+  it('주역은 제 좌표를 지키고 조역만 비켜난다 — 카이사르가 마르스 광장을 떠나면 안 된다', () => {
+    const here = peopleAtYear(-44, { graph, movements, teaching: cast });
+    const caesar = here.find(p => p.id === 'person:카이사르')!;
+    const brutus = here.find(p => p.id === 'person:브루투스')!;
+    expect(caesar.principal).toBe(true);
+    expect(brutus.principal).toBeFalsy();
+    // 넷이 같은 마르스 광장에 서는 해다. 옛 코드는 전원을 같은 고리에 올려 카이사르도 밀어냈다.
+    const forum = graph.nodes.get(caesar.place!)?.lonlat ?? caesar.at;
+    expect(caesar.at).toEqual(forum);
+    expect(brutus.at).not.toEqual(forum);
+  });
+
+  it('말·이름표 배율이 주역 1 · 조역 0.62로 나간다', () => {
+    const fc = peopleGeoJSON(peopleAtYear(-44, { graph, movements, teaching: cast }), {});
+    const s = (id: string) => fc.features.find(f => f.id === id)!.properties.scale;
+    expect(s('person:카이사르')).toBe(1);
+    expect(s('person:브루투스')).toBeCloseTo(0.62, 6);
+  });
+
+  it('주역이 둘이면 서로 벌린다 — 기원전 60년 로마에 셋이 선다', () => {
+    const here = peopleAtYear(-60, { graph, movements, teaching: cast });
+    const three = here.filter(p => ['person:카이사르', 'person:폼페이우스', 'person:크라수스'].includes(p.id));
+    expect(three).toHaveLength(3);            // 카이사르가 빠져 있던 자리다
+    const keys = new Set(three.map(p => `${p.at[0].toFixed(4)},${p.at[1].toFixed(4)}`));
+    expect(keys.size).toBe(3);                // 한 점에 안 포갠다
+  });
+
+  it('권역 중심점밖에 없으면 교보재 도시가 이긴다 — 프톨레마이오스가 사막에 서 있었다', () => {
+    const p = peopleAtYear(-48, { graph, movements, teaching: cast })
+      .find(x => x.id === 'person:프톨레마이오스13세')!;
+    expect(p.placeName).toBe('알렉산드리아');
+    expect(p.at[1]).toBeGreaterThan(30);       // 나일 삼각주 — 사막(위도 26대)이 아니다
   });
 });
