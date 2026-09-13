@@ -232,7 +232,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
-  const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 250000, 5, 90000, 7, 20000]]]] as any], ['admin-line', null],
+  const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
     ['settle-major', ['<=', ['get', 'rank'], 1]], ['settle-minor', ['>=', ['get', 'rank'], 2]], ['battle', null], ['pack-battle', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
@@ -416,14 +416,28 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'line-color': romeColor, 'line-width': 1.6, 'line-opacity': 0.9, 'line-dasharray': [4, 2] } }, before);
     }
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
+    //
+    // **일반 액터 문턱 250,000 → 80,000.** River: "마우레타니아, 갈라티아나 이런 국가나
+    // 부족들도 지도 상에서 텍스트로 국가 이름이 나오면 좋겠어. 안 나오니까 답답함."
+    // 실측하면 아홉 해 내내 이름이 뜨는 것이 **넷뿐**이었다(파르티아·로마·인도스키타이·
+    // 프톨레마이오스). 화면에 색칠된 나라는 열아홉인데.
+    //
+    // 80,000에서 정확히 다섯이 더 뜬다 — 마우레타니아·누미디아 왕국·카파도키아 왕국·
+    // 갈라티아·폰토스 왕국. **그 아래로 더 내려도(50,000·20,000) 늘어나는 것이 없다.**
+    // 기타중립 문턱(900,000)은 **일부러 안 건드렸다** — 그쪽을 내리면 정본의 미번역 이름
+    // 아홉(Caucasian Albania·Himyarite Kingdom·Kingdom of Osroene…)이 한글 판에 샌다.
+    // 지금 추천으로는 영문 유입 0건이다.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
+        // 고정 anchor면 자리가 막혔을 때 이름표가 그냥 사라진다. 갈라티아가 카파도키아 왕국과
+        // 상자가 겹쳐 여덟 해 내내 그럴 위험이 있다(실측). 네 방향을 주면 옆으로 미끄러져 산다.
+        'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.6,
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, ['case', ['>', ['get', 'area'], 2000000], 13, 11], 7, ['case', ['>', ['get', 'area'], 2000000], 18, 14]],
         'symbol-sort-key': ['-', 0, ['get', 'area']] } as any,
       // 가독성(River: "지리지역 텍스트 가독성이 안 좋다"). 세력색 글자가 같은 색 면 위에 얹혀
       // 대비가 낮았다. 후광을 두껍게 하고 불투명도를 올린다.
       paint: { 'text-color': fillColor, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.6, 'text-opacity': 1 },
-      filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 250000, 5, 90000, 7, 20000]]] as any }, before);
+      filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
     if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
