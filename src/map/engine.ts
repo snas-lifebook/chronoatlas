@@ -302,9 +302,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'people-label', type: 'symbol', source: 'people',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 16, 9, 18] as any,
-        // 말이 커질 때마다 여기가 문제가 된다. 얼굴 판을 넣으며 말 반지름이 ~73 CSS px가
-        // 됐는데 3.3em(≈79px)은 후광까지 치면 말에 닿는다. 말 밖으로 확실히 내보낸다.
-        'text-offset': [0, 5.2], 'text-anchor': 'top', 'text-optional': false,
+        // 말이 커질 때마다 여기가 문제가 된다. 얼굴 판을 넣은 뒤 말 반지름이 ~32 CSS px이고,
+        // 이름표는 후광까지 그 밖으로 나가야 한다. 말 크기를 바꾸면 여기도 같이 본다.
+        'text-offset': [0, 2.6], 'text-anchor': 'top', 'text-optional': false,
         // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
         // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
         // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가
