@@ -7,7 +7,7 @@ import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BASEMAPS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -469,6 +469,45 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'fill-color': polityColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // ── 미시 지도 바탕 도판 ────────────────────────────────────────────────
+    //
+    // River: "흰 바탕에 점이랑 성벽이랑 언덕 이렇게만 있어서 솔직히 눈에 잘 들어오지
+    // 않는다." 맞는 지적이다 — z14에서 `relief.jpg`는 해상도를 한참 넘겨 평평한 얼룩이고
+    // Natural Earth 10m 해안선은 티베리스를 굵은 선 하나로 만든다.
+    //
+    // 해결은 **퍼블릭 도메인 고지도 도판을 정적 이미지로 깔기**다. 고대 세계 타일 서버는
+    // DARE·CAWM 둘 다 z11에서 하드 캡이고(Barrington Atlas 원본 한계라 서버 문제가
+    // 아니다), OSM은 이 레포 `AGENTS.md`의 「런타임 외부 호출 0 + ODbL 재배포 금지」가
+    // 막는다. 남는 길이 이것뿐이다. 도시 축척(0.35~0.6° 반경)에서 웹 메르카토르 vs
+    // 정사각 투영 차이는 71~381m로 대륙 축척(351km)의 1/1000이다.
+    //
+    // **정본 교보재 아래에 깐다** — 도판은 배경이고 우리 마킹이 주인공이다.
+    for (const bm of PACK_BASEMAPS) {
+      const sid = `scan-${bm.id}`;
+      if (map.getSource(sid)) continue;
+      const { w, e, n, s: so } = bm.corners;
+      map.addSource(sid, { type: 'image', url: `${root}datasets/${ds}/rasters/${bm.file}`,
+        coordinates: [[w, n], [e, n], [e, so], [w, so]] });
+      // `before`가 아니라 각 미시 지도 그룹의 **첫 레이어 앞**에 넣는다.
+      const firstOf = (g: string[]) => g.find(id => map.getLayer(id));
+      const anchorId = firstOf(LAYER_GROUPS[bm.id] ?? []) ?? before;
+      map.addLayer({ id: sid, type: 'raster', source: sid, minzoom: bm.min_zoom ?? 11,
+        paint: { 'raster-opacity': bm.opacity ?? 0.85, 'raster-fade-duration': 0 } } as any, anchorId);
+      // 같은 줌 게이트를 타게 그룹에 등록한다 — syncDetailMaps가 그대로 켜고 끈다.
+      if (LAYER_GROUPS[bm.id] && !LAYER_GROUPS[bm.id].includes(sid)) LAYER_GROUPS[bm.id].unshift(sid);
+      // **도판이 이미 지형을 그린다.** 우리 면 채움을 그대로 두면 두 겹이 되어 탁해진다 —
+      // 로마 도판(Atlas Antiquus Tab. IX)은 일곱 언덕을 해칭으로, 알렉산드리아·알레시아도
+      // 등고를 그린다. 면은 옅게 내리고 **테와 이름표는 그대로 둔다**(그게 우리 마킹이다).
+      const wash: Record<string, [string, number][]> = {
+        roma: [['roma-field', 0.12], ['roma-hill', 0.1]],
+        alesia: [['alesia-plain', 0.12], ['alesia-oppidum', 0.16]],
+        alexandria: [['alx-district', 0.1], ['alx-island', 0.14], ['alx-lake', 0.18], ['alx-harbor', 0.18]],
+      };
+      for (const [id, op] of wash[bm.id] ?? []) {
+        if (map.getLayer(id)) map.setPaintProperty(id, 'fill-opacity', op);
+      }
+    }
+
     // ── 주변 민족·왕국 교보재 ──────────────────────────────────────────────
     //
     // River: "다른 왕국들도 나오면 좋겠다. 지금 나오는 왕국들이 조금 적다는 느낌."

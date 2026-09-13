@@ -66,6 +66,19 @@ export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pack-peoples.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: Feature[] } | undefined;
 
+export type BasemapScan = {
+  id: string; file: string; size?: [number, number];
+  corners: { w: number; e: number; n: number; s: number };
+  opacity?: number; min_zoom?: number; title?: string; caveat?: string; source?: string; rms_m?: number;
+};
+/** 미시 지도 밑에 깔 고지도 도판. **없으면 층이 안 생긴다** — 도판이 없을 때
+ *  회색 상자가 깔리는 것보다 안 깔리는 게 낫다. */
+export const PACK_BASEMAPS: BasemapScan[] = ((Object.values(
+  import.meta.glob('../data/overlays/pack-basemaps.json', { eager: true, import: 'default' }))[0] as
+  { maps?: BasemapScan[] } | undefined)?.maps ?? [])
+  .filter(m => m && m.id && m.file && m.corners
+    && m.corners.w < m.corners.e && m.corners.s < m.corners.n);
+
 export const ALESIA = Object.values(import.meta.glob('../data/overlays/pack-alesia.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: unknown[] } | undefined;
 
