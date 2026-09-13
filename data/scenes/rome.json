@@ -347,5 +347,108 @@
     ],
     "group": "2회차 발표 · 카이사르 팩",
     "note": "공화국이라는 이름만 남기고, 로마는 한 사람의 나라가 된다."
+  },
+  {
+    "id": "sulla-88",
+    "title": "술라, 로마로 진군 · BC 88",
+    "year": -88,
+    "center": [
+      13.6,
+      41.5
+    ],
+    "zoom": 6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels"
+    ],
+    "group": "선례",
+    "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+  },
+  {
+    "id": "rome-italy-270",
+    "title": "1단계 · 이탈리아 반도 · BC 270",
+    "year": -270,
+    "center": [
+      9,
+      39.5
+    ],
+    "zoom": 4.6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels",
+      "story_battles"
+    ],
+    "group": "로마의 확장",
+    "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다."
+  },
+  {
+    "id": "rome-sicily-241",
+    "title": "2단계 · 시칠리아 · BC 241",
+    "year": -241,
+    "center": [
+      9,
+      39.5
+    ],
+    "zoom": 4.6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels",
+      "story_battles"
+    ],
+    "group": "로마의 확장",
+    "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙어 한 덩어리가 된다 — 로마 밖에 생긴 첫 영토다."
+  },
+  {
+    "id": "rome-africa-144",
+    "title": "3단계 · 카르타고 함락 이후 · BC 144",
+    "year": -144,
+    "center": [
+      9,
+      39.5
+    ],
+    "zoom": 4.6,
+    "pitch": 0,
+    "bearing": 0,
+    "view": "2d",
+    "skin": "campaign",
+    "layers": [
+      "territory",
+      "admin_regions",
+      "settlements",
+      "people",
+      "relief",
+      "rivers",
+      "labels",
+      "story_battles"
+    ],
+    "group": "로마의 확장",
+    "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다."
   }
 ]

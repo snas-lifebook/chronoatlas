@@ -8,7 +8,7 @@
 | ne_10m_lakes.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/lakes.geojson, bbox -15,20,65,60 |
 | ne_10m_glaciated_areas.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/glaciers.geojson, bbox -15,20,65,60 |
 | ne_10m_geography_marine_polys.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/marine_labels.geojson, bbox -15,20,65,60 |
-| ne_10m_geography_regions_polys.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/region_labels.geojson, bbox -15,20,65,60 |
+| ne_10m_geography_regions_polys.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/region_labels.geojson, bbox -15,20,65,60. **소비자 둘**: 어댑터(라벨용, `-simplify 10% -dissolve NAME`을 걸어 157개 중 128개가 geometry null인 라벨 리본이 된다)와 `scripts/build-plains.py`(원본 그대로 산맥·사막·델타 면을 쓴다. 없으면 같은 URL에서 이 경로로 직접 받는다) |
 | ne_10m_bathymetry_L_0.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=0 |
 | ne_10m_bathymetry_K_200.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=200 |
 | ne_10m_bathymetry_J_1000.geojson | Natural Earth 10m | Public Domain | → layers/bathy.geojson depth=1000 |

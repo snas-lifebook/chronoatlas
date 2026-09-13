@@ -41,7 +41,18 @@ export interface PersonAt {
 
 export interface TeachingCast {
   teaching?: boolean;
-  people: { id: string; place: string; from_year: number; to_year: number }[];
+  people: {
+    id: string; place: string; from_year: number; to_year: number;
+    /** 정본 graph에 없는 자리를 직접 준다. `place`만으로는 `graph.nodes.get(place)?.lonlat`이
+     *  필요해서, 정본에 그 place가 없으면 항목이 조용히 버려진다 — 카르라이가 그랬다
+     *  (정본에 `place:카르하이`·`place:하란`이 없고 가장 가까운 `place:에데사`가 40km 떨어져 있다). */
+    at?: [number, number];
+    /** 정본 배치를 **덮는다.** 기본 규칙은 「정본이 도시를 주면 교보재는 물러난다」인데,
+     *  교보재가 더 좁은 해를 아는 경우가 있다 — 크라수스의 정본 관계는 `ruled place:로마
+     *  -71..-49` 한 덩어리라 기원전 53년에도 그를 로마에 세운다. 그가 죽은 해에 죽은 자리에
+     *  세우려면 그 한 해만 덮어야 한다. **명시한 항목만** 덮으므로 기존 동작은 안 바뀐다. */
+    override?: boolean;
+  }[];
   /** 그 해 뒤로는 안 그린다. 정본의 굵은 구간이 죽은 사람을 계속 세워 둘 때만 쓴다.
    *  **연도는 반드시 정본에서 나와야 한다** — `source`에 어느 링크에서 왔는지 적는다. */
   gone?: { id: string; after_year: number; source: string }[];
@@ -283,13 +294,18 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       // `ruled 이집트` 하나뿐이라 이집트 권역 중심 — 화면 세로 90.6%, 대사창에 잘리는
       // 사막에 서 있었다. 클레오파트라는 도시 관계가 있어 정본 안에서 풀렸지만
       // 그는 도시 관계 자체가 없어 그 규칙이 안 걸린다. 좌표는 여전히 정본 place다.
-      if (out.has(t.id) && !regionOnly.has(t.id)) continue;
+      // `override`가 참이면 정본 도시 배치도 덮는다(그 항목의 해 안에서만).
+      if (!t.override && out.has(t.id) && !regionOnly.has(t.id)) continue;
       if (year < t.from_year || year > t.to_year) continue;
       const person = graph.nodes.get(t.id);
+      if (person?.type !== 'person') continue;
+      // 좌표는 정본 place에서, 없으면 항목이 직접 준 `at`에서. 둘 다 없으면 버린다 —
+      // 자리를 모르는 사람을 지도 어딘가에 세우지 않는다.
       const place = graph.nodes.get(t.place);
-      if (person?.type !== 'person' || !place?.lonlat) continue;
+      const at = place?.lonlat ?? t.at;
+      if (!at) continue;
       out.set(t.id, {
-        id: t.id, name: person.name, at: place.lonlat, place: place.id, placeName: place.name,
+        id: t.id, name: person.name, at, place: place?.id ?? t.place, placeName: place?.name ?? t.place.replace(/^place:/, ''),
         via: 'teaching', faction: person.faction, polity: null, polityName: null, asset: person.asset,
       });
     }
