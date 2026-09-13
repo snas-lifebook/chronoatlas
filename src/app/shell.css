@@ -15,7 +15,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell.is-present .shell-year-brief { display: none !important; } /* HUD에 합침 */
 .shell.is-present .shell-graph { display: none !important; }
 .shell.is-present .shell-right { top: 20px; left: auto; right: 24px; width: 360px; max-height: calc(100% - 48px); }
-.shell-present-hud { position: absolute; top: 20px; left: 24px; max-width: min(480px, 42vw); pointer-events: none; display: grid; gap: 4px;
+.shell-present-hud { position: absolute; top: 20px; max-width: min(480px, 42vw); pointer-events: none; display: grid; gap: 4px;
   padding: 10px 14px 12px; border-radius: 12px;
   background: color-mix(in srgb, var(--color-background-surface) 82%, transparent); backdrop-filter: blur(8px);
   border: 1px solid var(--color-border); box-shadow: var(--shadow-med, 0 4px 16px rgba(0,0,0,.08)); }
@@ -260,3 +260,40 @@ html[data-micro] .shell-present-hud .ph-stat,
 html[data-micro] .shell-present-hud .ph-ev,
 html[data-micro] .shell-present-hud .ph-look,
 html[data-micro] .shell-present-hud hr { display: none; }
+
+/* 설명창 세 단계와 좌우 전환 (River: "왼쪽 위에 설명창이 지도를 가린다")
+   full 전체 · slim 연도+말만 · off 숨김(되돌릴 단추만). H로 돌고 M으로 좌우. */
+.shell-present-hud.is-left { left: 24px; }
+.shell-present-hud.is-right { right: 24px; }
+.shell-present-hud .ph-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.shell-present-hud .ph-ctl { display: flex; gap: 2px; pointer-events: auto; }
+.shell-present-hud .ph-ctl button {
+  width: 22px; height: 22px; display: grid; place-items: center; border-radius: 4px;
+  font-size: 13px; line-height: 1; color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-primary); background: color-mix(in srgb, var(--color-bg-primary) 70%, transparent);
+}
+.shell-present-hud .ph-ctl button:hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); }
+.shell-present-hud.is-slim { max-width: min(320px, 30vw); }
+
+.shell-hud-peek {
+  position: absolute; top: 20px; pointer-events: auto;
+  border: 1px solid var(--color-border-primary); border-radius: 6px; padding: 5px 11px;
+  background: color-mix(in srgb, var(--color-bg-primary) 88%, transparent);
+  font: 600 15px/1 var(--font-family-body); font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary); cursor: pointer;
+}
+.shell-hud-peek.is-left { left: 24px; }
+.shell-hud-peek.is-right { right: 24px; }
+.shell-hud-peek:hover { border-color: var(--color-text-secondary); }
+
+/* 콜아웃 칸이 설명창과 같은 쪽에 있으면 서로 밀어낸다. 설명창이 오른쪽으로 갔을 때는
+   오른쪽 콜아웃 칸이 그 아래에서 시작해야 한다 — Callouts.tsx가 HUD 실측 높이를 읽는다. */
+/* 콜아웃 토글 — 키(C)만으로는 찾을 수 없다. 아래 가운데, 대사창 영역 밖. */
+.ca-callout-toggle {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  pointer-events: auto; z-index: 4;
+  border: 1px solid var(--color-border-primary); border-radius: 999px; padding: 5px 14px;
+  background: color-mix(in srgb, var(--color-bg-primary) 90%, transparent);
+  font: 500 12px/1 var(--font-family-body); color: var(--color-text-secondary); cursor: pointer;
+}
+.ca-callout-toggle:hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); }

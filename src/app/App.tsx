@@ -46,6 +46,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
+  // 발표 설명창. **지도를 가린다는 지적**(River)에 세 단계와 좌우 전환을 붙였다.
+  // slim에서도 연도와 말 이름은 남는다 — 「가려도 년도나 핵심 인물 정도는 뜨게」.
+  const [hud, setHud] = useState<'full' | 'slim' | 'off'>('full');
+  const [hudSide, setHudSide] = useState<'left' | 'right'>('left');
   const [playing, setPlaying] = useState(false);
   const [graph, setGraph] = useState<Graph | null>(null);
   const [searching, setSearching] = useState<false | 'find' | 'path'>(false);
@@ -112,6 +116,9 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching('find'); }
       else if (e.key === 'v' || e.key === 'V') store.set({ view: st.view === '2d' ? '3d' : '2d' }); // '3'은 레이어 3(도시)와 충돌해 V로
       else if (e.key === 'f' || e.key === 'F') store.set({ present: !st.present });
+      // H 설명창 접기(전체 → 간략 → 숨김 → 전체) · M 좌우 옮기기. 발표 중에 손이 가는 키다.
+      else if (e.key === 'h' || e.key === 'H') setHud(x => (x === 'full' ? 'slim' : x === 'slim' ? 'off' : 'full'));
+      else if (e.key === 'm' || e.key === 'M') setHudSide(x => (x === 'left' ? 'right' : 'left'));
       else if (e.key === '[' || e.key === ']') {
         e.preventDefault();
         const group = presentGroupOf(scenes, st.scene);
@@ -229,33 +236,45 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         const list = scenesInGroup(scenes, group);
         const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
         const cur = list[i] ?? scenes.find(sc => sc.id === s.scene);
-        return <div className="shell-present-hud">
-          <div className="ph-k">{i + 1} / {list.length}</div>
+        // 설명창이 지도를 가린다(River). H로 **전체 → 간략 → 숨김**을 돌고 M으로 좌우를 바꾼다.
+        // 간략에서도 **연도와 말 이름은 남긴다** — River가 「토글로 가려도 년도나 핵심 인물
+        // 정도는 뜨게 해야 한다」고 했다. 숨김에서는 되돌릴 단추 하나만 남는다.
+        if (hud === 'off') {
+          return <button className={`shell-hud-peek is-${hudSide}`} onClick={() => setHud('full')}
+                         title="설명 보이기 (H)">{fmt(s.year)} ▸</button>;
+        }
+        const brief_ = sceneBrief(cur?.id ?? null);
+        return <div className={`shell-present-hud is-${hudSide}${hud === 'slim' ? ' is-slim' : ''}`}>
+          <div className="ph-head">
+            <div className="ph-k">{i + 1} / {list.length}</div>
+            <div className="ph-ctl">
+              <button onClick={() => setHudSide(x => (x === 'left' ? 'right' : 'left'))}
+                      title="좌우 옮기기 (M)">{hudSide === 'left' ? '▸' : '◂'}</button>
+              <button onClick={() => setHud(x => (x === 'full' ? 'slim' : 'off'))}
+                      title="접기 (H)">{hud === 'full' ? '－' : '×'}</button>
+            </div>
+          </div>
           <div className="ph-t">{cur?.title ?? ''}</div>
           <div className="ph-y">{fmt(s.year)}</div>
-          {cur?.note && <div className="ph-n">{cur.note}</div>}
-          {(() => {                      // 북마크 사건 설명 — 발표자가 점프하면 읽을 것
-            const b = sceneBrief(cur?.id ?? null);
-            if (!b) return null;
-            return <>
-              {b.stat && <div className="ph-stat"><b>{b.stat.value}</b><span>{b.stat.label}</span></div>}
-              {b.event_ko && <div className="ph-ev">{b.event_ko}</div>}
-              {b.look_for && <div className="ph-look">볼 것 · {b.look_for}</div>}
-            </>;
-          })()}
+          {hud === 'full' && cur?.note && <div className="ph-n">{cur.note}</div>}
+          {hud === 'full' && brief_ && <>
+            {brief_.stat && <div className="ph-stat"><b>{brief_.stat.value}</b><span>{brief_.stat.label}</span></div>}
+            {brief_.event_ko && <div className="ph-ev">{brief_.event_ko}</div>}
+            {brief_.look_for && <div className="ph-look">볼 것 · {brief_.look_for}</div>}
+          </>}
           {people.length > 0 && (
             <div className="ph-row"><span className="ph-rk">말</span>
               <span className="ph-rv">{people.map(p => (
                 <button key={p.id} onClick={() => locate(p.id)}>{p.name}</button>
               ))}</span></div>
           )}
-          {brief.people.length > 0 && (
+          {hud === 'full' && brief.people.length > 0 && (
             <div className="ph-row"><span className="ph-rk">인물</span>
               <span className="ph-rv">{brief.people.map(p => (
                 <button key={p.id} onClick={() => locate(p.id)} title={`그 해에 활성인 관계 ${p.n}건`}>{p.name}</button>
               ))}</span></div>
           )}
-          {brief.happenings.length > 0 && (
+          {hud === 'full' && brief.happenings.length > 0 && (
             <div className="ph-row"><span className="ph-rk">그 해</span>
               <span className="ph-rv">{brief.happenings.map(h => (
                 h.id ? <button key={h.label} onClick={() => locate(h.id!)}>{h.label}</button> : <em key={h.label}>{h.label}</em>

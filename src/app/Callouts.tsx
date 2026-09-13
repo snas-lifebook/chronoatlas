@@ -29,7 +29,7 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
   const [size, setSize] = useState<[number, number]>([0, 0]);
   const [which, setWhich] = useState<MicroMap | null>(null);
   const [open, setOpen] = useState(true);
-  const [hudBottom, setHud] = useState(0);
+  const [hudBox, setHud] = useState<{ side: 'left' | 'right'; bottom: number }>({ side: 'left', bottom: 0 });
   const [anchors, setAnchors] = useState<Record<string, { x: number; y: number }>>({});
   const cardRef = useRef<Record<string, HTMLElement | null>>({});
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -41,8 +41,11 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
       setWhich(m);
       const cv = map.getCanvas();
       setSize([cv.clientWidth, cv.clientHeight]);
-      const hud = document.querySelector('.shell-present-hud');
-      setHud(hud ? (hud as HTMLElement).getBoundingClientRect().bottom : 0);
+      // 설명창은 M으로 좌우를 바꾼다. **어느 쪽에 있는지 읽어서** 그 쪽 칸만 밀어낸다 —
+      // 예전엔 왼쪽으로 못 박아서, 설명창을 오른쪽으로 옮기면 오른쪽 카드가 그 밑에 깔렸다.
+      const hud = document.querySelector('.shell-present-hud, .shell-hud-peek') as HTMLElement | null;
+      setHud(hud ? { side: hud.classList.contains('is-right') ? 'right' : 'left',
+                     bottom: hud.getBoundingClientRect().bottom } : { side: 'left', bottom: 0 });
       if (!m) { setPins([]); return; }
       setPins(CALLOUTS.filter(c => c.map === m).map(c => {
         const p = map.project(c.at);
@@ -100,7 +103,13 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
     });
   });
 
-  if (!which || !open || !pins.length) return null;
+  // 미시 지도에 들어왔는데 콜아웃이 꺼져 있으면 되돌릴 단추를 남긴다.
+  // River가 「토글로 보일수도 있고 숨길 수도 있고」라고 했고, 키(C)만으로는 찾을 수 없다.
+  if (which && !open) {
+    return <button className="ca-callout-toggle is-off" onClick={() => setOpen(true)}
+                   title="설명 보이기 (C)">설명 ▸</button>;
+  }
+  if (!which || !pins.length) return null;
   const [W, H] = size;
   const cols: Record<'left' | 'right', Pin[]> = { left: [], right: [] };
   for (const p of [...pins].sort((a, b) => a.c.num - b.c.num)) cols[p.c.side].push(p);
@@ -110,6 +119,7 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
   // 160자 이내로 묶여 있어(data/overlays/pack-callouts.json) 넘칠 일이 거의 없다.
   return (
     <div className="ca-callouts" ref={hostRef} aria-hidden={false}>
+      <button className="ca-callout-toggle" onClick={() => setOpen(false)} title="설명 숨기기 (C)">설명 ×</button>
       <svg className="ca-callout-lines" width={W} height={H}>
         {pins.map(p => {
           const a = anchors[p.c.id];
@@ -131,7 +141,7 @@ export function Callouts({ map }: { map: maplibregl.Map | null }) {
       </svg>
       {(['left', 'right'] as const).map(side => (
         <div key={side} className={`ca-callout-col is-${side}`}
-             style={{ width: CARD_W, top: side === 'left' ? Math.max(H * 0.05, hudBottom + 12) : H * 0.05 }}>
+             style={{ width: CARD_W, top: side === hudBox.side ? Math.max(H * 0.05, hudBox.bottom + 12) : H * 0.05 }}>
           {cols[side].map(p => (
             <article key={p.c.id} ref={el => { cardRef.current[p.c.id] = el; }} className="ca-card">
               <h4><span className="ca-card-num">{p.c.num}</span>{p.c.title}</h4>
