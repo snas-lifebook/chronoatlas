@@ -63,6 +63,12 @@ export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 /** 비국가 민족·주변 왕국 교보재. 정본이 국가 단위로만 코딩돼 게르마니아·다키아·
  *  사르마티아·아오르시·보스포루스·브리타니아가 한 면도 없다 — 갈리아와 같은 원인이다.
  *  기하는 Natural Earth(PD) 정점 복사이고 정본 폴리티와 겹침 0으로 잘라 냈다. */
+/** 평야·곡창지대 교보재. **세력이 아니라 지리**라서 `actor`가 없고 `kind`(granary/barren)만
+ *  본다 — `polityColor`를 타면 안 된다. 정본 폴리티와 **일부러 겹친다**(로마 영토 위에 곡창이
+ *  얹히는 그림이 맞다). 대표님 강의의 인과 축이 여기다 — 「평야 = 잉여생산물 = 제국」. */
+export const PACK_PLAINS = Object.values(import.meta.glob('../data/overlays/pack-plains.json', { eager: true, import: 'default' }))[0] as
+  { teaching?: boolean; features: Feature[] } | undefined;
+
 export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pack-peoples.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: Feature[] } | undefined;
 

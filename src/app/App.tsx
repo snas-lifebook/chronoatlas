@@ -33,6 +33,7 @@ const CATALOG: { id: string; label: string; p1?: boolean }[] = [
   { id: 'relief', label: '지형 음영' }, { id: 'bathy', label: '수심' }, { id: 'rivers', label: '강·호수' }, { id: 'labels', label: '지명' },
   { id: 'wind', label: '바람', p1: true }, { id: 'current', label: '해류', p1: true }, { id: 'climate', label: '기후', p1: true }, { id: 'landmarks', label: '지형지물' }, { id: 'graph', label: '관계 그래프' },
   { id: 'people', label: '인물 위치' },
+  { id: 'plains', label: '평야·곡창' },
   { id: 'board', label: '말판' },
 ];
 

@@ -7,7 +7,7 @@ import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BASEMAPS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BASEMAPS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -180,6 +180,8 @@ function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>)
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
+  // 평야·곡창은 **따로 켠다** — 항상 깔면 여덟 장이 노랗게 물든다. 장면이 `plains`를 쓸 때만.
+  plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
   territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
@@ -338,7 +340,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 게르마니아가 **어느 해에나** 뜬다 — 기원전 270년 화면에 사르마티아가 뜨면 그 자리는
     // 정본이 스키타이로 칠한 땅이다. 발표 여덟 장은 전부 기원전 60~27년이라 드러나지
     // 않았고, 「로마의 확장」 장면(BC 270·241·144)이 생기면서 나왔다.
-    ['peoples-fill', null], ['peoples-line', null], ['peoples-label', null]];
+    ['peoples-fill', null], ['peoples-line', null], ['peoples-label', null],
+    ['plains-granary', null], ['plains-barren', null], ['plains-line', null], ['plains-label', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
   const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
@@ -569,6 +572,39 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'raster-opacity': bm.opacity ?? 0.85, 'raster-fade-duration': 0 } } as any, anchorId);
       // 같은 줌 게이트를 타게 그룹에 등록한다 — syncDetailMaps가 그대로 켜고 끈다.
       if (LAYER_GROUPS[bm.id] && !LAYER_GROUPS[bm.id].includes(sid)) LAYER_GROUPS[bm.id].unshift(sid);
+    }
+
+    // ── 평야·곡창지대 교보재 ───────────────────────────────────────────────
+    //
+    // 대표님 강의의 **인과 축**이 여기다. "평야지대가 없는 거예요. 먹고 살게 없어요.
+    // 그래서 제국이 이루어질 수 없어요. 제국이 이루어지려면 잉여 생산물이 많이 생겨야만."
+    // 그런데 우리 지도에 평야가 한 조각도 없었다 — 이집트 장면이 「왜 이집트인가」에
+    // 한 픽셀도 대답하지 못했다.
+    //
+    // **세력이 아니라 지리다.** `actor`가 없고 `kind`(granary/barren)만 본다 —
+    // polityColor를 타면 안 된다. 정본 폴리티와 **일부러 겹치므로** 정본 아래에 깔고
+    // 불투명도를 낮춘다(로마 영토색 위에 곡창이 얹히는 그림).
+    if (PACK_PLAINS?.features?.length && !map.getSource('plains')) {
+      map.addSource('plains', { type: 'geojson', data: PACK_PLAINS as any });
+      const isKind = (k: string): any => ['==', ['get', 'kind'], k];
+      // 곡창은 밀빛, 척박은 회사(灰砂). 채도를 낮게 둔다 — 이 층은 배경 설명이고
+      // 주인공은 그 위의 영토·말·경로다.
+      map.addLayer({ id: 'plains-granary', type: 'fill', source: 'plains', filter: isKind('granary'),
+        paint: { 'fill-color': '#C9A83F', 'fill-opacity': 0.3 } }, 'territory-fill');
+      map.addLayer({ id: 'plains-barren', type: 'fill', source: 'plains', filter: isKind('barren'),
+        paint: { 'fill-color': '#9B8F7A', 'fill-opacity': 0.16 } }, 'territory-fill');
+      map.addLayer({ id: 'plains-line', type: 'line', source: 'plains', filter: isKind('granary'),
+        paint: { 'line-color': '#8A6D1B', 'line-width': 1, 'line-dasharray': [3, 2], 'line-opacity': 0.5 } }, 'territory-fill');
+      // 이름표는 **대푯점**에 붙인다 — 발칸 2조각·시리아 3조각이라 폴리곤에 직접 얹으면
+      // 조각마다 찍힌다(repPointsFC 주석 참고).
+      map.addSource('plains-pt', { type: 'geojson', data: repPointsFC(PACK_PLAINS.features as unknown[], () => true) as any });
+      map.addLayer({ id: 'plains-label', type: 'symbol', source: 'plains-pt',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 11, 6, 14] as any, 'text-max-width': 9,
+          'text-letter-spacing': 0.06, 'text-allow-overlap': false, 'text-optional': true,
+          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.5 } as any,
+        paint: { 'text-color': ['case', isKind('granary'), '#6B5310', '#6B6353'] as any,
+          'text-halo-color': halo(), 'text-halo-width': 2 } }, before);
     }
 
     // ── 주변 민족·왕국 교보재 ──────────────────────────────────────────────
