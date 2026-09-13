@@ -229,10 +229,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       // 같은 소스를 로마색으로 한 겹 더. pack-extent-51에만 켠다 — present.showGalliaRoman 참조.
       // 색은 정본 팔레트에서 꺼낸다(P2: 지도 유채색은 데이터 색뿐). 불투명도는 territory-fill과 같은 0.22.
       const romeColor = d.actors.find(a => a.id === '로마')?.color ?? FALLBACK_COLOR;
+      // **속주보다 옅게.** BC 51에 갈리아는 정복됐지만 속주가 아니다 — 갈리아 코마타의 속주
+      // 편성은 아우구스투스 때다(BC 27 인구조사, 3분할은 보통 BC 22로 잡고 학계 폭은 27~13).
+      // 나르보넨시스(BC 121부터 정식 속주)와 같은 농도로 칠하면 그 차이가 지워진다.
+      // 그래서 면은 옅게, 테두리는 점선으로 — 「로마 손에 들어왔으나 아직 속주는 아님」.
       map.addLayer({ id: 'gallia-roman', type: 'fill', source: 'gallia-free',
-        paint: { 'fill-color': romeColor, 'fill-opacity': 0.22 } }, before);
+        paint: { 'fill-color': romeColor, 'fill-opacity': 0.12 } }, before);
       map.addLayer({ id: 'gallia-roman-line', type: 'line', source: 'gallia-free',
-        paint: { 'line-color': romeColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+        paint: { 'line-color': romeColor, 'line-width': 1.6, 'line-opacity': 0.9, 'line-dasharray': [4, 2] } }, before);
     }
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
