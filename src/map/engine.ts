@@ -1,7 +1,7 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, OPEN_PAST, routeGeometry } from '../schema';
-import { buildStyle, type Skin } from './style';
+import { buildStyle, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
@@ -189,6 +189,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // 다시 얹으므로(아래 setSkin 참고) 북마크로 들어온 스킨 때문에 스타일을 두 번 빌드하게 된다.
   const themeSkin: Skin = dark ? 'dark' : 'light';
   const style = buildStyle(d.manifest, root, ds, s0.skin && s0.skin !== themeSkin ? { skin: s0.skin } : { dark });
+  /** 지금 화면에 깔린 스킨. **OS 테마(`isDark`)와 다를 수 있다.**
+   *
+   *  라벨 테두리를 `isDark`로 고르면 River의 맥처럼 OS가 다크일 때 **작전 스킨(밝은 양피지)
+   *  위에 먹색 테두리**가 깔린다. 글자색까지 세력색(짙은 적·청)이라 이름표가 통째로 검은
+   *  얼룩이 됐다 — 9/13 라이브에서 카이사르·폼페이우스·마우레타니아가 전부 그 모양이었고,
+   *  납품한 아홉 장도 같은 상태로 나갔다. 테두리는 **바탕을 따라가야** 한다. 스킨 토큰이
+   *  이미 `halo`를 갖고 있으니(style.ts MAP) 그걸 쓴다. */
+  let activeSkin: Skin = s0.skin ?? themeSkin;
+  const halo = () => MAP[activeSkin].halo as string;
   // 카메라는 상태에서 온다. main.tsx가 URL·장면을 이미 상태에 접어 넣은 뒤 엔진을 만든다.
   const bb = d.manifest.bbox;
   const map = new maplibregl.Map({ container, style, center: s0.center ?? d.manifest.center, zoom: s0.zoom ?? d.manifest.zoom, minZoom: 3, maxZoom: s0.board ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM,
@@ -375,7 +384,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
     if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
-    if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': isDark ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': isDark ? '#3A424C' : '#FFFFFF' } }, before);
+    if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
     // 베이크된 relief.jpg(NE Gray Earth 1.85km/px)와 겹치면 그림자가 두 벌이라 능선이 뭉갠다 — DEM 음영이 해상도·광원 모두 낫다.
     if (map.getLayer('relief')) map.removeLayer('relief');
     syncTerrain();
@@ -436,7 +445,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'symbol-sort-key': ['-', 0, ['get', 'area']] } as any,
       // 가독성(River: "지리지역 텍스트 가독성이 안 좋다"). 세력색 글자가 같은 색 면 위에 얹혀
       // 대비가 낮았다. 후광을 두껍게 하고 불투명도를 올린다.
-      paint: { 'text-color': fillColor, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.6, 'text-opacity': 1 },
+      paint: { 'text-color': fillColor, 'text-halo-color': halo(), 'text-halo-width': 2.6, 'text-opacity': 1 },
       filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
@@ -461,7 +470,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         // 미끄러져 산다. variable-anchor는 text-offset을 무시하므로 radial-offset을 쓴다.
         'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 1.05,
         'text-optional': true, 'text-allow-overlap': false },
-      paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
+      paint: { 'text-color': '#3A2F22', 'text-halo-color': halo(), 'text-halo-width': 1.8 } }, before);
     // ── 알레시아 세부(BG 7.68~7.74). 포위선 두 겹이 이 장면의 전부다 —
     //    안쪽은 농성군을, 바깥쪽은 구원군을 막는다. 그 두 선이 보이면 「이중 포위」가 설명된다.
     if (ALESIA?.features?.length && !map.getSource('alesia')) {
@@ -492,7 +501,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } } as any);
+        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } } as any);
     }
     // ── 로마 시내(공화정 말기). 암살 자리는 따로 표시한다.
     if (ROMA_URBS?.features?.length && !map.getSource('roma-urbs')) {
@@ -522,7 +531,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } });
+        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } });
     }
     // ── 알렉산드리아(기원전 48~47). 카이사르가 갇혀 싸운 도시다.
     if (ALEXANDRIA?.features?.length && !map.getSource('alexandria')) {
@@ -556,7 +565,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } });
+        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } });
     }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
@@ -568,7 +577,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
           'text-radial-offset': 1.4, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#3A2F22', 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.8 } }, before);
+        paint: { 'text-color': '#3A2F22', 'text-halo-color': halo(), 'text-halo-width': 1.8 } }, before);
     }
     // 말판(R37). 페이즈마다 통째로 setData. 보간하지 않는다. 아이콘 색은 팔레트(데이터 색, P2).
     const actorIds = d.actors.map(a => a.id);
@@ -631,7 +640,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         // 검은 얼룩이 된 원인이 이것이다. false면 인물 이름이 자리를 점유하므로 남들이 비켜 간다.
         'text-allow-overlap': true, 'text-ignore-placement': false,
         'text-pitch-alignment': 'viewport' },
-      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.2 } }, before);
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 2.2 } }, before);
     // 군기 + 병력. **말 위로 세로로 쌓는다** — 깃발 / 말 / 이름 / 병력.
     //
     // 예전에는 깃발이 오른쪽(anchor bottom-left, offset [26,10])에 섰다. 그러면 옆에 다른
@@ -658,7 +667,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'text-offset': ['array', 'number', 2, ['get', 'forceOffset']],
         'text-anchor': ['coalesce', ['get', 'anchor'], 'top'],
         'text-allow-overlap': true, 'text-optional': true, 'text-pitch-alignment': 'viewport' } as any,
-      paint: { 'text-color': ['get', 'color'] as any, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.4 } }, before);
+      paint: { 'text-color': ['get', 'color'] as any, 'text-halo-color': halo(), 'text-halo-width': 2.4 } }, before);
     syncPeopleIcons(peopleFc);
     // **이야기 전투 이름을 도시 이름보다 먼저 놓는다.** MapLibre는 스타일 배열 순서대로
     // 자리를 잡아서, 먼저 온 레이어가 자리를 이긴다. 정착지 이름표가 먼저라 기원전 48년
@@ -671,7 +680,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,
       layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
         'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
-      paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 1.4 } }, before);
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 1.4 } }, before);
     const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS] };
     // 화면에 깔리는 것은 **휜 사본**이다. 원본은 tokenRoutes가 그대로 쓴다 —
     // 말은 실제 정점을 밟아야 하고(walkRoute가 좌표 일치로 구간을 찾는다) 선만 활이 된다.
@@ -682,7 +691,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 끊겨 보인다. 밑에 종이색 테를 한 겹 두면 연한 선도 끝까지 이어져 읽힌다. 지도에서
     // 흔히 쓰는 casing이고, 연하게 만들기와 읽히게 만들기를 동시에 푸는 유일한 방법이다.
     map.addLayer({ id: 'movement-halo', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': isDark ? '#11161C' : '#F3EFE4',
+      paint: { 'line-color': halo(),
         'line-width': ['interpolate', ['linear'], ['zoom'], 3, 5, 6, 8] as any,
         'line-opacity': 0.55 } }, before);
     // **지난 구간일수록 옅다.** 옛 값은 전 구간이 0.92라 열세 줄이 똑같은 목소리로 떠들었다.
@@ -974,9 +983,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     home() { if (bb) map.fitBounds([[bb[0] + 12, bb[1] + 8], [bb[2] - 20, bb[3] - 10]], { padding: 40, duration: dur(900) }); },
     zoom(delta: number) { map.easeTo({ zoom: map.getZoom() + delta, duration: dur(300) }); },
     // 테마 전환: 베이스맵 스타일 재빌드 → 데이터 레이어 다시 얹기(setStyle이 소스·레이어를 지운다)
-    setDark(dk: boolean) { isDark = dk; loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
+    setDark(dk: boolean) { isDark = dk; activeSkin = dk ? 'dark' : 'light'; loaded = false; map.once('style.load', addData); map.setStyle(buildStyle(d.manifest, root, ds, { dark: dk })); },
     // 스킨 갈아끼우기(내보내기용). idle까지 기다렸다 resolve.
     setSkin(skin: Skin | null): Promise<void> {
+      activeSkin = skin ?? (isDark ? 'dark' : 'light'); // 라벨 테두리가 따라간다 — setStyle보다 **먼저**
       loaded = false; map.once('style.load', addData);
       map.setStyle(buildStyle(d.manifest, root, ds, skin ? { skin } : { dark: isDark }));
       return new Promise(res => map.once('idle', () => res()));
