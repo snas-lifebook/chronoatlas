@@ -11,7 +11,10 @@ const M_PER_PX_Z0 = 40075016.686 / 512; // Web Mercator, 512px 타일
 // 발표 시점이 지중해 전역(z4.2)으로 고정돼 있어 여기서는 **상한이 실제로 물린다.**
 // 옛 상한 180km는 말을 받침 57px로 눌러 얼굴이 안 보였고, 360km는 115px로 판을 덮었다
 // (River가 두 번 "너무 크다"). 145km면 받침 ~46px · 얼굴 ~31px — 얼굴은 알아보이고 판은 안 덮는다.
-const MIN_M = 14000, MAX_M = 145000;
+// 하한 14000m은 줌 천장이 9였을 때의 값이다. 천장을 15로 올리자 z12.4에서 말이
+// 972px가 되어 알레시아 포위선을 통째로 덮었다. 하한은 「너무 작아져 사라지는 것」만
+// 막으면 되고, 크기 유지는 상한이 한다. 120m이면 z15에서도 ~67px다.
+const MIN_M = 120, MAX_M = 145000;
 
 export function tokenMeters(zoom: number): number {
   const m = (M_PER_PX_Z0 / Math.pow(2, zoom)) * SCREEN_PX;

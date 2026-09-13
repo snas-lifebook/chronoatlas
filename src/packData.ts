@@ -31,6 +31,9 @@ export function legionsAt(personId: string, year: number) {
   return best;
 }
 
+export const ROMA_URBS = Object.values(import.meta.glob('../data/overlays/pack-roma-urbs.json', { eager: true, import: 'default' }))[0] as
+  { teaching?: boolean; features: unknown[] } | undefined;
+
 const sceneText = Object.values(import.meta.glob('../data/overlays/pack-scene-text.json', { eager: true, import: 'default' }))[0] as
   { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> } | undefined;
 

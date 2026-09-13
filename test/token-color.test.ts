@@ -21,6 +21,13 @@ describe('장기말 화면 크기', () => {
   it('줌이 낮을수록 미터 크기가 커져 지중해에서도 읽힌다', () => {
     expect(tokenMeters(4.2)).toBeGreaterThan(tokenMeters(6));
     expect(tokenMeters(4.2)).toBeGreaterThan(80000);
-    expect(tokenMeters(9)).toBeGreaterThanOrEqual(14000);
+    // 진짜 의도는 「미터가 크다」가 아니라 **화면 크기가 거의 일정하다**는 것이다.
+    // 옛 테스트는 하한 14000m을 박아 뒀는데, 그 하한이 줌 천장을 15로 올린 뒤
+    // z12.4에서 말을 972px로 부풀려 알레시아 포위선을 덮었다. 화면 px로 본다.
+    const px = (z: number) => tokenMeters(z) / (40075016.686 / 512 / Math.pow(2, z));
+    for (const z of [5, 7, 9, 12.4, 15]) {
+      expect(px(z), `z${z}`).toBeGreaterThan(40);
+      expect(px(z), `z${z}`).toBeLessThan(110);
+    }
   });
 });

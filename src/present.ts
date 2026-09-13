@@ -14,6 +14,13 @@ export function showAlesia(scene: string | null, zoom = 0): boolean {
   return scene === ALESIA_SCENE || zoom >= ALESIA_MIN_ZOOM;
 }
 
+/** 로마 시내 미시 지도도 같은 규칙 — 「로마로 들어가면 보여지겠지」(River).
+ *  포메리움·폼페이우스 회랑·일곱 언덕은 지중해 축척에서 점 하나다. */
+export const ROMA_MIN_ZOOM = 12;
+export function showRomaUrbs(zoom = 0): boolean {
+  return zoom >= ROMA_MIN_ZOOM;
+}
+
 /** 갈리아 교보재는 판도 BC60 장면에만. 다른 해에 얹으면 Cliopatria 위를 덮어 영역이 깨진다. */
 export function showGalliaOverlay(scene: string | null, year: number): boolean {
   return scene === GALLIA_SCENE && year < -51;

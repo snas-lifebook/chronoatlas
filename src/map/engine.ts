@@ -5,12 +5,16 @@ import { buildStyle, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { showAlesia, showGalliaOverlay, showGalliaRoman } from '../present';
-import { ALESIA, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
+import { showAlesia, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
+import { ALESIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
-const MAP_MAX_ZOOM = 9;
+// 9였다. 베이스맵이 거기서 바닥나기 때문인데, **세부 오버레이가 생기면서 천장이 막이 됐다** —
+// 알레시아 포위선은 z12.4, 로마 시내는 z14가 있어야 보이는데 z9에서 잘려 영영 도달할 수 없었다.
+// 말판이 같은 이유로 이미 12로 올려 두고 있었다. 그 위는 지형 음영이 흐려지지만
+// 그 축척의 내용은 벡터 오버레이가 댄다.
+const MAP_MAX_ZOOM = 15;
 const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다.
 const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
 
@@ -98,6 +102,10 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
   alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-outer', 'alesia-inner',
            'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label'],
+  // 로마 시내 미시 지도. 줌 12 이상에서 자동으로. 포메리움이 이 지도의 요점이다 —
+  // 장군이 무장한 채 넘을 수 없던 선이고, 루비콘이 왜 사건인지가 거기서 설명된다.
+  roma: ['roma-field', 'roma-hill', 'roma-pomerium', 'roma-wall', 'roma-river', 'roma-road',
+         'roma-site', 'roma-ides', 'roma-label'],
 };
 // 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
 // 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
@@ -240,7 +248,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
   };
   map.on('zoom', syncTerrain);
-  map.on('zoomend', () => { const st = store.get(); if (map.getLayer('alesia-inner')) { const on = showAlesia(st.scene, map.getZoom()); for (const id of LAYER_GROUPS.alesia) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); } }); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
+  // 세부 지도 둘은 **줌으로** 켠다 — 발표 장면 수는 아홉으로 묶여 있고(River),
+  // 세부는 「거기로 들어가면 보인다」가 맞는 동작이다.
+  function syncDetailMaps(scene: string | null) {
+    const z = map.getZoom();
+    const set = (ids: string[], on: boolean) => { for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); };
+    if (map.getLayer('alesia-inner')) set(LAYER_GROUPS.alesia, showAlesia(scene, z));
+    if (map.getLayer('roma-pomerium')) set(LAYER_GROUPS.roma, showRomaUrbs(z));
+  }
+  map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
 
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
@@ -341,6 +357,36 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
           'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
         paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } } as any);
+    }
+    // ── 로마 시내(공화정 말기). 암살 자리는 따로 표시한다.
+    if (ROMA_URBS?.features?.length && !map.getSource('roma-urbs')) {
+      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
+      const kin = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
+      map.addSource('roma-urbs', { type: 'geojson', data: { type: 'FeatureCollection', features: ROMA_URBS.features } as any });
+      const addR = (l: object) => map.addLayer({ ...(l as object), layout: { ...((l as { layout?: object }).layout ?? {}), visibility: 'none' } } as any, before);
+      addR({ id: 'roma-field', type: 'fill', source: 'roma-urbs', filter: kin('field', 'circus', 'forum'),
+        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.3 } });
+      addR({ id: 'roma-hill', type: 'fill', source: 'roma-urbs', filter: kin('hill'),
+        paint: { 'fill-color': '#9C8C63', 'fill-opacity': 0.28, 'fill-outline-color': '#6B6353' } });
+      // 포메리움 — 무장한 장군이 넘을 수 없던 선. 점선으로, 성벽과 구분되게.
+      addR({ id: 'roma-pomerium', type: 'line', source: 'roma-urbs', filter: kin('boundary'),
+        paint: { 'line-color': '#7A3E8C', 'line-width': 3, 'line-dasharray': [4, 2], 'line-opacity': 0.95 } });
+      addR({ id: 'roma-wall', type: 'line', source: 'roma-urbs', filter: kin('wall'),
+        paint: { 'line-color': '#4A4538', 'line-width': 3.2, 'line-opacity': 0.9 } });
+      addR({ id: 'roma-river', type: 'line', source: 'roma-urbs', filter: kin('river'),
+        paint: { 'line-color': '#5B86A8', 'line-width': 4, 'line-opacity': 0.9 } });
+      addR({ id: 'roma-road', type: 'line', source: 'roma-urbs', filter: kin('road'),
+        paint: { 'line-color': '#8A7B5C', 'line-width': 2.2, 'line-dasharray': [6, 3], 'line-opacity': 0.8 } });
+      addR({ id: 'roma-site', type: 'circle', source: 'roma-urbs', filter: kin('temple', 'theatre', 'building', 'gate'),
+        paint: { 'circle-radius': 5, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.4 } });
+      // 3월 15일 자리
+      addR({ id: 'roma-ides', type: 'circle', source: 'roma-urbs', filter: ['==', ['get', 'assassination'], true] as any,
+        paint: { 'circle-radius': 11, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 } });
+      addR({ id: 'roma-label', type: 'symbol', source: 'roma-urbs',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
+          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
+        paint: { 'text-color': '#2B2721', 'text-halo-color': '#FFFFFF', 'text-halo-width': 2.2 } });
     }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);
@@ -621,10 +667,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       if (map.getLayer('gallia-roman-line')) map.setLayoutProperty('gallia-roman-line', 'visibility', showRoman ? 'visible' : 'none');
     }
     hideAnachronisticPlaces(map, s.year);
-    if (map.getLayer('alesia-inner')) {
-      const on = showAlesia(s.scene, map.getZoom());
-      for (const id of LAYER_GROUPS.alesia) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
-    }
+    syncDetailMaps(s.scene);
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
