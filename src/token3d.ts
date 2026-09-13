@@ -6,12 +6,15 @@ import * as maplibregl from 'maplibre-gl';
 // 탑다운 = 장기 팔각 + 글자. pitch = 폰 실루엣.
 
 const ANIM_MS = 1200; // 북마크 점프가 텔레포트로 안 읽히게. 연도 슬라이더도 같은 속도로 걷는다.
-const SCREEN_PX = 64; // 지중해 줌에서 말 한 알.
+const SCREEN_PX = 96; // 지중해 줌에서 말 한 알. 얼굴이 들어가므로 뱃지 시절보다 크다.
 const M_PER_PX_Z0 = 40075016.686 / 512; // Web Mercator, 512px 타일
+// 상한이 실제로 물린다. 발표 시점이 지중해 전역(z4.2)으로 고정돼 있는데 옛 상한 180km는
+// 거기서 말을 42px로 눌러 얼굴이 안 보였다. 상한을 올려 지중해 줌에서도 말이 말답게 선다.
+const MIN_M = 14000, MAX_M = 360000;
 
 export function tokenMeters(zoom: number): number {
   const m = (M_PER_PX_Z0 / Math.pow(2, zoom)) * SCREEN_PX;
-  return Math.max(14000, Math.min(180000, m));
+  return Math.max(MIN_M, Math.min(MAX_M, m));
 }
 
 function easeOutCubic(t: number) {
@@ -29,7 +32,7 @@ function walkRoute(route: [number, number][], from: [number, number], to: [numbe
   return iFrom < iTo ? route.slice(iFrom, iTo + 1) : route.slice(iTo, iFrom + 1).reverse();
 }
 
-function pieceMesh(color: string) {
+function pieceMesh(color: string, portrait?: string | null, onTexture?: () => void) {
   const mat = new THREE.MeshBasicMaterial({ color });
   const dark = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(0.72).getHex() });
   const ring = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -37,16 +40,36 @@ function pieceMesh(color: string) {
 
   const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.68, 0.14, 24), dark);
   plinth.position.y = 0.07;
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.52, 0.62, 8), mat);
-  body.position.y = 0.45;
-  const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.04, 8), ring);
-  rim.position.y = 0.78;
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.26, 0.16, 12), dark);
-  neck.position.y = 0.84;
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 20, 16), mat);
-  head.position.y = 1.1;
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.50, 0.58, 0.34, 8), mat);
+  body.position.y = 0.31;
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.54, 0.54, 0.05, 8), ring);
+  rim.position.y = 0.50;
+  // 세력색 테 — 얼굴 판을 두른다. 누구 편인지는 색이 말하고, 누구인지는 얼굴이 말한다.
+  const bezel = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.07, 32), mat);
+  bezel.position.y = 0.54;
+  group.add(plinth, body, rim, bezel);
 
-  group.add(plinth, body, rim, neck, head);
+  // **얼굴 판.** 정본 초상(`assets/portraits/*.webp`)을 말 윗면에 얹는다.
+  //
+  // 초상 뱃지는 한 번 퇴짜맞은 적이 있다(PACK-CAESAR §5 「줌 4에서 ~10px」). 그건 MapLibre
+  // icon-image라 **화면 고정 크기**였기 때문이고, 여기서는 말의 일부라 `tokenMeters`를 따라
+  // 커진다 — 지중해 줌에서도 얼굴이 말 지름만큼(≈87 CSS px) 나온다. 같은 그림, 다른 자리.
+  //
+  // 윗면인 이유는 발표 시점이 탑다운(pitch 0)이라서다. 위에서 내려다보면 이 면이 정면이다.
+  const face = new THREE.Mesh(
+    new THREE.CircleGeometry(0.46, 48),
+    new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  face.rotation.x = -Math.PI / 2;   // 국소 +y(말의 위)를 보게
+  face.position.y = 0.58;
+  group.add(face);
+  if (portrait) {
+    new THREE.TextureLoader().load(portrait, tex => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      (face.material as THREE.MeshBasicMaterial).map = tex;
+      (face.material as THREE.MeshBasicMaterial).needsUpdate = true;
+      onTexture?.();
+    }, undefined, () => { /* 초상이 없으면 흰 판으로 남는다 */ });
+  }
   // three +y(위) → mercator +z(고도). 모델 행렬이 y를 뒤집어 쓰므로(.scale(s,-s,s))
   // 부호는 **+**다. -로 두면 말이 서지 않고 **땅에 누워** 받침에서 머리로 가는
   // 물방울 실루엣이 된다 — 9/12 캡처 넷이 다 그 모양이었다(docs/verify/pack-rubicon.png).
@@ -57,15 +80,16 @@ function pieceMesh(color: string) {
 let tokenSeq = 0;
 
 export type Token = ReturnType<typeof createToken>;
-export function createToken(color: string, name = '') {
+export function createToken(color: string, name = '', portrait?: string | null) {
   const camera = new THREE.Camera();
   const scene = new THREE.Scene();
-  const group = pieceMesh(color);
+  let renderer: THREE.WebGLRenderer | null = null;
+  let map: maplibregl.Map | null = null;
+  // 초상은 비동기로 온다. 도착하면 한 프레임 더 돌려야 얼굴이 실제로 찍힌다.
+  const group = pieceMesh(color, portrait, () => map?.triggerRepaint());
   group.userData.name = name;
   scene.add(group);
 
-  let renderer: THREE.WebGLRenderer | null = null;
-  let map: maplibregl.Map | null = null;
   let pos: [number, number] | null = null;
   let route: [number, number][] = [];
   let animPath: [number, number][] | null = null;

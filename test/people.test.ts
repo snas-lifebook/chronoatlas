@@ -131,7 +131,9 @@ describe('말 벌림은 화면 기준이다 (spreadDeg)', () => {
     // BC48 알렉산드리아가 겹쳤던 줌. 말 폭(≈1.36 × tokenMeters)의 절반보다 커야 떨어진다
     expect(spreadDeg(4.9)).toBeGreaterThan(0.9);
     // 바짝 당긴 줌에서는 도시에서 말이 멀리 튀지 않아야 한다
-    expect(spreadDeg(8)).toBeLessThan(0.2);
+    expect(spreadDeg(8)).toBeLessThan(0.3);
+    // 발표 시점(지중해 전역 z4.2)에서는 상한에 물려 일정하다 — 말이 서로 안 겹칠 만큼 크다
+    expect(spreadDeg(4.2)).toBeCloseTo(spreadDeg(3.5), 5);
   });
   it('같은 장소 두 사람이 말 폭보다 멀리 떨어진다', () => {
     const two = [

@@ -89,7 +89,7 @@ function occurredPlace(graph: Graph, eventId: string): { id: string; name: strin
  *  한쪽을 고치면 다른 쪽도 고칠 것. 말 폭은 받침 지름 1.36단위이므로 반지름 0.8배면
  *  두 말이 살짝 떨어진다. */
 export function spreadDeg(zoom: number): number {
-  const m = Math.max(14000, Math.min(180000, (40075016.686 / 512 / Math.pow(2, zoom)) * 64));
+  const m = Math.max(14000, Math.min(360000, (40075016.686 / 512 / Math.pow(2, zoom)) * 96));
   return (m * 0.8) / 111320;
 }
 

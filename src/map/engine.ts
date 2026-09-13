@@ -80,8 +80,12 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number) {
     if (!map.getLayer(id)) continue;
     if (!BASE_FILTER.has(id)) BASE_FILTER.set(id, map.getFilter(id) ?? null);
     const base = BASE_FILTER.get(id) as any;
-    const excl: any = ['!', ['in', ['get', 'id'], ['literal', hide]]];
-    map.setFilter(id, (hide.length ? (base ? ['all', base, excl] : excl) : base) as any);
+    // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다. 발표 줌에서
+    // rank2를 켜면서 「로마」·「알렉산드리아」가 두 번 찍혔다. 겹치는 쪽을 뺀다.
+    const dup = id.startsWith('label-settle') ? [...PACK_PLACES] : [];
+    const out = [...hide, ...dup];
+    const excl: any = ['!', ['in', ['get', 'id'], ['literal', out]]];
+    map.setFilter(id, (out.length ? (base ? ['all', base, excl] : excl) : base) as any);
   }
 }
 
@@ -164,12 +168,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (!tokenMod || !map.getStyle()) return;
     const seen = new Set<string>();
     if (peopleLayerOn) {
-      for (const f of fc.features as { properties: { id: string; name: string; color: string }; geometry: { coordinates: [number, number] } }[]) {
+      for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null }; geometry: { coordinates: [number, number] } }[]) {
         const p = f.properties; if (!p?.id) continue;
         seen.add(p.id);
         let t = peopleTokens.get(p.id);
         if (!t) {
-          t = tokenMod.createToken(p.color || '#6B6F76', p.name);
+          // 초상을 말 윗면에 얹는다 — 말이 누구인지 색만으로는 안 갈린다(로마 안에서 편이 갈린다)
+          t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null);
           const path = tokenRoutes.get(p.id);
           if (path) t.setRoute(path);
           if (!map.getLayer(t.layer.id)) map.addLayer(t.layer);
@@ -297,9 +302,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'people-label', type: 'symbol', source: 'people',
       layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, 14, 6, 16, 9, 18] as any,
-        // 1.35em이면 장기말 받침(반지름 0.68단위 ≈ 45 CSS px)에 이름이 묻힌다.
-        // 말이 누워 있던 동안에는 안 겹쳤고, 세우고 나서 드러난 자리다.
-        'text-offset': [0, 3.3], 'text-anchor': 'top', 'text-optional': false,
+        // 말이 커질 때마다 여기가 문제가 된다. 얼굴 판을 넣으며 말 반지름이 ~73 CSS px가
+        // 됐는데 3.3em(≈79px)은 후광까지 치면 말에 닿는다. 말 밖으로 확실히 내보낸다.
+        'text-offset': [0, 5.2], 'text-anchor': 'top', 'text-optional': false,
         // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
         // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
         // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가

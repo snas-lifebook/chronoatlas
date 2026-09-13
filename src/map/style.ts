@@ -92,7 +92,9 @@ export function buildStyle(m: BasemapManifest, root: string, ds: string, opt: { 
   }
   // 정착지 라벨: 데이터셋 settlements(어댑터 산출) — rank LOD z3/5/7. 마커는 main이 같은 소스로 그린다.
   sources.settlements = { type: 'geojson', data: `${base}/layers/settlements.geojson`, promoteId: 'id' }; // 엔진의 hover·selected·linked feature-state가 이 id를 쓴다
-  for (const [rank, minzoom, size, font] of [[1, 3, 13, FONT.bold], [2, 5, 12, FONT.regular], [3, 7, 11, FONT.regular]] as const) {
+  // 발표 시점이 지중해 전역(z4.2)에 고정돼 있다. rank2 minzoom이 5면 그 화면에서
+  // 그리스·시리아·카르타고·안티오키아가 통째로 안 뜬다 — 「국가·지명·도시가 나와야 한다」.
+  for (const [rank, minzoom, size, font] of [[1, 3, 13, FONT.bold], [2, 4, 12, FONT.regular], [3, 6.5, 11, FONT.regular]] as const) {
     layers.push(sym(`label-settle-${rank}`, 'settlements',
       { 'text-field': ['get', 'name_ko'], 'text-font': [...font], 'text-size': size, 'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
         'text-radial-offset': 0.7, 'text-justify': 'auto' },
