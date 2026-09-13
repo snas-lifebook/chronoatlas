@@ -132,7 +132,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   // 알렉산드리아 미시 지도. 헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길
   // 하나가 항구를 둘로 가르고, 카이사르의 알렉산드리아 전쟁이 그 둑길에서 갈렸다.
   alexandria: ['alx-lake', 'alx-harbor', 'alx-island', 'alx-district', 'alx-causeway',
-               'alx-road', 'alx-site', 'alx-label'],
+               'alx-road', 'alx-site', 'alx-siege', 'alx-label'],
 };
 // 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
 // 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
@@ -144,6 +144,8 @@ export const LAYER_GROUPS: Record<string, string[]> = {
 // admin-line의 연도 필터가 통째로 얼어붙는다(나르보넨시스 valid_from -121도 같이).
 // 그래서 시간 필터를 쓰는 레이어는 `timed` 표의 원본을 보고 여기서 직접 조립한다.
 const BASE_FILTER = new Map<string, unknown>();
+// 미시 지도 레이어의 **원래** 필터(kind 분류). built_year 조건을 AND로 덧붙일 때 쓴다.
+const UNBUILT_BASE = new Map<string, unknown>();
 function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
                                  timedBase: (id: string) => { timed: boolean; base: any },
                                  compose: (base: any, y: number) => any) {
@@ -337,6 +339,22 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
 
+  /** 그 해에 아직 안 세워진 건물을 가린다.
+   *
+   *  미시 지도 피처에 `built_year`가 달려 있는데 **아무도 안 보고 있었다.** 그래서
+   *  카이사레움(기원전 30년대 착수)이 **기원전 47년 알렉산드리아 판에** 서 있었고,
+   *  폼페이우스 극장(기원전 55년 봉헌)이 기원전 60년 로마 판에 서 있었다. 정착지·속주에
+   *  냈던 것과 같은 구멍인데 이쪽은 **데이터가 이미 연도를 들고 있다** — 지어낼 것이 없고
+   *  필터 한 줄이면 된다. 연도가 없는 피처(대부분)는 늘 보인다. */
+  function hideUnbuilt(year: number) {
+    const f: any = ['any', ['!', ['has', 'built_year']], ['<=', ['get', 'built_year'], year]];
+    for (const id of [...LAYER_GROUPS.roma, ...LAYER_GROUPS.alexandria]) {
+      if (!map.getLayer(id)) continue;
+      const base = UNBUILT_BASE.get(id) ?? (UNBUILT_BASE.set(id, map.getFilter(id) ?? null), map.getFilter(id) ?? null);
+      map.setFilter(id, (base ? ['all', base, f] : f) as any);
+    }
+  }
+
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
     if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
@@ -477,6 +495,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     // ── 알렉산드리아(기원전 48~47). 카이사르가 갇혀 싸운 도시다.
     if (ALEXANDRIA?.features?.length && !map.getSource('alexandria')) {
+      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
       const kin = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
       map.addSource('alexandria', { type: 'geojson', data: { type: 'FeatureCollection', features: ALEXANDRIA.features } as any });
       const addA = (l: object) => map.addLayer({ ...(l as object), layout: { ...((l as { layout?: object }).layout ?? {}), visibility: 'none' } } as any, before);
@@ -496,6 +515,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'line-color': '#8A7B5C', 'line-width': 2.6, 'line-dasharray': [6, 3], 'line-opacity': 0.85 } });
       addA({ id: 'alx-site', type: 'circle', source: 'alexandria', filter: kin('lighthouse', 'building', 'temple', 'cape'),
         paint: { 'circle-radius': 6, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.4 } });
+      // 알렉산드리아 전쟁의 세 자리. `roma-ides`(3월 15일 자리)와 같은 역할이다 —
+      // 함대 소각(대항구) · 카이사르가 갇힌 곳(브루케이온) · 수영 탈출(파로스 등대).
+      // 데이터가 플래그로 표시해 뒀고(pack-alexandria.json), 이 세 점이 그 전쟁의 줄기다.
+      addA({ id: 'alx-siege', type: 'circle', source: 'alexandria',
+        filter: ['any', ['==', ['get', 'fleet_fire'], true], ['==', ['get', 'siege'], true], ['==', ['get', 'caesar_swim'], true]] as any,
+        paint: { 'circle-radius': 11, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3, 'circle-opacity': 0.85 } });
       addA({ id: 'alx-label', type: 'symbol', source: 'alexandria',
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
@@ -822,6 +847,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
       for (const id of ['movement', 'movement-halo']) if (map.getLayer(id)) map.setFilter(id, movementFilter(s.year) as any);
       fadeMovements(s.year);
+      hideUnbuilt(s.year);
       if (map.getLayer('pack-battle-label')) map.setFilter('pack-battle-label', dateWindow(s.year) as any);
     }
     const on = new Set(s.layers ?? allLayers(d));
