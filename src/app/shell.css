@@ -37,19 +37,19 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell > *:not(.shell-map) { z-index: 2; }
 
 .shell-title { position: absolute; top: 20px; left: 24px; pointer-events: none; display: grid; gap: 2px; }
-.shell-year { font-size: 44px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--color-text-primary); }
+/* 색은 아래 「지도 위 맨글씨」 절이 스킨에서 받아 온다 — 여기서 다시 박으면 OS 테마로 되돌아간다. */
+.shell-year { font-size: 44px; line-height: 1; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 
 /* 「그 해에 누가·어디가·무엇이」(R36). 타이틀 옆 — 탐색 카드(top 116)·툴바(bottom 120)·인스펙터(right 360)를 피한 유일한 자리다.
    카드가 아니라 글자만 얹는다(P14b 면적을 먹지 않게). 좁은 화면에서는 숨긴다. */
 .shell-year-brief { position: absolute; top: 22px; left: 300px; right: 404px; display: grid; gap: 3px; align-content: start; }
 .shell-year-brief .yb-row { display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: baseline; }
-.shell-year-brief .yb-k { font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.04em; }
+.shell-year-brief .yb-k { font-size: 11px; letter-spacing: 0.04em; }
 .shell-year-brief .yb-v { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 13px; line-height: 1.35; }
-.shell-year-brief button { border: 0; background: none; padding: 0; font: inherit; color: var(--color-text-primary); cursor: pointer; border-bottom: 1px solid transparent; }
-.shell-year-brief button:hover { border-bottom-color: var(--color-text-secondary); }
-.shell-year-brief button i { font-style: normal; font-size: 11px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; margin-left: 3px; }
-.shell-year-brief em { font-style: normal; color: var(--color-text-primary); }
-.shell-year-brief em.more { color: var(--color-text-secondary); }
+.shell-year-brief button { border: 0; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; border-bottom: 1px solid transparent; }
+.shell-year-brief button:hover { border-bottom-color: currentColor; }
+.shell-year-brief button i { font-style: normal; font-size: 11px; font-variant-numeric: tabular-nums; margin-left: 3px; }
+.shell-year-brief em { font-style: normal; }
 /* 좌 300 + 우 404가 크롬이라 1100 밑에서는 남는 폭이 400도 안 된다. 셸의 다른 중단점(1023)과 같이 가되 조금 먼저 접는다. */
 @media (max-width: 1099px) { .shell-year-brief { display: none; } }
 
@@ -115,6 +115,29 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
 .shell-footnote { position: absolute; left: 24px; bottom: 104px; pointer-events: none; }
+
+/* ── 지도 위 맨글씨 ────────────────────────────────────────────────────────────
+   River: 「좌 상단에 년도나 하는 메타데이터들 있잖아. 이런 것들이 너무 잘 안 보여.」
+   증상: 실측 1.20:1(연도 44px) · 1.35(각주) · 1.41(제목 부제) · 1.55(제목) · 2.65(「그 해」).
+   원인: 이 글자들만 **판이 없다**. 판이 있는 발표 HUD·툴바·타임라인은 4.8~19로 멀쩡했다.
+     판이 없으면 바탕이 지도인데, 크롬 색은 OS 테마를 보고 지도는 스킨을 봐서 서로 모른다 —
+     맥이 다크라 글자가 흰색, 작전 스킨 바탕은 양피지. 흰 글씨를 양피지에 쓴 셈이다.
+   그래서: 색을 스킨에 묶는다(style.ts `chromeTone`, engine.ts `halo()`와 같은 원리).
+     App이 셸에 `--map-ink`(스킨 label)·`--map-halo`(스킨 halo)를 얹고, 이 세 덩어리와 그
+     자손이 그것만 쓴다. 테두리를 같이 두르는 것은 바탕이 단색이 아니라서다(음영·수심·영토).
+     토큰 폴백을 남긴 이유: 이름이 틀리면 CSS는 경고 없이 색을 잃는다(파일 머리 P1). */
+.shell-title,
+.shell-year-brief,
+.shell-footnote {
+  color: var(--map-ink, var(--color-text-primary));
+  text-shadow: 0 0 2px var(--map-halo, transparent), 0 0 5px var(--map-halo, transparent);
+}
+/* astryx Text는 `.astryx-text.secondary`로 색을 박는다(0,2,0) — 셸을 하나 더 얹어 이긴다. */
+.shell .shell-title .astryx-text,
+.shell .shell-footnote .astryx-text { color: inherit; }
+/* 각주의 키캡(astryx Kbd = <kbd>)은 자기 판을 갖고 있다. 판 위 글자에 테두리까지 두르면 탁해진다.
+   클래스가 아니라 요소로 고른다 — Kbd는 stylex 원자 클래스만 달고 나와 붙잡을 이름이 없다. */
+.shell-footnote kbd { text-shadow: none; }
 
 /* 말판 페이즈 카드(R37). 탐색(top 116)·툴바(bottom 120 중앙)·타임라인(bottom 0)을 피한 왼쪽 아래. */
 .shell-board { position: absolute; left: 24px; bottom: 140px; width: 340px; display: grid; gap: 8px; }

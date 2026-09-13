@@ -4,7 +4,7 @@ import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Butt
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
-import { SKINS, type Skin } from '../map/style';
+import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
 import { Search } from './Search';
@@ -259,8 +259,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     return { board: b, phase, idx: Math.max(0, b.phases.findIndex(p => p.t === phase.t)) };
   }, [boards, s.board, s.phase]);
 
+  // 판 없이 지도 위에 얹는 글자(연도·제목·각주·「그 해」)의 색은 **스킨**에서 온다.
+  // OS 테마를 따라가면 밝은 스킨 위에 흰 글씨가 얹혀 1.2:1이 된다 — style.ts chromeTone.
   return (
-    <div className={`shell${s.present ? ' is-present' : ''}`}>
+    <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
       <Callouts map={engRef.current?.map ?? null} root={root} ds={ds} />

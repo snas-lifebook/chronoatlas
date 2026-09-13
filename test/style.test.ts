@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildStyle, MAP } from '../src/map/style';
+import { buildStyle, MAP, chromeTone, type Skin } from '../src/map/style';
 
 const manifest: any = { basemap: ['land', 'coast', 'rivers', 'lakes', 'glaciers', 'bathy', 'marine_labels', 'region_labels'], relief: true, bbox: [-15, 20, 65, 60] };
 
@@ -48,5 +48,38 @@ describe('basemap style (TASKS 1.4)', () => {
   it('베이스맵 파일이 없는 데이터셋(옛 초한지)도 스타일이 나온다', () => {
     const s2 = buildStyle({ basemap: [], relief: false } as any, '/', 'chuhan-206');
     expect(s2.layers.map(l => l.id)).toEqual(['sea', 'label-settle-1', 'label-settle-2', 'label-settle-3']);
+  });
+});
+
+// River: 「좌 상단에 년도나 하는 메타데이터들이 너무 잘 안 보여」 — 판 없이 지도 위에 얹는
+// 글자(연도 44px·제목·각주·「그 해」)가 OS 테마 색을 쓰다가 밝은 스킨 위에서 1.20:1이 됐다.
+// 색을 스킨에 묶은 뒤로는 **스킨이 곧 바탕**이므로, 각 스킨의 바탕 후보 전부에 대해 재면 된다.
+describe('지도 위 맨글씨 크롬 색 (chromeTone)', () => {
+  // WCAG 2.x 상대 휘도. rgb는 0~255다 — 0~1로 읽으면 200배 틀린다.
+  const lum = (hex: string) => {
+    const ch = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+  };
+  const ratio = (a: string, b: string) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+
+  it('모든 스킨에서 잉크가 그 스킨의 육지·바다·최심 수심에 대해 AA(4.5:1)를 넘는다', () => {
+    for (const [skin, c] of Object.entries(MAP)) {
+      const ink = chromeTone(skin as Skin)['--map-ink'];
+      expect(ink, skin).toBe(c.label);
+      for (const bg of [c.land, c.sea, c.glacier, c.depth[c.depth.length - 1]]) {
+        expect(ratio(ink, bg), `${skin} ${ink} on ${bg}`).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it('테두리는 잉크 반대편이다 — 바탕이 단색이 아니어서(음영·영토) 글자를 세워 준다', () => {
+    for (const [skin, c] of Object.entries(MAP)) {
+      const t = chromeTone(skin as Skin);
+      expect(ratio(t['--map-ink'], t['--map-halo']), skin).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

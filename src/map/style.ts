@@ -20,6 +20,20 @@ export const MAP = {
 } as const;
 export type Skin = keyof typeof MAP;
 export const SKINS: { id: Skin; label: string }[] = [{ id: 'light', label: '중립' }, { id: 'dark', label: '야간' }, { id: 'oldmap', label: '고지도' }, { id: 'press', label: '신문톤' }, { id: 'campaign', label: '작전' }];
+
+/** 지도 위에 **판 없이 맨글씨로** 얹는 크롬(좌상단 연도·제목·각주·「그 해」)이 쓸 색.
+ *  증상: River가 「좌 상단에 년도나 하는 메타데이터들이 너무 잘 안 보여」 — 실측 1.20:1.
+ *  원인: 크롬 색은 OS 테마(`prefers-color-scheme`)를 따라가는데 지도 스킨은 그와 무관하다.
+ *    맥이 다크라 글자가 흰색이 됐고, 작전 스킨 양피지(#E2DFCF)·바다(#C7D2CB) 위에 얹혔다.
+ *    라벨 테두리가 앓던 것과 **같은 병**이다(engine.ts halo, 4b789ca).
+ *  그래서: 같은 약으로 — 글자는 스킨의 `label`, 테두리는 `halo`. 바탕을 따라가면 OS 테마가
+ *    무엇이든 맞는다. 판을 주지 않는 이유는 44px 연도의 판이 지도를 그만큼 가리기 때문이고
+ *    (지도가 주인공이다), 테두리를 같이 주는 이유는 바탕이 단색이 아니기 때문이다 —
+ *    음영·수심·영토 채우기 위에도 얹힌다.
+ *  `label2`(부제용 흐린 색)는 쓰지 않는다: 12px 글자로 쓰면 작전 스킨 바다 위에서 3.8:1로
+ *    AA에 못 미친다. 위계는 크기·굵기로 낸다(투명도는 금지 — shell.css .shell-tool .sub 주석). */
+export const chromeTone = (skin: Skin): Record<'--map-ink' | '--map-halo', string> =>
+  ({ '--map-ink': MAP[skin].label, '--map-halo': MAP[skin].halo });
 const DEPTHS = [0, 200, 1000, 2000, 3000, 4000, 5000];
 const FONT = { regular: ['KlokanTech Noto Sans CJK Regular'], bold: ['KlokanTech Noto Sans CJK Bold'] }; // ponytail: Pretendard 글리프로 교체 예정(fetch-external 참고)
 

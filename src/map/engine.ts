@@ -333,7 +333,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
     // `kind: region`은 **region-name 층이 가져갔다.** 여기 남겨 두면 같은 점을 두 층이 찍고,
     // 허용 목록에서 버린 이름(소아시아·북아프리카·독일…)이 이쪽으로 새어 나온다 — 실측으로 그랬다.
-    ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion]], ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], notRegion]], ['battle', null], ['pack-battle', null]];
+    ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion]], ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], notRegion]], ['battle', null], ['pack-battle', null],
+    // **주변 민족 교보재도 해 필터를 받는다.** 안 받으면 `valid_from: -60`인 사르마티아·
+    // 게르마니아가 **어느 해에나** 뜬다 — 기원전 270년 화면에 사르마티아가 뜨면 그 자리는
+    // 정본이 스키타이로 칠한 땅이다. 발표 여덟 장은 전부 기원전 60~27년이라 드러나지
+    // 않았고, 「로마의 확장」 장면(BC 270·241·144)이 생기면서 나왔다.
+    ['peoples-fill', null], ['peoples-line', null], ['peoples-label', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
   const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
