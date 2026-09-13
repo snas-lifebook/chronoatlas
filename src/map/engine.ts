@@ -7,7 +7,7 @@ import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -147,7 +147,7 @@ function portraitIcon(img: CanvasImageSource | null, color: string, initial: str
 
 // 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
-  territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
+  territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
@@ -469,6 +469,46 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'fill-color': polityColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // ── 주변 민족·왕국 교보재 ──────────────────────────────────────────────
+    //
+    // River: "다른 왕국들도 나오면 좋겠다. 지금 나오는 왕국들이 조금 적다는 느낌."
+    // 진짜 원인은 정본이 **국가 단위 데이터셋**이라는 것이다 — 부족 연합이 구조적으로
+    // 없어서 기원전 60년 프레임에 게르마니아·다키아·사르마티아·보스포루스·브리타니아가
+    // 한 면도 안 뜬다. 갈리아가 없던 것과 같은 원인이고, 같은 방식(Natural Earth 정점
+    // 복사 + 사료가 말하는 강·해안 경계)으로 채운다.
+    //
+    // **정본 폴리곤 아래에 깐다** — 교보재가 정본을 덮으면 안 된다. 테는 점선이다:
+    // 이 경계들은 국경이 아니라 「이 민족이 살던 대략의 자리」이고, 점선이 그 정도를 말한다.
+    if (PACK_PEOPLES?.features?.length && !map.getSource('peoples')) {
+      map.addSource('peoples', { type: 'geojson', data: PACK_PEOPLES as any });
+      map.addLayer({ id: 'peoples-fill', type: 'fill', source: 'peoples',
+        paint: { 'fill-color': polityColor, 'fill-opacity': 0.2 } }, 'territory-fill');
+      map.addLayer({ id: 'peoples-line', type: 'line', source: 'peoples',
+        paint: { 'line-color': polityColor, 'line-width': 1.2, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } }, 'territory-fill');
+      // **이름표는 따로 만든 점에 붙인다.** 폴리곤 소스에 직접 심볼을 얹으면 MapLibre가
+      // **조각마다 하나씩** 찍는다 — 사르마티아(2조각)와 보스포루스 왕국(2조각)의 이름이
+      // 나란히 두 번 떴다(실측). 대표점 하나를 뽑아 점 소스로 만들면 한 번만 찍힌다.
+      map.addSource('peoples-pt', { type: 'geojson', data: {
+        type: 'FeatureCollection',
+        features: (PACK_PEOPLES.features as any[]).map(f => {
+          const g = f.geometry;
+          const rings: number[][][] = g.type === 'MultiPolygon'
+            ? (g.coordinates as number[][][][]).map(poly => poly[0])
+            : [(g.coordinates as number[][][])[0]];
+          // 가장 큰 조각의 정점 평균. 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 —
+          // 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
+          const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
+          const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
+          return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
+        }),
+      } as any });
+      map.addLayer({ id: 'peoples-label', type: 'symbol', source: 'peoples-pt',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 13, 6, 16] as any, 'text-max-width': 8,
+          'text-allow-overlap': false, 'text-optional': true,
+          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.6 } as any,
+        paint: { 'text-color': polityColor, 'text-halo-color': halo(), 'text-halo-width': 2.4 } }, before);
+    }
     // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
     //
     // River: 기원전 60년 판에서 누미디아·마우레타니아·갈라티아·카파도키아·폰토스·유대·

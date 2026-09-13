@@ -60,6 +60,12 @@ export const PACK_MOVEMENTS: Feature[] = pompey?.features ?? [];
 export const PACK_BATTLES: Feature[] = battles?.features ?? [];
 export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 
+/** 비국가 민족·주변 왕국 교보재. 정본이 국가 단위로만 코딩돼 게르마니아·다키아·
+ *  사르마티아·아오르시·보스포루스·브리타니아가 한 면도 없다 — 갈리아와 같은 원인이다.
+ *  기하는 Natural Earth(PD) 정점 복사이고 정본 폴리티와 겹침 0으로 잘라 냈다. */
+export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pack-peoples.json', { eager: true, import: 'default' }))[0] as
+  { teaching?: boolean; features: Feature[] } | undefined;
+
 export const ALESIA = Object.values(import.meta.glob('../data/overlays/pack-alesia.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: unknown[] } | undefined;
 
