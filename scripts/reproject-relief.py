@@ -87,43 +87,67 @@ def diagnose(a: np.ndarray, bbox) -> tuple[float, float]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--ds", default="rome")
+    ap.add_argument("--in", dest="inp", help="입력 래스터 경로 (지정 시 --ds/manifest 대신 이 파일 + --bbox를 쓴다)")
+    ap.add_argument("--out", dest="outp", help="출력 경로 (기본: --in을 덮어씀)")
+    ap.add_argument("--bbox", help="w,s,e,n — --in과 함께 쓴다(manifest.json 대신)")
     ap.add_argument("--검증만", action="store_true")
     args = ap.parse_args()
 
-    base = REPO / "public/datasets" / args.ds
-    manifest = json.loads((base / "manifest.json").read_text(encoding="utf8"))
-    bbox = manifest.get("bbox")
-    if not bbox:
-        print(f"manifest에 bbox가 없다: {base/'manifest.json'}")
-        return 2
-    w, s, e, n = bbox
+    if args.inp:
+        # 미시 지도 스캔 등 ds/manifest 밖의 임의 파일 + 수동 bbox.
+        cur = Path(args.inp)
+        outp = Path(args.outp) if args.outp else cur
+        if not args.bbox:
+            print("--in 사용 시 --bbox 필수 (w,s,e,n)")
+            return 2
+        w, s, e, n = (float(v) for v in args.bbox.split(","))
+    else:
+        base = REPO / "public/datasets" / args.ds
+        manifest = json.loads((base / "manifest.json").read_text(encoding="utf8"))
+        bbox = manifest.get("bbox")
+        if not bbox:
+            print(f"manifest에 bbox가 없다: {base/'manifest.json'}")
+            return 2
+        w, s, e, n = bbox
+        cur = base / "rasters/relief.jpg"
+        outp = cur
 
-    cur = base / "rasters/relief.jpg"
-    orig = base / "rasters/relief.plate-carree.jpg"
     if not cur.exists():
-        print(f"relief.jpg가 없다: {cur}")
+        print(f"입력 파일이 없다: {cur}")
         return 2
 
+    orig = cur.parent / f"{cur.stem}.plate-carree{cur.suffix}"
     # 원본을 한 번만 떠 둔다. 이미 있으면 그게 진짜 원본이다(두 번 돌려도 안전).
     if not orig.exists():
         orig.write_bytes(cur.read_bytes())
         print(f"  원본 보존 → {orig.name}")
 
     src = Image.open(orig).convert("RGB")
-    g = np.asarray(src.convert("L")).astype(float)
-    se, sm = diagnose(g, bbox)
-    print(f"  원본 진단 — 거칠기 점수: 평사도법 {se:.1f} · 메르카토르 {sm:.1f}")
-    print(f"  → 원본은 {'평사도법' if se > sm else '메르카토르'}")
-    if se <= sm:
-        print("  이미 메르카토르다. 건드리지 않는다.")
-        return 0
 
-    off = max(abs(math.degrees(2 * math.atan(math.exp(
-        merc_y(s) + (lat - s) / (n - s) * (merc_y(n) - merc_y(s)))) - math.pi / 2) - lat)
-        for lat in np.linspace(s, n, 41))
-    print(f"  고치지 않으면 최대 어긋남 {off:.2f}° ≈ {off*111:.0f} km")
-    if args.검증만:
-        return 0
+    if args.inp:
+        # 옛 지도 스캔(선각)엔 산맥 거칠기 휴리스틱이 안 통한다 — 음영기복이 아니다.
+        # 제어점으로 뽑은 bbox 자체가 "픽셀=위경도 선형(평사도법)" 가정이므로 무조건 재투영한다.
+        off = max(abs(math.degrees(2 * math.atan(math.exp(
+            merc_y(s) + (lat - s) / (n - s) * (merc_y(n) - merc_y(s)))) - math.pi / 2) - lat)
+            for lat in np.linspace(s, n, 41))
+        print(f"  평사도법→메르카토르 보정폭 최대 {off:.4f}° ≈ {off*111000:.0f} m")
+        if args.검증만:
+            return 0
+    else:
+        g = np.asarray(src.convert("L")).astype(float)
+        se, sm = diagnose(g, bbox)
+        print(f"  원본 진단 — 거칠기 점수: 평사도법 {se:.1f} · 메르카토르 {sm:.1f}")
+        print(f"  → 원본은 {'평사도법' if se > sm else '메르카토르'}")
+        if se <= sm:
+            print("  이미 메르카토르다. 건드리지 않는다.")
+            return 0
+
+        off = max(abs(math.degrees(2 * math.atan(math.exp(
+            merc_y(s) + (lat - s) / (n - s) * (merc_y(n) - merc_y(s)))) - math.pi / 2) - lat)
+            for lat in np.linspace(s, n, 41))
+        print(f"  고치지 않으면 최대 어긋남 {off:.2f}° ≈ {off*111:.0f} km")
+        if args.검증만:
+            return 0
 
     a = np.asarray(src)
     H, W = a.shape[:2]
@@ -136,7 +160,11 @@ def main() -> int:
     hi = np.clip(lo + 1, 0, H - 1)
     t = (srow - lo)[:, None, None]
     out = (a[lo].astype(np.float32) * (1 - t) + a[hi].astype(np.float32) * t)
-    Image.fromarray(out.round().astype(np.uint8), "RGB").save(cur, quality=88, optimize=True)
+    Image.fromarray(out.round().astype(np.uint8), "RGB").save(outp, quality=88, optimize=True)
+
+    if args.inp:
+        print(f"  재투영 완료 → {outp}")
+        return 0
 
     chk = np.asarray(Image.open(cur).convert("L")).astype(float)
     se2, sm2 = diagnose(chk, bbox)

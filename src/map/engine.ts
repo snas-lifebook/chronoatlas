@@ -413,6 +413,30 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('zoom', syncTerrain);
   // 세부 지도 둘은 **줌으로** 켠다 — 발표 장면 수는 아홉으로 묶여 있고(River),
   // 세부는 「거기로 들어가면 보인다」가 맞는 동작이다.
+  /** 도판이 깔린 미시 지도에서 **우리 면 채움을 옅게 내린다.**
+   *
+   *  도판이 이미 지형을 그린다 — 로마(Kiepert Tab. IX)는 일곱 언덕을 해칭으로, 알렉산드리아
+   *  (팔라키 1866)는 항구와 가로망을 그린다. 우리 면을 그대로 두면 두 겹이 되어 탁해진다.
+   *  **테와 이름표는 안 건드린다** — 그게 우리 마킹이고 도판에 없는 정보다(포메리움·3월 15일
+   *  자리·포위선).
+   *
+   *  addData 안에서 스캔을 얹는 자리에 두면 안 된다 — 그 시점에 `roma-*`·`alx-*` 레이어가
+   *  **아직 없어서** `getLayer`가 null을 주고 조용히 지나간다(실측: 언덕이 0.28로 남았다).
+   *  레이어가 다 얹힌 뒤에 한 번 부른다. */
+  const SCAN_WASH: Record<string, [string, number][]> = {
+    roma: [['roma-field', 0.12], ['roma-hill', 0.1]],
+    alesia: [['alesia-plain', 0.12], ['alesia-oppidum', 0.16]],
+    alexandria: [['alx-district', 0.1], ['alx-island', 0.14], ['alx-lake', 0.18], ['alx-harbor', 0.18]],
+  };
+  function washUnderScans() {
+    for (const bm of PACK_BASEMAPS) {
+      if (!map.getLayer(`scan-${bm.id}`)) continue;
+      for (const [id, op] of SCAN_WASH[bm.id] ?? []) {
+        if (map.getLayer(id)) map.setPaintProperty(id, 'fill-opacity', op);
+      }
+    }
+  }
+
   function syncDetailMaps(scene: string | null) {
     const z = map.getZoom();
     const set = (ids: string[], on: boolean) => { for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); };
@@ -495,17 +519,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'raster-opacity': bm.opacity ?? 0.85, 'raster-fade-duration': 0 } } as any, anchorId);
       // 같은 줌 게이트를 타게 그룹에 등록한다 — syncDetailMaps가 그대로 켜고 끈다.
       if (LAYER_GROUPS[bm.id] && !LAYER_GROUPS[bm.id].includes(sid)) LAYER_GROUPS[bm.id].unshift(sid);
-      // **도판이 이미 지형을 그린다.** 우리 면 채움을 그대로 두면 두 겹이 되어 탁해진다 —
-      // 로마 도판(Atlas Antiquus Tab. IX)은 일곱 언덕을 해칭으로, 알렉산드리아·알레시아도
-      // 등고를 그린다. 면은 옅게 내리고 **테와 이름표는 그대로 둔다**(그게 우리 마킹이다).
-      const wash: Record<string, [string, number][]> = {
-        roma: [['roma-field', 0.12], ['roma-hill', 0.1]],
-        alesia: [['alesia-plain', 0.12], ['alesia-oppidum', 0.16]],
-        alexandria: [['alx-district', 0.1], ['alx-island', 0.14], ['alx-lake', 0.18], ['alx-harbor', 0.18]],
-      };
-      for (const [id, op] of wash[bm.id] ?? []) {
-        if (map.getLayer(id)) map.setPaintProperty(id, 'fill-opacity', op);
-      }
     }
 
     // ── 주변 민족·왕국 교보재 ──────────────────────────────────────────────
@@ -950,6 +963,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     import('../token3d').then(mod => { tokenMod = mod; syncPeopleTokens(peopleFc); }).catch(() => { tokenMod = null; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
+    washUnderScans();   // 미시 지도 레이어가 다 얹힌 **뒤**에. 위에서 부르면 조용히 지나간다
     apply(store.get());
   }
   map.on('load', addData);

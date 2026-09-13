@@ -1,0 +1,57 @@
+{
+  "teaching": true,
+  "source": "미시 지도 바탕에 깔 고지도 도판 2종. 둘 다 저작권 만료(퍼블릭 도메인)이며 카피레프트 조항이 없다. AGENTS.md의 '카피레프트(ODbL) 데이터는 재배포하지 않는다'에 걸리지 않는다. (1) 로마: Heinrich Kiepert(1818~1899), 「Roma urbs ab Augusti Imp. tempore cum muris ab Aureliano et Honorio conditis」, Atlas Antiquus 제5판(Berlin, Dietrich Reimer, 1877) Tab. IX, 석판 J. Sulzer. 저자 사후 127년으로 만료. 커먼즈 Category:Old maps of ancient Rome (city) 및 Internet Archive 'Atlas Antiquus - Kiepert'(PD Mark 1.0)에 여러 판본이 올라와 있으나, 레포에 들어온 이 3239x2262 사본이 정확히 어느 업로드에서 왔는지는 기록이 없다. 어느 판본이든 만료 사실은 같다. (2) 알렉산드리아: Mahmoud-Bey(마흐무드 아흐마드 함디 알팔라키, 1815~1885), 「Carte de l'antique Alexandrie et de ses faubourgs. Dressee sur les ordres de S.A. le Vice-Roi d'Egypte a l'aide de fouilles, nivellements et autres recherches par Mahmoud-Bey, Astronome de Son Altesse. Fait en 1866」, 축척 1/20000, 석판 Erhard(각) / Monrocq(인쇄, Paris). 저자 사후 141년으로 만료. 원본 디지털화는 Gallica/BnF ark:/12148/btv1b10101093b이며 커먼즈 Category:Mahmud Ahmad Hamdi al-Falaki에 미러가 있다. 두 도판 모두 '지도 본체만 남긴다'는 요구에 따라 잘라냈고, 알렉산드리아는 도판이 고대 가로망 기준으로 26.9도 기울어 있어 북쪽이 위가 되도록 다시 투사했다. 좌표는 각 도판별 control_points를 최소제곱으로 맞춰 얻었고, 통제점의 경위도는 전부 data/overlays/pack-roma-urbs.json / pack-alexandria.json에서 복사한 것이다.",
+  "maps": [
+    {
+      "id": "roma",
+      "file": "basemap-roma.jpg",
+      "size": [1496, 1540],
+      "corners": { "w": 12.46245, "e": 12.50983, "n": 41.907201, "s": 41.873025 },
+      "opacity": 0.85,
+      "min_zoom": 12,
+      "rotation_deg": 0.0,
+      "title": "Kiepert, Atlas Antiquus Tab. IX, Roma Urbs (1877)",
+      "caveat": "도판 자체가 '아우구스투스 시대 + 아우렐리아누스·호노리우스 성벽'이라고 제목에 적혀 있다. 기원전 44년에 없던 것이 많다. (1) 성벽: 아우렐리아누스 성벽(서기 271~275)과 호노리우스 보수(401~403)가 도시 바깥 큰 둘레로 그려져 있다. 기원전 44년의 성벽은 안쪽 붉은 선(세르비우스)뿐이다. (2) 아우구스투스기 신축: 마르켈루스 극장(기원전 13), 판테온, 아라 파키스(기원전 9), 아우구스투스 영묘(기원전 28), 호롤로기움 오벨리스크(기원전 10), 옥타비아 주랑, 디리비토리움·사이프타(기원전 7), 아우구스투스 포룸(기원전 2), 쿠리아 율리아(기원전 29), 리비아 주랑(기원전 7), 아쿠아 알시에티나(기원전 2). (3) 제국기 신축: 암피테아트룸(콜로세움, 서기 80), 티투스·트라야누스·카라칼라·디오클레티아누스 욕장, 카스트라 프라이토리아(서기 23), 트라야누스 포룸(서기 112), 도무스 아우레아(서기 64), 하드리아누스 영묘·폰스 아엘리우스(서기 134~139), 셉티조니움(서기 203), 갈리에누스 개선문(서기 262), 콘스탄티누스 개선문(서기 315), 아쿠아 트라야나(서기 109)·알렉산드리나(서기 226), 원형경기장 카스트렌세. (4) 붉은 로마숫자 I~XIV는 아우구스투스의 14구역(기원전 7년 행정 개편)이라 기원전 44년에는 없던 구분이다. (5) 도판 원판에 인쇄된 a~k / A~G 색인 격자 실선이 지도 본체를 가로질러 남아 있다. 잘라내도 안 지워지는 인쇄 요소다. (6) 잘라내는 과정에서 아우렐리아누스 성벽의 동·북 외곽(포르타 티부르티나·프라이네스티나), 바티칸·야니쿨룸 서쪽, 판테온 북쪽이 프레임 밖으로 나갔다. 제목·범례·포룸 인셋·축척바가 도판 여백이 아니라 지도 본체 위에 겹쳐 인쇄돼 있어서, 그것들을 빼려면 네 모서리를 함께 잘라내는 수밖에 없었다. (7) 티베리스는 19세기 유로·하폭이다(무라촐리 제방 1876~1926년은 도판보다 나중이므로 오히려 고대에 가깝지만, 고대 하상은 이보다 더 넓고 낮았다).",
+      "source": "Heinrich Kiepert, 「Roma urbs ab Augusti Imp. tempore cum muris ab Aureliano et Honorio conditis」, Atlas Antiquus 제5판 Tab. IX (Berlin: Dietrich Reimer, 1877), 석판 J. Sulzer. 축척 원판 1/20000. 저자 1899년 사망으로 퍼블릭 도메인. 원본 스캔 3239x2262에서 지도 본체 (800,420)-(2575,2247)를 잘라 1496x1540으로 축소, jpeg q85.",
+      "control_points": [
+        { "name": "폼페이우스 극장 (Theatrum Pompei, 카베아 중심)", "px": [351, 541], "lonlat": [12.4736, 41.8953], "잔차_m": 12.4 },
+        { "name": "티베리나 섬 (Insula Tiberina, 도형 중심)", "px": [458, 738], "lonlat": [12.47722, 41.89083], "잔차_m": 22.9 },
+        { "name": "바실리카 율리아 (Basilica Iulia)", "px": [727, 673], "lonlat": [12.48478, 41.89195], "잔차_m": 65.9 },
+        { "name": "키르쿠스 막시무스 (Circus Maximus, 트랙 중심)", "px": [747, 947], "lonlat": [12.4857, 41.8859], "잔차_m": 46.8 },
+        { "name": "카페나 문 (Porta Capena)", "px": [883, 1072], "lonlat": [12.491, 41.884], "잔차_m": 81.3 },
+        { "name": "에스퀼리나 문 (Porta Esquilina = Arcus Gallieni 자리)", "px": [1246, 494], "lonlat": [12.50139, 41.89583], "잔차_m": 62.5 },
+        { "name": "콜리나 문 (Porta Collina)", "px": [1123, 10], "lonlat": [12.4987, 41.9073], "잔차_m": 67.9 }
+      ],
+      "rms_m": 56.5,
+      "max_잔차_m": 81.3
+    },
+    {
+      "id": "alexandria",
+      "file": "basemap-alexandria.jpg",
+      "size": [1301, 1500],
+      "corners": { "w": 29.88, "e": 29.9165, "n": 31.217, "s": 31.181 },
+      "opacity": 0.85,
+      "min_zoom": 12,
+      "rotation_deg": 0.0,
+      "title": "Mahmoud-Bey (el-Falaki), Carte de l'antique Alexandrie et de ses faubourgs, 1866",
+      "caveat": "(1) 이 도판은 원래 북쪽이 위가 아니다. 팔라키는 고대 가로망(카노포스 대로) 방향을 종이 가로축에 맞춰 그렸고, 그 결과 도판의 위쪽은 진북에서 26.9도 서쪽으로 돌아가 있다. type:'image'로는 회전을 표현할 수 없으므로 원본 사진을 호모그래피로 한 번에 재투사해 북쪽이 위가 되게 폈다. 즉 이 이미지는 리샘플된 것이고 선이 원본보다 약간 무르다. (2) 1866년 도판이라 팔라키의 복원은 그 시점의 가설이다. 안티로도스 섬은 1996년 프랑크 고디오의 수중조사로 팔라키가 찍은 자리가 아니라 대항구 동쪽에서 확인됐고, 소마(알렉산드로스 무덤)를 L1 x R5 교차점에 놓은 비정은 이후 나비 다니엘 주변 발굴이 오히려 반박하는 쪽으로 나왔으며, 헵타스타디온 노선은 1996년 CEAlex 지구물리 탐사 결과와 다르다. 왕궁 구역(브루케이온)·로키아스 곶은 지금 가라앉은 부분까지 육지로 그려져 있다. (3) 파로스 등대는 섬의 카이트베이 요새 자리가 아니라 그 북동쪽 암초('Maconnerie a fleur d'eau', 'Le Diamant') 위에 'Phare'로 찍혀 있다. 팔라키의 비정이다. (4) 도판에는 고대만 있는 게 아니라 1866년 당시의 도시도 함께 그려져 있다: 노란 선은 아랍 시대 성벽, 'Mosquee d'Amrou'·'Mosquee de mille colonnes'·'Santon Chatibi'·'Grande Place'·'Chantiers de la marine'·제3 수도교가 다 후대 것이다. 세라페움의 '폼페이우스 기둥' 자체도 서기 298~303년 것이라 카이사르 시대 경관이 아니다. (5) 카이사르의 알렉산드리아 전쟁(기원전 48~47)에 맞춰 그린 지도가 아니다. 프톨레마이오스기 전체를 뭉친 복원도다. (6) 잘라낸 범위: 북쪽이 위가 되게 돌리면 도판 사각형이 프레임 안에서 비스듬해지므로, 빈 여백 없이 담을 수 있는 최대 정북 직사각형만 남겼다. 그 대가로 니코폴리스(동), 마레오티스 호 동안, 알렉산드리아 운하, 파로스 섬 서쪽 절반(라스 엘틴)이 프레임 밖으로 나갔다. 제목 카르투슈와 축척바도 이 과정에서 빠졌다. (7) 통제점 4개 중 '소마'는 pack-alexandria.json에서 source가 '논쟁'인 피처다. 도판에서 위치를 짚을 수 있는 '확정' 피처가 셋뿐이어서(세라페움·카이사레움·파로스) 넷째로 썼다. 소마를 빼고 셋으로만 맞춘 결과는 RMS 93.1m로 오히려 더 작다.",
+      "source": "Mahmoud-Bey (Mahmud Ahmad Hamdi al-Falaki, 1815~1885), 「Carte de l'antique Alexandrie et de ses faubourgs」, 1866, 축척 1/20000. 각 Erhard(12 rue Dugnay-Trouin) · 인쇄 Monrocq(3 rue Suger, Paris). 저자 1885년 사망으로 퍼블릭 도메인. 디지털 원본은 Gallica/BnF ark:/12148/btv1b10101093b. 레포에 들어온 5500x4466 사진은 종이가 프레임 안에서 비스듬히 놓인 상태였고, 인쇄 내측 테두리 네 모서리 (278,2459)·(4320,218)·(5284,1941)·(1220,4166)을 잡아 호모그래피로 폈다(네 변의 대각이 89.8~90.2도, 마주보는 변이 0.33도 이내로 평행: 원근 왜곡은 사실상 없었다). 그 다음 통제점 최소제곱으로 2.671 m/px · 26.905도 회전을 얻고, 경위도 -> 원본 사진 픽셀을 한 번의 호모그래피로 합성해 리샘플 1회로 정북 이미지를 만들었다. 도판 자체 축척바를 재면 2.707 m/px로 1.3% 차이. 독립적인 교차검증이다.",
+      "control_points": [
+        { "name": "세라페움 / 폼페이우스 기둥 (Colonne dite de Pompee, 신전 구역 중심)", "px": [569, 1425], "lonlat": [29.896417, 31.1825], "잔차_m": 55.8 },
+        { "name": "카이사레움 / 오벨리스크 2기 (2 Obelisques 기호)", "px": [696, 654], "lonlat": [29.8994, 31.2028], "잔차_m": 167.1 },
+        { "name": "소마 (나비 다니엘 교차로, Soma 표기)", "px": [806, 885], "lonlat": [29.90183, 31.19482], "잔차_m": 128.4 },
+        { "name": "파로스 등대 (Phare 기호, 암초 위)", "px": [198, 81], "lonlat": [29.886, 31.2148], "잔차_m": 49.8 }
+      ],
+      "rms_m": 111.8,
+      "max_잔차_m": 167.1
+    }
+  ],
+  "skipped": [
+    {
+      "id": "alesia",
+      "file": "basemap-alesia.jpg",
+      "reason": "지오레퍼런싱 실패, 쓰면 안 된다. 도판은 J.-B. Bourguignon d'Anville 계열의 「Plan d'Alise et de ses Environs, Pour l'intelligence de l'explication Topographique du Siege de cette Place (Commentariorum Caesaris libro VII)」(1755, 판각 P. Bourgoin, BnF 소인 'Ge D 10765' / 'Page 437' / '19099(671)')로 확인됐고 퍼블릭 도메인이며 여백에 NORD/MIDI/OCCIDENT/ORIENT가 찍혀 명목상 북쪽이 위다. 그러나 마을 교회 기호 9곳을 고배율에서 직접 찍어 맞춰 보면, 완전 아핀(6모수)으로도 RMS 938m·최대 1419m이고, type:'image'가 요구하는 정북 축정렬 모형에서는 RMS 1354m·최대 2331m다. 허용치 500m의 2.7~4.7배다. 게다가 내부 방위 오차가 판면 위치에 따라 12~29도로 변해 단일 회전으로 흡수되지 않는다(x축 +16.6도 / -y축 -9.5도 = 26도 전단). 1755년 고고학 삽화라 측량도가 아니다. 상세는 docs/MICROMAP-BASEMAP.md 「실행 결과」.",
+      "next": "대체 후보 조사 결과: 커먼즈의 'Plan du siege d'Alesia en 52 avant notre ere.jpg'는 2023년 이용자 재작도이고 CC BY-SA 2.5라 AGENTS.md의 카피레프트 재배포 금지에 걸려 못 쓴다. 나폴레옹 3세 『Histoire de Jules Cesar』(Plon, 1865~66) 아틀라스 22~26번 판은 PD지만, 그 아틀라스가 실은 상세 발굴도가 아닌 '단순화된 일반 평면도'만 실었고(상세 밀로 측량도는 MAN 문서고에 있고 자유 배포본이 없다) 커먼즈·Gallica에 직접 내려받을 수 있는 고해상 판을 이번 조사에서는 못 찾았다. 애초에 알레시아는 도시가 아니라 지형이 문제다. 건물·가로망이 없으니 고지도 평면도로는 River가 말한 '눈에 안 들어온다'가 풀리지 않는다. 알레시아는 DEM/음영기복(MICROMAP-BASEMAP.md §4.2) 쪽이 답이고, 그건 용량·아키텍처 결정이 필요한 별건이다."
+    }
+  ]
+}
