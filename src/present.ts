@@ -2,7 +2,9 @@
 import type { Scene } from './state';
 
 export const PRESENT_GROUP = '2회차 발표 · 카이사르 팩';
-export const GALLIA_SCENE = 'pack-extent-60';
+/** 자유 갈리아 교보재를 켜는 대표 장면. 예전에는 전용 장면(`pack-extent-60`)이 있었는데
+ *  `pack-intro-med`와 같은 그림이라 뺐다 — 이제 첫 장이 그 역할을 겸한다. */
+export const GALLIA_SCENE = 'pack-intro-med';
 export const GALLIA_ROMAN_SCENE = 'pack-extent-51';
 export const ALESIA_SCENE = 'pack-alesia-52';
 

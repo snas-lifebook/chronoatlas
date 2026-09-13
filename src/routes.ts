@@ -21,6 +21,7 @@
 
 export interface MoveProps {
   id?: string;
+  route?: string;
   from_year?: number | null;
   to_year?: number | null;
   valid_from?: number | null;
@@ -72,6 +73,79 @@ export function legAge(p: MoveProps, year: number, span = 8): number {
   const y = legYear(p);
   if (y == null) return 1;
   return Math.max(0, Math.min(1, (year - y) / span));
+}
+
+// ── 국면(여정)별 색과 순번 ────────────────────────────────────────────────
+//
+// River: **"이동경로에 순번과 함께 각 여정에 다른 색깔의 선을 칠해주면 좋겠다."**
+// 레퍼런스로 준 지도(Caesar's Civil War Campaigns)가 정확히 그 문법이다 — 전 구간을
+// 한 색으로 긋지 않고 **원정 단위로 색을 갈라** 범례에 연도를 적는다(49 B.C. / 49–47 /
+// 46 / 45 + "Caesar's return from Gaul" 별색).
+//
+// 왜 한 색이 문제였나. 정본 카이사르 경로는 아홉 구간인데 전부 `actor: 로마`라 **같은
+// 로마색 한 줄**로 깔렸다. 폼페이우스 교보재 네 구간도 같은 actor라 색이 겹쳤다 —
+// 기원전 48년 판에서 쫓는 선과 쫓기는 선이 구별되지 않는다. 세력색은 「누구 편인가」를
+// 말하고, 여정색은 「언제 어디로 갔나」를 말한다. 이 지도에 필요한 건 후자다.
+//
+// 국면은 **끝난 해로** 가른다. 첫 구간만 예외다 — 기원전 52년에 시작해 49년에 끝나는
+// 세 해짜리 구간이라 「BC 49」에 묶으면 브린디시·일레르다와 한 색이 되어 갈리아에서
+// 돌아오는 그 이동이 안 보인다. 레퍼런스도 이것만 별색으로 뺐다.
+export interface RoutePhase { id: string; label: string; color: string }
+
+/** 표시 순서가 곧 범례 순서다. */
+export const ROUTE_PHASES: RoutePhase[] = [
+  { id: 'return', label: '갈리아에서 귀환 · BC 52–49', color: '#7B3F3F' },
+  { id: 'bc49', label: 'BC 49 이탈리아·에스파냐', color: '#2F7D5B' },
+  { id: 'bc48', label: 'BC 48 그리스', color: '#2E6F9E' },
+  { id: 'bc47', label: 'BC 47 이집트·동방', color: '#1E8A8A' },
+  { id: 'bc46', label: 'BC 46 아프리카', color: '#C46A1B' },
+  { id: 'bc45', label: 'BC 45 에스파냐', color: '#7A4FA0' },
+  { id: 'pompey', label: '폼페이우스의 도피 · BC 49–48', color: '#5C6B7A' },
+  { id: 'other', label: '그 밖의 이동', color: '#8A8F98' },
+];
+const PHASE_BY_ID = new Map(ROUTE_PHASES.map(p => [p.id, p]));
+
+/** 구간 → 국면 id. 모르면 'other' — 없는 국면을 발명하지 않는다. */
+export function legPhase(p: MoveProps): string {
+  if (p.route === 'pompey') return 'pompey';
+  const from = typeof p.from_year === 'number' ? p.from_year : null;
+  const to = legYear(p);
+  if (from != null && to != null && from <= -52 && to >= -50) return 'return';
+  if (to == null) return 'other';
+  return PHASE_BY_ID.has(`bc${-to}`) ? `bc${-to}` : 'other';
+}
+
+export function phaseColor(id: string): string {
+  return PHASE_BY_ID.get(id)?.color ?? '#8A8F98';
+}
+
+export function phaseLabel(id: string): string {
+  return PHASE_BY_ID.get(id)?.label ?? '그 밖의 이동';
+}
+
+/** 범례 순서. 렌더된 피처에서 국면을 모을 때 순서가 화면 그리기 순서대로 섞이므로
+ *  (실측: BC48 → BC49 → 귀환 → 폼페이우스 → BC47로 뒤죽박죽 찍혔다) 정렬 키를 같이 싣는다. */
+export function phaseRank(id: string): number {
+  const i = ROUTE_PHASES.findIndex(p => p.id === id);
+  return i < 0 ? ROUTE_PHASES.length : i;
+}
+
+/** 순번·국면·국면색을 properties에 접어 넣는다. **좌표는 안 건드린다** — 휘는 것은
+ *  curveMovements의 몫이고, 말이 밟는 원본은 어느 쪽도 손대지 않는다.
+ *
+ *  순번은 route 안에서 1부터다. 정본 geojson이 이미 여정 순서대로 들어 있고(`caesar@0`…
+ *  `caesar@8`) 폼페이우스 교보재도 그렇다. 배열 순서를 믿는 대신 `from_year`로 다시 세우면
+ *  같은 해에 두 구간이 있는 자리(브린디시·일레르다 둘 다 BC 49)에서 순서가 흔들린다. */
+export function annotateLegs(features: MoveFeature[]): MoveFeature[] {
+  const seen = new Map<string, number>();
+  return features.map(f => {
+    const p = f.properties ?? {};
+    const route = String(p.route ?? 'other');
+    const seq = (seen.get(route) ?? 0) + 1;
+    seen.set(route, seq);
+    const phase = legPhase(p);
+    return { ...f, properties: { ...p, seq, phase, phaseColor: phaseColor(phase), phaseLabel: phaseLabel(phase), phaseRank: phaseRank(phase) } };
+  });
 }
 
 /** 직선 구간을 활로 바꾼다. 정점이 셋 이상이면 이미 경로 모양이라 그대로 둔다 —

@@ -6,7 +6,7 @@ import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '.
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
 import { showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
-import { curveMovements } from '../routes';
+import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
 import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BATTLES, PACK_MOVEMENTS, PACK_PLACES, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
@@ -76,6 +76,31 @@ function arrowIcon(color: string): ImageData {
   return g.getImageData(0, 0, W, H);
 }
 
+/** 여정 순번 배지. 국면색 원반에 흰 숫자, 밖으로 종이색 테 한 겹.
+ *
+ *  레퍼런스 지도가 화살표 옆에 연도를 적어 순서를 말한다. 우리는 연도를 이미 이름표와
+ *  HUD가 말하므로 **순번**을 적는다 — "①에서 시작해 ⑨에서 끝난다"가 한눈에 읽힌다.
+ *
+ *  숫자를 텍스트 레이어로 따로 얹지 않고 그림에 굽는 이유: 심볼 레이어 하나에 아이콘과
+ *  글자를 같이 넣으면 글리프가 비동기로 와서 원반과 숫자가 한 프레임 어긋나 보이고,
+ *  레이어를 둘로 쪼개면 배치 우선권이 갈려 숫자만 충돌에 밀려 사라진다. 구간은 열셋뿐이라
+ *  전부 구워도 이미지 열세 장이다. */
+function seqIcon(color: string, n: number): ImageData {
+  const S = 44, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const g = c.getContext('2d')!;
+  const r = 16;
+  g.beginPath(); g.arc(S / 2, S / 2, r + 3, 0, Math.PI * 2);
+  g.fillStyle = '#FFFFFF'; g.fill();
+  g.beginPath(); g.arc(S / 2, S / 2, r, 0, Math.PI * 2);
+  g.fillStyle = color; g.fill();
+  g.fillStyle = '#FFFFFF';
+  g.font = `700 ${n >= 10 ? 19 : 22}px sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(String(n), S / 2, S / 2 + 1);
+  return g.getImageData(0, 0, S, S);
+}
+
 function portraitIcon(img: CanvasImageSource | null, color: string, initial: string): ImageData {
   const size = 64, c = document.createElement('canvas');
   c.width = c.height = size;
@@ -108,7 +133,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   battles: ['battle'],
   // 이 발표가 말하는 전투 넷(알레시아·파르살루스·젤라·문다). 교보재 오버레이라 수가 적다.
   story_battles: ['pack-battle', 'pack-battle-label'],
-  movements: ['movement', 'movement-halo', 'movement-arrow'],
+  movements: ['movement', 'movement-halo', 'movement-arrow', 'movement-seq'],
   relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
@@ -267,6 +292,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.setPaintProperty('movement-halo', 'line-opacity', lerp(0.5, 0.1) as any);
       map.setPaintProperty('movement-halo', 'line-width', byZoom(5, 8, lerp(1, 0.62)));
     }
+    // 순번 배지는 **지난 구간도 남긴다** — "①에서 ⑨까지"가 여정 전체의 순서를 말하는
+    // 것이 존재 이유다. 다만 올해 것이 제일 진하다. 0.5까지만 내려 옛 구간도 읽힌다.
+    if (map.getLayer('movement-seq')) {
+      map.setPaintProperty('movement-seq', 'icon-opacity', lerp(1, 0.5) as any);
+      map.setLayoutProperty('movement-seq', 'icon-size', byZoom(1, 1.3, lerp(1, 0.8)));
+    }
     // 화살표는 **올해 구간에만** 남긴다. 열세 구간에 전부 찍으면 화살촉이 예순 개가 되어
     // 연하게 만든 보람이 없다. 방향이 필요한 것은 지금 움직이는 줄기 하나다.
     if (map.getLayer('movement-arrow')) map.setFilter('movement-arrow',
@@ -405,7 +436,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'fill-color': fillColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': fillColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
-    // 갈리아 교보재. pack-extent-60에만 켠다. Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다.
+    // 갈리아 교보재. **연도로** 켠다(present.showGalliaOverlay). Cliopatria가 BC60/51을 안 갈라 줘서 정본 속주 셋만 칠한다.
     if (GALLIA_FREE && !map.getSource('gallia-free')) {
       map.addSource('gallia-free', { type: 'geojson', data: GALLIA_FREE as any });
       map.addLayer({ id: 'gallia-free', type: 'fill', source: 'gallia-free',
@@ -684,7 +715,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS] };
     // 화면에 깔리는 것은 **휜 사본**이다. 원본은 tokenRoutes가 그대로 쓴다 —
     // 말은 실제 정점을 밟아야 하고(walkRoute가 좌표 일치로 구간을 찾는다) 선만 활이 된다.
-    map.addSource('movements', { type: 'geojson', data: { type: 'FeatureCollection', features: curveMovements(allMoves.features as any) } as any });
+    // annotateLegs가 순번·국면·국면색을 properties에 얹고, curveMovements가 좌표만 휜다.
+    const legs = annotateLegs(allMoves.features as any);
+    map.addSource('movements', { type: 'geojson', data: { type: 'FeatureCollection', features: curveMovements(legs) } as any });
     // 경로는 세 겹이다. 아래에서부터 **테(paper) → 선(세력색) → 화살표**.
     //
     // 테를 까는 이유: 선을 연하게 만들면(River의 요구가 그것이다) 지형 음영·영토 색 위에서
@@ -698,25 +731,51 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 지금 해의 구간이 제일 진하고 여덟 해 전 것이 제일 옅다. 선이 「지나온 길」이 아니라
     // 「지금 어디로 가는 중인가」를 먼저 말한다. 굵기도 같이 줄어 원근이 생긴다.
     // 실제 값은 연도를 알아야 나오므로 apply()의 fadeMovements가 해마다 다시 얹는다.
+    // **색은 국면(여정)이 정한다.** 세력색이 아니다 — 카이사르 아홉 구간과 폼페이우스 넷이
+    // 전부 `actor: 로마`라 세력색으로는 열세 줄이 한 색이었다(routes.ts 「국면」절 참고).
     map.addLayer({ id: 'movement', type: 'line', source: 'movements', layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': fillColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.6, 6, 2.6] as any,
+      paint: { 'line-color': ['coalesce', ['get', 'phaseColor'], fillColor] as any,
+        'line-width': ['interpolate', ['linear'], ['zoom'], 3, 1.6, 6, 2.6] as any,
         'line-opacity': 0.7 } }, before);
     // 방향. symbol-placement: 'line'이 선의 진행 방향을 그대로 따르므로 **좌표 순서가 곧 화살표**다.
-    // 세력색 사본을 미리 굽는다 — icon-color는 SDF 아이콘에만 듣고, 알파를 거리장으로 속여
+    // 국면색 사본을 미리 굽는다 — icon-color는 SDF 아이콘에만 듣고, 알파를 거리장으로 속여
     // 쓰면 삼각형 모서리가 뭉갠다. armIcon·standardIcon이 이미 같은 방식이다.
-    for (const a of [...d.actors, { id: '_', color: FALLBACK_COLOR }]) {
-      const iid = `arrow-${a.id}`;
-      if (!map.hasImage(iid)) map.addImage(iid, arrowIcon(a.color), { pixelRatio: 2 });
+    for (const ph of ROUTE_PHASES) {
+      const iid = `arrow-${ph.id}`;
+      if (!map.hasImage(iid)) map.addImage(iid, arrowIcon(ph.color), { pixelRatio: 2 });
     }
     map.addLayer({ id: 'movement-arrow', type: 'symbol', source: 'movements',
       layout: { 'symbol-placement': 'line', 'symbol-spacing': 140,
-        'icon-image': ['concat', 'arrow-', ['case', ['in', ['get', 'actor'], ['literal', d.actors.map(a => a.id)]], ['get', 'actor'], '_']] as any,
+        'icon-image': ['concat', 'arrow-', ['coalesce', ['get', 'phase'], 'other']] as any,
         'icon-size': ['interpolate', ['linear'], ['zoom'], 3, 0.85, 6, 1.15] as any,
         'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'viewport',
         // 화살촉은 작고 선의 일부다. 충돌 검사에 넣으면 도시 이름표에 밀려 **한 개도 안 뜬다** —
         // 실제로 그랬다. 자리를 뺏지도 않게 ignore-placement까지 켠다.
         'icon-allow-overlap': true, 'icon-ignore-placement': true } as any,
       paint: { 'icon-opacity': 0.85 } as any }, before);
+    // 순번. 구간마다 하나, 선의 가운데('line-center')에. 구간이 열셋뿐이라 배지를 전부 굽는다.
+    for (const f of legs) {
+      const p: any = f.properties ?? {};
+      const iid = `seq-${p.phase}-${p.seq}`;
+      if (p.seq && !map.hasImage(iid)) map.addImage(iid, seqIcon(String(p.phaseColor), Number(p.seq)), { pixelRatio: 2 });
+    }
+    map.addLayer({ id: 'movement-seq', type: 'symbol', source: 'movements',
+      filter: ['has', 'seq'],
+      layout: { 'symbol-placement': 'line-center',
+        'icon-image': ['concat', 'seq-', ['get', 'phase'], '-', ['get', 'seq']] as any,
+        // 44px@2x = 자연 크기 22 CSS px. 지중해 축척(z4.2)에서 1.1배면 ~24px — 도시 이름표
+        // 글자 높이와 같은 급이라 「선에 달린 번호」로 읽힌다. 0.68배(15px)로는 안 읽혔다.
+        'icon-size': ['interpolate', ['linear'], ['zoom'], 3, 1, 6, 1.3] as any,
+        'icon-rotation-alignment': 'viewport', 'icon-pitch-alignment': 'viewport',
+        // 홀·짝을 위아래로 떼어 놓는다. 왕복 구간(브린디시→일레르다→디르하키움)은 가운데가
+        // 거의 같은 자리라 배지 둘이 겹쳐 찍혔다 — 실측으로 ③과 ④가 그랬다. 오프셋은
+        // icon-size에 곱해지므로 3840판에서도 비율이 유지된다.
+        'icon-offset': ['case', ['==', ['%', ['coalesce', ['get', 'seq'], 0], 2], 0],
+          ['literal', [0, -14]], ['literal', [0, 14]]] as any,
+        // 배지는 무조건 뜬다(River가 순번을 요구했다). 다만 **자리는 점유한다** —
+        // ignore-placement를 켜면 도시 이름표가 배지 밑으로 깔린다.
+        'icon-allow-overlap': true, 'icon-ignore-placement': false } as any,
+      paint: { 'icon-opacity': 0.95 } as any }, before);
 
     // 관계 그래프 오버레이(2.1, 하이브리드): 선택 객체 ↔ 좌표 있는 이웃 선. 좌표 없는 이웃은 GraphPanel.
     map.addSource('ego', { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'id' });
@@ -886,6 +945,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       loadTerritory(s.year);
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
       for (const id of ['movement', 'movement-halo']) if (map.getLayer(id)) map.setFilter(id, movementFilter(s.year) as any);
+      // 배지는 'seq'가 있는 구간만. 해 필터를 덮어쓰면 안 간 구간의 번호까지 뜬다.
+      if (map.getLayer('movement-seq')) map.setFilter('movement-seq', ['all', ['has', 'seq'], movementFilter(s.year)] as any);
       fadeMovements(s.year);
       hideUnbuilt(s.year);
       if (map.getLayer('pack-battle-label')) map.setFilter('pack-battle-label', dateWindow(s.year) as any);

@@ -17,6 +17,7 @@ import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
 import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
+import { legPhase, ROUTE_PHASES } from '../routes';
 import { Callouts } from './Callouts';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
@@ -187,6 +188,14 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     if (on.has('graph') && s.sel && graph) {
       const groups = new Set(neighborsOf(graph, s.sel, s.year).map(n => n.group));
       for (const g of ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make']) if (groups.has(g)) items.push({ swatch: { background: GROUP_COLOR[g], height: 2, alignSelf: 'center' }, label: GROUP_LABEL[g] });
+    }
+    // 경로 국면(여정) 색. **지금 화면에 있는 국면만** — 일곱을 다 늘어놓으면 범례가 화면을 먹는다.
+    // 색만 갈라 놓고 범례를 안 주면 무슨 색이 무슨 원정인지 알 길이 없다(레퍼런스 지도도 범례를 단다).
+    if (on.has('movements')) {
+      const seen = new Set([...d.movements.features, ...PACK_MOVEMENTS]
+        .filter(f => (((f.properties as any).to_year ?? (f.properties as any).valid_from ?? -1e6)) <= s.year)
+        .map(f => legPhase(f.properties as any)));
+      for (const ph of ROUTE_PHASES) if (seen.has(ph.id)) items.push({ swatch: { background: ph.color, height: 3, alignSelf: 'center' }, label: ph.label });
     }
     if (on.has('people')) items.push({ swatch: { background: '#A4243B', borderRadius: '50%', border: '1.5px solid #fff' }, label: '인물 위치' });
     if (s.board) items.push({ swatch: { background: 'transparent', border: '1.5px solid var(--color-text-secondary)', borderRadius: 2 }, label: '말판 · 교보재' });

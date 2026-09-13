@@ -76,11 +76,14 @@ SEA = (0xC7, 0xD2, 0xCB)  # campaign 스킨의 바다색(src/map/style.ts). 투�
 HALO = 1.4         # 후광도 같이 키운다. 글자만 키우면 배경에 묻힌다
 IDLE_MS = 25000    # 타일·글리프·영토 폴리곤까지. 지중해 전역 장은 느리다
 
-# 장면 id → 납품 파일명. 사양서 B절 §「아홉 장」 표의 파일명이다.
+# 장면 id → 납품 파일명. 사양서 B절 표의 파일명이다.
+# **여덟 장이다.** `pack-extent-60`을 뺐다 — `pack-intro-med`와 카메라·연도·레이어가
+# 같아서 두 장이 같은 그림이었고(md5 말고 층 개수·말 위치까지 일치), 순서상 연도가
+# 60→52→60→51로 역행했다. 첫 장이 이미 자유 갈리아 교보재를 켜므로 비교의 앞짝은
+# 첫 장이 맡는다. River 판단(2026-09-13).
 SCENES = [
     ("pack-intro-med",   "intro_지도_지중해판도_BC60_v2"),
     ("pack-gaul-52",     "M2_지도_갈리아원정_BC52_v2"),
-    ("pack-extent-60",   "M2_지도_판도_BC60_v2"),
     ("pack-extent-51",   "M2_지도_판도_BC51_v2"),
     ("pack-rubicon",     "M3_지도_루비콘_BC49_v2"),
     ("pack-greece-48",   "M3_지도_그리스내전_BC48_v2"),
@@ -128,7 +131,14 @@ PREP = """
       bumped++;
     } catch (e) { failed.push(l.id); }
   }
-  return { ok: true, bumped, 배율실패: failed };
+  // 여정 순번 배지는 글자가 아니라 그림이라 위 고리에 안 걸린다. 이름표만 1.5배로 키우면
+  // 배지가 상대적으로 쪼그라들어 3840판에서 숫자가 안 읽힌다 — 같은 배율로 같이 키운다.
+  let seqBumped = false;
+  try {
+    const sz = m.getLayoutProperty('movement-seq', 'icon-size');
+    if (sz != null) { m.setLayoutProperty('movement-seq', 'icon-size', mul(sz, scale)); seqBumped = true; }
+  } catch (e) { failed.push('movement-seq'); }
+  return { ok: true, bumped, 순번배지: seqBumped, 배율실패: failed };
 }
 """
 
@@ -171,6 +181,17 @@ COUNT = """
     }
   }
   const out = people.filter(p => p.y < 18 || p.y > 62 || p.x < 20 || p.x > 80);
+  // 지금 판에 실제로 그려진 여정만. 범례를 이미지에 구울 때 쓴다 — 안 보이는 국면을
+  // 범례에 적으면 독자가 없는 선을 찾는다.
+  const ph = [];
+  if (vis('movement')) {
+    const seen = new Set();
+    for (const f of m.queryRenderedFeatures({ layers: ['movement'] })) {
+      const k = f.properties.phase; if (!k || seen.has(k)) continue; seen.add(k);
+      ph.push({ id: k, label: f.properties.phaseLabel, color: f.properties.phaseColor, rank: f.properties.phaseRank });
+    }
+    ph.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));   // 범례는 연대순이어야 읽힌다
+  }
   return {
     영역: vis('territory-fill') ? n('territory') : 0,
     도시: vis('settle-major') ? n('settlements') : 0,
@@ -186,11 +207,58 @@ COUNT = """
     캔버스: [W, H], 컨테이너: [m.getContainer().clientWidth, m.getContainer().clientHeight],
     상태center: window.__ca.store.get().center,
     안전영역밖: out.map(p => `${p.이름}(${p.x},${p.y})`),
+    국면: ph,
   };
 }
 """
 
 
+
+def route_legend(im, phases):
+    """여정 색 범례를 오른쪽 위에 굽는다.
+
+    **왜 이미지에 굽나.** 앱 범례는 DOM이라 캔버스 내보내기에 안 들어온다(캡션과 같은
+    이유). 색을 여섯 갈래로 갈라 놓고 범례를 안 주면 무슨 색이 무슨 원정인지 알 길이
+    없다 — River가 준 레퍼런스 지도도 범례를 오른쪽 위에 단다.
+
+    자리는 **오른쪽 위**다. 왼쪽 위는 캡션 판이 쓰고 아래 64~95%는 게임 대사창이 덮는다.
+    """
+    if not phases:
+        return im
+    from PIL import Image, ImageDraw, ImageFont
+    W, H = im.size
+    S = W / 3840
+    f = ImageFont.truetype(FONT_TTC, int(34 * S), index=0)
+    f_h = ImageFont.truetype(FONT_TTC, int(30 * S), index=2)
+    pad, gap, sw = int(30 * S), int(16 * S), int(54 * S)
+    d = ImageDraw.Draw(im)
+    head = "이동 경로"
+    phases = [p for p in phases if p.get("label")]   # 라벨 없는 국면은 범례에 못 적는다
+    if not phases:
+        return im
+    rows = [p["label"] for p in phases]
+    tw = max([d.textlength(t, font=f) for t in rows] + [d.textlength(head, font=f_h)])
+    lh = int(46 * S)
+    boxw = int(pad * 2 + sw + gap + tw)
+    boxh = int(pad * 2 + lh * (len(rows) + 1))
+    x0, y0 = W - int(96 * S) - boxw, int(86 * S)
+
+    im = im.convert("RGBA")
+    im.alpha_composite(Image.new("RGBA", (boxw, boxh), (26, 24, 21, 206)), (x0, y0))
+    d = ImageDraw.Draw(im)
+    d.text((x0 + pad, y0 + pad), head, font=f_h, fill=(232, 200, 138, 255))
+    y = y0 + pad + lh
+    for p in phases:
+        cy = y + int(lh * 0.34)
+        d.line([(x0 + pad, cy), (x0 + pad + sw, cy)], fill=_rgb(p["color"]), width=max(2, int(7 * S)))
+        d.text((x0 + pad + sw + gap, y), p["label"], font=f, fill=(226, 221, 210, 240))
+        y += lh
+    return im.convert("RGB")
+
+
+def _rgb(c):
+    c = (c or "#8A8F98").lstrip("#")
+    return tuple(int(c[i:i + 2], 16) for i in (0, 2, 4)) + (255,)
 
 def caption(im, scene: str):
     """사건 한 줄 + 설명 + 명언을 지도 위에 직접 굽는다.
@@ -290,6 +358,7 @@ def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
     flat.paste(im, (0, 0), im if im.mode == "RGBA" else None)
 
     flat = caption(flat, scene)          # 사건·명언을 이미지에 굽는다
+    flat = route_legend(flat, layers.get("국면") or [])   # 여정 색 범례(오른쪽 위)
 
     SHOT.mkdir(parents=True, exist_ok=True)
     flat.save(SHOT / f"{stem}.png")
@@ -300,7 +369,7 @@ def shoot(page, cdp, scene: str, stem: str, scale: float) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("only", nargs="*", help="장면 id. 비우면 아홉 장 전부")
+    ap.add_argument("only", nargs="*", help="장면 id. 비우면 여덟 장 전부")
     ap.add_argument("--scale", type=float, default=SCALE)
     a = ap.parse_args()
 

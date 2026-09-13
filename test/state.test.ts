@@ -168,7 +168,7 @@ describe('장면 평면/입체 (발표 팩)', () => {
   });
   it('장면 탭: 판도(pitch 0)는 평면, 원정은 입체', () => {
     const st = createStore({ ...DEFAULTS, view: '3d' });
-    applyScene(st, { id: 'pack-extent-60', title: '판도', year: -60, pitch: 0 });
+    applyScene(st, { id: 'pack-extent-51', title: '판도', year: -51, pitch: 0 });
     expect(st.get().view).toBe('2d');
     applyScene(st, { id: 'pack-gaul-52', title: '원정', year: -52, pitch: 50 });
     expect(st.get().view).toBe('3d');

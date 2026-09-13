@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
-import { arc, legAge, legYear, curveMovements, type MoveFeature } from '../src/routes';
+import { arc, legAge, legYear, curveMovements, annotateLegs, legPhase, phaseColor, ROUTE_PHASES, type MoveFeature } from '../src/routes';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const rd = (p: string) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
@@ -66,5 +66,44 @@ describe('지난 구간일수록 옅게', () => {
     expect(legYear({})).toBe(null);
     expect(legAge({}, -48)).toBe(1);
     expect(legAge({ valid_from: -50 }, -48)).toBeCloseTo(0.25, 6);
+  });
+});
+
+describe('여정 국면과 순번', () => {
+  const caesar = rd('public/datasets/rome/layers/movements.geojson').features as MoveFeature[];
+  const pompey = rd('data/overlays/pack-pompey.json').features as MoveFeature[];
+
+  it('정본 카이사르 아홉 구간이 레퍼런스와 같은 국면으로 갈린다', () => {
+    // Caesar's Civil War Campaigns 지도의 범례: 귀환 / 49 / 48 / 47 / 46 / 45.
+    expect(caesar.map(f => legPhase(f.properties))).toEqual([
+      'return', 'bc49', 'bc49', 'bc48', 'bc48', 'bc47', 'bc47', 'bc46', 'bc45',
+    ]);
+  });
+
+  it('첫 구간만 귀환이다 — BC 49에 묶으면 브린디시·일레르다와 한 색이 된다', () => {
+    expect(legPhase(caesar[0].properties)).toBe('return');
+    expect(legPhase(caesar[1].properties)).toBe('bc49');
+    expect(phaseColor('return')).not.toBe(phaseColor('bc49'));
+  });
+
+  it('폼페이우스 교보재는 카이사르와 다른 색이다 — 둘 다 actor가 로마다', () => {
+    for (const f of pompey) expect(legPhase(f.properties)).toBe('pompey');
+    expect(new Set(caesar.map(f => phaseColor(legPhase(f.properties)))).has(phaseColor('pompey'))).toBe(false);
+  });
+
+  it('순번은 route 안에서 1부터, 좌표는 안 건드린다', () => {
+    const out = annotateLegs([...caesar, ...pompey]);
+    expect(out.filter(f => f.properties.route === 'caesar').map(f => f.properties.seq)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(out.filter(f => f.properties.route === 'pompey').map(f => f.properties.seq)).toEqual([1, 2, 3, 4]);
+    for (let i = 0; i < caesar.length; i++) expect(out[i].geometry.coordinates).toEqual(caesar[i].geometry.coordinates);
+  });
+
+  it('국면 색이 서로 다르다 — 같은 색이 둘이면 갈라 놓은 뜻이 없다', () => {
+    expect(new Set(ROUTE_PHASES.map(p => p.color)).size).toBe(ROUTE_PHASES.length);
+  });
+
+  it('모르는 구간은 other로 떨어진다 — 없는 국면을 발명하지 않는다', () => {
+    expect(legPhase({})).toBe('other');
+    expect(legPhase({ to_year: -300 })).toBe('other');
   });
 });

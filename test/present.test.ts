@@ -23,7 +23,7 @@ describe('발표 장면 넘김', () => {
 });
 
 describe('갈리아 교보재 오버레이', () => {
-  // 장면이 아니라 **연도로** 가른다. 예전에는 pack-extent-60 한 장에만 켜서, 정작
+  // 장면이 아니라 **연도로** 가른다. 예전에는 전용 장면 한 장에만 켜서, 정작
   // 갈리아 원정 장면(BC52)에 갈리아가 없었다 — 카이사르와 베르킹게토릭스가 흰 땅 위에
   // 서 있었다. 자유 갈리아는 어느 장면에서 보든 BC51까지 자유 갈리아다.
   it('기원전 51년 전이면 팩 장면 어디서나 켠다', () => {
@@ -67,7 +67,7 @@ describe('갈리아 로마색 오버레이 (기원전 51년)', () => {
   });
   it('어느 해에도 두 색이 겹치지 않는다', () => {
     for (let y = -70; y <= -20; y++)
-      expect(showGalliaOverlay('pack-extent-60', y) && showGalliaRoman('pack-extent-60', y), `BC ${-y}`).toBe(false);
+      expect(showGalliaOverlay('pack-intro-med', y) && showGalliaRoman('pack-intro-med', y), `BC ${-y}`).toBe(false);
   });
 });
 
@@ -97,17 +97,21 @@ describe('카이사르 팩 교보재', () => {
 });
 
 describe('카이사르 팩 장면 파일', () => {
-  it('아홉 장면 모두 설명과 평면/입체를 가진다', () => {
-    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; group?: string; note?: string; view?: string; skin?: string }[];
+  it('여덟 장면 모두 설명과 평면/입체를 가진다', () => {
+    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; year: number; group?: string; note?: string; view?: string; skin?: string }[];
     const pack = raw.filter(s => s.group === PRESENT_GROUP);
     expect(pack.map(s => s.id)).toEqual([
-      'pack-intro-med', 'pack-gaul-52', 'pack-extent-60', 'pack-extent-51',
+      'pack-intro-med', 'pack-gaul-52', 'pack-extent-51',
       'pack-rubicon', 'pack-greece-48', 'pack-egypt-47', 'pack-extent-44', 'pack-augustan-27',
     ]);
+    // **연도가 되감기지 않는다.** `pack-extent-60`이 두 번째와 세 번째 사이에 BC 60으로
+    // 끼어 있어 60→52→60→51로 흘렀다(River가 그걸 짚었다). 같은 사고가 재발하면 여기서 잡는다.
+    const years = pack.map(s => s.year);
+    expect(years).toEqual([...years].sort((a, b) => a - b));
     for (const s of pack) {
       expect(s.note && s.note.length > 8, s.id).toBeTruthy();
       expect(s.view === '2d' || s.view === '3d', s.id).toBeTruthy();
-      // 에셋 사양서 B절 「스킨은 campaign으로 고정한다. 아홉 장 전부」 —
+      // 에셋 사양서 B절 「스킨은 campaign으로 고정한다. 전부」 —
       // 장마다 바꾸면 지도끼리 따로 논다. 라이브와 내보낸 이미지도 같은 톤이어야 한다.
       expect(s.skin, s.id).toBe('campaign');
     }
@@ -137,8 +141,8 @@ describe('알레시아 세부 장면', () => {
   it('세부 축척이라 지중해 고정 시점의 예외다 — 그래서 따로 적어 둔다', () => {
     const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as { id: string; zoom?: number; center?: [number, number] }[];
     const a = raw.find(s => s.id === 'pack-alesia-52')!;
-    expect(a.zoom).toBeGreaterThan(11);              // 나머지 아홉은 4.2
-    expect(raw.filter(x => (x as { group?: string }).group === '2회차 발표 · 카이사르 팩')).toHaveLength(9);
+    expect(a.zoom).toBeGreaterThan(11);              // 나머지 여덟은 4.2
+    expect(raw.filter(x => (x as { group?: string }).group === '2회차 발표 · 카이사르 팩')).toHaveLength(8);
     expect(a.center![0]).toBeCloseTo(4.5, 1);        // 몽 옥수아
     expect(a.center![1]).toBeCloseTo(47.53, 1);
   });
