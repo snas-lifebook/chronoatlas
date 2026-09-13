@@ -240,8 +240,18 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
 export interface PersonProps {
   id: string; name: string; via: PersonAt['via']; place: string | null; placeName: string | null;
   color: string; faction: string | null; polityName: string | null; asset: string | null;
+  legions: number | null; force: string | null;   // 군기와 병력 표기
 }
-export function peopleGeoJSON(people: PersonAt[], palette: Record<string, string>):
+/** 「군단 10 · 4~6만」처럼 한 줄로. 숫자가 없으면 빈 칸을 만들지 않고 null. */
+function forceLabel(l: { legions: number | null; men_low: number | null; men_high: number | null } | null): string | null {
+  if (!l) return null;
+  const man = (n: number) => (n >= 10000 ? `${Math.round(n / 10000)}만` : `${Math.round(n / 1000)}천`);
+  const troops = l.men_low && l.men_high ? `${man(l.men_low)}~${man(l.men_high)}` : null;
+  if (l.legions != null && l.legions > 0) return troops ? `${l.legions}군단 · ${troops}` : `${l.legions}군단`;
+  return troops ? `${troops}명` : null;
+}
+
+export function peopleGeoJSON(people: PersonAt[], palette: Record<string, string>, legionOf?: (id: string) => { legions: number | null; men_low: number | null; men_high: number | null } | null):
   { type: 'FeatureCollection'; features: { type: 'Feature'; id: string; properties: PersonProps; geometry: { type: 'Point'; coordinates: [number, number] } }[] } {
   return {
     type: 'FeatureCollection',
@@ -252,6 +262,8 @@ export function peopleGeoJSON(people: PersonAt[], palette: Record<string, string
         id: p.id, name: p.name, via: p.via, place: p.place, placeName: p.placeName,
         color: tokenColor(p.id, p.faction, palette),
         faction: p.faction, polityName: p.polityName, asset: p.asset,
+        legions: legionOf?.(p.id)?.legions ?? null,
+        force: forceLabel(legionOf?.(p.id) ?? null),
       },
       geometry: { type: 'Point' as const, coordinates: p.at },
     })),

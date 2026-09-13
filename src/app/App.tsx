@@ -15,7 +15,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, sceneBrief } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf } from '../present';
 import { GraphPanel } from './GraphPanel';
 import { Qc } from './Qc';
@@ -78,8 +78,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const people = useMemo(() => peopleAtYear(s.year, { graph, movements: [...d.movements.features, ...PACK_MOVEMENTS], territory: d.territory.features, teaching: PACK_CAST, zoom: s.zoom ?? undefined }), [s.year, s.zoom, graph, d, dataTick]);
   useEffect(() => {
     const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
-    engRef.current?.setPeople(peopleGeoJSON(people, palette));
-  }, [people, d]);
+    engRef.current?.setPeople(peopleGeoJSON(people, palette, id => legionsAt(id, s.year)));
+  }, [people, d, s.year]);
 
   useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);

@@ -32,6 +32,27 @@ function armIcon(arm: string, color: string): ImageData {
   return g.getImageData(0, 0, size, size);
 }
 
+/** 군기(vexillum). 장대에 가로대, 거기 늘어뜨린 네모 깃발, 그 위에 군단 수.
+ *  로마 군단기가 장대에 가로대를 달고 천을 늘어뜨린 형태라 그 실루엣을 따랐다.
+ *  숫자를 깃발에 박아 「몇 개인지」가 말 옆에서 바로 읽힌다. */
+function standardIcon(color: string, n: number | null): ImageData {
+  const W = 72, H = 84, c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d')!;
+  g.strokeStyle = '#3A2F22'; g.lineWidth = 4; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(14, 8); g.lineTo(14, H - 6); g.stroke();
+  g.beginPath(); g.moveTo(6, 16); g.lineTo(60, 16); g.stroke();
+  g.fillStyle = color; g.strokeStyle = '#FFFFFF'; g.lineWidth = 3;
+  g.beginPath(); g.rect(16, 20, 44, 38); g.fill(); g.stroke();
+  if (n != null && n > 0) {
+    g.fillStyle = '#FFFFFF';
+    g.font = `700 ${n >= 10 ? 26 : 30}px sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(String(n), 38, 40);
+  }
+  return g.getImageData(0, 0, W, H);
+}
+
 function portraitIcon(img: CanvasImageSource | null, color: string, initial: string): ImageData {
   const size = 64, c = document.createElement('canvas');
   c.width = c.height = size;
@@ -73,7 +94,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'label-region'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
   board: ['board-unit', 'board-label'],
-  people: ['people-dot', 'people-label'],
+  people: ['people-dot', 'people-label', 'people-standard', 'people-force'],
   // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
   alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-outer', 'alesia-inner',
            'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label'],
@@ -156,10 +177,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   function syncPeopleIcons(fc: { type: 'FeatureCollection'; features: object[] }) {
     if (!map.getStyle()) return;
     if (!map.hasImage('person-fallback')) map.addImage('person-fallback', portraitIcon(null, '#6B6F76', '·'), { pixelRatio: 2 });
-    for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null } }[]) {
+    for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null; legions?: number | null } }[]) {
       const p = f.properties; if (!p?.id) continue;
       const iid = `person-${p.id}`;
       const initial = String(p.name || '·').replace(/\s+/g, '').slice(0, 1);
+      // 군기 — 세력색 × 군단 수 조합마다 하나. 조합이 몇 개 안 된다.
+      const lg = (p as { legions?: number | null }).legions ?? null;
+      const sid = `std-${p.color}-${lg ?? 0}`;
+      if (lg != null && lg > 0 && !map.hasImage(sid)) map.addImage(sid, standardIcon(p.color || '#6B6F76', lg), { pixelRatio: 2 });
       if (!map.hasImage(iid)) {
         map.addImage(iid, portraitIcon(null, p.color || '#6B6F76', initial), { pixelRatio: 2 });
         portraitQueued.delete(iid);
@@ -364,6 +389,19 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'text-allow-overlap': true, 'text-ignore-placement': false,
         'text-pitch-alignment': 'viewport' },
       paint: { 'text-color': ['get', 'color'], 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.2 } }, before);
+    // 군기 + 병력. 이름표는 말 아래, 군기는 오른쪽 — 서로 안 싸운다.
+    map.addLayer({ id: 'people-standard', type: 'symbol', source: 'people',
+      filter: ['>', ['coalesce', ['get', 'legions'], 0], 0] as any,
+      layout: { 'icon-image': ['concat', 'std-', ['get', 'color'], '-', ['to-string', ['get', 'legions']]],
+        'icon-size': 0.8, 'icon-anchor': 'bottom-left', 'icon-offset': [26, 10],
+        'icon-allow-overlap': true, 'icon-ignore-placement': true } as any }, before);
+    map.addLayer({ id: 'people-force', type: 'symbol', source: 'people',
+      filter: ['has', 'force'] as any,
+      layout: { 'text-field': ['coalesce', ['get', 'force'], ''], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+        // 이름표가 1.9em(24px 기준 46px)에 앉고 높이가 있으니 그 아래로 확실히 내린다
+        'text-size': 12, 'text-offset': [0, 4.9], 'text-anchor': 'top',
+        'text-allow-overlap': true, 'text-optional': true, 'text-pitch-alignment': 'viewport' } as any,
+      paint: { 'text-color': ['get', 'color'] as any, 'text-halo-color': isDark ? '#1B2129' : '#FFFFFF', 'text-halo-width': 2.4 } }, before);
     syncPeopleIcons(peopleFc);
 
     map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,

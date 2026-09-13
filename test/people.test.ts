@@ -95,13 +95,26 @@ describe('인물 위치 (R38)', () => {
     expect(at(125).find(p => p.id === 'person:하드리아누스')?.place).toBe('place:게르마니아');
   });
 
-  it('군단 수를 지어내지 않는다 — 스키마에 숫자가 없다', () => {
-    const fc = peopleGeoJSON(at(-49), { 로마: '#A4243B' });
-    expect(fc.features.length).toBeGreaterThan(0);
-    for (const f of fc.features) {
-      expect(f.properties).not.toHaveProperty('legions');
+  it('군단 수를 지어내지 않는다 — 출처 있는 교보재를 넘길 때만 숫자가 붙는다', () => {
+    // 원래 이 테스트는 「스키마에 숫자가 없다」였다. 이제 군기를 그리느라 숫자를 싣는데,
+    // **지어내지 않는다**는 원칙은 그대로다. 넘기는 쪽이 없으면 여전히 null이어야 하고,
+    // 넘길 때는 pack-legions.json(사료·신뢰도 표기)에서만 와야 한다.
+    const bare = peopleGeoJSON(at(-49), { 로마: '#A4243B' });
+    expect(bare.features.length).toBeGreaterThan(0);
+    for (const f of bare.features) {
+      expect(f.properties.legions).toBeNull();
+      expect(f.properties.force).toBeNull();
       expect(f.properties).not.toHaveProperty('strength');
     }
+    // 교보재를 넘기면 그 값이 그대로 실린다 — BC49 카이사르는 13군단 하나
+    const pack = JSON.parse(readFileSync(join(ROOT, 'data/overlays/pack-legions.json'), 'utf8'));
+    const rowsOf = (id: string) => (pack.by_person[id] ?? []) as { year: number; legions: number | null }[];
+    const at49 = (id: string) => rowsOf(id).filter(r => r.year <= -49).sort((a, b) => b.year - a.year)[0] ?? null;
+    expect(at49('person:카이사르')?.legions).toBe(1);
+    const withLg = peopleGeoJSON(at(-49), { 로마: '#A4243B' }, at49);
+    const c = withLg.features.find(f => f.properties.id === 'person:카이사르')!;
+    expect(c.properties.legions).toBe(1);
+    expect(c.properties.force).toContain('1군단');
   });
 
   it('같은 장소의 다른 사람을 같이 있는 사람으로 센다', () => {

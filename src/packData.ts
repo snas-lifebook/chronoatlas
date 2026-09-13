@@ -18,6 +18,19 @@ export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 export const ALESIA = Object.values(import.meta.glob('../data/overlays/pack-alesia.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: unknown[] } | undefined;
 
+const legions = Object.values(import.meta.glob('../data/overlays/pack-legions.json', { eager: true, import: 'default' }))[0] as
+  { by_person: Record<string, { year: number; legions: number | null; men_low: number | null; men_high: number | null; confidence?: string }[]> } | undefined;
+
+/** 그 해에 이 사람이 쥔 군단 수와 병력. 해당 연도 이하에서 가장 가까운 기록을 쓴다 —
+ *  자료가 있는 해만 찍혀 있어서(BC 58·55·53·52·49·48…) 그 사이 해는 직전 기록이 유효하다. */
+export function legionsAt(personId: string, year: number) {
+  const rows = legions?.by_person?.[personId];
+  if (!rows?.length) return null;
+  let best: (typeof rows)[number] | null = null;
+  for (const r of rows) if (r.year <= year && (!best || r.year > best.year)) best = r;
+  return best;
+}
+
 const sceneText = Object.values(import.meta.glob('../data/overlays/pack-scene-text.json', { eager: true, import: 'default' }))[0] as
   { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> } | undefined;
 
