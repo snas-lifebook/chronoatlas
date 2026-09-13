@@ -69,15 +69,15 @@ LINES = [
 
 TOWER_NOTE = '화면의 망루 개수는 표현이고 실제 간격은 80로마피트(약 24m)다.'
 
-# 10피처가 공유하는 설명은 피처마다 복사하지 않고 팩 최상위 source에 한 번만 적는다.
+# 8피처가 공유하는 설명은 피처마다 복사하지 않고 팩 최상위 source에 한 번만 적는다.
 PACK_NOTE = (
     ' 함정·해자 띠 8개(kind: trap·ditch)는 inner_line·outer_line 정본 정점을 shapely로 '
     '오프셋한 파생 기하다 — 손으로 찍은 좌표가 없다. 거리는 로마피트(1 pes = 0.296m)로 '
     '잡아 링 = 보루(벽) 선에서 적 쪽으로 재었다. 안쪽 선은 적이 성안이라 오피둠 쪽으로, '
     '바깥 선은 적이 구원군이라 밖으로 오프셋했다(BG 7.74). offset_pedes는 띠의 앞뒤 끝이고 '
-    '기하는 그 중심선, 폭은 width_m이다 — 폭 7m 띠는 발표 줌(z12.4, 1px = 19.6m)에서 '
-    '0.4px라 면으로 그릴 수 없어 선으로 낸다. 망루는 사료가 개별 위치를 특정하지 않아 '
-    '점을 만들지 않고 간격만 두 선의 tower_spacing_pedes에 얹었다.')
+    '기하는 그 중심선, 폭은 width_m이다 — 폭 7m 띠는 발표 줌(z12.4, 9.8m/px)에서 0.7px라 '
+    '면으로 그릴 수 없어 선으로 낸다. 망루는 사료가 개별 위치를 특정하지 않아 점을 '
+    '만들지 않고 간격만 두 선의 tower_spacing_pedes에 얹었다.')
 
 
 def project(lon, lat):
@@ -133,9 +133,11 @@ def main():
                 'line': ln['src'],
                 'offset_pedes': [b['near'], b['far']],
                 'width_m': round((b['far'] - b['near']) * PES, 2),
-                'note_ko': b['note_ko'] if inner else f"{b['name_ko']}를 바깥 선에도 한 벌 더 두었다. 규격은 안쪽과 같다.",
-                'source': (f"BG {b['bg']}. {b['attest'] if inner else ln['extra']} "
-                           f"{ln['src']}에서 {'안' if inner else '밖'}으로 {round(centre, 1)}m 오프셋."),
+                'note_ko': b['note_ko'] if inner else
+                           f"{b['name_ko'].split(' (')[0]}를 바깥 선에도 한 벌 더 두었다. 규격은 안쪽과 같고 향하는 쪽만 반대다.",
+                'source': ((f"BG {b['bg']}. {b['attest']}" if inner else
+                            f"{ln['extra']} 치수는 BG {b['bg']}.") +
+                           f" 정본 {ln['src']}에서 {'안' if inner else '밖'}으로 {round(centre, 1)}m 오프셋."),
                 'teaching': True,
             }
             if b['kind'] == 'trap':

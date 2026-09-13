@@ -76,6 +76,30 @@ function arrowIcon(color: string): ImageData {
   return g.getImageData(0, 0, W, H);
 }
 
+/** 망루(turris). 포위선 위를 따라 반복해 찍는다.
+ *
+ *  **점을 만들지 않는다.** 카이사르는 간격만 적었고(BG 7.72 `turres ... quae pedes LXXX
+ *  inter se distarent` = 80로마피트 ≈ 24m) 개별 망루의 좌표를 아는 자료는 자유 배포본이
+ *  없다. 실제 간격 24m는 z12에서 1픽셀 미만이고 둘레 전체면 1,400개가 넘어 아무것도
+ *  안 보인다. 그래서 `symbol-placement: 'line'`으로 **보이는 간격에** 반복시키고,
+ *  「화면의 개수는 표현이고 실제 간격은 80로마피트」를 데이터가 말하게 했다
+ *  (선 피처의 `tower_note_ko`).
+ *
+ *  80피트는 **간격**이고 12피트는 망루 높이가 아니라 **보루** 높이다 — 이 구별을 한 번
+ *  틀린 적이 있어 적어 둔다(pack-callouts.json 알레시아 1번). */
+function towerIcon(color: string): ImageData {
+  const S = 14, c = document.createElement('canvas');
+  c.width = c.height = S;
+  const g = c.getContext('2d')!;
+  // 흰 테를 먼저 — 영토 채움·지형 음영 위에서도 실루엣이 산다(arrowIcon과 같은 이유).
+  // 다만 **테가 속을 이기면 안 된다.** 처음엔 흰 10×10 위에 색 7×7이라 7 CSS px로
+  // 줄었을 때 흰 눈금으로 보였다(실측 z14.6). 색을 키우고 성가퀴도 색으로 낸다.
+  g.fillStyle = '#FFFFFF'; g.fillRect(1, 1, 12, 12);
+  g.fillStyle = color; g.fillRect(2.5, 3, 9, 9);
+  g.fillRect(3, 1, 2.2, 2.4); g.fillRect(8.8, 1, 2.2, 2.4);
+  return g.getImageData(0, 0, S, S);
+}
+
 /** 여정 순번 배지. 국면색 원반에 흰 숫자, 밖으로 종이색 테 한 겹.
  *
  *  레퍼런스 지도가 화살표 옆에 연도를 적어 순서를 말한다. 우리는 연도를 이미 이름표와
@@ -205,8 +229,9 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   board: ['board-unit', 'board-label'],
   people: ['people-dot', 'people-pad', 'people-label', 'people-standard', 'people-force'],
   // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
-  alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-outer', 'alesia-inner',
-           'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label'],
+  alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-ditch', 'alesia-trap',
+           'alesia-outer', 'alesia-inner', 'alesia-tower',
+           'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label', 'alesia-trap-label'],
   // 로마 시내 미시 지도. 줌 12 이상에서 자동으로. 포메리움이 이 지도의 요점이다 —
   // 장군이 무장한 채 넘을 수 없던 선이고, 루비콘이 왜 사건인지가 거기서 설명된다.
   roma: ['roma-field', 'roma-hill', 'roma-pomerium', 'roma-wall', 'roma-river', 'roma-road',
@@ -756,6 +781,45 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'circle-radius': 3.4, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 } } as any);
       add({ id: 'alesia-camp', type: 'circle', source: 'alesia', filter: only('camp'),
         paint: { 'circle-radius': 7, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
+      // ── 함정 세 겹과 20피트 호 · 망루 ─────────────────────────────────────
+      //
+      // River: "지도가 없으면 지형지물이나 망루나 이런 배치들이 있거나." 알레시아는
+      // 고지도 도판이 실패한 자리라(d'Anville 1755는 RMS 938m·26° 전단) 벡터가 전부다.
+      //
+      // 띠는 **중심선 링**이다 — 실폭이 5.9~8.9m라 z12에서 1픽셀 미만이고, 면으로 칠하면
+      // 안 보이거나 선으로 뭉친다. 그래서 굵기는 읽히는 상수로 두고 **색과 파선이 종류를
+      // 말한다.** 라틴어가 순서를 못 박아 둔 대로 벽에서 멀어지는 쪽이 킵피 → 릴리아 →
+      // 스티물루스다(BG 7.73 `ante quos` … `ante haec`).
+      const trapColor: any = ['match', ['get', 'trap_type'],
+        'cippi', '#8A3E3E', 'lilia', '#B4553A', 'stimuli', '#C98A3C', '#8A3E3E'];
+      add({ id: 'alesia-ditch', type: 'line', source: 'alesia', filter: only('ditch'),
+        paint: { 'line-color': '#5B4A33', 'line-width': 2.6, 'line-opacity': 0.85 } } as any);
+      add({ id: 'alesia-trap', type: 'line', source: 'alesia', filter: only('trap'),
+        paint: { 'line-color': trapColor, 'line-width': 1.8, 'line-dasharray': [2, 1.6], 'line-opacity': 0.9 } } as any);
+      // 망루는 두 포위선 위에. 실제 간격이 아니라 **보이는 간격**이다(towerIcon 주석).
+      if (!map.hasImage('alesia-tower')) map.addImage('alesia-tower', towerIcon(romeC), { pixelRatio: 2 });
+      add({ id: 'alesia-tower', type: 'symbol', source: 'alesia', filter: only('inner_line', 'outer_line'),
+        layout: { 'symbol-placement': 'line', 'symbol-spacing': 30,
+          'icon-image': 'alesia-tower',
+          'icon-size': ['interpolate', ['linear'], ['zoom'], 11, 0.5, 13, 0.9, 15, 1.5] as any,
+          'icon-rotation-alignment': 'viewport', 'icon-pitch-alignment': 'viewport',
+          'icon-allow-overlap': true, 'icon-ignore-placement': true } as any,
+        paint: { 'icon-opacity': 0.95 } as any } as any);
+      // 띠 이름표. 링마다 하나 — 대푯점을 쓰면 세 띠가 거의 같은 자리에 겹친다.
+      // `symbol-placement: 'line-center'`가 링의 가운데에 하나만 찍고, 안·바깥 링은
+      // 기하가 달라 자연히 갈린다.
+      add({ id: 'alesia-trap-label', type: 'symbol', source: 'alesia', filter: only('trap', 'ditch'),
+        // 문턱 13.2: 띠 간격이 22.2·39.1·56.2m라 장면 줌(12.4, 4.9m/px)에서는 4~11px로
+        // 붙어 이름표를 달 자리가 없다. 들어가서 띠가 갈리기 시작하면 이름이 붙는다.
+        minzoom: 13.2,
+        // `line-center`가 아니라 `line` + 넓은 간격이다. **`line-center`는 링의 가운데가
+        // 화면 밖이면 아무것도 안 그린다** — z15로 들어가면 둘레가 화면을 한참 넘어가서
+        // 이름이 통째로 사라졌다(실측: z15에서 0개). 반복시키면 최소 하나가 화면에 든다.
+        layout: { 'symbol-placement': 'line', 'symbol-spacing': 420, 'text-field': ['get', 'name_la'],
+          'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
+          'text-letter-spacing': 0.08, 'text-optional': true, 'text-allow-overlap': false } as any,
+        paint: { 'text-color': trapColor, 'text-halo-color': halo(), 'text-halo-width': 2 } } as any);
+
       // 진영 둘이 폴리곤(정점 19·15)이라 정점마다 초록 점이 찍혔다. 대푯점만 쓴다.
       map.addSource('alesia-pt', { type: 'geojson', data: repPointsFC(
         (ALESIA!.features as unknown[]), pr => pr.kind === 'gaul_camp') as any });
