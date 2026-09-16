@@ -23,6 +23,10 @@
 | `세부 지도` | 3 | 알레시아 · 로마 시내 · 알렉산드리아. 줌 12+에서 자동으로도 켜진다 |
 | `첫 장면 · 카이사르` / `말판` | 3 / 1 | 이 슬라이스 전부터 있던 것. 건드리지 않았다 |
 
+> **2026-09-16 수치 정정.** 이 문서의 「아홉」이 두 번 낡았다. 발표 장면은 **아홉으로 시작해 여덟이 됐다가**(`pack-extent-60`이 `pack-intro-med`와 카메라·연도·레이어가 같아 제거) **지금은 열하나다**(미시 지도 셋 `pack-alesia-52`·`pack-roma-urbs`·`pack-alexandria-47`이 9/13 오후에 붙었다). 아래 §3·§8·§11의 「아홉」은 **그때 그 시점의 서술**이고 지금 값이 아니다.
+>
+> 현재값: `data/scenes/rome.json`의 `pack-` 장면 **11** · 납품 정지 이미지 **8**(+은퇴 1, 렌더는 9장 돌았다) · `npm run build` vitest **217**.
+
 - **납품 이미지는 여덟 장**(+은퇴 1). 볼트 `…/assets/지도/_최종_색인.md`가 정본이고 드라이브 파일 ID가 거기 있다. 재렌더는 `bash scripts/serve.sh` → `python3 scripts/shoot-pack.py`.
 - **`layers=`를 URL에 붙이지 마라.** 장면 레이어를 덮어써서 인물·경로·전투가 꺼진 채 열린다. 공유는 `?present=1&scene=pack-…`만.
 - 숫자·좌표·군단 수를 지어내지 않는다. `public/datasets/`를 손으로 안 고친다. `npm run adapt`·`migrate_v2.py --write`는 **River 승인 대기**(정본 1,348행을 다시 쓴다).
@@ -132,7 +136,7 @@ python3 scripts/shoot-pack.py         # 납품 여덟 장 재렌더(볼트에 �
 
 ---
 
-## 3. 장면 아홉
+## 3. 장면 (아홉 → 여덟 → 열하나)
 
 `data/scenes/rome.json` · `group: 2회차 발표 · 카이사르 팩`. `[` `]` 순서 = 파일 순서.
 
@@ -161,7 +165,7 @@ python3 scripts/shoot-pack.py         # 납품 여덟 장 재렌더(볼트에 �
 
 | 파일 | 역할 |
 |---|---|
-| `data/scenes/rome.json` | 아홉 장면. 사람이 편집 |
+| `data/scenes/rome.json` | `pack-` 장면 **열하나**. 사람이 편집 |
 | `data/overlays/gallia-free.json` | 자유 갈리아 3속주. `pack-extent-60`만 |
 | `data/overlays/pack-pompey.json` | 폼페이우스 경로 교보재. 정본 `_routes/pompey.geojson` 정점, **BC49부터만**(그 전을 넣으면 BC60에 예루살렘에 선다) |
 | `data/overlays/pack-battles.json` | 전투점 교보재. 정본 `_routes/caesar.geojson` 정점 |
@@ -175,7 +179,7 @@ python3 scripts/shoot-pack.py         # 납품 여덟 장 재렌더(볼트에 �
 | `src/state.ts` | `Scene.view` · `viewOfScene` · `rememberPitch3d` |
 | `proposals/20260913_alesia_occurred_at.jsonl` | 정본에 사건·장소는 있고 링크만 없음 |
 
-테스트: 전체 **176**. 이 슬라이스 `test/people.test.ts` · `token-route.test.ts` · `present.test.ts` · `token-color.test.ts`.
+테스트: 전체 **217**(2026-09-16 실측. 이 줄은 176에 멈춰 있었다). 이 슬라이스 `test/people.test.ts` · `token-route.test.ts` · `present.test.ts` · `token-color.test.ts`.
 
 초기 JS **399.62 kB gz** (예산 400). 한 줄만 더 실리면 깨진다.
 
