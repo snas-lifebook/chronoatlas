@@ -9,7 +9,7 @@
 | 이 문서 | 다른 곳 |
 |---|---|
 | 축별 진행·소스 정책 | 상태·다음 할 일 → [HANDOFF.md](HANDOFF.md) · 빌드·구조·하지 말 것·DEM → [AGENTS.md](../AGENTS.md) |
-| | 기능 정의 F1~F26·완료 판정 → 볼트 `Works/비주얼파이프라인/SPEC.md` · 순서 → 같은 폴더 `TASKS.md` |
+| | 기능 정의 F1~F29·완료 판정 → [`SPEC.md`](SPEC.md) · 순서 → [`TASKS.md`](TASKS.md) |
 
 ## 축별 진행 (2026-09-10)
 
