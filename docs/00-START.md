@@ -96,7 +96,8 @@ flowchart LR
 [`PLAN.md`](PLAN.md) · [`BLUEPRINT.md`](BLUEPRINT.md) · [`ANALYZE.md`](ANALYZE.md) · [`CLARIFY.md`](CLARIFY.md) · [`RESEARCH.md`](RESEARCH.md) · [`TOOLING.md`](TOOLING.md) · [`roadmap.md`](roadmap.md)
 
 **[`research/`](research/)** 선행 조사 9건 (3D 시각화·게임 데이터모델·선행 플랫폼·저장질의 MCP·지형기후해류·시각 레퍼런스·AI 플랫폼·레퍼런스 통합표·쇠망사 레퍼런스)
-**[`history/`](history/)** 끝난 일회성 기록 2건
+**[`DEPENDENCY-RULINGS.md`](DEPENDENCY-RULINGS.md)** deck.gl·d3·scrollama·클러스터링을 **왜 안 쓰는지**. 새 라이브러리를 제안하기 전에 읽는다
+**[`history/`](history/)** 끝난 일회성 기록 1건
 **[`verify/`](verify/)** 검수 산출물(스크린샷)
 
 ## 지금 어디까지 왔나
