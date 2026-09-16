@@ -1,9 +1,8 @@
 # AGENTS.md — 크로노아틀라스를 만지는 AI가 먼저 읽는 것
 
-정본은 볼트 `Works/비주얼파이프라인/`의 CONSTITUTION·SPEC·SCHEMA·DESIGN·TASKS다. 이 파일은 그 실행 요약.
+정본은 `docs/`의 [CONSTITUTION](docs/CONSTITUTION.md)·[SPEC](docs/SPEC.md)·[SCHEMA](docs/SCHEMA.md)·[DESIGN](docs/DESIGN.md)·[TASKS](docs/TASKS.md)다. 이 파일은 그 실행 요약. (2026-09-16까지 그 다섯은 볼트에 있었다.)
 
-**새 세션이면 `docs/HANDOFF.md`를 먼저 읽어라** — 현재 상태·환경 함정·열린 작업. 무엇을 할지는 `docs/BACKLOG.md`(요구 원장 R01~R41)에서 고른다.
-**Claude 계열이 아닌 에이전트가 처음 이어받는다면 `docs/HANDOFF-GPT.md`부터** — 용어집·못 하는 일·문서 계보·판단 관례가 거기 있다(레포 밖에만 있던 것들).
+**새 세션이면 [`docs/00-START.md`](docs/00-START.md)를 먼저 읽어라.** 문은 그것 하나다. 읽는 순서·문서 지도·지금 막힌 것·River만 할 수 있는 것이 거기 있다. 현재 상태는 [`docs/HANDOFF.md`](docs/HANDOFF.md), 무엇을 할지는 [`docs/BACKLOG.md`](docs/BACKLOG.md)(요구 원장 R01~R45)에서 고른다. Claude 계열이 아니면 [`docs/HANDOFF-GPT.md`](docs/HANDOFF-GPT.md)의 용어·못 하는 일·관례를 함께 본다.
 
 ## 빌드·검증
 - `npm i` → `ONTOLOGY_DIR=<볼트 ontology 폴더> npm run adapt` (정본 JSONL → `public/datasets/rome/`) → `npm run build` (= gen + lint + vitest + vite).

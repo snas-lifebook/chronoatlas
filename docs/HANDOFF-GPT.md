@@ -2,18 +2,23 @@
 
 작성 2026-09-11 · 대상: Claude 계열이 아닌 에이전트(GPT Astra 등)가 이 프로젝트를 처음 이어받을 때
 
-**정본은 `docs/HANDOFF.md`다.** 이 문서는 그것을 대체하지 않는다. 여기에는 **레포 안에 안 적혀 있는 것**만 있다 — 용어, 못 하는 일, 문서 계보, 판단 관례, 인수인계 절차.
+**진입은 [00-START.md](00-START.md)이고 현재 상태는 [HANDOFF.md](HANDOFF.md)다.** 이 문서는 둘을 대체하지 않는다. 여기에는 **다른 둘이 안 다루는 것**만 있다: 용어, 이 에이전트가 못 하는 일, 판단 관례, 인수인계 절차.
+
+> 2026-09-16 정정. 이 문서는 원래 「레포 안에 안 적혀 있는 것」을 모은 것이었는데, 그 「레포 밖」이 볼트였다. **설계 문서가 전부 레포로 들어와서 그 전제가 사라졌다.** §0과 §2를 그에 맞춰 고쳤다.
 
 ---
 
 ## 0. 30분 안에 읽을 순서
 
-1. `docs/HANDOFF.md` — 현재 상태·폴더 지도·환경 함정·열린 작업
-2. `docs/BACKLOG.md` — **요구 정본.** R01~R45, 라운드 A~H
-3. `docs/PACK-CAESAR.md` — 2회차 발표 팩 지도(장면·장기말·교보재). 이 슬라이스를 이어받으면 **3번이 작업 정본**
-4. `AGENTS.md` — 빌드·MCP·하지 말 것
-5. 이 문서 §3(용어) · §4(못 하는 일) · §6(관례)
-6. 볼트 `Works/비주얼파이프라인/SPEC.md`의 F 목록
+1. [`docs/00-START.md`](00-START.md) — **문 하나.** 읽는 순서·문서 지도·지금 막힌 것
+2. [`docs/CONSTITUTION.md`](CONSTITUTION.md) — 규칙. 다른 모든 것보다 위
+3. [`docs/HANDOFF.md`](HANDOFF.md) — 현재 상태·폴더 지도·환경 함정·열린 작업
+4. [`docs/BACKLOG.md`](BACKLOG.md) — **요구 정본.** R01~R45, 라운드 A~H
+5. [`AGENTS.md`](../AGENTS.md) — 빌드·MCP·하지 말 것
+6. 이 문서 §3(용어) · §4(못 하는 일) · §6(관례)
+7. [`docs/SPEC.md`](SPEC.md)의 F 목록 — 무엇을 만들었나
+
+2회차 발표 팩 슬라이스를 이어받는다면 [`docs/PACK-CAESAR.md`](PACK-CAESAR.md) §0이 **그 슬라이스의 작업 정본**이다. 위 3번 대신 그것을 먼저 읽는다.
 
 그 다음 `npm i && npm run build`가 초록인지 확인하고 시작한다.
 
@@ -40,28 +45,30 @@
 
 | 문서 | 무엇의 정본 | 위치 |
 |---|---|---|
-| `CONSTITUTION.md` | **규칙.** 다른 모든 것보다 위 | 볼트 `Works/비주얼파이프라인/` |
-| `SPEC.md` | **기능** F1~F26 + 상태 | 볼트 |
-| `SCHEMA.md` | 온톨로지 스키마 | 볼트 |
-| `DESIGN.md` | 디자인 반려 조건 P1~P17 | 볼트 |
-| `TASKS.md` | 작업 단위 Phase/라운드 | 볼트 |
-| **`docs/BACKLOG.md`** | **요구** R01~R40. "River가 무엇을 요구했나" | 레포 |
+| `docs/00-START.md` | **진입.** 읽는 순서·문서 지도 | 레포 |
+| `docs/CONSTITUTION.md` | **규칙.** 다른 모든 것보다 위 | 레포 (2026-09-16 볼트에서 이관) |
+| `docs/SPEC.md` | **기능** F1~F29 + 상태 | 레포 (이관) |
+| `docs/SCHEMA.md` | 온톨로지 스키마 | 레포 (이관) |
+| `docs/DESIGN.md` | 디자인 반려 조건 P1~P17 | 레포 (이관) |
+| `docs/TASKS.md` | 작업 단위 Phase/라운드 | 레포 (이관) |
+| **`docs/BACKLOG.md`** | **요구** R01~R45. "River가 무엇을 요구했나" | 레포 |
 | `docs/HANDOFF.md` | **현재 상태**. 매 세션 갱신 | 레포 |
 | `docs/RUNBOOK-*.md` | 절차(사람이 실행할 명령) | 레포 |
 | `docs/roadmap.md` | 6개 축 + 소스·라이선스 표 | 레포 |
 | `AGENTS.md` | 빌드·MCP·금지 요약 | 레포 |
-| `Context/비주얼파이프라인_프롬프트_원문.md` | **River가 실제로 친 말** | 볼트 |
+| `Context/비주얼파이프라인_프롬프트_원문.md` | **River가 실제로 친 말** | 볼트 (공개 레포에 안 올린다) |
 | `프롬프트_원문.md` | 1부 온톨로지 / 2부 자료실 원문 | `~/project/active/decline-and-fall-of-the-roman-empire/` |
 
 **F와 R의 차이가 핵심이다.** F는 "무엇을 만들었나", R은 "무엇을 요구받았나". 무엇을 할지는 **R에서 고른다.** F 목록 순서를 따라가면 이미 잘 되는 축에 또 붓게 된다(2026-09-10에 실제로 그랬다).
 
-볼트 경로:
+볼트에서 필요한 것은 **`ONTOLOGY_DIR` 하나**다. 공개 레포라 절대경로는 적지 않는다.
+
 ```
-~/Library/Mobile Documents/iCloud~md~obsidian/Documents/River's Second Brain/
-  Efforts/Notes/산업스터디/Projects/인생책_읽기_편데/
-    Works/비주얼파이프라인/          ← 크로노아틀라스 정본
-    Books/로마제국쇠망사/ontology/   ← 정본 JSONL (ONTOLOGY_DIR)
+<볼트>/Efforts/Notes/산업스터디/Projects/인생책_읽기_편데/
+  Books/로마제국쇠망사/ontology/   ← 정본 JSONL (ONTOLOGY_DIR)
 ```
+
+설계 문서는 2026-09-16에 전부 `docs/`로 옮겼다. 볼트 `Works/크로노아틀라스/`(옛 `비주얼파이프라인/`)에 남은 것은 River 프롬프트 원문과 제3자 시각 레퍼런스 캡처뿐이고, 둘 다 이 레포 작업에 필요하지 않다.
 
 ---
 
@@ -110,7 +117,7 @@
 **남은 것**:
 - **A 지도 범위 확대** — 준비 끝(`docs/RUNBOOK-extent.md`, `scripts/extent.ts`로 BBOX 일원화). **River 터미널 실행 대기**
 - **B·C·D** — A를 기다린다(세력 실명 / 경계 부드럽게 / LOD 재설계)
-- **R39** 목각 GLB — 볼트 3.7과 조율
+- **R39** 목각 GLB — [TASKS](TASKS.md) 3.7과 조율
 - **R40** 도시·전투 국지 뷰 — A 이후
 - **R41** 톤 — 릴 스크린샷 대기
 
@@ -176,9 +183,9 @@
 
 1. `docs/HANDOFF.md` §1 상태와 §6 열린 작업
 2. `docs/BACKLOG.md` — 닫은 요구에 상태 + **근거**
-3. 볼트 `Context/비주얼파이프라인_프롬프트_원문.md` — River가 친 말과 그것이 무엇을 고쳤는지
+3. 볼트 `Context/비주얼파이프라인_프롬프트_원문.md` — River가 친 말과 그것이 무엇을 고쳤는지 (볼트에만 있다)
 
-볼트 문서(SPEC·TASKS 상태 열)는 라운드가 끝날 때 함께 맞춘다.
+[SPEC](SPEC.md)·[TASKS](TASKS.md)의 상태 열은 라운드가 끝날 때 함께 맞춘다.
 
 ---
 
