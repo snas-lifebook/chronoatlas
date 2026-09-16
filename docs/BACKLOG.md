@@ -474,6 +474,8 @@ River 대기(`proposals/`, 승인은 사람이 한다 — CONSTITUTION 0-3):
 
 ## 함께 가는 것
 
+> **새 라이브러리를 제안하기 전에 [DEPENDENCY-RULINGS.md](DEPENDENCY-RULINGS.md)를 먼저 읽어라.** deck.gl(TripsLayer·ArcLayer·HeatmapLayer) · d3 관계 그래프 · scrollama · MapLibre 클러스터링을 **왜 안 쓰는지**가 거기 있고, `package.json`이 지금도 그 판단을 지키고 있다. 거기 남은 미도입 후보는 family-chart 계보(7번째 데이터 축) 하나다.
+
 - **자료실 역링크**(볼트 TASKS 3.6): 자료실 `site/lib/links.ts`에 `atlasUrl` 추가 → 객체 페이지에 「지도에서 보기」. 배포로 막힘이 풀렸다. 짧고 독립적이라 언제든.
 - **F19 파벌 해칭 · F20 크레딧 페이지 · 번들 감량**: 뒤로 민다. 이미 ●가 많은 「지도가 그리는 것」 축이다.
 
