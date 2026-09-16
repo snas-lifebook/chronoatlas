@@ -68,4 +68,4 @@ DEM 타일은 z0~7(840장, 53MB)이 River 맥에 있고 레포에는 없다. z8 
 ## 다음
 
 [HANDOFF.md §6](HANDOFF.md)에 에이전트가 지금 집을 수 있는 것과 River 몫이 갈려 있다.
-그 너머(P1·LVP)는 볼트 `TASKS.md`의 해당 절이 정본이다.
+그 너머(P1·LVP)는 [TASKS.md](TASKS.md)의 해당 절이 정본이다.
