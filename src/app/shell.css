@@ -456,6 +456,7 @@ html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .s
 .banner-card { position: absolute; z-index: 5; display: grid; grid-template-columns: 64px 1fr 34px; gap: 10px; align-items: start; width: 300px; padding: 10px 12px 12px;
   background: linear-gradient(#F4EFE1, #E9E2CD); border: 1px solid #B9AE8E; border-radius: 6px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.22); pointer-events: auto; }
 .banner-card::before { content: ''; position: absolute; left: -10px; top: 68px; border: 6px solid transparent; border-right-color: #B9AE8E; }
+.banner-card.is-left::before { left: auto; right: -10px; border-right-color: transparent; border-left-color: #B9AE8E; }
 .bc-shield { width: 64px; height: 74px; background: var(--faction); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); overflow: hidden; box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.55); }
 .bc-shield img { width: 100%; height: 100%; object-fit: cover; }
 .bc-plate { min-width: 0; display: grid; gap: 3px; }
