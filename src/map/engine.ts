@@ -1,7 +1,7 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, MARCH_MAX_YEARS, OPEN_PAST, routeGeometry } from '../schema';
-import { buildStyle, MAP, type Skin } from './style';
+import { buildStyle, DEPTHS, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
@@ -207,7 +207,7 @@ function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>)
 export const LAYER_GROUPS: Record<string, string[]> = {
   // 평야·곡창은 **따로 켠다** — 항상 깔면 여덟 장이 노랗게 물든다. 장면이 `plains`를 쓸 때만.
   plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
-  territory: ['territory-fill', 'territory-outline', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
+  territory: ['territory-fill', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
@@ -531,7 +531,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const micro = showRomaUrbs(z) || showAlexandria(z) || showAlesia(scene, z);
     if (micro) {
       set(LAYER_GROUPS.movements, false);
-      set(['territory-label', 'territory-outline', 'region-name', 'peoples-label',
+      set(['territory-label', 'territory-outline', 'territory-glow', 'region-name', 'peoples-label',
            'peoples-line', 'client-hatch', 'client-edge'], false);
     }
   }
@@ -577,6 +577,11 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'fill-color': polityColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
     map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // 안쪽 후광(OVERHAUL §3.6c, R57): 경계 안쪽 몇 px를 같은 색으로 흐리게. 「색이 바다로 샌다」는 인상을 지운다.
+    // line-offset 음수 = 폴리곤 안쪽(외곽 고리가 시계 반대 방향일 때). 마스크가 바다 쪽을 덮으니 밖으로 새는 후광은 안 보인다.
+    map.addLayer({ id: 'territory-glow', type: 'line', source: 'territory', layout: { 'line-join': 'round' },
+      paint: { 'line-color': polityColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 5, 8, 14], 'line-offset': ['interpolate', ['linear'], ['zoom'], 3, -2.5, 8, -7],
+        'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 8, 9], 'line-opacity': 0.32 } }, before);
     // ── 미시 지도 바탕 도판 ────────────────────────────────────────────────
     //
     // River: "흰 바탕에 점이랑 성벽이랑 언덕 이렇게만 있어서 솔직히 눈에 잘 들어오지
@@ -716,6 +721,24 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'fill-color': romeColor, 'fill-opacity': 0.12 } }, before);
       map.addLayer({ id: 'gallia-roman-line', type: 'line', source: 'gallia-free',
         paint: { 'line-color': romeColor, 'line-width': 1.6, 'line-opacity': 0.9, 'line-dasharray': [4, 2] } }, before);
+    }
+    // ── 바다 마스크 (OVERHAUL §3.6c, R57) ──────────────────────────────────
+    // 영역 폴리곤은 데이터에서 해안선을 안 자른다(자르면 정점이 6배로 뛴다, finish-territory.py 실측). 대신
+    // bbox−육지 다각형(layers/ocean.geojson)을 바다색으로 **영역 위에** 덮어 어느 줌에서도 해안에 딱 맞게 한다.
+    // 수심 띠·호수·해안선 잉크는 그 위에 다시 얹는다. 작은 섬은 land.geojson에 덧붙어 있어 마스크에 구멍이 나고,
+    // 섬에 귀속된 영역색이 그 구멍으로 보인다. 94%라 바다 밑 음영이 살짝 비친다.
+    {
+      const sk = MAP[activeSkin];
+      if (!map.getSource('ocean')) map.addSource('ocean', { type: 'geojson', data: `${root}datasets/${ds}/layers/ocean.geojson` });
+      map.addLayer({ id: 'ocean-mask', type: 'fill', source: 'ocean', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94, 'fill-antialias': false } }, before);
+      if (map.getSource('bathy')) {
+        const ramp: any[] = ['step', ['get', 'depth'], sk.depth[0]];
+        DEPTHS.slice(1).forEach((d, i) => ramp.push(d, sk.depth[i + 1]));
+        map.addLayer({ id: 'bathy-over', type: 'fill', source: 'bathy', paint: { 'fill-color': ramp as any, 'fill-opacity': 0.9, 'fill-antialias': false } }, before);
+      }
+      if (map.getSource('lakes')) map.addLayer({ id: 'lakes-over', type: 'fill', source: 'lakes', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94 } }, before);
+      if (map.getSource('coast')) map.addLayer({ id: 'coast-ink', type: 'line', source: 'coast',
+        paint: { 'line-color': sk.coast, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.7, 9, 1.5], 'line-opacity': 0.9 } }, before);
     }
     // 영토 이름(F16): 면적 큰 것부터. 회색(팔레트 밖)은 더 크게 커야 뜬다 — 지도가 이름표로 덮이지 않게.
     //

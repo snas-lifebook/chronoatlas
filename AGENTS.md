@@ -31,6 +31,8 @@
 
 ## 기하 3D 지형(DEM)
 
+> **2026-09-17부터 바뀐다.** AWS Terrain Tiles(라이선스 혼합)는 걷어냈고, DEM은 `scripts/bake-dem.py`가 ETOPO 2022(대륙 z0~8, 자유 이용)와 Copernicus GLO-30(미시 인셋 z8~12, 출처 표기)에서 구워 **레포에 커밋**한다. 아래 절은 그 전환이 끝나면 걷어낸다. 설계는 `docs/OVERHAUL.md` §3.7, 절차는 `docs/plans/2026-09-17-overhaul-I-2-dem-micromaps.md`.
+
 "입체 보기"는 기본이 카메라 pitch만이다 — 굴곡은 DEM 타일이 있어야 생긴다. 타일은 용량·라이선스 때문에 레포에 없다(`.gitignore`).
 
 ```

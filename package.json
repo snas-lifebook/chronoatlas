@@ -15,7 +15,8 @@
     "lint": "node --experimental-strip-types scripts/lint.ts",
     "postbuild": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs dist/assets/",
     "mcp": "node --experimental-strip-types mcp/server.ts",
-    "fetch-external": "node --experimental-strip-types scripts/fetch-external.ts"
+    "fetch-external": "node --experimental-strip-types scripts/fetch-external.ts",
+    "finish": "python3 scripts/finish-territory.py"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",

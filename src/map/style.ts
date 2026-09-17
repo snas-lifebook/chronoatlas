@@ -34,7 +34,7 @@ export const SKINS: { id: Skin; label: string }[] = [{ id: 'light', label: '중�
  *    AA에 못 미친다. 위계는 크기·굵기로 낸다(투명도는 금지 — shell.css .shell-tool .sub 주석). */
 export const chromeTone = (skin: Skin): Record<'--map-ink' | '--map-halo', string> =>
   ({ '--map-ink': MAP[skin].label, '--map-halo': MAP[skin].halo });
-const DEPTHS = [0, 200, 1000, 2000, 3000, 4000, 5000];
+export const DEPTHS = [0, 200, 1000, 2000, 3000, 4000, 5000];
 const FONT = { regular: ['KlokanTech Noto Sans CJK Regular'], bold: ['KlokanTech Noto Sans CJK Bold'] }; // ponytail: Pretendard 글리프로 교체 예정(fetch-external 참고)
 
 export interface BasemapManifest { basemap?: string[]; relief?: boolean; bbox?: [number, number, number, number] }
