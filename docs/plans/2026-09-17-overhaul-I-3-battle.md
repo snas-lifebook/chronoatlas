@@ -306,9 +306,9 @@ git commit -m "feat(말판): 프레임 보간·블록 기하·화살표 (순수 
 - [ ] **Step 1: battle.ts**
 
 ```ts
-// src/map/battle.ts — 말판 v2 렌더 + 재생. 지연 로드 청크(초기 번들에 안 실린다).
+// src/map/battle.ts: 말판 v2 렌더 + 재생. 지연 로드 청크(초기 번들에 안 실린다).
 // 그리는 것: 부대 블록(몸통·앞띠·이름표) · 기동 화살표(선·화살촉) · 교전 표식. 움직이는 것: rAF로 t를 올리며 setData.
-// 시뮬레이션이 아니다 — River 08-13 「보여지기만 하면 된다」. 페이즈 사이 보간이 전부다.
+// 시뮬레이션이 아니다: River 08-13 「보여지기만 하면 된다」. 페이즈 사이 보간이 전부다.
 import type maplibregl from 'maplibre-gl';
 import { interpolate, battleGeoJSON, type BoardData, type BoardPhase, type BoardQuote, type Frame, type LonLat } from '../board';
 
@@ -454,7 +454,7 @@ git commit -m "feat(말판): 블록·화살표·교전 렌더러 battle.ts (지�
 - [ ] **Step 1: BattleBar**
 
 ```tsx
-// src/app/BattleBar.tsx — 재생·페이즈·캡션·인용. 말판이 있을 때만 App이 띄운다.
+// src/app/BattleBar.tsx: 재생·페이즈·캡션·인용. 말판이 있을 때만 App이 띄운다.
 import { useEffect, useState } from 'react';
 import { Button, Card } from '@astryxdesign/core';
 import type { Engine } from '../map/engine';
@@ -553,7 +553,7 @@ git commit -m "feat(말판): 재생 바·캡션·인용 카드 · 부대 카드 
 
 ---
 
-### Task 4.5: 내용 — 파르살루스·칸나이 v2, 알레시아 말판 생성기
+### Task 4.5: 내용: 파르살루스·칸나이 v2, 알레시아 말판 생성기
 
 **Files:**
 - Modify: `data/boards/pharsalus-48.json` · `data/boards/cannae-216.json` (캡션·cite·화살표·교전·인용·status)
@@ -580,7 +580,7 @@ git commit -m "feat(말판): 재생 바·캡션·인용 카드 · 부대 카드 
 
 ```python
 #!/usr/bin/env python3
-"""build-alesia-board.py — 알레시아 말판(alesia-52)을 미시지도 피처에서 파생한다. 손으로 찍는 좌표 0.
+"""build-alesia-board.py: 알레시아 말판(alesia-52)을 미시지도 피처에서 파생한다. 손으로 찍는 좌표 0.
 
 세 페이즈는 『갈리아 전기』 7.79~88: ① 구원군 도착 ② 밤의 총공격과 북쪽 언덕 진영 급습 ③ 카이사르 기병의 우회와 붕괴.
 유닛 위치 = 피처 대푯점(진영 점·오피둠 중심·구원군 진영 중심·포위선의 가까운 정점). 병력은 docs/LEGIONS.md·docs/ALESIA.md의 사료 수치.
@@ -604,7 +604,7 @@ opp = rep(F['alesia:oppidum']); camps = sorted([f for f in mm['features'] if f['
 gaul = [f for f in mm['features'] if f['properties']['kind'] == 'gaul_camp']; relief = rep(gaul[0]) if gaul else None
 inner, outer = F['alesia:inner'], F['alesia:outer']
 assert relief, '구원군 진영 피처가 없다'
-STR = json.loads((ROOT / 'data/boards/_alesia-strength.json').read_text())   # {"relief_inf":250000,"relief_cav":8000,"oppidum":80000,"legion":4800,"note":"..."} — docs/LEGIONS.md·ALESIA.md에서 옮겨 적는다
+STR = json.loads((ROOT / 'data/boards/_alesia-strength.json').read_text())   # {"relief_inf":250000,"relief_cav":8000,"oppidum":80000,"legion":4800,"note":"..."}: docs/LEGIONS.md·ALESIA.md에서 옮겨 적는다
 
 def roman_units():
     return [{'id': f'rom-camp-{f["properties"].get("camp_letter", i)}', 'at': rep(f), 'actor': '로마', 'arm': 'infantry', 'label': f'로마 진영 {f["properties"].get("camp_letter", i)}', 'strength': STR['legion'], 'facing': bearing(rep(f), opp)} for i, f in enumerate(camps)]
@@ -668,7 +668,7 @@ git commit -m "feat(말판): 파르살루스·칸나이 캡션·화살표·교�
 
 ```python
 #!/usr/bin/env python3
-"""battle-frame.py — 재생 중간 프레임을 숫자로 잰다. serve.sh의 디버그 Chrome(9222)에 CDP로 붙는다.
+"""battle-frame.py: 재생 중간 프레임을 숫자로 잰다. serve.sh의 디버그 Chrome(9222)에 CDP로 붙는다.
     python3 scripts/battle-frame.py pharsalus-48 0.5
 유닛 좌표가 양 끝 페이즈 사이에 있는지 단언하고 /tmp/battle-<scene>-<t>.png 를 뜬다."""
 import json, sys

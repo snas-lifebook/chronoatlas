@@ -151,7 +151,7 @@ Run → FAIL.
 - [ ] **Step 2: 구현**
 
 ```ts
-// src/bookmarks.ts — 커밋 없는 즉석 북마크(R44). localStorage ↔ Scene[]. 서버도 zod도 없다.
+// src/bookmarks.ts: 커밋 없는 즉석 북마크(R44). localStorage ↔ Scene[]. 서버도 zod도 없다.
 import type { Scene } from './state';
 
 export const BOOKMARK_GROUP = '내 북마크';
@@ -292,7 +292,7 @@ export function useNarrow(): boolean {
 - [ ] **Step 2: 시트**
 
 ```tsx
-// src/app/MobileSheet.tsx — 620px 이하 읽기 모드. 설명·콜아웃·객체·재생을 한 시트에 탭으로. 편집 UI 없음(DESIGN §4).
+// src/app/MobileSheet.tsx: 620px 이하 읽기 모드. 설명·콜아웃·객체·재생을 한 시트에 탭으로. 편집 UI 없음(DESIGN §4).
 import { useState } from 'react';
 import { Button, Text } from '@astryxdesign/core';
 import type { Scene } from '../state';
@@ -388,7 +388,7 @@ git commit -m "feat(모바일): 620px 이하 읽기 모드 시트 (설명·콜�
 
 ```python
 #!/usr/bin/env python3
-"""look-mobile.py — 390×844 · dsf 3 으로 장면을 떠서 HUD·알약·시트의 경계 상자가 안 겹치는지, 탭 타깃이 44px 이상인지 잰다.
+"""look-mobile.py: 390×844 · dsf 3 으로 장면을 떠서 HUD·알약·시트의 경계 상자가 안 겹치는지, 탭 타깃이 44px 이상인지 잰다.
     python3 scripts/look-mobile.py pack-rubicon rubicon-49 pharsalus-48 athens-acropolis cannae-board
 serve.sh 의 디버그 Chrome(9222)에 CDP로 붙는다."""
 import json, sys

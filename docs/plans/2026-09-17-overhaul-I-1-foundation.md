@@ -77,13 +77,13 @@ Expected: `.bak_20260917` 둘 생성, 행수 동일, JSON 파싱 OK.
 
 ```ts
 // 세력 팔레트(룬델 정본)와 레지스트리는 정본 ontology/ 안이 아니라 옆 폴더에 산다
-// (<편데>/Works/관계분석_방법론/components). 그대로 두면 어댑터가 조용히 열화됐다 —
+// (<편데>/Works/관계분석_방법론/components). 그대로 두면 어댑터가 조용히 열화됐다 :
 // actors.json이 비고 138개 노드의 세력·티어, 80개 노드의 초상이 null이 됐다(RUNBOOK-extent §3).
 // PALETTE_DIR 환경변수가 이기고, 없으면 정본 기준 상대경로, 그것도 없으면 정본 폴더 자체를 본다.
 const PALETTE_DIR = process.env.PALETTE_DIR
   ?? [join(SRC, '..', '..', '..', 'Works', '관계분석_방법론', 'components'), SRC].find(p => existsSync(join(p, '팔레트.json')))
   ?? SRC;
-if (!existsSync(join(PALETTE_DIR, '팔레트.json'))) console.warn('팔레트.json을 못 찾았다 — actors.json이 빈다. PALETTE_DIR을 주라');
+if (!existsSync(join(PALETTE_DIR, '팔레트.json'))) console.warn('팔레트.json을 못 찾았다: actors.json이 빈다. PALETTE_DIR을 주라');
 const palette = existsSync(join(PALETTE_DIR, '팔레트.json')) ? JSON.parse(readFileSync(join(PALETTE_DIR, '팔레트.json'), 'utf8')).factions : {};
 const registry = new Map<string, any>();
 if (existsSync(join(PALETTE_DIR, '_registry.csv'))) {
@@ -203,7 +203,7 @@ git commit -m "feat(지도): 범위 [-25,12,75,62]로 재베이크 (R31 라운�
 - [ ] **Step 1: 스크립트**
 
 ```js
-// scripts/check-bundle.mjs — 초기 JS 예산 게이트. postbuild에서 돈다.
+// scripts/check-bundle.mjs: 초기 JS 예산 게이트. postbuild에서 돈다.
 // 예산을 넘으면 빌드가 실패한다. 동적 청크(token3d·mediabunny·미시지도)는 별개다.
 import { readdirSync, readFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
@@ -374,7 +374,7 @@ Expected: FAIL (`schema/micromap` 없음).
 - [ ] **Step 3: 스키마**
 
 ```ts
-// schema/micromap.ts — 미시지도 데이터 계약 (OVERHAUL §3.2). zod는 여기만. src/는 import type만.
+// schema/micromap.ts: 미시지도 데이터 계약 (OVERHAUL §3.2). zod는 여기만. src/는 import type만.
 import { z } from 'zod';
 
 /** 그리는 법이 정해진 kind만 허용한다. 늘리면 src/map/micro.ts의 KIND_PAINT에도 한 줄. */
@@ -496,7 +496,7 @@ git commit -m "feat(미시지도): 스키마 zod + 린트 + 색인 (R47)"
 - [ ] **Step 1: 스크립트**
 
 ```js
-// scripts/migrate-micromaps.mjs — 일회성. pack-*.json 셋 + 콜아웃 + 도판을 data/micromaps/<id>.json 으로.
+// scripts/migrate-micromaps.mjs: 일회성. pack-*.json 셋 + 콜아웃 + 도판을 data/micromaps/<id>.json 으로.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -581,12 +581,12 @@ describe('microMapAt', () => {
 });
 ```
 
-- [ ] **Step 2: 실패 확인** — Run: `npx vitest run test/micromap.test.ts` → FAIL (`src/micromaps` 없음).
+- [ ] **Step 2: 실패 확인**: Run: `npx vitest run test/micromap.test.ts` → FAIL (`src/micromaps` 없음).
 
 - [ ] **Step 3: 구현**
 
 ```ts
-// src/micromaps.ts — 미시지도 색인(가볍다, 초기 번들) + 지도별 지연 로더 + 어느 지도인가 판정.
+// src/micromaps.ts: 미시지도 색인(가볍다, 초기 번들) + 지도별 지연 로더 + 어느 지도인가 판정.
 // 지도 본문(피처·콜아웃·도판 정보)은 import()로만 온다. 초기 번들에 안 실린다(R46).
 import type { MicroMapDef } from '../schema/micromap';
 import index from '../data/micromaps/index.json';
@@ -604,7 +604,7 @@ export function loadMicro(id: string): Promise<MicroMapDef> {
   return cache.get(id)!;
 }
 
-/** 지금 화면이 어느 미시지도인가. 줌이 문턱을 넘고 **그 지도 근처**여야 한다 —
+/** 지금 화면이 어느 미시지도인가. 줌이 문턱을 넘고 **그 지도 근처**여야 한다 :
  *  줌만 보면 로마에서 z13으로 당겼을 때 알레시아 콜아웃이 같이 뜬다. */
 export function microMapAt(zoom: number, center: [number, number]): string | null {
   let best: { id: string; d: number } | null = null;
@@ -657,7 +657,7 @@ Run → FAIL.
 옛 값은 `src/map/engine.ts` 763~870행(알레시아) · 로마 · 알렉산드리아 블록에서 **그대로 옮긴다**(색·굵기·점선·불투명도). 아래는 골격과 알레시아 네 줄의 실제 값이다. 나머지 kind는 그 블록에서 읽어 채운다. 세력색은 `opts.palette`(`d.actors`의 id → color)에서.
 
 ```ts
-// src/map/micro.ts — 미시지도 범용 렌더러. 소스 하나(micro) + 층 8. 지도가 바뀌면 setData로 갈아끼운다.
+// src/map/micro.ts: 미시지도 범용 렌더러. 소스 하나(micro) + 층 8. 지도가 바뀌면 setData로 갈아끼운다.
 // kind → 그리는 법 표. 여기 없는 kind는 스키마가 막는다(schema/micromap.ts KINDS와 키가 같아야 한다. 테스트가 본다).
 import type maplibregl from 'maplibre-gl';
 import type { MicroMapDef, CalloutDef } from '../../schema/micromap';
@@ -823,7 +823,7 @@ git commit -m "refactor(미시지도): 범용 렌더러 micro.ts · 엔진 하�
 - Modify: `src/state.ts` (`Scene.micro?: string`)
 - Create: `data/micromaps/cannae.json` · `data/micromaps/index.json` 갱신
 - Modify: `data/scenes/rome.json` (`pack-alesia-52`·`pack-roma-urbs`·`pack-alexandria-47`에 `micro`, `cannae-board`에 `micro: "cannae"`)
-- Test: `test/micromap.test.ts` (장면 `micro` 참조 실재) · `test/state.test.ts`(`bookmarkOf`가 `micro`를 담지 않는다 — 미시지도는 카메라에서 파생되므로 장면 파일에서만 온다)
+- Test: `test/micromap.test.ts` (장면 `micro` 참조 실재) · `test/state.test.ts`(`bookmarkOf`가 `micro`를 담지 않는다: 미시지도는 카메라에서 파생되므로 장면 파일에서만 온다)
 
 **Interfaces:**
 - Produces: 장면이 `micro`를 가지면 줌과 무관하게 그 지도가 켜진다(Task 1.4의 `syncDetailMaps`가 이미 읽는다).

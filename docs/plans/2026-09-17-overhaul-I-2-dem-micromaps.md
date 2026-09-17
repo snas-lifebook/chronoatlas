@@ -48,7 +48,7 @@
 
 ```python
 #!/usr/bin/env python3
-"""bake-dem.py — DEM 원본(GeoTIFF)을 terrarium PNG 타일로 굽는다. GDAL 없이 numpy + tifffile.
+"""bake-dem.py: DEM 원본(GeoTIFF)을 terrarium PNG 타일로 굽는다. GDAL 없이 numpy + tifffile.
 
   python3 scripts/bake-dem.py --selftest
   python3 scripts/bake-dem.py continental              # ETOPO 2022 15초 → public/datasets/rome/terrain/ z0~7 (BBOX는 scripts/extent.ts)
