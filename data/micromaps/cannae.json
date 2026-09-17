@@ -1,0 +1,107 @@
+{
+ "id": "cannae",
+ "title": "칸나이 · BC 216",
+ "year": -216,
+ "teaching": true,
+ "source": "말판 cannae-216의 그릇이다. 평원 중심은 정본 place:칸나이평원 좌표이고, 아우피두스 강은 Pleiades 점을 그대로 썼다. 어느 기슭이었는지는 논쟁 중이라(말판 source 참조) 강 이외의 지형 요소는 그리지 않았다.",
+ "home": {
+  "at": [
+   16.1325,
+   41.3064
+  ],
+  "minZoom": 10,
+  "span": 0.35
+ },
+ "view": {
+  "center": [
+   16.1325,
+   41.3064
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements"
+ ],
+ "basemap": null,
+ "dem": null,
+ "board": "cannae-216",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cannae:plain",
+    "name_ko": "칸나이 평원",
+    "name_la": "Cannae",
+    "kind": "plain",
+    "grade": "확정",
+    "source": "정본 place:칸나이평원 중심점(16.1325, 41.3064). 면은 그 점을 중심으로 한 반경 약 2 km 근사이며 전장 경계가 아니다",
+    "note_ko": "한니발이 로마군을 끌어들인 평지. 아우피두스 강 어느 기슭이었는지는 논쟁 중이다(말판 source)"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       16.1085,
+       41.3064
+      ],
+      [
+       16.1145,
+       41.3197
+      ],
+      [
+       16.1325,
+       41.3244
+      ],
+      [
+       16.1505,
+       41.3197
+      ],
+      [
+       16.1565,
+       41.3064
+      ],
+      [
+       16.1505,
+       41.2931
+      ],
+      [
+       16.1325,
+       41.2884
+      ],
+      [
+       16.1145,
+       41.2931
+      ],
+      [
+       16.1085,
+       41.3064
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cannae:aufidus",
+    "name_ko": "아우피두스 강",
+    "name_la": "Aufidus",
+    "kind": "river",
+    "grade": "확정",
+    "source": "Pleiades Aufidus 대표점. 선형은 정본에 없어 점으로 둔다",
+    "note_ko": "현대 오판토 강. 전장이 북안이냐 남안이냐가 논쟁"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.6867,
+     41.0739
+    ]
+   }
+  }
+ ],
+ "callouts": []
+}
