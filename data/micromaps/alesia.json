@@ -22,7 +22,8 @@
   "bearing": 0
  },
  "hide": [
-  "movements"
+  "movements",
+  "people"
  ],
  "basemap": null,
  "dem": {
@@ -30,7 +31,7 @@
   "minzoom": 8,
   "maxzoom": 12
  },
- "board": null,
+ "board": "alesia-52",
  "features": [
   {
    "type": "Feature",

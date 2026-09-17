@@ -1,0 +1,548 @@
+{
+ "id": "alesia-52",
+ "title": "알레시아 · 구원군의 사흘",
+ "year": -52,
+ "center": [
+  4.4958,
+  47.535
+ ],
+ "zoom": 12.4,
+ "bearing": 0,
+ "teaching": true,
+ "source": "『갈리아 전기』 7.79~89를 통설대로 도식화. 유닛 위치는 미시지도 피처(진영 점 · 오피둠 · 구원군 진영 · 몽 레아 · 포위선 정점)에서 파생한 상대 배치이고 측량이 아니다(scripts/build-alesia-board.py). 병력은 카이사르 본인의 수치이고 구원군은 현대 추정 8만~10만으로 갈린다(docs/LEGIONS.md §3). 로마 진영별 병력은 사료에 없어 비웠다. 몽 레아 사면의 진영 D는 발굴에서 끝내 못 찾았다(docs/ALESIA.md). 카이사르 본인의 수치다(『갈리아 전기』 7.71 농성군 8만, 7.76 구원군 보병 약 25만·기병 8천, 7.83 베르카시벨라우누스 정예 6만). 현대 추정은 구원군 8만~10만(docs/LEGIONS.md §3). 로마 진영별 병력과 게르만 기병 수는 BG에 없어 비운다.",
+ "phases": [
+  {
+   "t": 0,
+   "title": "구원군 도착",
+   "caption": "구원군이 서쪽 평원 너머 언덕에 진을 친다. 안팎 두 겹 사이에 로마군이 갇힌 꼴이다",
+   "cite": "『갈리아 전기』 7.79",
+   "units": [
+    {
+     "id": "rom-camp-A",
+     "at": [
+      4.509,
+      47.5245
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 A 진영 (플라비니 산)",
+     "facing": 339
+    },
+    {
+     "id": "rom-camp-B",
+     "at": [
+      4.498,
+      47.5265
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 B 진영 (플라비니 산)",
+     "facing": 8
+    },
+    {
+     "id": "rom-camp-C",
+     "at": [
+      4.5145,
+      47.5585
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 C 진영 (뷔시 산)",
+     "facing": 206
+    },
+    {
+     "id": "rom-camp-D",
+     "at": [
+      4.4795,
+      47.5497
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "북쪽 진영 (몽 레아 사면, 결전지)",
+     "facing": 127
+    },
+    {
+     "id": "rom-camp-G",
+     "at": [
+      4.501,
+      47.5555
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 G 진영 (그레지니 마을 아래)",
+     "facing": 181
+    },
+    {
+     "id": "rom-camp-H",
+     "at": [
+      4.464,
+      47.542
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 H 진영 (레 롬 역 아래)",
+     "facing": 96
+    },
+    {
+     "id": "rom-camp-I",
+     "at": [
+      4.468,
+      47.535
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 I 진영 (롬 평원)",
+     "facing": 79
+    },
+    {
+     "id": "rom-camp-K",
+     "at": [
+      4.478,
+      47.53
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 K 진영 (롬 평원)",
+     "facing": 59
+    },
+    {
+     "id": "gaul-oppidum",
+     "at": [
+      4.5005,
+      47.5392
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "베르킹게토릭스 · 농성군",
+     "strength": 80000,
+     "facing": 243,
+     "entity": "person:베르킹게토릭스"
+    },
+    {
+     "id": "gaul-relief-inf",
+     "at": [
+      4.4436,
+      47.534
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "구원군 보병",
+     "strength": 250000,
+     "facing": 82
+    },
+    {
+     "id": "gaul-relief-cav",
+     "at": [
+      4.4436,
+      47.534
+     ],
+     "actor": "갈리아",
+     "arm": "cavalry",
+     "label": "구원군 기병",
+     "strength": 8000,
+     "facing": 82
+    }
+   ],
+   "arrows": [],
+   "clashes": []
+  },
+  {
+   "t": 1,
+   "title": "정오의 총공격",
+   "caption": "구원군은 평원의 바깥선을, 베르카시벨라우누스는 북쪽 진영을, 베르킹게토릭스는 안쪽 선을 한꺼번에 친다",
+   "cite": "『갈리아 전기』 7.83~85",
+   "units": [
+    {
+     "id": "rom-camp-A",
+     "at": [
+      4.509,
+      47.5245
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 A 진영 (플라비니 산)",
+     "facing": 339
+    },
+    {
+     "id": "rom-camp-B",
+     "at": [
+      4.498,
+      47.5265
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 B 진영 (플라비니 산)",
+     "facing": 8
+    },
+    {
+     "id": "rom-camp-C",
+     "at": [
+      4.5145,
+      47.5585
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 C 진영 (뷔시 산)",
+     "facing": 206
+    },
+    {
+     "id": "rom-camp-D",
+     "at": [
+      4.4795,
+      47.5497
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "북쪽 진영 (몽 레아 사면, 결전지)",
+     "facing": 127
+    },
+    {
+     "id": "rom-camp-G",
+     "at": [
+      4.501,
+      47.5555
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 G 진영 (그레지니 마을 아래)",
+     "facing": 181
+    },
+    {
+     "id": "rom-camp-H",
+     "at": [
+      4.464,
+      47.542
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 H 진영 (레 롬 역 아래)",
+     "facing": 96
+    },
+    {
+     "id": "rom-camp-I",
+     "at": [
+      4.468,
+      47.535
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 I 진영 (롬 평원)",
+     "facing": 79
+    },
+    {
+     "id": "rom-camp-K",
+     "at": [
+      4.478,
+      47.53
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 K 진영 (롬 평원)",
+     "facing": 59
+    },
+    {
+     "id": "gaul-oppidum",
+     "at": [
+      4.46383,
+      47.52646
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "베르킹게토릭스 · 농성군",
+     "strength": 80000,
+     "facing": 0,
+     "entity": "person:베르킹게토릭스"
+    },
+    {
+     "id": "gaul-relief-inf",
+     "at": [
+      4.44274,
+      47.53315
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "구원군 보병",
+     "strength": 250000,
+     "facing": 81
+    },
+    {
+     "id": "gaul-relief-cav",
+     "at": [
+      4.44274,
+      47.53315
+     ],
+     "actor": "갈리아",
+     "arm": "cavalry",
+     "label": "구원군 기병",
+     "strength": 8000,
+     "facing": 81
+    },
+    {
+     "id": "gaul-vercassivellaunus",
+     "at": [
+      4.474,
+      47.55812
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "베르카시벨라우누스 · 정예 6만",
+     "strength": 60000,
+     "facing": 156
+    }
+   ],
+   "arrows": [
+    {
+     "from": [
+      4.4436,
+      47.534
+     ],
+     "to": [
+      4.44274,
+      47.53315
+     ],
+     "actor": "갈리아",
+     "kind": "advance"
+    },
+    {
+     "from": [
+      4.479,
+      47.552
+     ],
+     "to": [
+      4.474,
+      47.55812
+     ],
+     "actor": "갈리아",
+     "kind": "advance"
+    },
+    {
+     "from": [
+      4.5005,
+      47.5392
+     ],
+     "to": [
+      4.46383,
+      47.52646
+     ],
+     "actor": "갈리아",
+     "kind": "advance"
+    }
+   ],
+   "clashes": [
+    {
+     "at": [
+      4.44274,
+      47.53315
+     ],
+     "label": "평원"
+    },
+    {
+     "at": [
+      4.474,
+      47.55812
+     ],
+     "label": "북쪽 진영"
+    },
+    {
+     "at": [
+      4.46383,
+      47.52646
+     ],
+     "label": "안쪽 선"
+    }
+   ]
+  },
+  {
+   "t": 2,
+   "title": "기병의 우회",
+   "caption": "카이사르가 기병을 바깥으로 돌려 북쪽 공격군의 등을 친다. 구원군이 무너지고 이튿날 베르킹게토릭스가 항복한다",
+   "cite": "『갈리아 전기』 7.87~89",
+   "quote": {
+    "text": "카이사르는 붉은 외투로 자신이 오는 것을 알렸다",
+    "who": "『갈리아 전기』의 서술",
+    "cite": "『갈리아 전기』 7.88"
+   },
+   "units": [
+    {
+     "id": "rom-camp-A",
+     "at": [
+      4.509,
+      47.5245
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 A 진영 (플라비니 산)",
+     "facing": 339
+    },
+    {
+     "id": "rom-camp-B",
+     "at": [
+      4.498,
+      47.5265
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 B 진영 (플라비니 산)",
+     "facing": 8
+    },
+    {
+     "id": "rom-camp-C",
+     "at": [
+      4.5145,
+      47.5585
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 C 진영 (뷔시 산)",
+     "facing": 206
+    },
+    {
+     "id": "rom-camp-D",
+     "at": [
+      4.4795,
+      47.5497
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "북쪽 진영 (몽 레아 사면, 결전지)",
+     "facing": 127
+    },
+    {
+     "id": "rom-camp-G",
+     "at": [
+      4.501,
+      47.5555
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 G 진영 (그레지니 마을 아래)",
+     "facing": 181
+    },
+    {
+     "id": "rom-camp-H",
+     "at": [
+      4.464,
+      47.542
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 H 진영 (레 롬 역 아래)",
+     "facing": 96
+    },
+    {
+     "id": "rom-camp-I",
+     "at": [
+      4.468,
+      47.535
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 I 진영 (롬 평원)",
+     "facing": 79
+    },
+    {
+     "id": "rom-camp-K",
+     "at": [
+      4.478,
+      47.53
+     ],
+     "actor": "로마",
+     "arm": "infantry",
+     "label": "로마군 K 진영 (롬 평원)",
+     "facing": 59
+    },
+    {
+     "id": "gaul-oppidum",
+     "at": [
+      4.5005,
+      47.5392
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "베르킹게토릭스 · 성으로 물러난다",
+     "strength": 80000,
+     "facing": 243,
+     "entity": "person:베르킹게토릭스",
+     "status": "routed"
+    },
+    {
+     "id": "gaul-relief-inf",
+     "at": [
+      4.44274,
+      47.53315
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "구원군 보병",
+     "strength": 250000,
+     "facing": 82,
+     "status": "routed"
+    },
+    {
+     "id": "gaul-relief-cav",
+     "at": [
+      4.4436,
+      47.534
+     ],
+     "actor": "갈리아",
+     "arm": "cavalry",
+     "label": "구원군 기병, 흩어진다",
+     "strength": 8000,
+     "facing": 82,
+     "status": "routed"
+    },
+    {
+     "id": "gaul-vercassivellaunus",
+     "at": [
+      4.474,
+      47.55812
+     ],
+     "actor": "갈리아",
+     "arm": "infantry",
+     "label": "베르카시벨라우누스 · 정예 6만",
+     "strength": 60000,
+     "facing": 156,
+     "status": "routed"
+    },
+    {
+     "id": "rom-cav-german",
+     "at": [
+      4.4685,
+      47.56654
+     ],
+     "actor": "로마",
+     "arm": "cavalry",
+     "label": "게르만 기병(카이사르)",
+     "facing": 327
+    }
+   ],
+   "arrows": [
+    {
+     "from": [
+      4.509,
+      47.5245
+     ],
+     "to": [
+      4.4685,
+      47.56654
+     ],
+     "via": [
+      4.4685,
+      47.5245
+     ],
+     "actor": "로마",
+     "kind": "flank"
+    }
+   ],
+   "clashes": [
+    {
+     "at": [
+      4.4685,
+      47.56654
+     ],
+     "label": "북쪽 공격군의 등"
+    }
+   ]
+  }
+ ]
+}

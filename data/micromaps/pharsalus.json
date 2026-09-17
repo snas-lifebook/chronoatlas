@@ -22,7 +22,8 @@
   "bearing": 0
  },
  "hide": [
-  "movements"
+  "movements",
+  "people"
  ],
  "basemap": null,
  "dem": {
@@ -172,7 +173,7 @@
    "id": "pharsalus:call-fourthline",
    "topic": "unit",
    "anchor": {
-    "feature": "pharsalus:camp-caesar"
+    "unit": "cae-4th"
    },
    "side": "right",
    "num": 2,

@@ -41,8 +41,11 @@ describe('말판 계약 (R37, BACKLOG 라운드 G)', () => {
     expect([...t0].filter(id => !t2.has(id))).toEqual(['rom-cav-r', 'rom-cav-l']); // 양익 기병이 궤멸된다
     expect(board.phases[2].note).toBeTruthy();
     // 설명이 없으면 린트가 잡는다
-    const broken = { ...board, phases: board.phases.map((p, i) => (i === 2 ? { ...p, note: undefined } : p)) };
-    expect(lintBoard(broken as any).some(e => e.includes('note도 없다'))).toBe(true); // v2: status(routed·destroyed)로도 설명할 수 있다
+    // v2: 둘째 페이즈의 status(routed·destroyed)도 설명이다. 둘 다 지워야 잡힌다
+    const broken = { ...board, phases: board.phases.map((p, i) => (i === 2 ? { ...p, note: undefined } : i === 1 ? { ...p, units: p.units.map(u => ({ ...u, status: 'active' as const })) } : p)) };
+    expect(lintBoard(broken as any).some(e => e.includes('note도 없다'))).toBe(true);
+    const explained = { ...board, phases: board.phases.map((p, i) => (i === 2 ? { ...p, note: undefined } : p)) };
+    expect(lintBoard(explained as any).some(e => e.includes('note도 없다'))).toBe(false);
   });
   it('병종은 정해진 것만 쓴다', () => {
     for (const p of board.phases) for (const u of p.units) expect(ARMS).toContain(u.arm);
@@ -72,7 +75,7 @@ describe('말판 렌더 (R37)', () => {
 
   it('phaseOf: t로 그 순간의 전체 배치를 고른다. 없는 t는 가장 가까운 페이즈', () => {
     expect(phaseOf(board, 0).title).toBe('배치');
-    expect(phaseOf(board, 1).units).toHaveLength(13);
+    expect(phaseOf(board, 1).units).toHaveLength(14);   // v2: 궤멸된 로마 시민 기병이 status destroyed 로 남아 있다
     expect(phaseOf(board, 2).units.map(u => u.id)).not.toContain('rom-cav-r');
     expect(clampPhase(board, 99)).toBe(2);
     expect(clampPhase(board, -3)).toBe(0);
@@ -171,7 +174,7 @@ describe('말판 v2 (OVERHAUL §3.2 전투 재생)', () => {
     expect(base.phases[0].arrows).toEqual([]);
   });
   it('caption 이 있으면 cite 가 있어야 한다', () => {
-    const b = { ...raw, phases: raw.phases.map((p: any, i: number) => i ? p : { ...p, caption: '배치' }) };
+    const b = { ...raw, phases: raw.phases.map((p: any, i: number) => i ? p : { ...p, caption: '배치', cite: undefined }) };
     expect(lintBoard(Board.parse(b))).toContain('t0: caption이 있는데 cite가 없다');
   });
   it('유닛이 사라질 때 status 나 note 가 있어야 한다', () => {

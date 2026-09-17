@@ -1,0 +1,9 @@
+{
+ "oppidum": 80000,
+ "relief_inf": 250000,
+ "relief_cav": 8000,
+ "vercassivellaunus": 60000,
+ "legion": null,
+ "german_cav": null,
+ "note": "카이사르 본인의 수치다(『갈리아 전기』 7.71 농성군 8만, 7.76 구원군 보병 약 25만·기병 8천, 7.83 베르카시벨라우누스 정예 6만). 현대 추정은 구원군 8만~10만(docs/LEGIONS.md §3). 로마 진영별 병력과 게르만 기병 수는 BG에 없어 비운다."
+}

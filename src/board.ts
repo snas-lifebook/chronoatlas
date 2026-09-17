@@ -167,7 +167,9 @@ export function interpolate(board: BoardData, t: number): Frame {
     units.push({ ...v, at, facing, opacity: o0 + (o1 - o0) * frac });
   }
   if (b && frac > 0) for (const v of b.units) if (!a.units.some(x => x.id === v.id)) units.push({ ...v, opacity: opacityOf(v.status) * frac });
-  return { i, frac, phase: a, next: b, units, arrows: a.arrows ?? [], clashes: a.clashes ?? [], caption: a.caption, cite: a.cite, quote: a.quote ?? null };
+  // 화살표·교전은 「그 페이즈로 들어가는 기동」이다. 사이를 지나는 동안은 다음 페이즈의 것을 보여 블록과 화살표가 같이 움직인다.
+  const m = b && frac > 0 ? b : a;
+  return { i, frac, phase: a, next: b, units, arrows: m.arrows ?? [], clashes: m.clashes ?? [], caption: a.caption, cite: a.cite, quote: a.quote ?? null };
 }
 
 /** 병종별 블록 크기(m). 보병은 넓고 얕게, 기병은 좁고 깊게 (Epic History 전투전술 문법, A_공간지도). */

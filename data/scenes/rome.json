@@ -139,7 +139,9 @@
   ],
   "group": "세부 지도",
   "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다.",
-  "micro": "alesia"
+  "micro": "alesia",
+  "board": "alesia-52",
+  "phase": 0
  },
  {
   "id": "pack-roma-urbs",

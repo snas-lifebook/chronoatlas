@@ -46,10 +46,12 @@ export function createBattle(map: maplibregl.Map, opts: { palette: Record<string
     map.addLayer({ id: 'battle-body', type: 'fill', source: 'battle-units', filter: ['==', ['get', 'kind'], 'body'], paint: { 'fill-color': ['get', 'color'], 'fill-opacity': ['*', 0.85, ['get', 'opacity']] } }, before);
     map.addLayer({ id: 'battle-body-line', type: 'line', source: 'battle-units', filter: ['==', ['get', 'kind'], 'body'], paint: { 'line-color': INK, 'line-width': 1.2, 'line-opacity': ['get', 'opacity'] } }, before);
     map.addLayer({ id: 'battle-front', type: 'fill', source: 'battle-units', filter: ['==', ['get', 'kind'], 'front'], paint: { 'fill-color': INK, 'fill-opacity': ['*', 0.55, ['get', 'opacity']] } }, before);
-    map.addLayer({ id: 'battle-clash', type: 'symbol', source: 'battle-marks', layout: { 'icon-image': 'battle-clash', 'icon-size': 0.8, 'icon-allow-overlap': true, 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11, 'text-offset': [0, 1.4], 'text-anchor': 'top' },
+    // text-optional: 글자가 부대 이름표와 겹치면 글자만 빠지고 교차 검은 남는다(없으면 심볼째 사라져 알레시아 셋 중 하나만 보였다)
+    map.addLayer({ id: 'battle-clash', type: 'symbol', source: 'battle-marks', layout: { 'icon-image': 'battle-clash', 'icon-size': 0.8, 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'text-optional': true, 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11, 'text-offset': [0, 1.4], 'text-anchor': 'top' },
       paint: { 'text-color': INK, 'text-halo-color': PAPER, 'text-halo-width': 1.4 } }, before);
     map.addLayer({ id: 'battle-label', type: 'symbol', source: 'battle-units', filter: ['==', ['get', 'kind'], 'label'], minzoom: 10,
-      layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11, 'text-offset': [0, 1.2], 'text-anchor': 'top', 'text-allow-overlap': true, 'text-ignore-placement': false },
+      // 겹치는 이름표는 뺀다. 전부 허용하면 z11 파르살루스에서 열두 줄이 한 덩어리로 겹쳤다. 블록은 남고 이름은 확대하면 돌아온다
+      layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11, 'text-offset': [0, 1.2], 'text-anchor': 'top', 'text-allow-overlap': false, 'text-ignore-placement': false, 'text-optional': true },
       paint: { 'text-color': INK, 'text-halo-color': PAPER, 'text-halo-width': 1.4, 'text-opacity': ['get', 'opacity'] } }, before);
     map.on('zoomend', () => { if (board && !isPlaying) render(); });   // 블록 최소 픽셀 크기는 줌에 따라 미터가 달라진다
     map.on('click', 'battle-body', e => { const f = e.features?.[0]; if (f && board) opts.onSelect(`unit:${board.id}:${f.properties?.id}`); });

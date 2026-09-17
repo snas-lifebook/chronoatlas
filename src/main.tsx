@@ -35,7 +35,7 @@ const SCENE_FILES = import.meta.glob<Scene[]>('../data/scenes/*.json', { eager: 
 const scenesFor = (ds: string, manifest: { scenes?: Scene[] }): Scene[] =>
   SCENE_FILES[`../data/scenes/${ds}.json`] ?? manifest.scenes ?? [];
 // 말판도 사람이 쓰는 파일. 어댑터·정본 밖이다(BACKLOG §G).
-const BOARD_FILES = import.meta.glob<BoardData>('../data/boards/*.json', { eager: true, import: 'default' });
+const BOARD_FILES = import.meta.glob<BoardData>(['../data/boards/*.json', '!../data/boards/_*.json'], { eager: true, import: 'default' });   // _*.json은 생성기 입력(병력표)이지 말판이 아니다
 const boards = Object.values(BOARD_FILES);
 
 load().then(d => {

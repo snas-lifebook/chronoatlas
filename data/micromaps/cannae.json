@@ -22,7 +22,8 @@
   "bearing": 0
  },
  "hide": [
-  "movements"
+  "movements",
+  "people"
  ],
  "basemap": null,
  "dem": {
