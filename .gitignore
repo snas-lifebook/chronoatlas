@@ -33,6 +33,7 @@ data/external/__MACOSX/
 # DEM 원본 캐시(ETOPO·Copernicus). 산출 타일(public/datasets/rome/terrain*)은 커밋한다(2026-09-17, OVERHAUL §3.7)
 data/external/dem/
 data/external/landcover/
+data/external/fonts/
 data/ontology-dir.txt
 
 # 발표 정지 이미지 원본 — scripts/shoot-pack.py로 재생성한다(장당 4~6MB).

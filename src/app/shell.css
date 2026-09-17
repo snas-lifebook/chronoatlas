@@ -440,3 +440,30 @@ html[data-micro] .shell-year-brief { display: none; }
   .shell-present-hud { max-width: calc(100% - 24px); }
 }
 
+/* 연도 리본 (OVERHAUL-II §3.2, R51): 작전·고지도 스킨에서 연도를 양피지 리본으로. 글꼴은 Cinzel(OFL, public/fonts). 다른 스킨은 지금 글자 */
+@font-face { font-family: 'Cinzel'; src: url('/fonts/Cinzel.ttf') format('truetype'); font-weight: 400 900; font-display: swap; }
+html[data-skin="campaign"] .shell-year, html[data-skin="oldmap"] .shell-year,
+html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .shell-present-hud .ph-y {
+  font-family: 'Cinzel', 'Times New Roman', serif; font-weight: 700; letter-spacing: 0.06em; font-variant-numeric: normal;
+  display: inline-block; align-self: start; padding: 5px 26px 4px; margin: 4px 0 2px -10px;
+  color: #2B2721; background: linear-gradient(#F2EDDD, #E4DEC8); box-shadow: 0 1px 0 #B9AE8E, 0 3px 8px rgb(0 0 0 / 0.18);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 50%, 100% 100%, 0 100%, 11px 50%);
+}
+html[data-skin="campaign"] .shell-year, html[data-skin="oldmap"] .shell-year { font-size: 30px; line-height: 1.1; }
+html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .shell-present-hud .ph-y { font-size: 18px; line-height: 1.1; }
+
+/* 장군 배너 카드 (OVERHAUL-II §3.4, BannerCard.tsx). --faction 은 세력색 */
+.banner-card { position: absolute; z-index: 5; display: grid; grid-template-columns: 64px 1fr 34px; gap: 10px; align-items: start; width: 300px; padding: 10px 12px 12px;
+  background: linear-gradient(#F4EFE1, #E9E2CD); border: 1px solid #B9AE8E; border-radius: 6px; box-shadow: 0 6px 18px rgb(0 0 0 / 0.22); pointer-events: auto; }
+.banner-card::before { content: ''; position: absolute; left: -10px; top: 68px; border: 6px solid transparent; border-right-color: #B9AE8E; }
+.bc-shield { width: 64px; height: 74px; background: var(--faction); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); overflow: hidden; box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.55); }
+.bc-shield img { width: 100%; height: 100%; object-fit: cover; }
+.bc-plate { min-width: 0; display: grid; gap: 3px; }
+.bc-latin { font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.14em; color: #6B6353; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bc-name { font-size: 17px; font-weight: 700; color: #2B2721; line-height: 1.15; }
+.bc-force { font-size: 12px; color: #2B2721; font-variant-numeric: tabular-nums; }
+.bc-line { font-size: 12px; color: #6B6353; line-height: 1.4; }
+.bc-flag { width: 34px; height: 44px; background: var(--faction); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%); display: grid; place-items: start center; padding-top: 4px; }
+.bc-flag img { width: 24px; height: 24px; object-fit: contain; }
+.bc-close { position: absolute; right: 6px; top: 4px; border: 0; background: none; font-size: 16px; color: #6B6353; cursor: pointer; line-height: 1; }
+

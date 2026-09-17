@@ -27,3 +27,4 @@
 | ETOPO_2022_v1_15s_*_surface.tif (data/external/dem/etopo) | NOAA NCEI ETOPO 2022 15초 표면 고도 | 자유 이용(공공), 인용 DOI 10.25921/fd45-gt74 | → public/datasets/rome/terrain/ z0~8 terrarium (bake-dem.py) |
 | Copernicus_DSM_COG_10_*_DEM.tif (data/external/dem/copernicus) | Copernicus DEM GLO-30 | 출처 표기 조건(CREDITS.md 문구) | → terrain-<id>/ z8~12 (bake-dem.py inset) |
 | ESA_WorldCover_10m_2021_v200_*_Map.tif (data/external/landcover) | ESA WorldCover 10 m 2021 | CC BY 4.0 | → landcover-<id>/ z8~12 (bake-landcover.py) |
+| Cinzel.ttf (data/external/fonts) | google/fonts ofl/cinzel (가변 폰트) | SIL OFL 1.1 | → public/glyphs/Cinzel Regular/ (build-glyphs.mjs) · public/fonts/Cinzel.ttf |

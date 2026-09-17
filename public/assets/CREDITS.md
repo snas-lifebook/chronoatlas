@@ -50,3 +50,10 @@ Works/관계분석_방법론/
 | `landcover-<id>/` z8~12 | ESA WorldCover 10 m 2021 v200 (Zenodo 7254221) | CC BY 4.0. "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium" |
 
 AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다. 굽는 절차는 `scripts/bake-dem.py`·`scripts/bake-landcover.py`.
+
+## 글꼴·문장 (2026-09-17, 슬라이스 II)
+
+| 자산 | 원본 | 라이선스 |
+|---|---|---|
+| `public/glyphs/Cinzel Regular/` · `public/fonts/Cinzel.ttf` | Cinzel (Natanael Gama), google/fonts `ofl/cinzel` | SIL OFL 1.1 (`public/fonts/OFL-Cinzel.txt`). 글리프는 `scripts/build-glyphs.mjs`(fontnik) |
+| `public/assets/emblems/*.png` | 볼트 `Works/관계분석_방법론/components/01_세력/`(River 자산, AI 생성 문장) | 프로젝트 자체 자산. `scripts/build-emblems.py`가 128px로 |

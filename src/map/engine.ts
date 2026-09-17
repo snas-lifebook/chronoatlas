@@ -14,7 +14,7 @@ import { createMicro, MICRO_LAYERS } from './micro';
 import { loadMicro, microMapAt } from '../micromaps';
 import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -175,7 +175,7 @@ function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>)
 export const LAYER_GROUPS: Record<string, string[]> = {
   // 평야·곡창은 **따로 켠다** — 항상 깔면 여덟 장이 노랗게 물든다. 장면이 `plains`를 쓸 때만.
   plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
-  territory: ['territory-fill', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
+  territory: ['territory-fill', 'territory-casing', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
@@ -315,7 +315,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         m.push(fillColor); return m; })()
     : fillColor;
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
-  const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
+  const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-casing', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
     // `kind: region`은 **region-name 층이 가져갔다.** 여기 남겨 두면 같은 점을 두 층이 찍고,
     // 허용 목록에서 버린 이름(소아시아·북아프리카·독일…)이 이쪽으로 새어 나온다 — 실측으로 그랬다.
     ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion]], ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], notRegion]], ['battle', null], ['pack-battle', null],
@@ -406,20 +406,22 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (!tokenMod || !map.getStyle()) return;
     const seen = new Set<string>();
     if (peopleLayerOn) {
-      for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null; scale?: number }; geometry: { coordinates: [number, number] } }[]) {
+      for (const f of fc.features as { properties: { id: string; name: string; color: string; asset: string | null; scale?: number; legions?: number | null; faction?: string | null }; geometry: { coordinates: [number, number] } }[]) {
         const p = f.properties; if (!p?.id) continue;
         seen.add(p.id);
         let t = peopleTokens.get(p.id);
         if (!t) {
           // 초상을 말 윗면에 얹는다 — 말이 누구인지 색만으로는 안 갈린다(로마 안에서 편이 갈린다)
           // scale은 주역 1 · 조역 0.62(people.COMPANION_SCALE). 사람마다 고정이라 생성 때 한 번.
-          t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null, p.scale ?? 1);
+          // 군기에 세력 문장(있는 세력만, pack-emblems). 없으면 세력색 깃발(OVERHAUL-II §3.5)
+          t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null, p.scale ?? 1, { emblem: p.faction && PACK_EMBLEMS.has(p.faction) ? `${root}assets/emblems/${p.faction}.png` : null });
           const path = tokenRoutes.get(p.id);
           if (path) t.setRoute(path);
           if (!map.getLayer(t.layer.id)) map.addLayer(t.layer);
           peopleTokens.set(p.id, t);
         }
         t.setPosition(f.geometry.coordinates as [number, number]);
+        t.setLegions(p.legions ?? 0);   // 군단 무리·명패(pack-legions 사료 수치. 0이면 없다)
       }
     }
     for (const [id, t] of peopleTokens) if (!seen.has(id)) t.setPosition(null);
@@ -601,7 +603,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'territory-fill', type: 'fill', source: 'territory',
       paint: { 'fill-color': polityColor,
         'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, terrOpacity(1), 12, terrOpacity(0.25)] as any } }, before);
-    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
+    // 작전 스킨 v2(OVERHAUL-II §3.1, R51): 테를 두 겹으로. 먹색 케이싱(채움 위에 얹혀 세력색이 한 톤 어두워진다) + 밝은 점선 사슬.
+    // 레퍼런스(Kings and Generals)의 굵은 어두운 테 + 점선. 다른 스킨은 한 겹 그대로.
+    const chain = activeSkin === 'campaign';
+    if (chain) map.addLayer({ id: 'territory-casing', type: 'line', source: 'territory', layout: { 'line-join': 'round' }, paint: { 'line-color': MAP[activeSkin].coast, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 2.2, 8, 4.2], 'line-opacity': 0.55 } }, before);
+    map.addLayer({ id: 'territory-outline', type: 'line', source: 'territory', paint: chain
+      ? { 'line-color': MAP[activeSkin].halo, 'line-width': 1.2, 'line-opacity': 0.9, 'line-dasharray': [2, 2] }
+      : { 'line-color': polityColor, 'line-width': 1.6, 'line-opacity': 0.95 } }, before);
     // 안쪽 후광(OVERHAUL §3.6c, R57): 경계 안쪽 몇 px를 같은 색으로 흐리게. 「색이 바다로 샌다」는 인상을 지운다.
     // line-offset 음수 = 폴리곤 안쪽(외곽 고리가 시계 반대 방향일 때). 마스크가 바다 쪽을 덮으니 밖으로 새는 후광은 안 보인다.
     map.addLayer({ id: 'territory-glow', type: 'line', source: 'territory', layout: { 'line-join': 'round' },
@@ -722,7 +730,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 아홉(Caucasian Albania·Himyarite Kingdom·Kingdom of Osroene…)이 한글 판에 샌다.
     // 지금 추천으로는 영문 유입 0건이다.
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
+      // 세리프 자간 두 줄 이름표(OVERHAUL-II §3.3, River 승인 「Cinzel 라틴 대문자 + 한글 산세리프」): 작전·고지도 스킨에서만.
+      // 윗줄 name_en 대문자 Cinzel(글리프는 scripts/build-glyphs.mjs가 레포에 굽는다), 아랫줄 한글. name_en이 name과 같으면(한글 이름 없음) 한 줄.
+      layout: { 'text-field': (activeSkin === 'campaign' || activeSkin === 'oldmap')
+          ? ['case', ['all', ['has', 'name_en'], ['!=', ['get', 'name_en'], ['get', 'name']]],
+              ['format', ['upcase', ['get', 'name_en']], { 'text-font': ['literal', ['Cinzel Regular']], 'font-scale': 1.0 }, '\n', {}, ['get', 'name'], { 'text-font': ['literal', ['KlokanTech Noto Sans CJK Bold']], 'font-scale': 0.78 }],
+              ['format', ['upcase', ['get', 'name']], { 'text-font': ['literal', ['Cinzel Regular']], 'font-scale': 1.0 }]]
+          : ['get', 'name'],
+        'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-letter-spacing': (activeSkin === 'campaign' || activeSkin === 'oldmap') ? 0.12 : 0, 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
         // 고정 anchor면 자리가 막혔을 때 이름표가 그냥 사라진다. 갈라티아가 카파도키아 왕국과
         // 상자가 겹쳐 여덟 해 내내 그럴 위험이 있다(실측). 네 방향을 주면 옆으로 미끄러져 산다.
         'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.6,

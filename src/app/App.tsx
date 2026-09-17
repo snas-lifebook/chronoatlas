@@ -14,7 +14,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
@@ -22,6 +22,7 @@ import { useNarrow } from './useNarrow';
 import type { ResolvedCallout } from '../map/micro';
 const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
 const MobileSheet = lazy(() => import('./MobileSheet').then(m => ({ default: m.MobileSheet })));
+const BannerCard = lazy(() => import('./BannerCard').then(m => ({ default: m.BannerCard })));
 const GraphPanel = lazy(() => import('./GraphPanel').then(m => ({ default: m.GraphPanel })));
 const Qc = lazy(() => import('./Qc').then(m => ({ default: m.Qc })));
 import './shell.css';
@@ -87,6 +88,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   // 북마크가 스킨까지 담아야 해서 store에 있다 — URL로 나가고 URL에서 돌아온다(R35).
   const skin = s.skin, setSkin = (k: Skin) => store.set({ skin: k });
   // 스킨은 지도에 바로 입힌다(Azgaar식 미리보기). 크롬(카드·툴바)은 astryx 그대로 — P12는 'UI 토큰 불변'이지 '지도 불변'이 아니다. 내보내기는 보이는 그대로.
+  useEffect(() => { document.documentElement.dataset.skin = skin; }, [skin]);   // 리본·카드 CSS가 스킨을 본다(OVERHAUL-II §3.2)
   const firstSkin = useRef(true);
   useEffect(() => { if (firstSkin.current) { firstSkin.current = false; return; } const eng = engRef.current; if (!eng) return; const cur = isDark(theme) ? 'dark' : 'light'; eng.setSkin(skin === cur ? null : skin); }, [skin]);
   const withSkin = <T,>(fn: () => Promise<T>): Promise<T> => fn();
@@ -285,6 +287,16 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
       <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} narrow={narrow} onResolved={setMicroCallouts} onPin={setFocusCallout} /></Suspense>
+      {/* 장군 배너 카드(OVERHAUL-II §3.4): 고른 인물이 그 해 지도에 말로 서 있을 때만. 「선택했을 때만」(River). 좁은 화면은 시트가 맡는다 */}
+      {!narrow && s.sel?.startsWith('person:') && (() => {
+        const p = people.find(x => x.id === s.sel); if (!p || !engRef.current) return null;
+        const node = graph?.nodes.get(p.id);
+        const latin = node?.aliases?.find(a => /^[A-Za-z][A-Za-z .'-]+$/.test(a)) ?? null;
+        const line = brief.happenings.find(h => h.id === p.id)?.label ?? null;
+        return <Suspense fallback={null}><BannerCard map={engRef.current.map} at={p.at} name={p.name} latin={latin} color={d.actors.find(a => a.id === p.faction)?.color ?? '#6B6F76'}
+          portrait={p.asset ? `${root}${p.asset}` : null} emblem={p.faction && PACK_EMBLEMS.has(p.faction) ? `${root}assets/emblems/${p.faction}.png` : null}
+          legion={legionsAt(p.id, s.year)} line={line} onClose={() => store.set({ sel: null })} /></Suspense>;
+      })()}
       {narrow && <Suspense fallback={null}><MobileSheet scene={curScene} brief={sceneBrief(s.scene)} callouts={microCallouts} board={liveBoard?.board ?? null} engine={engRef.current} focus={focusCallout}
         onPick={id => { const c = microCallouts.find(x => x.id === id); if (c) engRef.current?.map.easeTo({ center: c.at, duration: 400 }); }}
         selNode={s.sel ? <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} onHoverNeighbor={() => {}} onLocate={locate} /></Suspense> : null} /></Suspense>}

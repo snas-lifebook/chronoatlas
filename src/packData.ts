@@ -69,6 +69,9 @@ export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 export const PACK_PLAINS = Object.values(import.meta.glob('../data/overlays/pack-plains.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: Feature[] } | undefined;
 
+// 세력 문장이 있는 세력(scripts/build-emblems.py가 쓴다). 장기말 깃발·배너 카드가 본다. 목록만 실린다(작다).
+const emblems = Object.values(import.meta.glob('../data/overlays/pack-emblems.json', { eager: true, import: 'default' }))[0] as { actors?: string[] } | undefined;
+export const PACK_EMBLEMS = new Set<string>(emblems?.actors ?? []);
 // 주변 민족(pack-peoples.json)은 엔진이 자산 URL로 받는다(R46). 여기서 eager로 실으면 초기 번들 11 kB.
 
 // 미시지도 셋(알레시아·로마·알렉산드리아)과 도판은 2026-09-17에 data/micromaps/<id>.json 레지스트리로 갔다.

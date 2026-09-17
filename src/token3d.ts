@@ -39,7 +39,23 @@ function walkRoute(route: [number, number][], from: [number, number], to: [numbe
   return iFrom < iTo ? route.slice(iFrom, iTo + 1) : route.slice(iTo, iFrom + 1).reverse();
 }
 
-function pieceMesh(color: string, portrait?: string | null, onTexture?: () => void) {
+/** 로마 숫자(명패). 1~39면 충분하다(군단 수). */
+export function roman(n: number): string {
+  if (!(n > 0)) return '';
+  const t: [number, string][] = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+  let out = ''; let v = Math.min(39, Math.floor(n));
+  for (const [k, r] of t) while (v >= k) { out += r; v -= k; }
+  return out;
+}
+/** 명패 텍스처: 양피지 판에 먹색 로마 숫자. 캔버스라 글리프 파일이 필요 없다. */
+function plaqueTexture(text: string): THREE.CanvasTexture {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 96;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#EFE8D4'; g.fillRect(0, 0, 256, 96); g.strokeStyle = '#8C7B55'; g.lineWidth = 8; g.strokeRect(4, 4, 248, 88);
+  g.fillStyle = '#2B2419'; g.font = '700 62px Cinzel, Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 128, 52);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; return tex;
+}
+function pieceMesh(color: string, portrait?: string | null, onTexture?: () => void, emblem?: string | null) {
   const mat = new THREE.MeshBasicMaterial({ color });
   const dark = new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(0.72).getHex() });
   const ring = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -83,6 +99,31 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
   // three +y(위) → mercator +z(고도). 모델 행렬이 y를 뒤집어 쓰므로(.scale(s,-s,s))
   // 부호는 **+**다. -로 두면 말이 서지 않고 **땅에 누워** 받침에서 머리로 가는
   // 물방울 실루엣이 된다 — 9/12 캡처 넷이 다 그 모양이었다(docs/verify/pack-rubicon.png).
+  // ── 군기 (OVERHAUL-II §3.5, R51): 말 뒤(-z)에 깃대 + 깃발. 발표 시점이 탑다운이라 깃발은 뒤로 눕혀(52도) 위에서도 면이 보이게 한다.
+  const ink = new THREE.MeshBasicMaterial({ color: 0x2b2419 });
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 1.2, 8), ink);
+  pole.position.set(0, 0.6, -0.62);
+  const flag = new THREE.Group();
+  const cloth = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.38), new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }));
+  cloth.position.set(0.3, 0, 0);
+  const edge = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.05), new THREE.MeshBasicMaterial({ color: 0xEFE8D4, side: THREE.DoubleSide }));
+  edge.position.set(0.3, -0.19, 0.002);
+  flag.add(cloth, edge);
+  if (emblem) {   // 세력 문장(있는 세력만). 흰 재질에 텍스처라 문장 색이 그대로 나온다
+    const em = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, side: THREE.DoubleSide }));
+    em.position.set(0.3, 0.02, 0.004); flag.add(em);
+    new THREE.TextureLoader().load(emblem, tex => { tex.colorSpace = THREE.SRGBColorSpace; (em.material as THREE.MeshBasicMaterial).map = tex; (em.material as THREE.MeshBasicMaterial).needsUpdate = true; onTexture?.(); }, undefined, () => {});
+  }
+  flag.position.set(0.02, 1.0, -0.62); flag.rotation.x = -0.9;   // 뒤로 눕힌다(52도)
+  group.add(pole, flag);
+  // ── 명패: 말 앞(+z)에 눕힌 판. 로마 숫자는 setLegions가 넣는다
+  const plaqueMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true });
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.23), plaqueMat);
+  plaque.rotation.x = -Math.PI / 2; plaque.position.set(0, 0.16, 0.86); plaque.visible = false;
+  // ── 군단 무리: 장군 뒤 4열 대형. 채우는 것은 setLegions. z6 미만에서는 render가 접는다(LOD)
+  const cluster = new THREE.Group(); cluster.name = 'cluster';
+  group.add(plaque, cluster);
+  group.userData.plaque = plaque; group.userData.plaqueMat = plaqueMat; group.userData.cluster = cluster; group.userData.mat = mat; group.userData.dark = dark;
   group.rotation.x = Math.PI / 2;
   return group;
 }
@@ -90,13 +131,14 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
 let tokenSeq = 0;
 
 export type Token = ReturnType<typeof createToken>;
-export function createToken(color: string, name = '', portrait?: string | null, scale = 1) {
+export function createToken(color: string, name = '', portrait?: string | null, scale = 1, opts: { emblem?: string | null } = {}) {
   const camera = new THREE.Camera();
   const scene = new THREE.Scene();
   let renderer: THREE.WebGLRenderer | null = null;
   let map: maplibregl.Map | null = null;
   // 초상은 비동기로 온다. 도착하면 한 프레임 더 돌려야 얼굴이 실제로 찍힌다.
-  const group = pieceMesh(color, portrait, () => map?.triggerRepaint());
+  const group = pieceMesh(color, portrait, () => map?.triggerRepaint(), opts.emblem);
+  let legions = 0;
   group.userData.name = name;
   scene.add(group);
 
@@ -144,6 +186,7 @@ export function createToken(color: string, name = '', portrait?: string | null, 
     },
     render(_gl, args: any) {
       if (!pos || !renderer || !map) return;
+      (group.userData.cluster as THREE.Group).visible = map.getZoom() >= 6;   // 지중해 줌에서 무리는 얼룩이다. 명패만 남긴다
       const mc = maplibregl.MercatorCoordinate.fromLngLat(pos, 0);
       const s = mc.meterInMercatorCoordinateUnits() * tokenMeters(map.getZoom(), scale);
       const model = new THREE.Matrix4()
@@ -160,6 +203,26 @@ export function createToken(color: string, name = '', portrait?: string | null, 
 
   return {
     layer,
+    /** 군단 수(pack-legions 사료 수치). 명패에 로마 숫자, 뒤에 작은 말 무리(최대 12, 4열). 0이면 둘 다 없다. */
+    setLegions(n: number) {
+      if (n === legions) return;
+      legions = n;
+      const plaque = group.userData.plaque as THREE.Mesh, pm = group.userData.plaqueMat as THREE.MeshBasicMaterial, cluster = group.userData.cluster as THREE.Group;
+      plaque.visible = n > 0;
+      if (n > 0) { pm.map?.dispose(); pm.map = plaqueTexture(roman(n)); pm.needsUpdate = true; }
+      for (const c of [...cluster.children]) cluster.remove(c);
+      const k = Math.min(12, Math.max(0, Math.floor(n)));
+      for (let i = 0; i < k; i++) {
+        const col = i % 4, row = Math.floor(i / 4);
+        const m = new THREE.Group();
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.07, 12), group.userData.dark as THREE.Material); base.position.y = 0.035;
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, 0.2, 8), group.userData.mat as THREE.Material); body.position.y = 0.17;
+        m.add(base, body); m.position.set((col - 1.5) * 0.5, 0, -(1.15 + row * 0.5));
+        cluster.add(m);
+      }
+      map?.triggerRepaint();
+    },
+    legions: () => legions,
     setRoute(path: [number, number][]) {
       route = path;
     },

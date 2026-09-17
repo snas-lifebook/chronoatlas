@@ -1,0 +1,14 @@
+{
+ "teaching": true,
+ "source": "볼트 Works/관계분석_방법론/components/01_세력/문장_<세력>.png (River 자산, AI 생성 문장). scripts/build-emblems.py가 128px로 줄여 public/assets/emblems/에 둔다. 있는 세력만.",
+ "actors": [
+  "카르타고",
+  "갈리아",
+  "게르만",
+  "그리스계",
+  "누미디아",
+  "로마",
+  "반란세력",
+  "이탈리아세력"
+ ]
+}
