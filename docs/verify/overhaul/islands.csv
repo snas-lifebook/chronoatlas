@@ -4551,6 +4551,7 @@ bucket,polity_id,name,km,lon,lat
 700,territory:Dál Riata:750,Dál Riata,0.4,-5.9046,55.9802
 700,territory:Dál Riata:750,Dál Riata,37.6,-6.9297,56.4818
 700,territory:Dál Riata:750,Dál Riata,9.0,-6.3278,56.974
+700,territory:Dál Riata:750,Dál Riata,26.8,-6.7414,58.148
 700,territory:Kharijites:751,Kharijites,17.9,10.8766,33.7675
 700,territory:Umayyad Caliphate:705,우마이야 칼리프국,22.6,11.0408,34.6388
 700,territory:Umayyad Caliphate:705,우마이야 칼리프국,7.7,11.1821,34.696
@@ -7853,7 +7854,8 @@ bucket,polity_id,name,km,lon,lat
 1300,territory:Byzantine Empire:1326,비잔티움 제국,8.5,23.5052,37.3388
 1300,territory:Byzantine Empire:1326,비잔티움 제국,15.1,23.4882,37.7302
 1300,territory:Crown of Aragon:1385,Crown of Aragon,2.7,23.4951,37.9585
-1300,territory:Byzantine Empire:1305,비잔티움 제국,34.9,23.6983,39.1437
+1300,territory:Crown of Aragon:1385,Crown of Aragon,8.2,23.9131,38.4985
+1300,territory:Crown of Aragon:1385,Crown of Aragon,28.7,23.6983,39.1437
 1300,territory:Teutonic Order:1333,Teutonic Order,12.6,23.2116,58.635
 1300,territory:Teutonic Order:1333,Teutonic Order,18.7,23.225,58.998
 1300,territory:Kingdom of Sweden:1326,스웨덴 왕국,8.4,21.3759,59.7807

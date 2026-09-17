@@ -580,8 +580,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 안쪽 후광(OVERHAUL §3.6c, R57): 경계 안쪽 몇 px를 같은 색으로 흐리게. 「색이 바다로 샌다」는 인상을 지운다.
     // line-offset 음수 = 폴리곤 안쪽(외곽 고리가 시계 반대 방향일 때). 마스크가 바다 쪽을 덮으니 밖으로 새는 후광은 안 보인다.
     map.addLayer({ id: 'territory-glow', type: 'line', source: 'territory', layout: { 'line-join': 'round' },
-      paint: { 'line-color': polityColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 5, 8, 14], 'line-offset': ['interpolate', ['linear'], ['zoom'], 3, -2.5, 8, -7],
-        'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 3, 8, 9], 'line-opacity': 0.32 } }, before);
+      paint: { 'line-color': polityColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 8, 9], 'line-offset': ['interpolate', ['linear'], ['zoom'], 3, -1.5, 8, -4.5],
+        'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 4, 8, 10], 'line-opacity': 0.16 } }, before);
     // ── 미시 지도 바탕 도판 ────────────────────────────────────────────────
     //
     // River: "흰 바탕에 점이랑 성벽이랑 언덕 이렇게만 있어서 솔직히 눈에 잘 들어오지
@@ -764,7 +764,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'text-color': polityColor, 'text-halo-color': halo(), 'text-halo-width': 2.6, 'text-opacity': 1 },
       filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
-    map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
+    // 216개 「책의 지역」 점선이 대륙 축척(z4)을 뒤덮는다(2026-09-17 캡처). z5.5부터만 그린다.
+    map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', minzoom: 5.5, paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
     if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
     // hover: +반지름·외곽 1.5px / selected: 외곽 2px(세력색 대신 잉크 — 정착지는 세력 없음) — DESIGN §2, GPU만
     const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, ['boolean', ['feature-state', 'linked'], false], base + plus * 0.6, base];

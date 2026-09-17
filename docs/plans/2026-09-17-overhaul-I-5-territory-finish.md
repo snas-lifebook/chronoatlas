@@ -6,6 +6,8 @@
 
 **Architecture:** 빌드타임 파이프라인 `scripts/finish-territory.py`(shapely)가 `public/datasets/rome/layers/territory/<버킷>.geojson`을 제자리에서 다시 쓴다(정본 JSONL과 Cliopatria 원본은 안 건드린다. 재현 가능). 렌더 마감은 `src/map/engine.ts`의 territory 층 셋과 해안 잉크 층 하나.
 
+> **2026-09-17 실행 기록(이 계획은 실행됐다, 스펙 §3.6c 갱신판이 정본).** Task B1의 「해안 스냅(교집합)」은 정점이 6배로 뛰어 버렸다. 대신 `layers/ocean.geojson` 바다 마스크를 영역 위에 덮는 방식으로 바꿨고, 상수는 Chaikin 1회·상한 4 km, 버퍼 2 km, 최종 simplify 600 m, 섬 후보 4,000 km² 이하다. 아래 코드 블록은 최초안이며 실제 파일이 이긴다.
+
 **Tech Stack:** Python 3.13 · shapely 2 · numpy · MapLibre GL 6.3 · vitest
 
 **Spec:** `docs/OVERHAUL.md` §3.6c. 요구 원장 R57(R33). 선행: 계획 1/4 Task A2(범위 재베이크. 버킷 파일이 새 범위로 구워진 뒤에 돈다).

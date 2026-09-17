@@ -30,7 +30,7 @@ EXT = ROOT / 'data/external'
 ISLANDS_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_minor_islands.geojson'
 DEG_M = 111320.0                      # 위도 1도 ≈ 111.32 km. 경도는 cos(lat)로 보정
 SMOOTH_M, GROW_M, ISLAND_KM, FINAL_M = 100.0, 2000.0, 40.0, 600.0
-SMALL_ISLAND_KM2 = 2000.0             # 육지 파일의 이 면적 이하 조각도 「섬」 후보다(키클라데스 등)
+SMALL_ISLAND_KM2 = 4000.0             # 육지 파일의 이 면적 이하 조각도 「섬」 후보다(에우보이아 3,684 km²까지. 키프로스·크레타는 정본이 가진다)
 FINISH_TAG = 'chaikin1cap4km+grow2km+islands+s600m'
 CHAIKIN_CAP_M = (4000.0,)             # 1회, 상한 4 km. 2회·5 km는 정점이 3.8배로 뛰었다(실측). 톱니는 1회로도 사라진다
 
@@ -146,6 +146,11 @@ def process_bucket(path: Path, islands, island_tree, dry: bool, rows: list):
     polys = [f for f in fc['features'] if f['geometry']['type'] in ('Polygon', 'MultiPolygon')]
     if not polys:
         print(f'{path.name}: 폴리곤 0')
+        return
+    # 멱등 보호: 이미 마감된 파일에 다시 돌리면 두 번 부풀고 두 번 둥글어진다(2026-09-17 실제로 그랬다).
+    # 원본은 재베이크 커밋에 있다: git checkout <재베이크 커밋> -- public/datasets/rome/layers/territory
+    if any(f['properties'].get('finish') for f in polys):
+        print(f'{path.name}: 이미 마감됨(finish 속성). 건너뛴다. 다시 하려면 원본 버킷을 git에서 되돌린 뒤 돌려라')
         return
     before_v = sum(nverts(shape(f['geometry'])) for f in polys)
     before_a = float(np.mean([acute_ratio(shape(f['geometry'])) for f in polys]))
