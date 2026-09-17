@@ -24,11 +24,21 @@ const geoDir = join(SRC, '_geo');
 if (existsSync(geoDir)) for (const f of readdirSync(geoDir).filter(f => /^places_.*\.jsonl$/.test(f)))
   for (const p of jsonl(join(geoDir, f))) geo.set(p.name.normalize('NFC'), p);
 
-// 세력 팔레트(룬델 정본)와 레지스트리(엔티티→세력·에셋). 없으면 없는 대로.
-const palette = existsSync(join(SRC, '팔레트.json')) ? JSON.parse(readFileSync(join(SRC, '팔레트.json'), 'utf8')).factions : {};
+// 세력 팔레트(룬델 정본)와 레지스트리(엔티티→세력·에셋)는 정본 ontology/ 안이 아니라 옆 폴더에 산다
+// (<편데>/Works/관계분석_방법론/components/00_노드템플릿/팔레트.json · components/_registry.csv).
+// 그대로 두면 어댑터가 조용히 열화됐다: actors.json이 비고 138개 노드의 세력·티어, 80개 노드의 초상이 null이 됐다
+// (RUNBOOK-extent §3). PALETTE_DIR(=components 폴더)이 이기고, 없으면 정본 기준 상대경로, 그것도 없으면 정본 폴더.
+const COMPONENTS = process.env.PALETTE_DIR
+  ?? [join(SRC, '..', '..', '..', 'Works', '관계분석_방법론', 'components'), SRC].find(p => existsSync(join(p, '_registry.csv')) || existsSync(join(p, '00_노드템플릿', '팔레트.json')))
+  ?? SRC;
+const PALETTE_FILE = [join(COMPONENTS, '00_노드템플릿', '팔레트.json'), join(COMPONENTS, '팔레트.json'), join(SRC, '팔레트.json')].find(existsSync);
+const REGISTRY_FILE = [join(COMPONENTS, '_registry.csv'), join(SRC, '_registry.csv')].find(existsSync);
+if (!PALETTE_FILE) console.warn('팔레트.json을 못 찾았다. actors.json이 빈다. PALETTE_DIR=<components 폴더>를 주라');
+if (!REGISTRY_FILE) console.warn('_registry.csv를 못 찾았다. 세력·초상이 null이 된다. PALETTE_DIR=<components 폴더>를 주라');
+const palette = PALETTE_FILE ? JSON.parse(readFileSync(PALETTE_FILE, 'utf8')).factions : {};
 const registry = new Map<string, any>();
-if (existsSync(join(SRC, '_registry.csv'))) {
-  const [head, ...rows] = readFileSync(join(SRC, '_registry.csv'), 'utf8').split('\n').filter(Boolean);
+if (REGISTRY_FILE) {
+  const [head, ...rows] = readFileSync(REGISTRY_FILE, 'utf8').split('\n').filter(Boolean);
   const cols = head.split(',');
   for (const r of rows) { const v = r.split(','); registry.set(v[0], Object.fromEntries(cols.map((c, i) => [c, v[i] ?? '']))); }
 }

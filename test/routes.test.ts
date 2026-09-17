@@ -39,8 +39,9 @@ describe('경로를 활로 (River: "그냥 쭉 이어진 직선이라 시야에 
   });
 
   it('정본 카이사르 아홉 구간이 전부 두 점짜리라 전부 휜다', () => {
-    const src = rd('public/datasets/rome/layers/movements.geojson').features as MoveFeature[];
-    expect(src.length).toBeGreaterThan(0);
+    // 2026-09-17 adapt 뒤 산출물에 정본 경로 16종(102구간)이 다 들어왔다. 이 검사는 카이사르만 본다.
+    const src = (rd('public/datasets/rome/layers/movements.geojson').features as MoveFeature[]).filter(f => f.properties.route === 'caesar');
+    expect(src.length).toBe(9);
     expect(src.every(f => f.geometry.coordinates.length === 2)).toBe(true);
     const out = curveMovements(src);
     expect(out.every(f => f.geometry.coordinates.length > 2)).toBe(true);
@@ -70,8 +71,11 @@ describe('지난 구간일수록 옅게', () => {
 });
 
 describe('여정 국면과 순번', () => {
-  const caesar = rd('public/datasets/rome/layers/movements.geojson').features as MoveFeature[];
-  const pompey = rd('data/overlays/pack-pompey.json').features as MoveFeature[];
+  // 2026-09-17: 정본에 폼페이우스 경로(6구간, BC 67~48)가 들어왔다. 교보재 pack-pompey(4구간)는 엔진이
+  // 같은 route가 정본에 있으면 안 싣는다(중복 선). 여기서는 정본 쪽을 검사한다.
+  const all = rd('public/datasets/rome/layers/movements.geojson').features as MoveFeature[];
+  const caesar = all.filter(f => f.properties.route === 'caesar');
+  const pompey = all.filter(f => f.properties.route === 'pompey');
 
   it('정본 카이사르 아홉 구간이 레퍼런스와 같은 국면으로 갈린다', () => {
     // Caesar's Civil War Campaigns 지도의 범례: 귀환 / 49 / 48 / 47 / 46 / 45.
@@ -94,7 +98,7 @@ describe('여정 국면과 순번', () => {
   it('순번은 route 안에서 1부터, 좌표는 안 건드린다', () => {
     const out = annotateLegs([...caesar, ...pompey]);
     expect(out.filter(f => f.properties.route === 'caesar').map(f => f.properties.seq)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    expect(out.filter(f => f.properties.route === 'pompey').map(f => f.properties.seq)).toEqual([1, 2, 3, 4]);
+    expect(out.filter(f => f.properties.route === 'pompey').map(f => f.properties.seq)).toEqual([1, 2, 3, 4, 5, 6]);
     for (let i = 0; i < caesar.length; i++) expect(out[i].geometry.coordinates).toEqual(caesar[i].geometry.coordinates);
   });
 
@@ -105,5 +109,16 @@ describe('여정 국면과 순번', () => {
   it('모르는 구간은 other로 떨어진다 — 없는 국면을 발명하지 않는다', () => {
     expect(legPhase({})).toBe('other');
     expect(legPhase({ to_year: -300 })).toBe('other');
+  });
+});
+
+describe('체류 구간 (MARCH_MAX_YEARS, 2026-09-17 정본 경로 유입)', () => {
+  it('3년 넘는 구간은 위치 근거가 아니다: 기원전 60년 폼페이우스는 경로로 잡히지 않는다', async () => {
+    const { positionByRoute } = await import('../src/schema');
+    const all = rd('public/datasets/rome/layers/movements.geojson').features as any[];
+    expect(positionByRoute(all, 'pompey', -60)).toBeNull();          // -63..-49 예루살렘→브룬디시움은 체류
+    expect(positionByRoute(all, 'pompey', -49)).toEqual([20.4, 39.4]); // BC 49 에페이로스 (정본 pompey@2 끝점)
+    expect(positionByRoute(all, 'caesar', -49)).not.toBeNull();       // caesar@0(-52..-49, 3년)은 행군: 도착 해부터 끝점
+    expect(positionByRoute(all, 'caesar', -52)).not.toBeNull();       // 출발 해에는 출발점(알레시아)
   });
 });

@@ -1,6 +1,6 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
-import { type Dataset, dateWindow, OPEN_PAST, routeGeometry } from '../schema';
+import { type Dataset, dateWindow, MARCH_MAX_YEARS, OPEN_PAST, routeGeometry } from '../schema';
 import { buildStyle, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
@@ -20,6 +20,7 @@ const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 
 // 경로가 다 옅어지는 데 걸리는 해. 카이사르 원정이 기원전 58~45년 열세 해라
 // 8이면 발표 장면 안에서 「올해 · 최근 · 옛날」 세 단계가 눈에 갈린다.
 const FADE_SPAN = 8;
+const MOVE_MAX_AGE = 40; // 이보다 오래된 행군 구간은 안 그린다(2026-09-17, 정본 경로 16종 유입)
 const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
 
 function armIcon(arm: string, color: string): ImageData {
@@ -369,7 +370,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     ['plains-granary', null], ['plains-barren', null], ['plains-line', null], ['plains-label', null]];
   const filterFor = (base: any[] | null, y: number): any => base ? ['all', base, ...dateWindow(y).slice(1)] : dateWindow(y);
   // 지나온 행군만. valid_to가 먼 미래로 열려 있으면 아직 안 간 구간까지 한 줄로 깔린다.
-  const movementFilter = (y: number): any => ['<=', ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST], y];
+  // 2026-09-17, 정본 경로 16종(102구간)이 산출물에 들어오면서 둘을 더했다.
+  // ① 40년 넘게 지난 구간은 안 그린다. 안 그러면 BC 49 판에 한니발의 알프스 넘기가 옅게 깔린다.
+  // ② 3년 넘는 구간은 행군이 아니라 체류라 선으로 안 그린다(schema.ts MARCH_MAX_YEARS와 같은 규칙).
+  const legEnd: any = ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], OPEN_PAST];
+  const legSpan: any = ['-', legEnd, ['coalesce', ['get', 'from_year'], ['get', 'valid_from'], legEnd]];
+  const movementFilter = (y: number): any => ['all', ['<=', legEnd, y], ['>=', legEnd, y - MOVE_MAX_AGE], ['<=', legSpan, MARCH_MAX_YEARS]];
   // 그 해로부터 얼마나 지난 구간인가(0 = 올해, 1 = FADE_SPAN년 전 이상).
   const legAge = (y: number): any =>
     ['min', 1, ['max', 0, ['/', ['-', y, ['coalesce', ['get', 'to_year'], ['get', 'valid_from'], y]], FADE_SPAN]]];
@@ -1036,7 +1042,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
         'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
       paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 1.4 } }, before);
-    const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS] };
+    // 교보재 경로(pack-pompey)는 **정본에 같은 route가 없을 때만** 싣는다. 2026-09-17 adapt 뒤 정본이
+    // 폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다.
+    const routesInData = new Set(d.movements.features.map(f => f.properties.route));
+    const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS.filter(f => !routesInData.has(f.properties.route))] };
     // 화면에 깔리는 것은 **휜 사본**이다. 원본은 tokenRoutes가 그대로 쓴다 —
     // 말은 실제 정점을 밟아야 하고(walkRoute가 좌표 일치로 구간을 찾는다) 선만 활이 된다.
     // annotateLegs가 순번·국면·국면색을 properties에 얹고, curveMovements가 좌표만 휜다.

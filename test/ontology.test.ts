@@ -38,10 +38,11 @@ describe('어댑터 산출물 == 정본 (F1)', () => {
   // 그런데 정본 마이그레이션(TASKS 0.1, `migrate_v2.py --write`)이 밀려 adapt을 돌릴 수 없어
   // 커밋된 산출물엔 아직 중복 3건이 남아 있다. 정본이 풀려 adapt이 돌면 이 테스트가 빨개진다 —
   // 그때 이 블록을 지우고 위 '유일해야 한다'로 바꿔라.
-  it('battles: id 중복 3건은 정본 마이그레이션 대기 중이라는 표시다', () => {
+  // 2026-09-17: 정본 마이그레이션과 adapt이 돌았다. 지뢰가 뒤집혔다.
+  it('battles: id가 유일하고, 두 번째 점(#n)은 entity로 사건을 가리킨다', () => {
     const ids = battles.features.map((f: any) => f.properties.id);
-    expect(ids.length - new Set(ids).size).toBe(3);
-    expect(battles.features.every((f: any) => f.properties.entity == null)).toBe(true);
+    expect(ids.length - new Set(ids).size).toBe(0);
+    for (const f of battles.features) if (String(f.properties.id).includes('#')) expect(f.properties.entity).toBeTruthy();
   });
 });
 

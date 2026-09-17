@@ -44,8 +44,9 @@ describe('산출물의 지어낸 연도 3건 — 정본 마이그레이션 대�
     .filter((n: any) => n.type === 'event' && n.year != null && Math.abs(n.year) <= 20)
     .map((n: any) => `${n.id}=${n.year}`).sort();
 
-  it('adapt을 못 돌려 세기·서수를 연도로 읽은 값이 아직 남아 있다', () => {
-    expect(suspicious()).toEqual(['event:기독교박해=1', 'event:삼니움전쟁=-4', 'event:자마전투=2']);
+  // 2026-09-17: 정본 마이그레이션(migrate_v2 --write)과 adapt이 돌았다. 지뢰가 뒤집혔고 이제 참값은 「없음」이다.
+  it('adapt 뒤 산출물에 세기·서수를 연도로 읽은 값이 없다', () => {
+    expect(suspicious()).toEqual([]);
   });
   it('고쳐 놓은 파서로 다시 읽으면 셋 다 사라진다 (adapt만 돌면 된다)', () => {
     const byId = new Map(graph.nodes.map((n: any) => [n.id, n]));

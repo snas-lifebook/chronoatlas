@@ -96,12 +96,18 @@ export function routeGeometry(features: Feature[], route: string): RouteGeometry
  *  원정이 그 해에 이미 끝났으면(year > 마지막 to_year) 안 그린다 — 문다 뒤에 카이사르가 스페인에 남는 일이 없게.
  *  valid_from이 도착 해에만 찍힌 세그먼트(카이사르 첫 구간 from_year=-52, valid_from=-49)는
  *  from_year<=year<to_year 동안 출발점에 서 있게. 중간 좌표는 보간하지 않는다. */
+/** 이보다 긴 구간은 행군이 아니라 **체류**다. 정본 폼페이우스 경로의 예루살렘→브룬디시움(-63..-49)이 그렇다.
+ *  그런 구간의 끝점에 사람을 세우면 기원전 60년 폼페이우스가 로마가 아니라 브룬디시움에 선다.
+ *  체류 구간은 위치 근거로 안 쓰고(다음 규칙 `ruled`로 넘긴다) 선으로도 안 그린다(engine.ts movementFilter). */
+export const MARCH_MAX_YEARS = 3;
 export function positionByRoute(features: Feature[], route: string, year: number): [number, number] | null {
   let best: Feature | null = null;
   let bestFrom = -Infinity;
   for (const f of features) {
     if (f.properties.route !== route) continue;
     const vf = f.properties.valid_from ?? OPEN_PAST;
+    const span = (f.properties.to_year ?? vf) - (f.properties.from_year ?? vf);
+    if (span > MARCH_MAX_YEARS) continue;
     if (vf <= year && vf >= bestFrom) { best = f; bestFrom = vf; }
   }
   if (best) {
