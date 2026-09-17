@@ -402,6 +402,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   function syncPeopleTokens(fc: { type: 'FeatureCollection'; features: object[] }) {
+    if (tokensHidden) fc = EMPTY_FC as typeof fc;   // 전투 미시지도 안에서는 초상 토큰을 안 놓는다(hideContinental). setPeople·상태 구독이 다시 불러도 그대로
     if (!tokenMod || !map.getStyle()) return;
     const seen = new Set<string>();
     if (peopleLayerOn) {
@@ -516,6 +517,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   /** 미시 축척에서 대륙 축척의 것들을 끈다. 이동 경로는 지중해를 가로지르는 선 몇 개일 뿐이고, 폴리티 이름표는
    *  면적 문턱만 봐서 64만 km² 왕국이 z14에서도 통과한다(River가 알렉산드리아 판에서 「프톨레마이오스 왕국」을 잡았다).
    *  나갈 때는 상태의 레이어 목록대로 되돌린다. */
+  let tokensHidden = false;
   let hiddenGroups: string[] = ['movements'];   // 들어갈 때 끈 그룹을 기억했다가 나갈 때 그대로 되살린다(예전엔 movements만 되살려 people이 꺼진 채 남았다)
   function hideContinental(on: boolean, groups: string[] = hiddenGroups) {
     const set = (ids: string[], vis: boolean) => { for (const l of ids) if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', vis ? 'visible' : 'none'); };
@@ -523,7 +525,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (on) hiddenGroups = groups;
     for (const g of groups) set(LAYER_GROUPS[g] ?? [], !on && lit.has(g));
     // 인물 초상 토큰은 커스텀 층(token3d)이라 그룹 목록에 없다. 전투 미시지도(hide에 people)에서는 블록을 가리므로 같이 치운다
-    if (groups.includes('people')) syncPeopleTokens(on || !lit.has('people') ? EMPTY_FC : peopleFc);
+    if (groups.includes('people')) { tokensHidden = on; syncPeopleTokens(on || !lit.has('people') ? EMPTY_FC : peopleFc); }
     set(['territory-label', 'territory-outline', 'territory-glow', 'region-name', 'peoples-label', 'peoples-line', 'client-hatch', 'client-edge'], !on && lit.has('territory'));
   }
   function syncDetailMaps(scene: string | null) {
