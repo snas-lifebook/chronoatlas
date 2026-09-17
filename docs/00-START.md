@@ -42,6 +42,7 @@
 |---|---|
 | Claude 계열이 아닌 에이전트로 처음 들어왔다 | [`HANDOFF-GPT.md`](HANDOFF-GPT.md) §3 용어 · §4 못 하는 일 · §6 관례 |
 | 2회차 발표 「카이사르 팩」 슬라이스 | [`PACK-CAESAR.md`](PACK-CAESAR.md) §0. 이 슬라이스는 그쪽이 작업 정본이다 |
+| 2026-09-17 전면 개선(스킨·영토·북마크·세부 지도·모바일·장기말·입체 지형) | [`OVERHAUL.md`](OVERHAUL.md) §0. 네 슬라이스, 지금은 I |
 | 지도 범위를 바꾼다 | [`RUNBOOK-extent.md`](RUNBOOK-extent.md). **River 터미널 실행이 필요하다** |
 | 특정 지도 주제 | 아래 「지도 주제 정본」 표 |
 | 왜 이 설계인가가 궁금하다 | [`DESIGN.md`](DESIGN.md) 반려조건 P1~P17 → [`BLUEPRINT.md`](BLUEPRINT.md) |
