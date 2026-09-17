@@ -288,7 +288,7 @@ DESIGN §4 「모바일은 읽기 전용」을 그대로 따른다. 폭 620px �
 
 ## 4. 슬라이스 II~IV 범위 (각자 스펙을 따로 쓴다)
 
-**II. 시각 문법(대륙 축척).** I에서 미시 축척으로 들어간 네 문법 중 대륙 축척 몫이 남는다: 점선 사슬 국경과 사선 세력권 · 연도 리본 HUD · 세리프 소문자 대문자 자간 라벨(글리프는 빌드타임 자체 생성, CONSTITUTION 6-2) · 장군 배너 카드(방패형 초상 + 이름판 + 작은 군기, HistoryMarche 10) · 장기말 프로시저럴 v2(받침 + 몸통 + 군기, 군단은 작은 말 무리를 `pack-legions` 수로) · 채색 음영 지형(`campaign` 스킨 v2, hillshade + 난색 고도색). 스킨과 UI 테마 어긋남(BACKLOG §E 미해결)은 여기서 ①(연동) 또는 ②(후광)로 닫는다.
+**II. 시각 문법(대륙 축척).** → 스펙 초안 [OVERHAUL-II.md](OVERHAUL-II.md) (2026-09-17, River 승인 대기). I에서 미시 축척으로 들어간 네 문법 중 대륙 축척 몫이 남는다: 점선 사슬 국경과 사선 세력권 · 연도 리본 HUD · 세리프 소문자 대문자 자간 라벨(글리프는 빌드타임 자체 생성, CONSTITUTION 6-2) · 장군 배너 카드(방패형 초상 + 이름판 + 작은 군기, HistoryMarche 10) · 장기말 프로시저럴 v2(받침 + 몸통 + 군기, 군단은 작은 말 무리를 `pack-legions` 수로) · 채색 음영 지형(`campaign` 스킨 v2, hillshade + 난색 고도색). 스킨과 UI 테마 어긋남(BACKLOG §E 미해결)은 여기서 ①(연동) 또는 ②(후광)로 닫는다.
 
 **III. 데이터 기반.** P-A가 끝나면 BACKLOG 라운드 B·C·D를 적힌 대로. 더하는 것 둘: ETOPO 수심을 `color-relief`(maplibre-gl 6.3에 있음)로 「깊을수록 짙게」(DESIGN 램프) · 위성 스킨은 PD 래스터(NASA Blue Marble 또는 Natural Earth II)를 relief처럼 굽는다.
 
