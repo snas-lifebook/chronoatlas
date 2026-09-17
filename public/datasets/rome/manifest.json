@@ -146,7 +146,8 @@
    "board": "cannae-216",
    "phase": 0,
    "group": "말판",
-   "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다."
+   "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다.",
+   "micro": "cannae"
   },
   {
    "id": "pack-intro-med",
@@ -220,11 +221,13 @@
     "people",
     "relief",
     "rivers",
-    "labels",
-    "alesia"
+    "labels"
    ],
    "group": "세부 지도",
-   "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다."
+   "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다.",
+   "micro": "alesia",
+   "board": "alesia-52",
+   "phase": 0
   },
   {
    "id": "pack-roma-urbs",
@@ -246,11 +249,11 @@
     "people",
     "relief",
     "rivers",
-    "labels",
-    "roma"
+    "labels"
    ],
    "group": "세부 지도",
-   "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다."
+   "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다.",
+   "micro": "roma"
   },
   {
    "id": "pack-alexandria-47",
@@ -272,11 +275,91 @@
     "people",
     "relief",
     "rivers",
-    "labels",
-    "alexandria"
+    "labels"
    ],
    "group": "세부 지도",
-   "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다."
+   "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다.",
+   "micro": "alexandria"
+  },
+  {
+   "id": "rubicon-49",
+   "title": "루비콘 강 · BC 49",
+   "year": -49,
+   "micro": "rubicon",
+   "center": [
+    12.4,
+    44.1
+   ],
+   "zoom": 10.8,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "admin_regions",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "속주 경계였던 개천 하나. 무장한 채 이 선을 넘는 순간 총독은 반란자가 된다."
+  },
+  {
+   "id": "athens-acropolis",
+   "title": "아테네 아크로폴리스 · 민회의 현장",
+   "year": -60,
+   "micro": "athens",
+   "center": [
+    23.7266,
+    37.9715
+   ],
+   "zoom": 14,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "admin_regions",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "밑에서 말해도 들리는 언덕. 그리스는 왜 제국이 못 됐고 로마는 왜 공화정으로 시작했나의 현장이다."
+  },
+  {
+   "id": "pharsalus-48",
+   "title": "파르살루스 · BC 48",
+   "year": -48,
+   "micro": "pharsalus",
+   "board": "pharsalus-48",
+   "phase": 0,
+   "center": [
+    22.3833,
+    39.3
+   ],
+   "zoom": 11,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "admin_regions",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "8개 군단 대 11개 군단. 하루 만에 로마 제일의 장군이 도망자가 된다."
   },
   {
    "id": "pack-extent-51",
@@ -458,6 +541,57 @@
    ],
    "group": "선례",
    "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+  },
+  {
+   "id": "carrhae-53",
+   "title": "카르하이 · BC 53, 삼두정치가 깨진 곳",
+   "year": -53,
+   "center": [
+    36.03,
+    36.87
+   ],
+   "zoom": 5.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "admin_regions",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "선례",
+   "note": "크라수스가 파르티아에게 죽는다. 세 사람의 균형이 둘의 대결이 된다. 루비콘은 여기서 시작한다."
+  },
+  {
+   "id": "plains-empire",
+   "title": "왜 제국인가: 평야 · BC 270",
+   "year": -270,
+   "center": [
+    9,
+    39.5
+   ],
+   "zoom": 4.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "admin_regions",
+    "settlements",
+    "relief",
+    "rivers",
+    "labels",
+    "plains"
+   ],
+   "group": "로마의 확장",
+   "note": "곡창 일곱과 척박 셋. 평야가 잉여를 만들고 잉여가 군단을 먹인다. 그리스 반도에는 이 색이 없다."
   },
   {
    "id": "rome-italy-270",

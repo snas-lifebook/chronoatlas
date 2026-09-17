@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Card, Text, Heading, Badge, Button, IconButton, Collapsible } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
-import type { Store } from '../state';
+import type { Store, Scene } from '../state';
 import { loadGraph, neighborsOf, shortestPath, groupOf, GROUP_LABEL, REL_LABEL, type Graph, type GNode, type Neighbor } from '../graph/data';
 import { GROUP_COLOR } from '../map/engine';
 import { stateAt } from '../time';
@@ -36,8 +36,10 @@ function Portrait({ node, root, color }: { node: GNode | undefined; root: string
   );
 }
 
-export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath, boards = [] }:
-  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void; boards?: BoardData[] }) {
+export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath, boards = [], scenesOf, onScene }:
+  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void; boards?: BoardData[];
+    // 장면 의미체계(R53, OVERHAUL-IV): 이 객체를 다루는 장면(사건 → 장면, 인물 → 그 인물이 주인공인 장면). App이 allScenes로 댄다
+    scenesOf?: (id: string) => Scene[]; onScene?: (sc: Scene) => void }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   useEffect(() => { if (!/^(landmark|territory):/.test(sel)) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
@@ -184,6 +186,11 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
           {withThem.length > 0 && <Text size="sm" color="secondary">같이: {withThem.map(p => p.name).join(' · ')}</Text>}
         </section>
       )}
+      {(() => { const scs = scenesOf?.(sel) ?? []; return scs.length > 0 && (
+        <section className="ins-sec">
+          <div className="ins-label">장면 {scs.length}</div>
+          <div className="chip-row">{scs.map(sc => <button key={sc.id} type="button" className="chip" onClick={() => onScene?.(sc)} title={sc.group ?? ''}>{sc.title}<small>{fmtYear(sc.year)}</small></button>)}</div>
+        </section>); })()}
       <div className="ins-badges">
         {node?.faction && <Badge label={node.faction} variant={'blue' as any} />}
         {node?.src && <Badge label={SRC_LABEL[node.src] ?? node.src} />}

@@ -81,12 +81,26 @@ const qc = {
 writeFileSync(join(OUT, 'qc.json'), JSON.stringify(qc, null, 1));
 console.log('qc:', Object.fromEntries(Object.entries(qc).map(([k, v]) => [k, v.length])));
 
-// ---- layers/settlements.geojson: 좌표 있는 place 전부. rank = 등장 포인트 수로 LOD.
+// ---- layers/settlements.geojson: 좌표 있는 place 전부. rank = LOD 5단(OVERHAUL-III III-3, R34). 지어낸 인구 없음 — 있는 것만 잰다:
+//   등장 포인트 수(points) · 그래프 차수(관계 수) · 종류(kind). 옛 3단(≥6 / ≥3 / 나머지)은 9·24·187로 실질 2단이었다.
+//   도시: 1 = points ≥ 3(로마·콘스탄티노플·카르타고·밀라노·알렉산드리아·안티오키아) · 2 = points 2 또는 차수 ≥ 3 · 3 = points 1이고 관계 있음 · 4 = 나머지 · 5 = 건물(도시 안)
+//   바다: points ≥ 2면 1(흑해·지중해·아드리아해), 해협은 3 · 강·섬·산: points ≥ 3이면 2, 아니면 3 · 전장 3 · 지역은 region-name 층이 따로 그린다(옛 규칙 유지)
+//   층 minzoom: 1 → z3 · 2 → 4.5 · 3 → 6 · 4 → 7.5 · 5 → 9 (style.ts label-settle-N)
+const MINZOOM_OF_RANK = [0, 3, 4.5, 6, 7.5, 9];
+const rankOf = (n: { id: string; name: string; points: unknown[] }, kind: string | null): number => {
+  const p = n.points.length, dg = adjacency[n.id]?.length ?? 0;
+  if (kind === 'building') return 5;
+  if (kind === 'sea') return /해협|헬레스폰투스/.test(n.name) ? 3 : p >= 2 ? 1 : 3;
+  if (kind === 'river' || kind === 'island' || kind === 'mountain' || kind === 'lake' || kind === 'cape') return p >= 3 ? 2 : 3;
+  if (kind === 'battlefield') return 3;
+  if (kind === 'region') return p >= 6 ? 1 : p >= 3 ? 2 : 3;
+  return p >= 3 ? 1 : (p === 2 || dg >= 3) ? 2 : (p >= 1 && dg >= 1) ? 3 : 4;
+};
 const settlements = nodes.filter(n => n.type === 'place' && n.lonlat).map(n => {
   const g = geo.get(n.name.normalize('NFC')) ?? {};
-  const rank = n.points.length >= 6 ? 1 : n.points.length >= 3 ? 2 : 3;
+  const rank = rankOf(n, g.kind ?? null);
   return { type: 'Feature', properties: { id: n.id, layer: 'settlements', name_ko: n.name, name_ancient: g.ancient ?? null, name_modern: g.modern ?? null,
-    kind: g.kind ?? null, rank, minzoom: rank === 1 ? 0 : rank === 2 ? 4 : 6,
+    kind: g.kind ?? null, rank, minzoom: MINZOOM_OF_RANK[rank],
     // R25 회귀 복구: 자원·지형은 구 데이터셋(rome-753-218)의 10개 도시에만 있던 값이다. 정본엔 없었다 —
     // 어댑터 이식 누락이 아니라 애초에 손으로 넣은 값이었다. proposals/20260911_place_resource_terrain_7.jsonl로
     // 정본에 올리자고 제안했고, 승인되면 이 두 줄이 그대로 실어 나른다(없으면 null이라 지금은 무해하다).

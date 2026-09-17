@@ -4,7 +4,7 @@
 serve.sh 의 디버그 Chrome(9222). 캡처 /tmp/skin-<skin>-<theme>.png. 명암비 4.5 미만이면 실패."""
 import json, sys
 from playwright.sync_api import sync_playwright
-SKINS = ['light', 'dark', 'oldmap', 'press', 'campaign']
+SKINS = ['light', 'dark', 'oldmap', 'press', 'campaign', 'satellite']
 scene = sys.argv[1] if len(sys.argv) > 1 else 'pack-intro-med'
 JS = """() => {
   const el = document.querySelector('.shell-year'); if (!el) return null;

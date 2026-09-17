@@ -43,3 +43,6 @@ docs/verify/shot/*.png
 !docs/verify/shot/_gallia_cmp.png
 !docs/verify/shot/_egypt_cmp.png
 scripts/__pycache__/
+
+# 위성 원본(NASA Blue Marble). 산출물 rasters/satellite.jpg·satellite-sea.png 은 커밋한다(bake-satellite.py)
+data/external/satellite/

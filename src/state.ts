@@ -30,6 +30,7 @@ export interface Scene {
   note?: string;
   board?: string; phase?: number;  // 말판 북마크 (R37)
   micro?: string;                  // 미시지도 id. 있으면 줌 문턱과 무관하게 그 지도가 켜진다 (OVERHAUL §3.2, R47)
+  events?: string[];               // 장면 의미체계(R53, OVERHAUL-IV): 이 장면이 다루는 정본 사건 id. 인스펙터가 사건 → 장면, HUD가 장면 → 사건으로 잇는다. 시대는 연도로 계산한다
 }
 
 /** 장면이 평면을 시키면 눕히고, 각도가 있으면 세운다. view가 있으면 그게 이긴다. */

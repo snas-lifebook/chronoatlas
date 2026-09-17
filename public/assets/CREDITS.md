@@ -48,6 +48,7 @@ Works/관계분석_방법론/
 | `terrain/` z0~8 | ETOPO 2022 15 Arc-Second Global Relief Model, NOAA NCEI. DOI 10.25921/fd45-gt74 | 자유 이용(공공). 인용: "NOAA National Centers for Environmental Information. 2022: ETOPO 2022 15 Arc-Second Global Relief Model" |
 | `terrain-<id>/` z8~12 | Copernicus DEM GLO-30 (AWS Open Data `copernicus-dem-30m`) | "Produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under COPERNICUS by the European Union and ESA; all rights reserved" |
 | `landcover-<id>/` z8~12 | ESA WorldCover 10 m 2021 v200 (Zenodo 7254221) | CC BY 4.0. "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium" |
+| `rasters/satellite.jpg` · `satellite-sea.png` | NASA Blue Marble Next Generation, 2004년 7월, 지형 음영 + 수심 판(NASA Earth Observatory, Reto Stöckli 외) | Public Domain(NASA). 표기: "NASA Earth Observatory, Blue Marble Next Generation". 위성 스킨 전용, bbox 크롭·메르카토르 재투영만(`scripts/bake-satellite.py`) |
 
 AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다. 굽는 절차는 `scripts/bake-dem.py`·`scripts/bake-landcover.py`.
 

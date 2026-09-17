@@ -61,15 +61,15 @@ R39 목각은 볼트 3.7 조율, R41은 릴 스크린샷.
 
 | ID | 요구 | 상태 | 근거 / 대응 |
 |---|---|---|---|
-| R11 | 구글맵처럼, 줌에 따라 노출 자동 변화 | ◐ | LOD는 있으나 곡선이 나쁘다 → **R34** |
-| R12 | 세력별 영토 | ◐ | 칠해지긴 하나 세력이 뭉개진다 → **R32** |
+| R11 | 구글맵처럼, 줌에 따라 노출 자동 변화 | ● | R34(III)로 닫힘. rank 5단 |
+| R12 | 세력별 영토 | ● | R32(III)로 닫힘. 폴리티 실명·존속연도·팔레트 밖 색 |
 | R13 | 지방 ≠ 통치권, 레이어 분리 | ◐ | `territory`/`admin_regions` 분리는 ●. admin_regions가 **4건뿐** |
 | R14 | 등고선·고저차·강·수심 | ● | DEM hillshade · 수심 7단 · 강 등급별 |
 | R15 | 주요 지형지물 표시 토글 | ● | Pleiades 3,552 + NE 봉우리 132 |
 | R16 | 레이어 추가·제거 가능한 구조 | ● | manifest 카탈로그 |
 | R17 | 드래그 타임라인 | ● | 시대 띠 + 틱 + 재생 |
 | R18 | 고대명 → 현대명 | ● | `name_ancient` 209/220 · `name_modern` 220 |
-| R19 | 스킨 전환 | ◐ | 5종. **위성뷰 ○** |
+| R19 | 스킨 전환 | ● | 6종. 위성은 R52(III)에서 2026-09-17 닫힘 |
 | R20 | 다른 도메인 재사용 | ● | `?ds=chuhan-206` |
 | R21 | **군단 이동 = 지도 위 말 옮기는 연출** | ◐ | `token3d`가 자동으로만 움직인다 → **R37** |
 | R22 | **도로망(로마 가도)** | ○ | → F20e. Itiner-e CC BY 4.0 |
@@ -92,9 +92,9 @@ R39 목각은 볼트 3.7 조율, R41은 릴 스크린샷.
 | ID | 요구 | 상태 | 라운드 |
 |---|---|---|---|
 | R31 | **지도 범위를 더 넓게** | ● | A. **2026-09-17 닫힘.** `BBOX=[-25,12,75,62]`, relief 6000×3000, 영토 버킷 23개 7,592 피처, vitest 218 통과. 캡처 `docs/verify/overhaul/extent-wide-z3.4.png`(브리타니아~파르티아·아라비아 한 화면, 여백 0). 도시 라벨 넷이 z3.4에 안 뜨는 것은 LOD(R34) 몫 |
-| R32 | **세력이 실제 국가·부족 이름으로, 존속연도와 함께** (첨부: `Gaul / 250 BC – 50 BC`. 레퍼런스 oldmapsonline·geacron) | ○ | B |
+| R32 | **세력이 실제 국가·부족 이름으로, 존속연도와 함께** (첨부: `Gaul / 250 BC – 50 BC`. 레퍼런스 oldmapsonline·geacron) | ● | B → III. **2026-09-17 닫힘.** 이름은 이미 폴리티 단위였다(TERRITORY_KO·pack-polity-colors). 더한 것: `fetch-external.ts`가 Cliopatria 전 구간에서 `span_from`·`span_to`를 굽고(스냅샷 구간과 다르다) 이름표가 z5 타일부터 아랫줄에 `BC 331~BC 28`(작대기 대신 물결) · 기타중립 폴리티는 이름 해시 `color`(채도 30, `engine.ts polityColor` 마지막 순위) · 범례 면적 순 12 + 「그 외 n개」. 캡처 `docs/verify/overhaul/territory-bc100-names.png`(프톨레마이오스 왕국·셀레우코스·폰토스·카파도키아가 각자 색). 재베이크는 `npm run fetch-external` → `npm run finish`(재생성이 LICENSES.md 손글 줄을 지워 템플릿에 넣었다) |
 | R33 | **영역 경계를 칼같이 말고 넉넉·부드럽게** (곶이 안 칠해진다) | ● | C → **R57에 흡수, 2026-09-17 닫힘**(2 km 버퍼 + 바다 마스크로 곶이 채워진다) |
-| R34 | **도시·산·강·바다가 확대별로 UX에 맞게** (카르타고가 안 보인다) | ○ | D |
+| R34 | **도시·산·강·바다가 확대별로 UX에 맞게** (카르타고가 안 보인다) | ● | D → III. **2026-09-17 닫힘.** `adapt.ts` rank 5단(등장 포인트 수 · 그래프 차수 · 종류. 지어낸 인구 없음): 도시 1급 여섯(로마·콘스탄티노플·카르타고·밀라노·알렉산드리아·안티오키아) · 바다는 `label-sea`(자간 0.25, 흐린 글자) · 강·산·섬·호수에는 금색 점을 안 찍는다(`dotKind`) · 작은 점은 z6·z8 단계로. 층 minzoom 3 · 4.5 · 6 · 7.5 · 9. 계측 `scripts/lod-count.py`(줌별 표는 OVERHAUL-III 진행 기록). 콘스탄티노폴리스는 정본에 「콘스탄티노플」로 있었다(rank 1) |
 | R35 | **북마크·프로젝트** — 사건·도시·연도·확대·스킨을 저장해 바로 그때로 | ● | E 닫힘(2026-09-11) |
 | R36 | **타임라인에 그 해의 메인 인물·국가·사건** | ● | F 닫힘(2026-09-11). 규칙 정본 `src/year.ts`. **30포인트 기준은 재 보고 버렸다** — 포인트 연도 범위가 넓어 BC 49에 콘스탄티누스가 올라온다. 엣지 활성 기준으로 갔다 |
 | R37 | **보드게임형 인물·군대 놓기** | ● | 스키마·칸나이·자석 ●. **2D 렌더 ● 2026-09-12** (아래 §G). 페이즈 보간 없음 |
@@ -126,8 +126,8 @@ R39 목각은 볼트 3.7 조율, R41은 릴 스크린샷.
 | R49 | 대표님 녹취(PACK-CAESAR §14)에서 아직 없던 장면 둘: 「왜 제국인가: 평야」 · 「카르하이 BC 53」 | ● | I. **2026-09-17 닫힘.** `plains-empire`(로마의 확장 맨 앞, 곡창 7·척박 3 면이 z4.6에 뜬다. 평야 오버레이 유효기간을 전 기간으로 넓혀야 했다) · `carrhae-53`(선례, 카르라이 점 + 크라수스 말 「7군단 · 4만~5만」, 파르티아 보라). 캡처 `scene-plains-empire.png`·`scene-carrhae-53.png` |
 | R50 | 620px 이하 읽기 모드(하단 시트 하나, 핀은 번호만). 즉석 북마크는 R44 | ● | I. **2026-09-17 닫힘.** `MobileSheet.tsx`(설명·콜아웃·객체·재생 탭) + `useNarrow`. `scripts/look-mobile.py` 여섯 장면(발표 1·세부 3·전투 1·말판 1) 겹침 0·44px 미만 0·핀=목록. 캡처 `mobile-*.png`. 시트를 펼치면 장면 알약을 숨긴다 |
 | R51 | 시각 문법(대륙 축척): `campaign` 스킨 v2(국경 점선 사슬·연도 리본·세리프 자간 라벨·채색 음영) · 장군 배너 카드 · 장기말 프로시저럴 v2 · 군단 무리. 미시 축척 몫은 R54로 갔다 | ● | II. **2026-09-17 밤 닫힘.** 스펙 `OVERHAUL-II.md`(River 승인: Cinzel 두 줄 · 작은 말 무리+명패 · 카드는 선택에만 · 채도 유지). 작전 스킨 두 겹 국경(`territory-casing`)·연도 리본(CSS)·Cinzel 두 줄 이름표(`build-glyphs.mjs` 136 kB) · 장기말 v2(깃발+문장 8종 `build-emblems.py`, 로마 숫자 명패, 4열 무리 z6+) · 배너 카드(`BannerCard.tsx`, 인스펙터가 오른쪽에 있으면 왼쪽으로). 캡처 `skin-v2-intro-med.png`·`token-v2-gaul-z7.png`·`banner-card-greece.png`. 초기 JS 396.7, token3d +1.3 kB. 채색 음영은 R56이 먼저 닫았다 |
-| R52 | 수심 색(`color-relief`, 깊을수록 짙게) · 위성 스킨(PD 래스터) | ○ | III |
-| R53 | 장면 의미체계(장면 ↔ 사건·시대 링크 층) · 프로젝트별 북마크 내보내기 | ○ | IV |
+| R52 | 수심 색(`color-relief`, 깊을수록 짙게) · 위성 스킨(PD 래스터) | ● | III. **2026-09-17 닫힘.** 수심은 `color-relief`를 쓰지 않는다(DEM이 바다를 0으로 눌려 구워졌고 살리면 4배, R48). 이미 있던 NE 수심 벡터 7단이 스킨마다 「깊을수록 짙게」다(R14). 위성 스킨 `satellite`: NASA Blue Marble 2004-07 topo+bathy(PD) → `scripts/bake-satellite.py` → `rasters/satellite.jpg` 6000×3000 2.1 MB + 바다 마스크 `satellite-sea.png` 3000×1500 1.8 MB(색 한 장 대신 같은 이미지의 바다, 육지 투명). `style.ts isImagery`로 land·relief·bathy·빙하·고도색을 빼고, 연도에 반투명 먹색 판. 캡처 `docs/verify/overhaul/skin-satellite-intro.png` |
+| R53 | 장면 의미체계(장면 ↔ 사건·시대 링크 층) · 프로젝트별 북마크 내보내기 | ● | IV. **2026-09-17 닫힘.** 스펙 `OVERHAUL-IV.md`. `Scene.events`(정본 event id, 13장면, `test/scenes.test.ts`가 정본 존재·구간을 막는다) · 설명창 시대+사건 칩 · 인스펙터 「장면 N」 절(사건·주인공 인물 → 장면) · 알레시아 말판 `event` · 북마크 묶음 입력 + 「이 묶음 내보내기」 · 자료실 객체 화면 「지도에서 보기」 역링크(자료실 레포 `0501d99`) |
 | R55 | **모델링 시각화** `docs/MODELS.md`: AI와 사람이 같이 보는 Mermaid 도식 7, 데이터 모델은 zod에서 생성, 모델 바꾸는 커밋마다 갱신 (9차 후속 2 Z) | ○ | I |
 | R56 | **확대하면 빈 화면**: 대륙 DEM z8 + 모든 스킨 음영·고도색, 인셋에 토지피복(ESA WorldCover)·하천·호수, `data/insets.json` 한 줄로 인셋 추가. 온라인 지형은 River 결정 (A) | ● | I. **2026-09-17 닫힘.** ① 대륙 z8 DEM(R48) + 모든 스킨에 `color-relief` 고도색 0.15(`style.ts ELEV_RAMP`) + hillshade, 캡처 `dem-italy-z9.png`. ② 인셋 토지피복(`bake-landcover.py`, WorldCover 2021 CC BY 4.0, 여덟 곳 z8~12) + Copernicus 음영, 하천·호수는 NE 10m 벡터가 그대로 그린다(HydroRIVERS·HydroLAKES는 라이선스·크기로 보류). ③ `data/insets.json` 한 줄(카르하이) → `bake-dem.py inset carrhae`·`bake-landcover.py carrhae`·엔진 `syncInset` 코드 수정 0, 캡처 `inset-carrhae-z10.png`. 완료 조건 계측 `scripts/blank-ratio.py`: 로마·알레시아·루비콘 z11 **맨땅(스킨 land 색 그대로) 0.0~0.1%**(편평 픽셀은 36~61%인데 평야가 실제로 편평해서 판정에 안 쓴다). 온라인 지형 토글은 River 결정 대기 |
 | R57 | **영역 마감**: 부드럽게 → 넉넉하게 → 섬 귀속(가장 가까운 폴리티 40 km) → 겹침 정리 파이프라인 + **바다 마스크**·안쪽 후광·해안선 잉크 렌더. R33(라운드 C)을 흡수 (B) | ● | I. **2026-09-17 닫힘.** `npm run finish`(scripts/finish-territory.py) 23버킷: 정점 2.1배, 예각 비율 0.009→0.004, 섬 귀속 8,474행(`docs/verify/overhaul/islands.csv`), 총 13→30 MB. 해안 자르기는 데이터가 아니라 `layers/ocean.geojson` 마스크. 캡처 `territory-aegean-z6.png`(키클라데스·크레타·키프로스 칠해짐) · `territory-bc49.png` · `territory-bc27.png`. River 판정: 섬 귀속 표와 후광 세기 |

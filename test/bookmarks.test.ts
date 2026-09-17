@@ -30,6 +30,14 @@ describe('즉석 북마크 (R44)', () => {
     expect(c.importJson(a.exportJson())).toEqual({ added: 1, dropped: 0 });
     expect(c.list()).toEqual(a.list());
   });
+  it('묶음(프로젝트)을 지키고 묶음 단위로 내보낸다 (R53)', () => {
+    const b = createBookmarks('rome', fakeStorage());
+    b.save({ id: 'p1', title: '1팀 장면', year: -52, group: '1팀 · 갈리아' }); b.save({ id: 'p2', title: '내 것', year: -44 }); b.save({ id: 'p3', title: '공백 묶음', year: -44, group: '   ' });
+    expect(b.list().map(x => x.group)).toEqual(['1팀 · 갈리아', BOOKMARK_GROUP, BOOKMARK_GROUP]);
+    expect(b.groups()).toEqual(['1팀 · 갈리아', BOOKMARK_GROUP]);
+    expect(JSON.parse(b.exportJson('1팀 · 갈리아')).items.map((x: { id: string }) => x.id)).toEqual(['p1']);
+    expect(JSON.parse(b.exportJson()).items).toHaveLength(3);
+  });
   it('storage 가 없으면 available=false 이고 저장은 조용히 실패한다', () => {
     const b = createBookmarks('rome', undefined as unknown as Storage);
     expect(b.available).toBe(false); expect(b.save({ id: 'x', title: 'x', year: 0 })).toEqual([]);

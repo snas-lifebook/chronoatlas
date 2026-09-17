@@ -20,11 +20,12 @@
 | ne_10m_geography_regions_elevation_points.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/landmarks.geojson 고도점 132곳(이름난 봉우리 + 실측 고도, src=ne). Pleiades와 같은 레이어라 재배포된다 |
 | pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 32종, bbox) |
 | cliopatria.geojson.zip | Cliopatria — Seshat Global History Databank (정치체 폴리곤 3400BCE–2024CE) | CC BY 4.0 — 크레딧 "Cliopatria (Seshat)" 필수 | → layers/territory/<100년>.geojson (bbox·면적 3만km² 이상·팔레트 세력 매핑) |
-| terrarium 타일(선택, TERRAIN=1) | AWS Terrain Tiles — Mapzen/Tilezen (SRTM·GMTED2010·ETOPO1 등) | 출처별 상이(PD·CC BY·ODbL) — 크레딧 표기 | → public/datasets/rome/terrain/ (기하 3D). 커밋 전 라이선스 확인 |
 | KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
-
-생성: scripts/fetch-external.ts · 2026-09-17
 | ETOPO_2022_v1_15s_*_surface.tif (data/external/dem/etopo) | NOAA NCEI ETOPO 2022 15초 표면 고도 | 자유 이용(공공), 인용 DOI 10.25921/fd45-gt74 | → public/datasets/rome/terrain/ z0~8 terrarium (bake-dem.py) |
 | Copernicus_DSM_COG_10_*_DEM.tif (data/external/dem/copernicus) | Copernicus DEM GLO-30 | 출처 표기 조건(CREDITS.md 문구) | → terrain-<id>/ z8~12 (bake-dem.py inset) |
 | ESA_WorldCover_10m_2021_v200_*_Map.tif (data/external/landcover) | ESA WorldCover 10 m 2021 | CC BY 4.0 | → landcover-<id>/ z8~12 (bake-landcover.py) |
 | Cinzel.ttf (data/external/fonts) | google/fonts ofl/cinzel (가변 폰트) | SIL OFL 1.1 | → public/glyphs/Cinzel Regular/ (build-glyphs.mjs) · public/fonts/Cinzel.ttf |
+| world.topo.bathy.200407.3x21600x10800.png (data/external/satellite) | NASA Blue Marble Next Generation 2004-07 topo+bathy (NASA Earth Observatory) | Public Domain(NASA), 표기 "NASA Earth Observatory" | → rasters/satellite.jpg 6000×3000 · satellite-sea.png 3000×1500 (bake-satellite.py, 위성 스킨) |
+
+생성: scripts/fetch-external.ts · 2026-09-17. 아래 다섯 줄(DEM·토지피복·글꼴·위성)은 이 스크립트가 받지 않는 원본이지만 대장이 한 곳이어야 해서 같이 쓴다(2026-09-17: 재생성이 손으로 붙인 줄을 지웠다).
+AWS Terrain Tiles(terrarium, 라이선스 혼합)는 2026-09-17에 걷어냈다.

@@ -67,6 +67,7 @@ def main() -> int:
     ap.add_argument("--zoom", type=float)
     ap.add_argument("--center")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--skin", default="campaign")
     a = ap.parse_args()
 
     from playwright.sync_api import sync_playwright
@@ -77,7 +78,7 @@ def main() -> int:
         cdp = ctx.new_cdp_session(page)
         cdp.send("Emulation.setDeviceMetricsOverride",
                  {"width": VIEW_W, "height": VIEW_H, "deviceScaleFactor": 2, "mobile": False})
-        url = f"{BASE}?present=1&scene={a.scene}&skin=campaign"
+        url = f"{BASE}?present=1&scene={a.scene}&skin={a.skin}"
         if a.zoom:
             url += f"&z={a.zoom}"
         if a.center:

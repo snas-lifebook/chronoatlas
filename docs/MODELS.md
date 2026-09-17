@@ -18,14 +18,19 @@ flowchart LR
     micro["micro.ts (신설)"]
     micromaps["micromaps.ts (신설)<br/>색인만, 수백 바이트"]
     bookmarks["bookmarks.ts (신설)"]
-    BattleBar["BattleBar.tsx (신설)"]
-    MobileSheet["MobileSheet.tsx (신설, ≤620px)"]
+    token3d["token3d.ts (II: 깃발·문장·명패·군단 무리)"]
   end
   subgraph lazy["지연 청크"]
     battle["battle.ts (신설)"]
     Callouts["Callouts.tsx"]
+    BattleBar["BattleBar.tsx"]
+    MobileSheet["MobileSheet.tsx (≤620px)"]
+    BannerCard["BannerCard.tsx (II: 선택한 장군만)"]
+    Inspector["Inspector.tsx (IV: 객체 → 장면 칩)"]
     microJson["data/micromaps/id.json"]
   end
+  engine -->|"createToken · setLegions"| token3d
+  App -->|"React.lazy, sel이 person일 때"| BannerCard
 
   main -->|"만든다"| store
   main -->|"렌더한다"| App
@@ -399,7 +404,7 @@ flowchart TB
 | `relief` | relief·hillshade | 정본 파이프라인 래스터 / DEM(도식 5) | DEM이 있으면 hillshade가 relief.jpg를 대체 |
 | `bathy` | bathy | 정본 파이프라인 래스터(`fetch-external`) | |
 | `rivers` | rivers-major·minor | 정본 어댑터 산출물 | |
-| `labels` | label-settle-1~3·region-name | 정본 어댑터 산출물(settlements 재사용) | |
+| `labels` | label-settle-1~5·label-sea·region-name | 정본 어댑터 산출물(settlements 재사용) | III(R34): rank 5단 = 포인트 수·차수·종류. 바다는 자간 벌린 흐린 글자 |
 | `landmarks` | landmark-region_labels·pleiades 등 | 정본 어댑터 산출물(`layers/landmarks.geojson`, Pleiades) | |
 | `graph` | ego-edge | 정본 그래프 산출물(`graph.json`) | 노드·이름표는 다른 층이 그린다 |
 | `board` | board-unit·label (지금) | 말판(`data/boards/*.json`) | 계획: `battle.ts`의 `BATTLE_LAYERS` 7종으로 교체 |
@@ -407,6 +412,8 @@ flowchart TB
 | `alesia`/`roma`/`alexandria` | 각 지도 하드코딩 31개 층 | 교보재 하드코딩(`pack-alesia.json` 등) | 계획: 사라지고 `micro`(레지스트리, `data/micromaps/*.json`)로 대체 |
 
 계획이 끝나면 `alesia`·`roma`·`alexandria` 세 그룹은 없어지고 `micro`(범용 렌더러, `micro-basemap`~`micro-label`) 하나가 그 자리를 대신한다.
+
+**스킨(II·III).** `style.ts MAP` 여섯 벌(light·dark·oldmap·press·campaign·satellite). 스킨 조건은 전부 `engine.ts activeSkin` 한 곳에서 갈린다: `campaign`은 두 겹 국경(`territory-casing`)·연도 리본(CSS)·Cinzel 두 줄 이름표, `satellite`(`isImagery`)는 `imagery` 래스터가 land·relief·bathy·고도색을 대신하고 바다 마스크가 `fill`이 아니라 `satellite-sea.png` 래스터다(같은 id `ocean-mask`). 폴리티 색은 `pack-polity-colors` → 기타중립이면 `color`(이름 해시) → 세력색 순(`polityColor`).
 
 정본: [src/map/engine.ts](../src/map/engine.ts) `LAYER_GROUPS`(206행), [src/packData.ts](../src/packData.ts), [OVERHAUL.md §3.1](OVERHAUL.md) 「지금과 달라지는 것」.
 
@@ -421,11 +428,11 @@ flowchart LR
   III --> IV["IV. 플랫폼"]
 
   I -.모델.-> I1["MicroMapDef · MicroHome<br/>BoardData · Phase · Unit<br/>Arrow · Clash · Quote · Frame<br/>BookmarkStore · ContinentalMeta · TerrainInset"]
-  II -.모델.-> II1["Skin v2(모델 미정)<br/>장기말 프로시저럴 v2(모델 미정)"]
-  III -.모델.-> III1["territory(세력 실명·LOD)<br/>ContinentalMeta 재사용(수심 색)"]
-  IV -.모델.-> IV1["Scene(사건·시대 링크 확장)<br/>BookmarkStore(파일 내보내기 확장)"]
+  II -.모델.-> II1["Skin campaign v2 · token3d(깃발·명패·무리) · BannerCard"]
+  III -.모델.-> III1["territory 속성 span_from·span_to·color<br/>settlements rank 1~5 · Skin satellite(imagery)"]
+  IV -.모델.-> IV1["Scene.events(사건 링크) · Board.event<br/>BookmarkStore group(묶음 내보내기)"]
 ```
 
-II·III·IV는 각자 스펙을 따로 쓴다(OVERHAUL §4). II의 스킨·장기말 모델은 아직 이 문서에 없다 — 그 스펙이 나오면 도식 2에 클래스를 더한다.
+네 슬라이스 전부 2026-09-17에 닫혔다(II: `OVERHAUL-II.md`, III: `OVERHAUL-III.md`, IV: `OVERHAUL-IV.md`). 스킨·장기말은 코드 모델(도식 6 「스킨」 절)이고 zod 스키마가 아니라 도식 2에 들어가지 않는다.
 
 정본: [OVERHAUL.md §2](OVERHAUL.md) 분해 표, [OVERHAUL.md §4](OVERHAUL.md) 슬라이스 II~IV 범위.

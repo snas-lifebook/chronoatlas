@@ -1,5 +1,5 @@
 // 앱 셸 (DESIGN v3 §2, TASKS 1.8): 풀블리드 지도 위에 떠 있는 astryx 카드 5 + 타임라인 띠 + 각주 줄. 상태는 store 하나.
-import { useEffect, useRef, useSyncExternalStore, useState, useMemo, lazy, Suspense } from 'react';
+import { useEffect, useRef, useSyncExternalStore, useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
@@ -54,7 +54,9 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const [marks, setMarks] = useState<Scene[]>(() => bm.list());
   const allScenes = useMemo(() => [...scenes, ...marks], [scenes, marks]);
   const allRef = useRef(allScenes); allRef.current = allScenes;   // 키 핸들러는 한 번만 붙는다. 최신 목록은 ref로
-  const [newTitle, setNewTitle] = useState(''); const [importNote, setImportNote] = useState('');
+  const [newTitle, setNewTitle] = useState(''); const [newGroup, setNewGroup] = useState(''); const [importNote, setImportNote] = useState('');
+  // 장면 의미체계(R53, OVERHAUL-IV): 객체 → 그 객체를 다루는 장면. 사건은 scene.events, 인물·장소는 scene.sel(장면의 주인공)로 잇는다.
+  const scenesOf = useCallback((id: string) => allRef.current.filter(sc => sc.sel === id || sc.events?.includes(id)), []);
   // 좁은 화면 읽기 모드(R50): 시트 하나가 설명·콜아웃·객체·재생을 맡는다
   const narrow = useNarrow();
   const [microCallouts, setMicroCallouts] = useState<ResolvedCallout[]>([]);
@@ -242,14 +244,19 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       } catch { /* 스타일 전환 중이면 조용히 */ }
       const live = d.territory.features.filter(f => (f.properties.valid_from ?? -1e6) <= s.year && s.year < (f.properties.valid_to ?? 1e6)
         && (drawn.size === 0 || drawn.has(String((f.properties as { name?: string }).name ?? ''))));
+      // 면적 순(버킷이 그 순서다) 12개까지, 나머지는 「그 외 n개」(OVERHAUL-III III-2, R32). 알렉산드리아 화면 실측 19줄이 범례를 먹었다.
+      // 팔레트 밖 색은 fetch-external이 구운 `color`(이름 해시)와 같은 값 — 지도와 범례가 다른 색이면 범례가 거짓말이다.
       const byName = new Map<string, string>();
       for (const f of live) {
-        const n = String((f.properties as { name?: string }).name ?? '');
+        const p = f.properties as { name?: string; actor?: string; color?: string };
+        const n = String(p.name ?? '');
         if (!n || byName.has(n)) continue;
-        const actor = d.actors.find(a => a.id === f.properties.actor);
-        byName.set(n, PACK_POLITY_COLORS[n] ?? actor?.color ?? '#8A8F98');
+        const actor = d.actors.find(a => a.id === p.actor);
+        byName.set(n, PACK_POLITY_COLORS[n] ?? (p.actor === '기타중립' ? p.color : undefined) ?? actor?.color ?? '#8A8F98');
       }
-      for (const [n, c] of byName) items.push({ swatch: { background: c, opacity: 0.7 }, label: n });
+      const LEGEND_MAX = 12; let i = 0;
+      for (const [n, c] of byName) { if (i++ < LEGEND_MAX) items.push({ swatch: { background: c, opacity: 0.7 }, label: n }); }
+      if (byName.size > LEGEND_MAX) items.push({ swatch: { background: 'transparent', border: '1px dashed var(--color-border)' }, label: `그 외 ${byName.size - LEGEND_MAX}개` });
     }
     // 속국·동맹 사선. 지금 해에 실제로 칠해진 것이 있을 때만 — 없는 범례는 안 띄운다.
     if (on.has('territory')) {
@@ -314,7 +321,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       })()}
       {narrow && <Suspense fallback={null}><MobileSheet scene={curScene} brief={sceneBrief(s.scene)} callouts={microCallouts} board={liveBoard?.board ?? null} engine={engRef.current} focus={focusCallout}
         onPick={id => { const c = microCallouts.find(x => x.id === id); if (c) engRef.current?.map.easeTo({ center: c.at, duration: 400 }); }}
-        selNode={s.sel ? <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} onHoverNeighbor={() => {}} onLocate={locate} /></Suspense> : null} /></Suspense>}
+        selNode={s.sel ? <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} scenesOf={scenesOf} onScene={goScene} onHoverNeighbor={() => {}} onLocate={locate} /></Suspense> : null} /></Suspense>}
 
       {searching && <Suspense fallback={null}><Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} /></Suspense>}
 
@@ -367,6 +374,15 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           </div>
           <div className="ph-t">{cur?.title ?? ''}</div>
           <div className="ph-y">{fmt(s.year)}</div>
+          {/* 장면 의미체계(R53): 시대 + 이 장면이 다루는 정본 사건. 사건을 누르면 인스펙터가 열린다(거기서 다른 장면으로 건너간다) */}
+          {hud === 'full' && (() => {
+            const era = (d.manifest.eras ?? []).find(e => !e.sub && e.from <= s.year && s.year < e.to)?.label;
+            const evs = (cur?.events ?? []).map(id => ({ id, name: graph?.nodes.get(id)?.name ?? id.slice(id.indexOf(':') + 1) }));
+            return (era || evs.length) ? <div className="chip-row ph-chips">
+              {era && <span className="chip is-era">{era}</span>}
+              {evs.map(e => <button key={e.id} type="button" className="chip" onClick={() => store.set({ sel: e.id })}>{e.name}</button>)}
+            </div> : null;
+          })()}
           {hud === 'full' && cur?.note && <div className="ph-n">{cur.note}</div>}
           {hud === 'full' && brief_ && <>
             {brief_.stat && <div className="ph-stat"><b>{brief_.stat.value}</b><span>{brief_.stat.label}</span></div>}
@@ -483,13 +499,16 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           <div className="shell-scenes">
             {sceneGroups.map(([group, list]) => (
               <div key={group} className="scene-group">
-                <Text size="sm" color="secondary">{group}</Text>
+                <div className="bm-row"><Text size="sm" color="secondary">{group}</Text>
+                  {/* 프로젝트(발표자)별 내보내기(R53): 이 묶음에 내 북마크가 있으면 그것만 파일로 */}
+                  {marks.some(m => (m.group ?? BOOKMARK_GROUP) === group) && <button className="bm-del" onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bm.exportJson(group)], { type: 'application/json' })); a.download = `chronoatlas-${ds}-${group.replace(/[\\/:*?"<>|\s]+/g, '_')}.json`; a.click(); URL.revokeObjectURL(a.href); }}>이 묶음 내보내기</button>}
+                </div>
                 <ol className="shell-list">
                   {list.map((sc, i) => (
                     <li key={sc.id} className={sc.id === s.scene ? 'is-sel' : ''} onClick={() => goScene(sc)}>
                       <span className="num">{String(i + 1).padStart(2, '0')}</span>
                       <span className="name">{sc.title}<small>{fmtKo(sc.year)}</small></span>
-                      {sc.group === BOOKMARK_GROUP && <button className="bm-del" aria-label="삭제" onClick={e => { e.stopPropagation(); setMarks(bm.remove(sc.id)); }}>지우기</button>}
+                      {marks.some(m => m.id === sc.id) && <button className="bm-del" aria-label="삭제" onClick={e => { e.stopPropagation(); setMarks(bm.remove(sc.id)); }}>지우기</button>}
                       <span className="arrow">↗</span>
                     </li>
                   ))}
@@ -500,8 +519,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
             <div className="scene-new">
               <div className="bm-row">
                 <input className="bm-title" value={newTitle} onChange={e => setNewTitle(e.currentTarget.value)} placeholder={bookmarkTitle()} aria-label="북마크 제목" />
+                <input className="bm-title bm-group" value={newGroup} onChange={e => setNewGroup(e.currentTarget.value)} placeholder={BOOKMARK_GROUP} aria-label="묶음(발표자·프로젝트)" list="bm-groups" />
+                <datalist id="bm-groups">{bm.groups().map(g => <option key={g} value={g} />)}</datalist>
                 <Button label="지금 화면 저장" size="sm" variant="secondary" isDisabled={!bm.available}
-                  onClick={() => { setMarks(bm.save(bookmarkOf(store.get(), { id: bookmarkId(), title: newTitle.trim() || bookmarkTitle(), group: BOOKMARK_GROUP, layers: [...on] }))); setNewTitle(''); }} />
+                  onClick={() => { setMarks(bm.save(bookmarkOf(store.get(), { id: bookmarkId(), title: newTitle.trim() || bookmarkTitle(), group: newGroup.trim() || BOOKMARK_GROUP, layers: [...on] }))); setNewTitle(''); }} />
               </div>
               {!bm.available && <Text size="sm" color="secondary">이 브라우저는 저장 공간을 막아 두었다. 링크 복사만 된다.</Text>}
               <div className="bm-row">
@@ -517,7 +538,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       </Card>}
 
       {s.sel && !narrow && <div className="shell-right">
-        <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
+        <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} scenesOf={scenesOf} onScene={goScene} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
           onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} /></Suspense>
         {graph?.nodes.has(s.sel) && on.has('graph') && <Suspense fallback={null}><GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} /></Suspense>}
       </div>}
@@ -544,7 +565,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           const eng = engRef.current; if (!eng) return;
           const { renderPng, download } = await import('../export/png');
           const blob = await withSkin(() => renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: skin === 'dark',
-            legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY) · 정본 온톨로지' }));
+            legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: `크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY)${skin === 'satellite' ? ' · NASA Blue Marble(PD)' : ''} · 정본 온톨로지` }));
           download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
         }}>⤓</Tool>
         <Tool label="데이터" sub="geojson·csv" onClick={async () => {
@@ -561,7 +582,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           try {
             const [{ renderMp4 }, { download }] = await Promise.all([import('../export/mp4'), import('../export/png')]);
             const blob = await withSkin(() => renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
-              overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: skin === 'dark', legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY) · 정본 온톨로지' }) }));
+              overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: skin === 'dark', legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: `크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY)${skin === 'satellite' ? ' · NASA Blue Marble(PD)' : ''} · 정본 온톨로지` }) }));
             download(blob, `chronoatlas_${fmt(from).replace(' ', '')}-${fmt(to).replace(' ', '')}.mp4`);
           } catch (e: any) { console.error(e); } finally { store.set({ year: y0 }); setExporting(null); }
         }}>▣</Tool>

@@ -416,6 +416,15 @@ html[data-micro] .shell-year-brief { display: none; }
 
 /* 즉석 북마크 (R44, 장면 탭) */
 .bm-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.bm-group { flex: 0 1 120px; }
+/* 장면 의미체계 칩(R53): 인스펙터 「장면」·발표 설명창 「시대·사건」. ca-chip과 같은 문법, 자리만 흐름 안 */
+.chip-row { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font: inherit; font-size: 12px; line-height: 1.2; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-primary); background: color-mix(in srgb, var(--color-background-surface) 85%, transparent); cursor: pointer; text-align: left; }
+.chip small { margin-left: 5px; color: var(--color-text-secondary); font-size: 11px; }
+.chip.is-era { cursor: default; color: var(--color-text-secondary); border-style: dashed; }
+button.chip:hover { border-color: var(--color-text-primary); }
+.shell-present-hud .ph-chips { margin: 2px 0 6px; pointer-events: auto; }
+.shell-present-hud .chip { color: var(--map-ink, inherit); background: color-mix(in srgb, var(--map-halo, #fff) 55%, transparent); border-color: color-mix(in srgb, var(--map-ink, #000) 35%, transparent); }
 .bm-title { flex: 1 1 140px; min-width: 0; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-element, 8px); background: var(--color-background-surface); color: var(--color-text-primary); font: 500 13px/1 var(--font-family-body); }
 .bm-import { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; } .bm-import input { display: none; }
 .bm-del { margin-left: auto; font-size: 11px; color: var(--color-text-secondary); background: none; border: 0; cursor: pointer; }
@@ -451,6 +460,12 @@ html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .s
 }
 html[data-skin="campaign"] .shell-year, html[data-skin="oldmap"] .shell-year { font-size: 30px; line-height: 1.1; }
 html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .shell-present-hud .ph-y { font-size: 18px; line-height: 1.1; }
+
+/* 위성 스킨(OVERHAUL-III III-1): 이미지 위 맨글씨는 명암비를 못 지킨다. 연도에 반투명 먹색 판 */
+html[data-skin="satellite"] .shell-year, html[data-skin="satellite"] .shell-present-hud .ph-y {
+  display: inline-block; align-self: start; padding: 3px 12px 2px; margin: 4px 0 2px -6px; border-radius: 6px;
+  color: #FFFFFF; background: rgb(11 22 32 / 0.66); text-shadow: none;
+}
 
 /* 장군 배너 카드 (OVERHAUL-II §3.4, BannerCard.tsx). --faction 은 세력색 */
 .banner-card { position: absolute; z-index: 5; display: grid; grid-template-columns: 64px 1fr 34px; gap: 10px; align-items: start; width: 300px; padding: 10px 12px 12px;

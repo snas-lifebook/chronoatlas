@@ -1,7 +1,7 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, MARCH_MAX_YEARS, OPEN_PAST, routeGeometry } from '../schema';
-import { buildStyle, DEPTHS, MAP, type Skin, ELEV_RAMP } from './style';
+import { buildStyle, DEPTHS, MAP, type Skin, ELEV_RAMP, isImagery } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, type BoardData } from '../board';
@@ -177,7 +177,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
   territory: ['territory-fill', 'territory-casing', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
   admin_regions: ['admin-line'],
-  settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'story-place', 'story-place-label'],
+  settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'label-settle-4', 'label-settle-5', 'label-sea', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
   // 다른 세기의 전투다. 그래서 팩 장면은 이걸 안 켜고 story_battles만 켠다.
   battles: ['battle'],
@@ -187,7 +187,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   relief: ['relief', 'elev-tint', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
-  labels: ['label-settle-1', 'label-settle-2', 'label-settle-3', 'region-name'],
+  labels: ['label-settle-1', 'label-settle-2', 'label-settle-3', 'label-settle-4', 'label-settle-5', 'label-sea', 'region-name'],
   // label-region이 여기 있는 이유: Natural Earth의 SAHARA·LIBYAN DESERT·ATLAS MOUNTAINS 같은
   // **라틴 대문자** 지명이다. 사양서가 「한글 이름표를 켠다. 라틴어 표기는 쓰지 않는다」로 못 박았고
   // 옅은 회색이라 읽히지도 않았다(River: "지리지역 텍스트 가독성이 안 좋다"). 지리 지명은 한글
@@ -235,7 +235,10 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
     // story-place-label이 이미 크게 쓰는 이름을 label-settle-*가 또 쓴다.
     // 그리고 전투점 교보재에 place:일레르다처럼 **정착지와 같은 id**가 있어서
     // story-place-label과 pack-battle-label이 같은 이름을 두 번 찍었다.
-    const battleIds = PACK_BATTLES.map(f => String((f as { properties: { id?: string } }).properties?.id ?? ''));
+    // **그 해에 실제로 떠 있는 전투 이름표만** 뺀다(OVERHAUL-III III-3). 늘 빼면 전투 창(valid_from~valid_to)이 지난 해에는
+    // 알렉산드리아가 어느 층에도 없어 어느 줌에서도 안 보였다(AD 400 실측).
+    const battleIds = PACK_BATTLES.filter(f => { const p = (f as { properties: { valid_from?: number; valid_to?: number } }).properties ?? {}; return (p.valid_from ?? -1e9) <= year && year < (p.valid_to ?? 1e9); })
+      .map(f => String((f as { properties: { id?: string } }).properties?.id ?? ''));
     const dup = id.startsWith('label-settle') ? [...PACK_PLACES]
       : id === 'story-place-label' ? battleIds : [];
     apply(id, [...hide, ...dup]);
@@ -306,19 +309,25 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   });
 
   const notRegion: any = ['!=', ['get', 'kind'], 'region'];
+  const dotKind: any = ['in', ['coalesce', ['get', 'kind'], 'city'], ['literal', ['city', 'battlefield', 'building']]];
   const fillColor: any = ['match', ['get', 'actor']]; for (const a of d.actors) fillColor.push(a.id, a.color); fillColor.push('#8A8F98');
   /** 폴리티 이름이 팔레트에 있으면 그 색, 없으면 세력색. 영토 채움·테·이름표가 같은 식을
    *  써야 「면 색과 글자 색이 다르다」가 안 생긴다. */
+  // 팔레트 밖(기타중립) 폴리티는 fetch-external이 이름 해시로 구운 `color`(채도 30)를 쓴다(OVERHAUL-III III-2, R32). 없으면 회색 그대로.
+  const neutralColor: any = ['case', ['==', ['get', 'actor'], '기타중립'], ['coalesce', ['get', 'color'], fillColor], fillColor];
   const polityColor: any = Object.keys(PACK_POLITY_COLORS).length
     ? (() => { const m: any = ['match', ['get', 'name']];
         for (const [n, c] of Object.entries(PACK_POLITY_COLORS)) m.push(n, c);
-        m.push(fillColor); return m; })()
-    : fillColor;
+        m.push(neutralColor); return m; })()
+    : neutralColor;
   const victorColor: any = ['match', ['get', 'victor']]; for (const a of d.actors) victorColor.push(a.id, a.color); victorColor.push('#333');
   const timed: [string, any[] | null][] = [['territory-fill', null], ['territory-casing', null], ['territory-outline', null], ['territory-label', ['all', ['==', ['geometry-type'], 'Point'], ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]]] as any], ['admin-line', null],
     // `kind: region`은 **region-name 층이 가져갔다.** 여기 남겨 두면 같은 점을 두 층이 찍고,
     // 허용 목록에서 버린 이름(소아시아·북아프리카·독일…)이 이쪽으로 새어 나온다 — 실측으로 그랬다.
-    ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion]], ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], notRegion]], ['battle', null], ['pack-battle', null],
+    // 점은 도시·전장·건물·종류 미상만(OVERHAUL-III III-3, R34). 바다·강·산·섬에 금색 점을 찍으면 도시로 읽힌다 — 이름만 쓴다.
+    // 작은 점은 줌을 따라 단계로 는다(rank 2 → z6부터 3 → z8부터 전부). 이름표 없는 점이 먼저 쏟아지지 않게.
+    ['settle-major', ['all', ['<=', ['get', 'rank'], 1], notRegion, dotKind]],
+    ['settle-minor', ['all', ['>=', ['get', 'rank'], 2], ['<=', ['get', 'rank'], ['step', ['zoom'], 2, 6, 3, 8, 5]], notRegion, dotKind]], ['battle', null], ['pack-battle', null],
     // **주변 민족 교보재도 해 필터를 받는다.** 안 받으면 `valid_from: -60`인 사르마티아·
     // 게르마니아가 **어느 해에나** 뜬다 — 기원전 270년 화면에 사르마티아가 뜨면 그 자리는
     // 정본이 스키타이로 칠한 땅이다. 발표 여덟 장은 전부 기원전 60~27년이라 드러나지
@@ -446,10 +455,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('zoom', syncTerrain);
   function hillshadeTo(src: string, before?: string) {
     // 고도색(color-relief)은 음영 밑. 모든 스킨에서 옅게(0.15) — 「확대하면 빈 화면」의 대륙 쪽 처방(OVERHAUL §3.6b ①)
+    // 위성 스킨은 이미지가 이미 색을 가지므로 고도색을 안 얹고, 음영도 옅게(0.3, 먹색 그림자)만 남긴다(OVERHAUL-III III-1).
     if (map.getLayer('elev-tint')) map.removeLayer('elev-tint');
-    map.addLayer({ id: 'elev-tint', type: 'color-relief', source: src, paint: { 'color-relief-color': ['interpolate', ['linear'], ['elevation'], ...ELEV_RAMP.flat()], 'color-relief-opacity': 0.15 } } as any, before);
+    if (!isImagery(activeSkin)) map.addLayer({ id: 'elev-tint', type: 'color-relief', source: src, paint: { 'color-relief-color': ['interpolate', ['linear'], ['elevation'], ...ELEV_RAMP.flat()], 'color-relief-opacity': 0.15 } } as any, before);
     if (map.getLayer('hillshade')) map.removeLayer('hillshade');
-    map.addLayer({ id: 'hillshade', type: 'hillshade', source: src, paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
+    map.addLayer({ id: 'hillshade', type: 'hillshade', source: src, paint: isImagery(activeSkin)
+      ? { 'hillshade-exaggeration': 0.3, 'hillshade-shadow-color': '#000000', 'hillshade-highlight-color': '#FFFFFF' }
+      : { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
   }
   /** 지형 소스를 바꾼다. 미시지도 진입은 인셋, 이탈은 대륙. 음영 층도 그 소스로 다시 얹는다. */
   function useTerrain(src: string, before?: string) {
@@ -706,14 +718,22 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 섬에 귀속된 영역색이 그 구멍으로 보인다. 94%라 바다 밑 음영이 살짝 비친다.
     {
       const sk = MAP[activeSkin];
-      if (!map.getSource('ocean')) map.addSource('ocean', { type: 'geojson', data: `${root}datasets/${ds}/layers/ocean.geojson` });
-      map.addLayer({ id: 'ocean-mask', type: 'fill', source: 'ocean', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94, 'fill-antialias': false } }, before);
+      // 위성 스킨(OVERHAUL-III III-1): 색 한 장으로 덮으면 위성 바다가 사라진다. 같은 이미지의 바다 부분(satellite-sea.png, 육지는 투명)을
+      // 같은 자리에 같은 id로 덮는다 — 영역색이 바다로 새는 것은 막고 수심 음영은 남는다. 수심 벡터·호수 덮개는 이미지가 대신한다.
+      if (isImagery(activeSkin) && d.manifest.bbox) {
+        const [w, s, e, n] = d.manifest.bbox;
+        if (!map.getSource('imagery-sea')) map.addSource('imagery-sea', { type: 'image', url: `${root}datasets/${ds}/rasters/satellite-sea.png`, coordinates: [[w, n], [e, n], [e, s], [w, s]] });
+        map.addLayer({ id: 'ocean-mask', type: 'raster', source: 'imagery-sea', paint: { 'raster-opacity': 0.94, 'raster-fade-duration': 0 } }, before);
+      } else {
+        if (!map.getSource('ocean')) map.addSource('ocean', { type: 'geojson', data: `${root}datasets/${ds}/layers/ocean.geojson` });
+        map.addLayer({ id: 'ocean-mask', type: 'fill', source: 'ocean', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94, 'fill-antialias': false } }, before);
+      }
       if (map.getSource('bathy')) {
         const ramp: any[] = ['step', ['get', 'depth'], sk.depth[0]];
         DEPTHS.slice(1).forEach((d, i) => ramp.push(d, sk.depth[i + 1]));
         map.addLayer({ id: 'bathy-over', type: 'fill', source: 'bathy', paint: { 'fill-color': ramp as any, 'fill-opacity': 0.9, 'fill-antialias': false } }, before);
       }
-      if (map.getSource('lakes')) map.addLayer({ id: 'lakes-over', type: 'fill', source: 'lakes', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94 } }, before);
+      if (map.getSource('lakes') && !isImagery(activeSkin)) map.addLayer({ id: 'lakes-over', type: 'fill', source: 'lakes', paint: { 'fill-color': sk.sea, 'fill-opacity': 0.94 } }, before);
       if (map.getSource('coast')) map.addLayer({ id: 'coast-ink', type: 'line', source: 'coast',
         paint: { 'line-color': sk.coast, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 0.7, 9, 1.5], 'line-opacity': 0.9 } }, before);
     }
@@ -729,14 +749,22 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 기타중립 문턱(900,000)은 **일부러 안 건드렸다** — 그쪽을 내리면 정본의 미번역 이름
     // 아홉(Caucasian Albania·Himyarite Kingdom·Kingdom of Osroene…)이 한글 판에 샌다.
     // 지금 추천으로는 영문 유입 0건이다.
+    // 존속연도 줄(OVERHAUL-III III-2, R32): z4.5부터 이름 아래 `BC 305~BC 30`(레퍼런스 `Gaul / 250 BC – 50 BC`의 한글 판, 작대기 대신 물결).
+    // span_from/span_to는 fetch-external이 Cliopatria 전 구간에서 굽는다. 아직 없는 피처(교보재)는 이름만.
+    const yr = (k: string): any => ['case', ['<', ['get', k], 0], ['concat', 'BC ', ['to-string', ['-', 0, ['get', k]]]], ['concat', 'AD ', ['to-string', ['get', k]]]];
+    const spanText: any = ['concat', yr('span_from'), '~', yr('span_to')];
+    const serif = activeSkin === 'campaign' || activeSkin === 'oldmap';
+    const cinzel = { 'text-font': ['literal', ['Cinzel Regular']], 'font-scale': 1.0 };
+    const twoLine: any[] = serif ? [['upcase', ['get', 'name_en']], cinzel, '\n', {}, ['get', 'name'], { 'text-font': ['literal', ['KlokanTech Noto Sans CJK Bold']], 'font-scale': 0.78 }] : [['get', 'name'], {}];
+    const oneLine: any[] = serif ? [['upcase', ['get', 'name']], cinzel] : [['get', 'name'], {}];
+    const withSpan = (parts: any[]): any => ['case', ['has', 'span_from'], ['format', ...parts, '\n', {}, spanText, { 'font-scale': 0.72 }], ['format', ...parts]];
+    const nameOnly = (parts: any[]): any => ['format', ...parts];
+    const field = (f: (parts: any[]) => any): any => serif ? ['case', ['all', ['has', 'name_en'], ['!=', ['get', 'name_en'], ['get', 'name']]], f(twoLine), f(oneLine)] : f(twoLine);
     map.addLayer({ id: 'territory-label', type: 'symbol', source: 'territory',
       // 세리프 자간 두 줄 이름표(OVERHAUL-II §3.3, River 승인 「Cinzel 라틴 대문자 + 한글 산세리프」): 작전·고지도 스킨에서만.
       // 윗줄 name_en 대문자 Cinzel(글리프는 scripts/build-glyphs.mjs가 레포에 굽는다), 아랫줄 한글. name_en이 name과 같으면(한글 이름 없음) 한 줄.
-      layout: { 'text-field': (activeSkin === 'campaign' || activeSkin === 'oldmap')
-          ? ['case', ['all', ['has', 'name_en'], ['!=', ['get', 'name_en'], ['get', 'name']]],
-              ['format', ['upcase', ['get', 'name_en']], { 'text-font': ['literal', ['Cinzel Regular']], 'font-scale': 1.0 }, '\n', {}, ['get', 'name'], { 'text-font': ['literal', ['KlokanTech Noto Sans CJK Bold']], 'font-scale': 0.78 }],
-              ['format', ['upcase', ['get', 'name']], { 'text-font': ['literal', ['Cinzel Regular']], 'font-scale': 1.0 }]]
-          : ['get', 'name'],
+      // 심볼 layout은 **타일 정수 줌**에서 평가된다. 4.5로 두면 z4.8에서도 이름만 나온다(실측). 5 = z5 타일부터.
+      layout: { 'text-field': ['step', ['zoom'], field(nameOnly), 5, field(withSpan)],
         'text-font': ['KlokanTech Noto Sans CJK Bold'], 'text-letter-spacing': (activeSkin === 'campaign' || activeSkin === 'oldmap') ? 0.12 : 0, 'text-max-width': 7, 'text-padding': 6, 'text-allow-overlap': false,
         // 고정 anchor면 자리가 막혔을 때 이름표가 그냥 사라진다. 갈라티아가 카파도키아 왕국과
         // 상자가 겹쳐 여덟 해 내내 그럴 위험이 있다(실측). 네 방향을 주면 옆으로 미끄러져 산다.
@@ -756,7 +784,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const circle = (id: string, minzoom: number, radius: number) =>
       map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': hov(radius, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
-    circle('settle-major', 3, 5); circle('settle-minor', 5, 3.5);
+    circle('settle-major', 3, 5); circle('settle-minor', 4.5, 3.5);   // rank 2 이름표가 z4.5부터라 점도 같이(R34)
     const storyFilter: any = ['in', ['get', 'id'], ['literal', [...PACK_PLACES]]];
     map.addLayer({ id: 'story-place', type: 'circle', source: 'settlements', minzoom: 3,
       filter: storyFilter,
@@ -794,7 +822,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-letter-spacing': 0.12, 'text-max-width': 7,
           'text-allow-overlap': false, 'text-optional': true,
           'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.5 } as any,
-        paint: { 'text-color': '#6B6353', 'text-halo-color': halo(), 'text-halo-width': 2, 'text-opacity': 0.92 } }, before);
+        // **도시 이름표 밑에 넣는다**(OVERHAUL-III III-3). 심볼 충돌은 위 층이 이긴다. 위에 두면 「아프리카」(카르타고와 같은 좌표)·
+        // 「시리아」가 카르타고·안티오키아 이름표를 지운다(AD 400 z4 실측). `text-optional`은 층 사이 우선권이 아니다.
+        paint: { 'text-color': '#6B6353', 'text-halo-color': halo(), 'text-halo-width': 2, 'text-opacity': 0.92 } }, map.getLayer('label-settle-1') ? 'label-settle-1' : before);
     }
     map.addSource('battles', { type: 'geojson', data: d.battles as any, promoteId: 'id' });
     map.addLayer({ id: 'battle', type: 'circle', source: 'battles', paint: { 'circle-radius': hov(7, 2) as any, 'circle-color': victorColor, 'circle-stroke-color': '#fff', 'circle-stroke-width': hov(2, 1) as any, 'circle-opacity': 1 } }, before);

@@ -61,6 +61,8 @@ german = unit(id='rom-cav-german', at=rep(camps[0]), actor='로마', arm='cavalr
 
 board = {
   'id': 'alesia-52', 'title': '알레시아 · 구원군의 사흘', 'year': -52, 'center': mm['view']['center'], 'zoom': mm['view']['zoom'], 'bearing': 0, 'teaching': True,
+  'event': 'event:알레시아포위전',   # 정본 사건과 잇는 끈(schema/board.ts event, R53). 파르살루스는 정본에 사건 노드가 없어 못 잇는다
+
   'source': '『갈리아 전기』 7.79~89를 통설대로 도식화. 유닛 위치는 미시지도 피처(진영 점 · 오피둠 · 구원군 진영 · 몽 레아 · 포위선 정점)에서 파생한 상대 배치이고 측량이 아니다(scripts/build-alesia-board.py). 병력은 카이사르 본인의 수치이고 구원군은 현대 추정 8만~10만으로 갈린다(docs/LEGIONS.md §3). 로마 진영별 병력은 사료에 없어 비웠다. 몽 레아 사면의 진영 D는 발굴에서 끝내 못 찾았다(docs/ALESIA.md). ' + STR['note'],
   'phases': [
     {'t': 0, 'title': '구원군 도착', 'caption': '구원군이 서쪽 평원 너머 언덕에 진을 친다. 안팎 두 겹 사이에 로마군이 갇힌 꼴이다', 'cite': '『갈리아 전기』 7.79',

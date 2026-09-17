@@ -47,7 +47,7 @@ describe('basemap style (TASKS 1.4)', () => {
   });
   it('베이스맵 파일이 없는 데이터셋(옛 초한지)도 스타일이 나온다', () => {
     const s2 = buildStyle({ basemap: [], relief: false } as any, '/', 'chuhan-206');
-    expect(s2.layers.map(l => l.id)).toEqual(['sea', 'label-settle-1', 'label-settle-2', 'label-settle-3']);
+    expect(s2.layers.map(l => l.id)).toEqual(['sea', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'label-settle-4', 'label-settle-5', 'label-sea']);
   });
 });
 

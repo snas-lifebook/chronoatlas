@@ -346,8 +346,22 @@ def actor(name):
     for rx, a in A:
         if re.search(rx, name): return a
     return '기타중립'
+# 존속연도(OVERHAUL-III III-2, R32): valid_from/valid_to는 Cliopatria **스냅샷 구간**이지 존속기간이 아니다(territory:Roman Empire:-25 는 -25~-19).
+# 같은 이름의 전 구간(범위·연도 필터 전)을 훑어 min FromYear / max ToYear(마지막 해, 포함)를 span_from / span_to로 굽는다. 이름표 아랫줄이 쓴다.
+# 팔레트 밖 색(같은 절): actor가 기타중립이면 이름 해시로 채도 30·명도 52의 안정적인 색을 준다(P2: 정치체는 데이터). 정본 팔레트 8색보다 늘 조용하다.
+import colorsys, hashlib
+feats = json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['features']
+span = {}
+for f in feats:
+    p = f['properties']
+    if p['Type'] != 'POLITY': continue
+    a, b = span.get(p['Name'], (10**9, -10**9)); span[p['Name']] = (min(a, p['FromYear']), max(b, p['ToYear']))
+def hue_color(name):
+    h = int(hashlib.md5(name.encode('utf8')).hexdigest()[:8], 16) % 360
+    r, g, b = colorsys.hls_to_rgb(h / 360, 0.52, 0.30)
+    return '#%02X%02X%02X' % (round(r * 255), round(g * 255), round(b * 255))
 keep = []
-for f in json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['features']:
+for f in feats:
     p = f['properties']
     if p['Type'] != 'POLITY' or p['Name'].startswith('(') or p['ToYear'] < ${TERRITORY_FROM} or p['FromYear'] > ${TERRITORY_TO} or p['Area'] < 30000: continue
     x0, y0, x1, y1 = bbox(f['geometry'])
@@ -357,6 +371,8 @@ for f in json.load(open(${JSON.stringify(join(CACHE, 'cliopatria.geojson'))}))['
     geom = {'type': f['geometry']['type'], 'coordinates': rnd(f['geometry']['coordinates'])}
     keep.append({'type': 'Feature', 'geometry': geom,
       'properties': {'id': f"territory:{p['Name']}:{p['FromYear']}", 'name': KO.get(p['Name'], p['Name']), 'name_en': p['Name'], 'actor': actor(p['Name']), 'valid_from': p['FromYear'], 'valid_to': p['ToYear'] + 1,
+                     'span_from': span[p['Name']][0], 'span_to': span[p['Name']][1],
+                     **({'color': hue_color(p['Name'])} if actor(p['Name']) == '기타중립' else {}),
                      'wikidata': p['Wikidata'], 'area': int(p['Area']), 'src': 'cliopatria', 'confidence': 'medium'}})
 # 라벨 앵커: MultiPolygon이면 부분마다 라벨이 붙는다 — 가장 큰 부분의 무게중심 Point 하나를 같은 파일에 넣고 심볼 레이어는 Point만 그린다.
 def ring_centroid(ring):
@@ -415,9 +431,14 @@ ${BATHY.map(([l, d]) => `| ne_10m_bathymetry_${l}_${d}.geojson | Natural Earth 1
 | ne_10m_geography_regions_elevation_points.geojson | Natural Earth 10m (nvkelso/natural-earth-vector) | Public Domain | → layers/landmarks.geojson 고도점 132곳(이름난 봉우리 + 실측 고도, src=ne). Pleiades와 같은 레이어라 재배포된다 |
 | pleiades/places.csv, places_place_types.csv | Pleiades GIS package (isawnyu/pleiades-datasets, Bagnall·Talbert 외) | CC BY 3.0 — 크레딧 "Pleiades" 필수 | → layers/landmarks.geojson (물리 유형 ${Object.keys(LANDMARK_TYPES).length}종, bbox) |
 | cliopatria.geojson.zip | Cliopatria — Seshat Global History Databank (정치체 폴리곤 3400BCE–2024CE) | CC BY 4.0 — 크레딧 "Cliopatria (Seshat)" 필수 | → layers/territory/<100년>.geojson (bbox·면적 3만km² 이상·팔레트 세력 매핑) |
-| terrarium 타일(선택, TERRAIN=1) | AWS Terrain Tiles — Mapzen/Tilezen (SRTM·GMTED2010·ETOPO1 등) | 출처별 상이(PD·CC BY·ODbL) — 크레딧 표기 | → public/datasets/rome/terrain/ (기하 3D). 커밋 전 라이선스 확인 |
 | KlokanTech Noto Sans CJK glyphs | klokantech/klokantech-gl-fonts | OFL | → public/glyphs/ (라벨 사용 범위만) |
+| ETOPO_2022_v1_15s_*_surface.tif (data/external/dem/etopo) | NOAA NCEI ETOPO 2022 15초 표면 고도 | 자유 이용(공공), 인용 DOI 10.25921/fd45-gt74 | → public/datasets/rome/terrain/ z0~8 terrarium (bake-dem.py) |
+| Copernicus_DSM_COG_10_*_DEM.tif (data/external/dem/copernicus) | Copernicus DEM GLO-30 | 출처 표기 조건(CREDITS.md 문구) | → terrain-<id>/ z8~12 (bake-dem.py inset) |
+| ESA_WorldCover_10m_2021_v200_*_Map.tif (data/external/landcover) | ESA WorldCover 10 m 2021 | CC BY 4.0 | → landcover-<id>/ z8~12 (bake-landcover.py) |
+| Cinzel.ttf (data/external/fonts) | google/fonts ofl/cinzel (가변 폰트) | SIL OFL 1.1 | → public/glyphs/Cinzel Regular/ (build-glyphs.mjs) · public/fonts/Cinzel.ttf |
+| world.topo.bathy.200407.3x21600x10800.png (data/external/satellite) | NASA Blue Marble Next Generation 2004-07 topo+bathy (NASA Earth Observatory) | Public Domain(NASA), 표기 "NASA Earth Observatory" | → rasters/satellite.jpg 6000×3000 · satellite-sea.png 3000×1500 (bake-satellite.py, 위성 스킨) |
 
-생성: scripts/fetch-external.ts · ${new Date().toISOString().slice(0, 10)}
+생성: scripts/fetch-external.ts · ${new Date().toISOString().slice(0, 10)}. 아래 다섯 줄(DEM·토지피복·글꼴·위성)은 이 스크립트가 받지 않는 원본이지만 대장이 한 곳이어야 해서 같이 쓴다(2026-09-17: 재생성이 손으로 붙인 줄을 지웠다).
+AWS Terrain Tiles(terrarium, 라이선스 혼합)는 2026-09-17에 걷어냈다.
 `);
 console.log('done');

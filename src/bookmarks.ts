@@ -11,7 +11,8 @@ function clean(x: unknown): Scene | null {
   if (typeof o.id !== 'string' || !o.id || typeof o.title !== 'string' || !o.title || !Number.isInteger(o.year)) return null;
   const out: Record<string, unknown> = {};
   for (const k of KEYS) if (o[k] !== undefined) out[k] = o[k];
-  out.group = BOOKMARK_GROUP;
+  // 프로젝트(발표자) 묶음(R53, OVERHAUL-IV): 저장할 때 적은 묶음 이름을 지킨다. 없으면 「내 북마크」. 내보내기는 묶음 단위로도 된다.
+  out.group = typeof o.group === 'string' && o.group.trim() ? o.group.trim() : BOOKMARK_GROUP;
   return out as unknown as Scene;
 }
 
@@ -32,7 +33,8 @@ export function createBookmarks(ds: string, storage: Storage | undefined = typeo
     list: read,
     save(s: Scene) { const c = clean(s); if (!c) return read(); return write([...read().filter(x => x.id !== c.id), c]); },
     remove(id: string) { return write(read().filter(x => x.id !== id)); },
-    exportJson() { return JSON.stringify({ v: 1, items: read() }, null, 2); },
+    groups() { return [...new Set(read().map(x => x.group ?? BOOKMARK_GROUP))]; },
+    exportJson(group?: string) { return JSON.stringify({ v: 1, items: read().filter(x => !group || (x.group ?? BOOKMARK_GROUP) === group) }, null, 2); },
     importJson(text: string) {
       let j: unknown; try { j = JSON.parse(text); } catch { return { added: 0, dropped: 0 }; }
       const items = (j as { items?: unknown[] } | null)?.items; if (!Array.isArray(items)) return { added: 0, dropped: 0 };
