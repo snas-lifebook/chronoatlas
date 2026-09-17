@@ -13,29 +13,7 @@ export const DETAIL_GROUP = '세부 지도';
  *  `pack-intro-med`와 같은 그림이라 뺐다 — 이제 첫 장이 그 역할을 겸한다. */
 export const GALLIA_SCENE = 'pack-intro-med';
 export const GALLIA_ROMAN_SCENE = 'pack-extent-51';
-export const ALESIA_SCENE = 'pack-alesia-52';
-
-/** 알레시아 세부는 **줌으로** 켠다 — 장면 수는 아홉으로 묶여 있고(River), 세부는
- *  「거기로 들어가면 보인다」가 맞는 동작이다. 지중해 축척(z4.2)에서 켜면 점 하나로 뭉친다.
- *  z11이면 포위선 두 겹이 화면을 채운다. 장면으로 직접 점프해도 그 장면이 z12.4라 켜진다. */
-export const ALESIA_MIN_ZOOM = 11;
-export function showAlesia(scene: string | null, zoom = 0): boolean {
-  return scene === ALESIA_SCENE || zoom >= ALESIA_MIN_ZOOM;
-}
-
-/** 로마 시내 미시 지도도 같은 규칙 — 「로마로 들어가면 보여지겠지」(River).
- *  포메리움·폼페이우스 회랑·일곱 언덕은 지중해 축척에서 점 하나다. */
-export const ROMA_MIN_ZOOM = 12;
-export function showRomaUrbs(zoom = 0): boolean {
-  return zoom >= ROMA_MIN_ZOOM;
-}
-
-/** 알렉산드리아 미시 지도도 같은 규칙 — 줌으로 켠다. 파로스·헵타스타디온·왕궁 구역은
- *  지중해 축척에서 점 하나다. 로마와 같은 문턱을 쓴다. */
-export const ALEXANDRIA_MIN_ZOOM = 12;
-export function showAlexandria(zoom = 0): boolean {
-  return zoom >= ALEXANDRIA_MIN_ZOOM;
-}
+// 미시지도 문턱·표시 함수(showAlesia 등)는 2026-09-17에 레지스트리(src/micromaps.ts microMapAt)로 옮겼다.
 
 /** 자유 갈리아 교보재를 켤 해.
  *

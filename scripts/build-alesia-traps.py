@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """알레시아 포위선의 해자·참호·세 겹 함정 띠를 **정본 포위선 정점에서 파생**시켜
-data/overlays/pack-alesia.json 에 덧붙인다.
+data/micromaps/alesia.json 에 덧붙인다(2026-09-17부터 레지스트리 파일).
 
 좌표를 손으로 찍지 않는다. 기존 inner_line·outer_line 폴리곤을 shapely로 오프셋해
 띠의 중심선 링(LineString)만 뽑고, 띠 폭은 속성(width_m)으로 넘긴다.
@@ -23,7 +23,7 @@ from pathlib import Path
 from shapely.geometry import Point, Polygon
 
 PES = 0.296  # 로마피트 → 미터
-PACK = Path(__file__).resolve().parent.parent / 'data' / 'overlays' / 'pack-alesia.json'
+PACK = Path(__file__).resolve().parent.parent / 'data' / 'micromaps' / 'alesia.json'   # 2026-09-17 레지스트리로 이동
 ANCHOR = (4.5006, 47.5392)  # 이 프로젝트 정본 앵커(몽 옥수아)
 
 # 카이사르가 준 치수(BG 7.72·7.73)를 정본 링(= 보루/벽 선)에서 적 쪽으로 재 배치한다.

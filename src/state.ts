@@ -29,6 +29,7 @@ export interface Scene {
   group?: string;                  // 프로젝트(발표자) 묶음. 장면 탭에서 머리글이 된다
   note?: string;
   board?: string; phase?: number;  // 말판 북마크 (R37)
+  micro?: string;                  // 미시지도 id. 있으면 줌 문턱과 무관하게 그 지도가 켜진다 (OVERHAUL §3.2, R47)
 }
 
 /** 장면이 평면을 시키면 눕히고, 각도가 있으면 세운다. view가 있으면 그게 이긴다. */

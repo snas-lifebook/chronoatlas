@@ -1,454 +1,457 @@
 [
-  {
-    "id": "caesar",
-    "title": "카이사르 — 갈리아에서 루비콘까지",
-    "year": -60,
-    "sel": "person:카이사르",
-    "center": [
-      12.5,
-      42.5
-    ],
-    "zoom": 4.6,
-    "pitch": 50,
-    "bearing": -12,
-    "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일",
-    "to": -44,
-    "group": "첫 장면 · 카이사르"
-  },
-  {
-    "id": "rubicon",
-    "title": "루비콘 도하",
-    "year": -49,
-    "sel": "person:카이사르",
-    "center": [
-      12.3,
-      44.1
-    ],
-    "zoom": 6,
-    "pitch": 55,
-    "bearing": -20,
-    "to": -45,
-    "group": "첫 장면 · 카이사르"
-  },
-  {
-    "id": "ides",
-    "title": "3월 15일",
-    "year": -44,
-    "sel": "person:카이사르",
-    "center": [
-      12.48,
-      41.89
-    ],
-    "zoom": 7,
-    "pitch": 55,
-    "bearing": 0,
-    "to": -42,
-    "group": "첫 장면 · 카이사르"
-  },
-  {
-    "id": "cannae-board",
-    "title": "칸나이 — 자루가 닫히는 세 장면",
-    "year": -216,
-    "sel": "event:칸나이전투",
-    "center": [
-      16.1325,
-      41.3064
-    ],
-    "zoom": 11,
-    "pitch": 0,
-    "bearing": 0,
-    "board": "cannae-216",
-    "phase": 0,
-    "group": "말판",
-    "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다."
-  },
-  {
-    "id": "pack-intro-med",
-    "title": "지중해 판도 · BC 60",
-    "year": -60,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "지중해를 두른 땅은 이미 로마. 초록으로 덮인 갈리아만 아직 로마 밖이다."
-  },
-  {
-    "id": "pack-gaul-52",
-    "title": "갈리아 원정 · BC 58–51",
-    "year": -52,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "movements",
-      "story_battles"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "여덟 해의 원정이 알레시아 한 성 앞에서 끝난다."
-  },
-  {
-    "id": "pack-alesia-52",
-    "title": "알레시아 포위전 · BC 52",
-    "year": -52,
-    "center": [
-      4.4958,
-      47.535
-    ],
-    "zoom": 12.4,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "alesia"
-    ],
-    "group": "세부 지도",
-    "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다."
-  },
-  {
-    "id": "pack-roma-urbs",
-    "title": "로마 시내 · BC 44",
-    "year": -44,
-    "center": [
-      12.4866,
-      41.8929
-    ],
-    "zoom": 13.6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "roma"
-    ],
-    "group": "세부 지도",
-    "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다."
-  },
-  {
-    "id": "pack-alexandria-47",
-    "title": "알렉산드리아 · BC 48–47",
-    "year": -47,
-    "center": [
-      29.898,
-      31.199
-    ],
-    "zoom": 13.6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "alexandria"
-    ],
-    "group": "세부 지도",
-    "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다."
-  },
-  {
-    "id": "pack-extent-51",
-    "title": "갈리아, 로마 안으로 · BC 51",
-    "year": -51,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "같은 땅, 다른 색: 첫 장과 같은 카메라다 — 초록이던 자리가 분홍이 됐다."
-  },
-  {
-    "id": "pack-rubicon",
-    "title": "루비콘 · BC 49",
-    "year": -49,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "movements",
-      "story_battles"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "군단 하나를 데리고 강을 건너는 순간, 총독은 반란자가 된다."
-  },
-  {
-    "id": "pack-greece-48",
-    "title": "그리스 내전 · BC 49–48",
-    "year": -48,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "movements",
-      "story_battles"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "파르살로스에서 하루 만에, 로마 제일의 장군이 도망자가 된다."
-  },
-  {
-    "id": "pack-egypt-47",
-    "title": "이집트 · BC 48–47",
-    "year": -47,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "movements",
-      "story_battles"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "쫓아온 상대는 이미 죽은 뒤였고, 그 머리가 카이사르 앞에 놓인다."
-  },
-  {
-    "id": "pack-extent-44",
-    "title": "최대 판도 · BC 44",
-    "year": -44,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "바다를 한 바퀴 두른 이 판을 쥔 사람이, 이 해 3월 15일에 죽는다."
-  },
-  {
-    "id": "pack-augustan-27",
-    "title": "제정 · BC 27",
-    "year": -27,
-    "center": [
-      14,
-      40
-    ],
-    "zoom": 4.2,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels"
-    ],
-    "group": "2회차 발표 · 카이사르 팩",
-    "note": "공화국이라는 이름만 남기고, 로마는 한 사람의 나라가 된다."
-  },
-  {
-    "id": "sulla-88",
-    "title": "술라, 로마로 진군 · BC 88",
-    "year": -88,
-    "center": [
-      13.6,
-      41.5
-    ],
-    "zoom": 6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels"
-    ],
-    "group": "선례",
-    "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
-  },
-  {
-    "id": "rome-italy-270",
-    "title": "1단계 · 이탈리아 반도 · BC 270",
-    "year": -270,
-    "center": [
-      9,
-      39.5
-    ],
-    "zoom": 4.6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "story_battles"
-    ],
-    "group": "로마의 확장",
-    "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다."
-  },
-  {
-    "id": "rome-sicily-241",
-    "title": "2단계 · 시칠리아 · BC 241",
-    "year": -241,
-    "center": [
-      9,
-      39.5
-    ],
-    "zoom": 4.6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "story_battles"
-    ],
-    "group": "로마의 확장",
-    "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙어 한 덩어리가 된다 — 로마 밖에 생긴 첫 영토다."
-  },
-  {
-    "id": "rome-africa-144",
-    "title": "3단계 · 카르타고 함락 이후 · BC 144",
-    "year": -144,
-    "center": [
-      9,
-      39.5
-    ],
-    "zoom": 4.6,
-    "pitch": 0,
-    "bearing": 0,
-    "view": "2d",
-    "skin": "campaign",
-    "layers": [
-      "territory",
-      "admin_regions",
-      "settlements",
-      "people",
-      "relief",
-      "rivers",
-      "labels",
-      "story_battles"
-    ],
-    "group": "로마의 확장",
-    "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다."
-  }
+ {
+  "id": "caesar",
+  "title": "카이사르 — 갈리아에서 루비콘까지",
+  "year": -60,
+  "sel": "person:카이사르",
+  "center": [
+   12.5,
+   42.5
+  ],
+  "zoom": 4.6,
+  "pitch": 50,
+  "bearing": -12,
+  "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일",
+  "to": -44,
+  "group": "첫 장면 · 카이사르"
+ },
+ {
+  "id": "rubicon",
+  "title": "루비콘 도하",
+  "year": -49,
+  "sel": "person:카이사르",
+  "center": [
+   12.3,
+   44.1
+  ],
+  "zoom": 6,
+  "pitch": 55,
+  "bearing": -20,
+  "to": -45,
+  "group": "첫 장면 · 카이사르"
+ },
+ {
+  "id": "ides",
+  "title": "3월 15일",
+  "year": -44,
+  "sel": "person:카이사르",
+  "center": [
+   12.48,
+   41.89
+  ],
+  "zoom": 7,
+  "pitch": 55,
+  "bearing": 0,
+  "to": -42,
+  "group": "첫 장면 · 카이사르"
+ },
+ {
+  "id": "cannae-board",
+  "title": "칸나이 — 자루가 닫히는 세 장면",
+  "year": -216,
+  "sel": "event:칸나이전투",
+  "center": [
+   16.1325,
+   41.3064
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "board": "cannae-216",
+  "phase": 0,
+  "group": "말판",
+  "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다."
+ },
+ {
+  "id": "pack-intro-med",
+  "title": "지중해 판도 · BC 60",
+  "year": -60,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "지중해를 두른 땅은 이미 로마. 초록으로 덮인 갈리아만 아직 로마 밖이다."
+ },
+ {
+  "id": "pack-gaul-52",
+  "title": "갈리아 원정 · BC 58–51",
+  "year": -52,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "여덟 해의 원정이 알레시아 한 성 앞에서 끝난다."
+ },
+ {
+  "id": "pack-alesia-52",
+  "title": "알레시아 포위전 · BC 52",
+  "year": -52,
+  "center": [
+   4.4958,
+   47.535
+  ],
+  "zoom": 12.4,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "alesia"
+  ],
+  "group": "세부 지도",
+  "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다.",
+  "micro": "alesia"
+ },
+ {
+  "id": "pack-roma-urbs",
+  "title": "로마 시내 · BC 44",
+  "year": -44,
+  "center": [
+   12.4866,
+   41.8929
+  ],
+  "zoom": 13.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "roma"
+  ],
+  "group": "세부 지도",
+  "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다.",
+  "micro": "roma"
+ },
+ {
+  "id": "pack-alexandria-47",
+  "title": "알렉산드리아 · BC 48–47",
+  "year": -47,
+  "center": [
+   29.898,
+   31.199
+  ],
+  "zoom": 13.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "alexandria"
+  ],
+  "group": "세부 지도",
+  "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다.",
+  "micro": "alexandria"
+ },
+ {
+  "id": "pack-extent-51",
+  "title": "갈리아, 로마 안으로 · BC 51",
+  "year": -51,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "같은 땅, 다른 색: 첫 장과 같은 카메라다 — 초록이던 자리가 분홍이 됐다."
+ },
+ {
+  "id": "pack-rubicon",
+  "title": "루비콘 · BC 49",
+  "year": -49,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "군단 하나를 데리고 강을 건너는 순간, 총독은 반란자가 된다."
+ },
+ {
+  "id": "pack-greece-48",
+  "title": "그리스 내전 · BC 49–48",
+  "year": -48,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "파르살로스에서 하루 만에, 로마 제일의 장군이 도망자가 된다."
+ },
+ {
+  "id": "pack-egypt-47",
+  "title": "이집트 · BC 48–47",
+  "year": -47,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "쫓아온 상대는 이미 죽은 뒤였고, 그 머리가 카이사르 앞에 놓인다."
+ },
+ {
+  "id": "pack-extent-44",
+  "title": "최대 판도 · BC 44",
+  "year": -44,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "바다를 한 바퀴 두른 이 판을 쥔 사람이, 이 해 3월 15일에 죽는다."
+ },
+ {
+  "id": "pack-augustan-27",
+  "title": "제정 · BC 27",
+  "year": -27,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "2회차 발표 · 카이사르 팩",
+  "note": "공화국이라는 이름만 남기고, 로마는 한 사람의 나라가 된다."
+ },
+ {
+  "id": "sulla-88",
+  "title": "술라, 로마로 진군 · BC 88",
+  "year": -88,
+  "center": [
+   13.6,
+   41.5
+  ],
+  "zoom": 6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "선례",
+  "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+ },
+ {
+  "id": "rome-italy-270",
+  "title": "1단계 · 이탈리아 반도 · BC 270",
+  "year": -270,
+  "center": [
+   9,
+   39.5
+  ],
+  "zoom": 4.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "로마의 확장",
+  "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다."
+ },
+ {
+  "id": "rome-sicily-241",
+  "title": "2단계 · 시칠리아 · BC 241",
+  "year": -241,
+  "center": [
+   9,
+   39.5
+  ],
+  "zoom": 4.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "로마의 확장",
+  "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙어 한 덩어리가 된다 — 로마 밖에 생긴 첫 영토다."
+ },
+ {
+  "id": "rome-africa-144",
+  "title": "3단계 · 카르타고 함락 이후 · BC 144",
+  "year": -144,
+  "center": [
+   9,
+   39.5
+  ],
+  "zoom": 4.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "로마의 확장",
+  "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다."
+ }
 ]

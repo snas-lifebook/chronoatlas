@@ -15,19 +15,27 @@
 // (HUD·인스펙터를 빼려고 일부러 그렇게 짰다, scripts/shoot-pack.py). 미시 지도는
 // 아홉 장에 안 들어가고 「들어가면 보이는」 대화형이라 그게 맞다. 미시 지도를 이미지로
 // 뽑아야 할 날이 오면 shoot-pack의 caption()처럼 PIL로 같은 JSON에서 합성하면 된다.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type * as maplibregl from 'maplibre-gl';
-import { CALLOUTS, microMapAt, type Callout, type MicroMap } from '../callouts';
+import { THUMBS } from '../callouts';
+import { resolveCallouts, type ResolvedCallout } from '../map/micro';
+import type { Engine } from '../map/engine';
+import type { MicroMapDef } from '../../schema/micromap';
 
+type Callout = ResolvedCallout & { thumb: { file: string; license: string; page: string } | null };
 type Pin = { c: Callout; x: number; y: number };
 
 /** 카드가 세로로 쌓이는 칸. 화면 높이에 맞춰 잘라 쓴다. */
 const CARD_W = 300;
 
-export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: string; ds: string }) {
+export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null; engine: Engine | null; root: string; ds: string }) {
+  // 어느 미시지도가 켜져 있는가는 엔진이 말한다(레지스트리 진입·이탈). 줌 문턱 계산은 엔진 몫이다.
+  const [def, setDef] = useState<MicroMapDef | null>(null);
+  useEffect(() => { const off = engine?.onMicro(setDef); return () => { off?.(); }; }, [engine]);
+  const resolved = useMemo<Callout[]>(() => def ? resolveCallouts(def).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null })) : [], [def]);
+  const which = def?.id ?? null;
   const [pins, setPins] = useState<Pin[]>([]);
   const [size, setSize] = useState<[number, number]>([0, 0]);
-  const [which, setWhich] = useState<MicroMap | null>(null);
   const [open, setOpen] = useState(true);
   const [hudBox, setHud] = useState<{ side: 'left' | 'right'; bottom: number }>({ side: 'left', bottom: 0 });
   // 일반 모드에서 왼쪽·오른쪽에 앱 패널이 서 있다. 그 폭만큼 칸을 밀어 넣는다 —
@@ -41,8 +49,6 @@ export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: 
   useEffect(() => {
     if (!map) return;
     const sync = () => {
-      const m = microMapAt(map.getZoom(), map.getCenter().toArray() as [number, number]);
-      setWhich(m);
       const cv = map.getCanvas();
       setSize([cv.clientWidth, cv.clientHeight]);
       // 설명창은 M으로 좌우를 바꾼다. **어느 쪽에 있는지 읽어서** 그 쪽 칸만 밀어낸다 —
@@ -63,8 +69,8 @@ export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: 
         const next = { left: edge('.shell-explorer', 'left'), right: edge('.shell-right', 'right') };
         return prev.left === next.left && prev.right === next.right ? prev : next;
       });
-      if (!m) { setPins([]); return; }
-      setPins(CALLOUTS.filter(c => c.map === m).map(c => {
+      if (!which) { setPins([]); return; }
+      setPins(resolved.map(c => {
         const p = map.project(c.at);
         return { c, x: p.x, y: p.y };
       }));
@@ -72,7 +78,7 @@ export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: 
     sync();
     map.on('move', sync); map.on('zoom', sync); map.on('resize', sync);
     return () => { map.off('move', sync); map.off('zoom', sync); map.off('resize', sync); };
-  }, [map]);
+  }, [map, resolved, which]);
 
   // 미시 지도에 들어왔음을 문서 루트에 적는다. 발표 HUD가 그걸 보고 **본문을 접는다** —
   // HUD는 지중해 장면을 설명하는 글이라 도시 지도에서는 맞지도 않고, 실측 446px이라
@@ -111,7 +117,7 @@ export function Callouts({ map, root, ds }: { map: maplibregl.Map | null; root: 
     for (const [id, el] of Object.entries(cardRef.current)) {
       if (!el) continue;
       const r = el.getBoundingClientRect();
-      const c0 = CALLOUTS.find(c => c.id === id);
+      const c0 = resolved.find(c => c.id === id);
       const side: 'left' | 'right' = !c0 ? 'left' : (squeezeRef.current ? 'right' : c0.side);
       next[id] = {
         x: (side === 'left' ? r.right : r.left) - base.left,

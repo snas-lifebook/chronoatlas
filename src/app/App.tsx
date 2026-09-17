@@ -13,7 +13,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BASEMAPS, PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
@@ -96,8 +96,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     engRef.current?.setPeople(peopleGeoJSON(people, palette, id => legionsAt(id, s.year)));
   }, [people, d, s.year]);
 
-  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards); engRef.current.onData(() => setDataTick(t => t + 1));
-    engRef.current.map.on('idle', () => setDrawTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+  useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards, scenes); engRef.current.onData(() => setDataTick(t => t + 1));
+    engRef.current.map.on('idle', () => setDrawTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt, boards, micro: () => engRef.current?.micro() ?? null }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -264,7 +264,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
-      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} root={root} ds={ds} /></Suspense>
+      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} /></Suspense>
 
       {searching && <Suspense fallback={null}><Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} /></Suspense>}
 
@@ -349,7 +349,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           아우구스투스 14구역(기원전 7년)을, 알렉산드리아 도판은 1866년 당시 도시를 함께 그린다.
           화면에서 무대에 서는 사람이 그 한마디를 할 수 있어야 한다. 전문은 title 속성에. */}
       {s.present && (() => {
-        const bm = PACK_BASEMAPS.find(m => m.id === micro);
+        const bm = micro ? engRef.current?.micro()?.basemap : null;
         if (!bm) return null;
         return <div className="shell-scan-note" title={bm.caveat ?? ''}>{bm.short_caveat ?? bm.title}</div>;
       })()}

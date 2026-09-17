@@ -5,9 +5,12 @@ import { buildStyle, DEPTHS, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
-import { fitZoom, showAlesia, showAlexandria, showGalliaOverlay, showGalliaRoman, showRomaUrbs } from '../present';
+import { fitZoom, showGalliaOverlay, showGalliaRoman } from '../present';
+import { createMicro, MICRO_LAYERS } from './micro';
+import { loadMicro, microMapAt } from '../micromaps';
+import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { ALESIA, ALEXANDRIA, ROMA_URBS, PACK_BASEMAPS, PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -77,29 +80,6 @@ function arrowIcon(color: string): ImageData {
   return g.getImageData(0, 0, W, H);
 }
 
-/** 망루(turris). 포위선 위를 따라 반복해 찍는다.
- *
- *  **점을 만들지 않는다.** 카이사르는 간격만 적었고(BG 7.72 `turres ... quae pedes LXXX
- *  inter se distarent` = 80로마피트 ≈ 24m) 개별 망루의 좌표를 아는 자료는 자유 배포본이
- *  없다. 실제 간격 24m는 z12에서 1픽셀 미만이고 둘레 전체면 1,400개가 넘어 아무것도
- *  안 보인다. 그래서 `symbol-placement: 'line'`으로 **보이는 간격에** 반복시키고,
- *  「화면의 개수는 표현이고 실제 간격은 80로마피트」를 데이터가 말하게 했다
- *  (선 피처의 `tower_note_ko`).
- *
- *  80피트는 **간격**이고 12피트는 망루 높이가 아니라 **보루** 높이다 — 이 구별을 한 번
- *  틀린 적이 있어 적어 둔다(pack-callouts.json 알레시아 1번). */
-function towerIcon(color: string): ImageData {
-  const S = 14, c = document.createElement('canvas');
-  c.width = c.height = S;
-  const g = c.getContext('2d')!;
-  // 흰 테를 먼저 — 영토 채움·지형 음영 위에서도 실루엣이 산다(arrowIcon과 같은 이유).
-  // 다만 **테가 속을 이기면 안 된다.** 처음엔 흰 10×10 위에 색 7×7이라 7 CSS px로
-  // 줄었을 때 흰 눈금으로 보였다(실측 z14.6). 색을 키우고 성가퀴도 색으로 낸다.
-  g.fillStyle = '#FFFFFF'; g.fillRect(1, 1, 12, 12);
-  g.fillStyle = color; g.fillRect(2.5, 3, 9, 9);
-  g.fillRect(3, 1, 2.2, 2.4); g.fillRect(8.8, 1, 2.2, 2.4);
-  return g.getImageData(0, 0, S, S);
-}
 
 /** 여정 순번 배지. 국면색 원반에 흰 숫자, 밖으로 종이색 테 한 겹.
  *
@@ -170,6 +150,8 @@ function portraitIcon(img: CanvasImageSource | null, color: string, initial: str
   return g.getImageData(0, 0, size, size);
 }
 
+
+// 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 /** 피처를 **대푯점 하나**로 줄인 점 FeatureCollection.
  *
  *  **circle 레이어를 폴리곤 소스에 얹으면 MapLibre가 정점마다 점을 찍는다.** River가
@@ -203,7 +185,6 @@ function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>)
   return { type: 'FeatureCollection', features: out };
 }
 
-// 레이어 카탈로그 id → MapLibre 레이어 id들. 켜고 끄는 단위(DESIGN P6). 'labels'는 지명 토글.
 export const LAYER_GROUPS: Record<string, string[]> = {
   // 평야·곡창은 **따로 켠다** — 항상 깔면 여덟 장이 노랗게 물든다. 장면이 `plains`를 쓸 때만.
   plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
@@ -229,18 +210,8 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
   board: ['board-unit', 'board-label'],
   people: ['people-dot', 'people-pad', 'people-label', 'people-standard', 'people-force'],
-  // 알레시아 세부(포위선 두 겹·진영 8·보루 23). 그 장면에서만 켠다 — present.showAlesia
-  alesia: ['alesia-plain', 'alesia-oppidum', 'alesia-river', 'alesia-ditch', 'alesia-trap',
-           'alesia-outer', 'alesia-inner', 'alesia-tower',
-           'alesia-redoubt', 'alesia-camp', 'alesia-gaulcamp', 'alesia-label', 'alesia-trap-label'],
-  // 로마 시내 미시 지도. 줌 12 이상에서 자동으로. 포메리움이 이 지도의 요점이다 —
-  // 장군이 무장한 채 넘을 수 없던 선이고, 루비콘이 왜 사건인지가 거기서 설명된다.
-  roma: ['roma-field', 'roma-hill', 'roma-pomerium', 'roma-wall', 'roma-river', 'roma-road',
-         'roma-site', 'roma-ides', 'roma-label'],
-  // 알렉산드리아 미시 지도. 헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길
-  // 하나가 항구를 둘로 가르고, 카이사르의 알렉산드리아 전쟁이 그 둑길에서 갈렸다.
-  alexandria: ['alx-lake', 'alx-harbor', 'alx-island', 'alx-district', 'alx-causeway',
-               'alx-road', 'alx-site', 'alx-siege', 'alx-label'],
+  // 미시지도(OVERHAUL §3.1): 어느 지도든 같은 층. 그리는 법은 map/micro.ts KIND_PAINT, 데이터는 data/micromaps/<id>.json
+  micro: [...MICRO_LAYERS],
 };
 // 정착지 레이어에 연도 필드가 없어서(220개 전부) 기원전 지도에 후대 이름이 섞인다.
 // 실제로 BC 48 지도에 「콘스탄티노플」(AD 330 봉헌)이 떴다. 교보재 목록에 있는 것만,
@@ -288,7 +259,7 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
 export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '#2F7D5B', rule: '#5B4B8A', lineage: '#8A6D3B', member: '#3E6F8C', act: '#6B6F76', locate: '#8A8F98', make: '#6B6F76', other: '#8A8F98' };
 
-export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false, boards: BoardData[] = []) {
+export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false, boards: BoardData[] = [], scenes: Scene[] = []) {
   const s0 = store.get();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; // DESIGN §4: 즉시 전환
   const dur = (ms: number) => (reduced ? 0 : ms);
@@ -485,57 +456,33 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('zoom', syncTerrain);
   // 세부 지도 둘은 **줌으로** 켠다 — 발표 장면 수는 아홉으로 묶여 있고(River),
   // 세부는 「거기로 들어가면 보인다」가 맞는 동작이다.
-  /** 도판이 깔린 미시 지도에서 **우리 면 채움을 옅게 내린다.**
-   *
-   *  도판이 이미 지형을 그린다 — 로마(Kiepert Tab. IX)는 일곱 언덕을 해칭으로, 알렉산드리아
-   *  (팔라키 1866)는 항구와 가로망을 그린다. 우리 면을 그대로 두면 두 겹이 되어 탁해진다.
-   *  **테와 이름표는 안 건드린다** — 그게 우리 마킹이고 도판에 없는 정보다(포메리움·3월 15일
-   *  자리·포위선).
-   *
-   *  addData 안에서 스캔을 얹는 자리에 두면 안 된다 — 그 시점에 `roma-*`·`alx-*` 레이어가
-   *  **아직 없어서** `getLayer`가 null을 주고 조용히 지나간다(실측: 언덕이 0.28로 남았다).
-   *  레이어가 다 얹힌 뒤에 한 번 부른다. */
-  const SCAN_WASH: Record<string, [string, number][]> = {
-    roma: [['roma-field', 0.12], ['roma-hill', 0.1]],
-    alesia: [['alesia-plain', 0.12], ['alesia-oppidum', 0.16]],
-    alexandria: [['alx-district', 0.1], ['alx-island', 0.14], ['alx-lake', 0.18], ['alx-harbor', 0.18]],
-  };
-  function washUnderScans() {
-    for (const bm of PACK_BASEMAPS) {
-      if (!map.getLayer(`scan-${bm.id}`)) continue;
-      for (const [id, op] of SCAN_WASH[bm.id] ?? []) {
-        if (map.getLayer(id)) map.setPaintProperty(id, 'fill-opacity', op);
-      }
-    }
-  }
 
+  // ── 미시지도 (OVERHAUL §3.1, R47): 레지스트리 하나. 어느 지도든 같은 층으로 그린다(map/micro.ts) ──────
+  const microFns = new Set<(def: MicroMapDef | null) => void>();
+  const micro = createMicro(map, { root, ds, palette: Object.fromEntries(d.actors.map(a => [a.id, a.color])), halo,
+    before: () => map.getLayer('label-marine') ? 'label-marine' : undefined,
+    onEnter: def => { hideContinental(true, def.hide); microFns.forEach(fn => fn(def)); },
+    onLeave: () => { hideContinental(false); microFns.forEach(fn => fn(null)); } });
+  let microWanted: string | null = null;
+  /** 미시 축척에서 대륙 축척의 것들을 끈다. 이동 경로는 지중해를 가로지르는 선 몇 개일 뿐이고, 폴리티 이름표는
+   *  면적 문턱만 봐서 64만 km² 왕국이 z14에서도 통과한다(River가 알렉산드리아 판에서 「프톨레마이오스 왕국」을 잡았다).
+   *  나갈 때는 상태의 레이어 목록대로 되돌린다. */
+  function hideContinental(on: boolean, groups: string[] = ['movements']) {
+    const set = (ids: string[], vis: boolean) => { for (const l of ids) if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', vis ? 'visible' : 'none'); };
+    const st = store.get(); const lit = new Set(st.layers ?? d.manifest.layers ?? []);
+    for (const g of groups) set(LAYER_GROUPS[g] ?? [], !on && lit.has(g));
+    set(['territory-label', 'territory-outline', 'territory-glow', 'region-name', 'peoples-label', 'peoples-line', 'client-hatch', 'client-edge'], !on && lit.has('territory'));
+  }
   function syncDetailMaps(scene: string | null) {
-    const z = map.getZoom();
-    const set = (ids: string[], on: boolean) => { for (const id of ids) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none'); };
-    if (map.getLayer('alesia-inner')) set(LAYER_GROUPS.alesia, showAlesia(scene, z));
-    if (map.getLayer('roma-pomerium')) set(LAYER_GROUPS.roma, showRomaUrbs(z));
-    // 알렉산드리아와 로마는 문턱이 같다(z12). 둘 다 켜지면 화면에 없는 쪽은 그냥 안 보인다 —
-    // 지도 밖이라 그린 것이 없다. 굳이 위치로 가르지 않는다(콜아웃은 위치까지 본다).
-    if (map.getLayer('alx-causeway')) set(LAYER_GROUPS.alexandria, showAlexandria(z));
-    // 미시 축척에서 **대륙 축척의 것들을 끈다.** 층 자체를 끄지 않고 여기서만 가린다
-    // (넓은 축척으로 나가면 다시 켜진다).
-    //
-    // 이동 경로: 지중해를 건너는 자취라 도시 지도에서는 화면을 통째로 가로지르는 선 몇
-    // 개일 뿐이다 — 알렉산드리아 시내 판에서 실제로 그랬다.
-    //
-    // 이름표: River가 알렉산드리아 도시 판에서 **「프톨레마이오스 왕국」이 뜨는 것**을
-    // 잡았다. 폴리티 이름표는 면적 문턱(z7 이상 2만 km²)만 보므로 64만 km²짜리 왕국이
-    // z14에서도 통과하고, 그 이름표 앵커가 이집트 안에 있어 도시 화면에 들어온다. 지역
-    // 이름(`이집트`·`아프리카`)과 민족 이름도 같은 층위라 같이 끈다. **세력권 사선도
-    // 끈다** — 도시 한 판을 덮는 대각선 무늬가 되어 도판을 통째로 가린다.
-    const micro = showRomaUrbs(z) || showAlexandria(z) || showAlesia(scene, z);
-    if (micro) {
-      set(LAYER_GROUPS.movements, false);
-      set(['territory-label', 'territory-outline', 'territory-glow', 'region-name', 'peoples-label',
-           'peoples-line', 'client-hatch', 'client-edge'], false);
-    }
+    const sc = scene ? scenes.find(x => x.id === scene) : null;
+    const id = sc?.micro ?? microMapAt(map.getZoom(), map.getCenter().toArray() as [number, number]);
+    if (id === microWanted && (id === null || micro.active()?.id === id)) return;
+    microWanted = id;
+    if (!id) { micro.leave(); return; }
+    loadMicro(id).then(def => { if (microWanted === id) micro.enter(def); }).catch(err => console.warn(err));
   }
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
+  map.on('moveend', () => syncDetailMaps(store.get().scene)); // 이동만으로 지도를 벗어나는 경우
 
   /** 그 해에 아직 안 세워진 건물을 가린다.
    *
@@ -564,6 +511,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   function addData() {
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
+    micro.reset(); microWanted = null;        // setStyle이 소스를 지웠다. 활성 미시지도는 끝에서 다시 들어온다
     const before = map.getLayer('label-marine') ? 'label-marine' : undefined; // 데이터 레이어는 라벨 아래
     terrainReady.then(() => { if (map.getStyle()) addTerrain(map.getLayer('label-marine') ? 'label-marine' : undefined); });
     map.addSource('territory', { type: 'geojson', data: d.territory as any, promoteId: 'id' });
@@ -582,33 +530,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addLayer({ id: 'territory-glow', type: 'line', source: 'territory', layout: { 'line-join': 'round' },
       paint: { 'line-color': polityColor, 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 8, 9], 'line-offset': ['interpolate', ['linear'], ['zoom'], 3, -1.5, 8, -4.5],
         'line-blur': ['interpolate', ['linear'], ['zoom'], 3, 4, 8, 10], 'line-opacity': 0.16 } }, before);
-    // ── 미시 지도 바탕 도판 ────────────────────────────────────────────────
-    //
-    // River: "흰 바탕에 점이랑 성벽이랑 언덕 이렇게만 있어서 솔직히 눈에 잘 들어오지
-    // 않는다." 맞는 지적이다 — z14에서 `relief.jpg`는 해상도를 한참 넘겨 평평한 얼룩이고
-    // Natural Earth 10m 해안선은 티베리스를 굵은 선 하나로 만든다.
-    //
-    // 해결은 **퍼블릭 도메인 고지도 도판을 정적 이미지로 깔기**다. 고대 세계 타일 서버는
-    // DARE·CAWM 둘 다 z11에서 하드 캡이고(Barrington Atlas 원본 한계라 서버 문제가
-    // 아니다), OSM은 이 레포 `AGENTS.md`의 「런타임 외부 호출 0 + ODbL 재배포 금지」가
-    // 막는다. 남는 길이 이것뿐이다. 도시 축척(0.35~0.6° 반경)에서 웹 메르카토르 vs
-    // 정사각 투영 차이는 71~381m로 대륙 축척(351km)의 1/1000이다.
-    //
-    // **정본 교보재 아래에 깐다** — 도판은 배경이고 우리 마킹이 주인공이다.
-    for (const bm of PACK_BASEMAPS) {
-      const sid = `scan-${bm.id}`;
-      if (map.getSource(sid)) continue;
-      const { w, e, n, s: so } = bm.corners;
-      map.addSource(sid, { type: 'image', url: `${root}datasets/${ds}/rasters/${bm.file}`,
-        coordinates: [[w, n], [e, n], [e, so], [w, so]] });
-      // `before`가 아니라 각 미시 지도 그룹의 **첫 레이어 앞**에 넣는다.
-      const firstOf = (g: string[]) => g.find(id => map.getLayer(id));
-      const anchorId = firstOf(LAYER_GROUPS[bm.id] ?? []) ?? before;
-      map.addLayer({ id: sid, type: 'raster', source: sid, minzoom: bm.min_zoom ?? 11,
-        paint: { 'raster-opacity': bm.opacity ?? 0.85, 'raster-fade-duration': 0 } } as any, anchorId);
-      // 같은 줌 게이트를 타게 그룹에 등록한다 — syncDetailMaps가 그대로 켜고 끈다.
-      if (LAYER_GROUPS[bm.id] && !LAYER_GROUPS[bm.id].includes(sid)) LAYER_GROUPS[bm.id].unshift(sid);
-    }
 
     // ── 평야·곡창지대 교보재 ───────────────────────────────────────────────
     //
@@ -790,146 +711,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       paint: { 'text-color': '#3A2F22', 'text-halo-color': halo(), 'text-halo-width': 1.8 } }, before);
     // ── 알레시아 세부(BG 7.68~7.74). 포위선 두 겹이 이 장면의 전부다 —
     //    안쪽은 농성군을, 바깥쪽은 구원군을 막는다. 그 두 선이 보이면 「이중 포위」가 설명된다.
-    if (ALESIA?.features?.length && !map.getSource('alesia')) {
-      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
-      const gaulC = d.actors.find(a => a.id === '갈리아')?.color ?? '#3E7C4F';
-      const only = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
-      map.addSource('alesia', { type: 'geojson', data: { type: 'FeatureCollection', features: ALESIA.features } as any });
-      const add = (l: maplibregl.LayerSpecification) => map.addLayer({ ...l, layout: { ...(l as any).layout, visibility: 'none' } } as any, before);
-      add({ id: 'alesia-plain', type: 'fill', source: 'alesia', filter: only('plain'),
-        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.25 } } as any);
-      add({ id: 'alesia-oppidum', type: 'fill', source: 'alesia', filter: only('oppidum'),
-        paint: { 'fill-color': gaulC, 'fill-opacity': 0.45, 'fill-outline-color': gaulC } } as any);
-      add({ id: 'alesia-river', type: 'line', source: 'alesia', filter: only('river'),
-        paint: { 'line-color': '#5B86A8', 'line-width': 2.4, 'line-opacity': 0.9 } } as any);
-      // 바깥선은 점선 — 「밖을 향한 선」임을 선 모양으로 구분한다
-      add({ id: 'alesia-outer', type: 'line', source: 'alesia', filter: only('outer_line'),
-        paint: { 'line-color': romeC, 'line-width': 3.4, 'line-opacity': 0.95, 'line-dasharray': [3, 1.6] } } as any);
-      add({ id: 'alesia-inner', type: 'line', source: 'alesia', filter: only('inner_line'),
-        paint: { 'line-color': romeC, 'line-width': 3.4, 'line-opacity': 0.95 } } as any);
-      add({ id: 'alesia-redoubt', type: 'circle', source: 'alesia', filter: only('redoubt'),
-        paint: { 'circle-radius': 3.4, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 1 } } as any);
-      add({ id: 'alesia-camp', type: 'circle', source: 'alesia', filter: only('camp'),
-        paint: { 'circle-radius': 7, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
-      // ── 함정 세 겹과 20피트 호 · 망루 ─────────────────────────────────────
-      //
-      // River: "지도가 없으면 지형지물이나 망루나 이런 배치들이 있거나." 알레시아는
-      // 고지도 도판이 실패한 자리라(d'Anville 1755는 RMS 938m·26° 전단) 벡터가 전부다.
-      //
-      // 띠는 **중심선 링**이다 — 실폭이 5.9~8.9m라 z12에서 1픽셀 미만이고, 면으로 칠하면
-      // 안 보이거나 선으로 뭉친다. 그래서 굵기는 읽히는 상수로 두고 **색과 파선이 종류를
-      // 말한다.** 라틴어가 순서를 못 박아 둔 대로 벽에서 멀어지는 쪽이 킵피 → 릴리아 →
-      // 스티물루스다(BG 7.73 `ante quos` … `ante haec`).
-      const trapColor: any = ['match', ['get', 'trap_type'],
-        'cippi', '#8A3E3E', 'lilia', '#B4553A', 'stimuli', '#C98A3C', '#8A3E3E'];
-      add({ id: 'alesia-ditch', type: 'line', source: 'alesia', filter: only('ditch'),
-        paint: { 'line-color': '#5B4A33', 'line-width': 2.6, 'line-opacity': 0.85 } } as any);
-      add({ id: 'alesia-trap', type: 'line', source: 'alesia', filter: only('trap'),
-        paint: { 'line-color': trapColor, 'line-width': 1.8, 'line-dasharray': [2, 1.6], 'line-opacity': 0.9 } } as any);
-      // 망루는 두 포위선 위에. 실제 간격이 아니라 **보이는 간격**이다(towerIcon 주석).
-      if (!map.hasImage('alesia-tower')) map.addImage('alesia-tower', towerIcon(romeC), { pixelRatio: 2 });
-      add({ id: 'alesia-tower', type: 'symbol', source: 'alesia', filter: only('inner_line', 'outer_line'),
-        layout: { 'symbol-placement': 'line', 'symbol-spacing': 30,
-          'icon-image': 'alesia-tower',
-          'icon-size': ['interpolate', ['linear'], ['zoom'], 11, 0.5, 13, 0.9, 15, 1.5] as any,
-          'icon-rotation-alignment': 'viewport', 'icon-pitch-alignment': 'viewport',
-          'icon-allow-overlap': true, 'icon-ignore-placement': true } as any,
-        paint: { 'icon-opacity': 0.95 } as any } as any);
-      // 띠 이름표. 링마다 하나 — 대푯점을 쓰면 세 띠가 거의 같은 자리에 겹친다.
-      // `symbol-placement: 'line-center'`가 링의 가운데에 하나만 찍고, 안·바깥 링은
-      // 기하가 달라 자연히 갈린다.
-      add({ id: 'alesia-trap-label', type: 'symbol', source: 'alesia', filter: only('trap', 'ditch'),
-        // 문턱 13.2: 띠 간격이 22.2·39.1·56.2m라 장면 줌(12.4, 4.9m/px)에서는 4~11px로
-        // 붙어 이름표를 달 자리가 없다. 들어가서 띠가 갈리기 시작하면 이름이 붙는다.
-        minzoom: 13.2,
-        // `line-center`가 아니라 `line` + 넓은 간격이다. **`line-center`는 링의 가운데가
-        // 화면 밖이면 아무것도 안 그린다** — z15로 들어가면 둘레가 화면을 한참 넘어가서
-        // 이름이 통째로 사라졌다(실측: z15에서 0개). 반복시키면 최소 하나가 화면에 든다.
-        layout: { 'symbol-placement': 'line', 'symbol-spacing': 420, 'text-field': ['get', 'name_la'],
-          'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
-          'text-letter-spacing': 0.08, 'text-optional': true, 'text-allow-overlap': false } as any,
-        paint: { 'text-color': trapColor, 'text-halo-color': halo(), 'text-halo-width': 2 } } as any);
-
-      // 진영 둘이 폴리곤(정점 19·15)이라 정점마다 초록 점이 찍혔다. 대푯점만 쓴다.
-      map.addSource('alesia-pt', { type: 'geojson', data: repPointsFC(
-        (ALESIA!.features as unknown[]), pr => pr.kind === 'gaul_camp') as any });
-      add({ id: 'alesia-gaulcamp', type: 'circle', source: 'alesia-pt',
-        paint: { 'circle-radius': 8, 'circle-color': gaulC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } } as any);
-      add({ id: 'alesia-label', type: 'symbol', source: 'alesia',
-        filter: only('oppidum', 'camp', 'gaul_camp', 'hill', 'river', 'plain', 'inner_line', 'outer_line'),
-        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
-          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } } as any);
-    }
-    // ── 로마 시내(공화정 말기). 암살 자리는 따로 표시한다.
-    if (ROMA_URBS?.features?.length && !map.getSource('roma-urbs')) {
-      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
-      const kin = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
-      map.addSource('roma-urbs', { type: 'geojson', data: { type: 'FeatureCollection', features: ROMA_URBS.features } as any });
-      const addR = (l: object) => map.addLayer({ ...(l as object), layout: { ...((l as { layout?: object }).layout ?? {}), visibility: 'none' } } as any, before);
-      addR({ id: 'roma-field', type: 'fill', source: 'roma-urbs', filter: kin('field', 'circus', 'forum'),
-        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.3 } });
-      addR({ id: 'roma-hill', type: 'fill', source: 'roma-urbs', filter: kin('hill'),
-        paint: { 'fill-color': '#9C8C63', 'fill-opacity': 0.28, 'fill-outline-color': '#6B6353' } });
-      // 포메리움 — 무장한 장군이 넘을 수 없던 선. 점선으로, 성벽과 구분되게.
-      addR({ id: 'roma-pomerium', type: 'line', source: 'roma-urbs', filter: kin('boundary'),
-        paint: { 'line-color': '#7A3E8C', 'line-width': 3, 'line-dasharray': [4, 2], 'line-opacity': 0.95 } });
-      addR({ id: 'roma-wall', type: 'line', source: 'roma-urbs', filter: kin('wall'),
-        paint: { 'line-color': '#4A4538', 'line-width': 3.2, 'line-opacity': 0.9 } });
-      addR({ id: 'roma-river', type: 'line', source: 'roma-urbs', filter: kin('river'),
-        paint: { 'line-color': '#5B86A8', 'line-width': 4, 'line-opacity': 0.9 } });
-      addR({ id: 'roma-road', type: 'line', source: 'roma-urbs', filter: kin('road'),
-        paint: { 'line-color': '#8A7B5C', 'line-width': 2.2, 'line-dasharray': [6, 3], 'line-opacity': 0.8 } });
-      addR({ id: 'roma-site', type: 'circle', source: 'roma-urbs', filter: kin('temple', 'theatre', 'building', 'gate'),
-        paint: { 'circle-radius': 5, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.4 } });
-      // 3월 15일 자리
-      addR({ id: 'roma-ides', type: 'circle', source: 'roma-urbs', filter: ['==', ['get', 'assassination'], true] as any,
-        paint: { 'circle-radius': 11, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3 } });
-      addR({ id: 'roma-label', type: 'symbol', source: 'roma-urbs',
-        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
-          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } });
-    }
-    // ── 알렉산드리아(기원전 48~47). 카이사르가 갇혀 싸운 도시다.
-    if (ALEXANDRIA?.features?.length && !map.getSource('alexandria')) {
-      const romeC = d.actors.find(a => a.id === '로마')?.color ?? '#A4243B';
-      const kin = (...k: string[]) => ['in', ['get', 'kind'], ['literal', k]] as any;
-      map.addSource('alexandria', { type: 'geojson', data: { type: 'FeatureCollection', features: ALEXANDRIA.features } as any });
-      const addA = (l: object) => map.addLayer({ ...(l as object), layout: { ...((l as { layout?: object }).layout ?? {}), visibility: 'none' } } as any, before);
-      addA({ id: 'alx-lake', type: 'fill', source: 'alexandria', filter: kin('lake'),
-        paint: { 'fill-color': '#7FA6BE', 'fill-opacity': 0.35 } });
-      // 항구는 물이다 — 호수보다 짙게 해서 「바다에서 파고든 만」으로 읽히게.
-      addA({ id: 'alx-harbor', type: 'fill', source: 'alexandria', filter: kin('harbor'),
-        paint: { 'fill-color': '#5B86A8', 'fill-opacity': 0.3 } });
-      addA({ id: 'alx-island', type: 'fill', source: 'alexandria', filter: kin('island'),
-        paint: { 'fill-color': '#C9B98A', 'fill-opacity': 0.34, 'fill-outline-color': '#8A7B5C' } });
-      addA({ id: 'alx-district', type: 'fill', source: 'alexandria', filter: kin('district'),
-        paint: { 'fill-color': '#9C8C63', 'fill-opacity': 0.22, 'fill-outline-color': '#6B6353' } });
-      // 헵타스타디온 — 7스타디온(약 1.2km) 둑길. 굵게, 실선으로. 이 지도의 주인공이다.
-      addA({ id: 'alx-causeway', type: 'line', source: 'alexandria', filter: kin('causeway'),
-        paint: { 'line-color': '#6B5D45', 'line-width': 6, 'line-opacity': 0.95 } });
-      addA({ id: 'alx-road', type: 'line', source: 'alexandria', filter: kin('road'),
-        paint: { 'line-color': '#8A7B5C', 'line-width': 2.6, 'line-dasharray': [6, 3], 'line-opacity': 0.85 } });
-      addA({ id: 'alx-site', type: 'circle', source: 'alexandria', filter: kin('lighthouse', 'building', 'temple', 'cape'),
-        paint: { 'circle-radius': 6, 'circle-color': '#b8860b', 'circle-stroke-color': '#3a2f22', 'circle-stroke-width': 1.4 } });
-      // 알렉산드리아 전쟁의 세 자리. `roma-ides`(3월 15일 자리)와 같은 역할이다 —
-      // 함대 소각(대항구) · 카이사르가 갇힌 곳(브루케이온) · 수영 탈출(파로스 등대).
-      // 데이터가 플래그로 표시해 뒀고(pack-alexandria.json), 이 세 점이 그 전쟁의 줄기다.
-      // 대항구·브루케이온은 **폴리곤**이라 폴리곤 소스에 circle을 얹으면 정점마다 점이 찍힌다.
-      // 대푯점만 뽑은 점 소스를 따로 둔다(repPointsFC 주석 참고).
-      map.addSource('alexandria-pt', { type: 'geojson', data: repPointsFC(
-        (ALEXANDRIA!.features as unknown[]),
-        pr => !!(pr.fleet_fire || pr.siege || pr.caesar_swim)) as any });
-      addA({ id: 'alx-siege', type: 'circle', source: 'alexandria-pt',
-        paint: { 'circle-radius': 11, 'circle-color': romeC, 'circle-stroke-color': '#fff', 'circle-stroke-width': 3, 'circle-opacity': 0.85 } });
-      addA({ id: 'alx-label', type: 'symbol', source: 'alexandria',
-        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-          'text-size': 13, 'text-variable-anchor': ['top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.9,
-          'text-max-width': 9, 'text-optional': true, 'text-allow-overlap': false },
-        paint: { 'text-color': '#2B2721', 'text-halo-color': halo(), 'text-halo-width': 2.2 } });
-    }
     // **지역 이름.** River: "다른 왕국들도 나오면 좋겠다. 지금 나오는 왕국들이 조금 적다."
     //
     // 없던 게 아니라 **묻혀 있었다.** 정본 `settlements.geojson`에 `kind: region` 58개가
@@ -1153,7 +934,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     import('../token3d').then(mod => { tokenMod = mod; syncPeopleTokens(peopleFc); }).catch(() => { tokenMod = null; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
-    washUnderScans();   // 미시 지도 레이어가 다 얹힌 **뒤**에. 위에서 부르면 조용히 지나간다
+    syncDetailMaps(store.get().scene);   // 스킨 전환 뒤에도 활성 미시지도를 다시 얹는다
     apply(store.get());
   }
   map.on('load', addData);
@@ -1395,6 +1176,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   return {
     map,
     setEgo,
+    /** 활성 미시지도 정의(없으면 null). 콜아웃·모바일 시트가 본다. */
+    micro: () => micro.active(),
+    onMicro(fn: (def: MicroMapDef | null) => void) { microFns.add(fn); fn(micro.active()); return () => microFns.delete(fn); },
     setPeople(fc: { type: 'FeatureCollection'; features: object[] }) {
       peopleFc = fc as typeof EMPTY_FC;
       (map.getSource('people') as maplibregl.GeoJSONSource | undefined)?.setData(fc as any);

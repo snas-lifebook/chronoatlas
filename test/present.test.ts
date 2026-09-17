@@ -147,7 +147,7 @@ describe('알레시아 세부 장면', () => {
     expect(a.center![1]).toBeCloseTo(47.53, 1);
   });
   it('포위선이 두 겹이고 진영 8·보루 23이다 (BG 7.69)', () => {
-    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/overlays/pack-alesia.json'), 'utf8'));
+    const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/micromaps/alesia.json'), 'utf8'));
     expect(raw.teaching).toBe(true);
     const k = (n: string) => raw.features.filter((f: { properties: { kind: string } }) => f.properties.kind === n).length;
     expect(k('inner_line')).toBe(1);

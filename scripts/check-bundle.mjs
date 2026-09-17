@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'assets');
-const LIMIT = Number(process.env.BUNDLE_LIMIT ?? 480) * 1000; // 래칫: 480(2026-09-17, 471.7) → P1 미시지도 지연 뒤 440 → 대륙 교보재 청크 뒤 400
+const LIMIT = Number(process.env.BUNDLE_LIMIT ?? 450) * 1000; // 래칫: 480(471.7) → P1 미시지도 지연 로드 뒤 450(443.7) → 대륙 교보재 청크 뒤 400
 const files = readdirSync(DIR).filter(f => f.endsWith('.js'));
 const rows = files.map(f => [f, gzipSync(readFileSync(join(DIR, f)), { level: 9 }).length]).sort((a, b) => b[1] - a[1]);
 for (const [f, gz] of rows) console.log(`${(gz / 1000).toFixed(1).padStart(7)} kB gz  ${f}`);

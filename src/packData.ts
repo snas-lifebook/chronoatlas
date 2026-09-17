@@ -72,21 +72,7 @@ export const PACK_PLAINS = Object.values(import.meta.glob('../data/overlays/pack
 export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pack-peoples.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: Feature[] } | undefined;
 
-export type BasemapScan = {
-  id: string; file: string; size?: [number, number];
-  corners: { w: number; e: number; n: number; s: number };
-  opacity?: number; min_zoom?: number; title?: string; caveat?: string; short_caveat?: string; source?: string; rms_m?: number;
-};
-/** 미시 지도 밑에 깔 고지도 도판. **없으면 층이 안 생긴다** — 도판이 없을 때
- *  회색 상자가 깔리는 것보다 안 깔리는 게 낫다. */
-export const PACK_BASEMAPS: BasemapScan[] = ((Object.values(
-  import.meta.glob('../data/overlays/pack-basemaps.json', { eager: true, import: 'default' }))[0] as
-  { maps?: BasemapScan[] } | undefined)?.maps ?? [])
-  .filter(m => m && m.id && m.file && m.corners
-    && m.corners.w < m.corners.e && m.corners.s < m.corners.n);
-
-export const ALESIA = Object.values(import.meta.glob('../data/overlays/pack-alesia.json', { eager: true, import: 'default' }))[0] as
-  { teaching?: boolean; features: unknown[] } | undefined;
+// 미시지도 셋(알레시아·로마·알렉산드리아)과 도판은 2026-09-17에 data/micromaps/<id>.json 레지스트리로 갔다.
 
 const legions = Object.values(import.meta.glob('../data/overlays/pack-legions.json', { eager: true, import: 'default' }))[0] as
   { by_person: Record<string, { year: number; legions: number | null; men_low: number | null; men_high: number | null; confidence?: string }[]> } | undefined;
@@ -100,14 +86,6 @@ export function legionsAt(personId: string, year: number) {
   for (const r of rows) if (r.year <= year && (!best || r.year > best.year)) best = r;
   return best;
 }
-
-export const ROMA_URBS = Object.values(import.meta.glob('../data/overlays/pack-roma-urbs.json', { eager: true, import: 'default' }))[0] as
-  { teaching?: boolean; features: unknown[] } | undefined;
-
-/** 알렉산드리아 미시 지도. 카이사르가 갇혀 싸운 도시다 — 헵타스타디온이 그 전쟁의
- *  결정적 지형이고, River가 「알렉산드리아 도서관 도시」를 콕 집었다. */
-export const ALEXANDRIA = Object.values(import.meta.glob('../data/overlays/pack-alexandria.json', { eager: true, import: 'default' }))[0] as
-  { teaching?: boolean; features: unknown[]; view?: { center: [number, number]; zoom: number; minZoom: number } } | undefined;
 
 const sceneText = Object.values(import.meta.glob('../data/overlays/pack-scene-text.json', { eager: true, import: 'default' }))[0] as
   { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> } | undefined;
