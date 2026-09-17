@@ -30,8 +30,9 @@ data/external/pleiades/
 data/external/cliopatria*
 data/external/__MACOSX/
 
-# 기하 3D DEM 타일은 크고 라이선스가 출처별로 다르다 — 받는 사람이 판단해서 커밋(기본은 무시)
-public/datasets/*/terrain/
+# DEM 원본 캐시(ETOPO·Copernicus). 산출 타일(public/datasets/rome/terrain*)은 커밋한다(2026-09-17, OVERHAUL §3.7)
+data/external/dem/
+data/external/landcover/
 data/ontology-dir.txt
 
 # 발표 정지 이미지 원본 — scripts/shoot-pack.py로 재생성한다(장당 4~6MB).

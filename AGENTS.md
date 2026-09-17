@@ -31,26 +31,25 @@
 
 ## 기하 3D 지형(DEM)
 
-> **2026-09-17부터 바뀐다.** AWS Terrain Tiles(라이선스 혼합)는 걷어냈고, DEM은 `scripts/bake-dem.py`가 ETOPO 2022(대륙 z0~8, 자유 이용)와 Copernicus GLO-30(미시 인셋 z8~12, 출처 표기)에서 구워 **레포에 커밋**한다. 아래 절은 그 전환이 끝나면 걷어낸다. 설계는 `docs/OVERHAUL.md` §3.7, 절차는 `docs/plans/2026-09-17-overhaul-I-2-dem-micromaps.md`.
+DEM 타일은 **레포에 커밋돼 있다**(2026-09-17, OVERHAUL §3.7). 런타임 외부 호출 0. 엔진은 `public/datasets/rome/terrain/meta.json`을 보고 `raster-dem` + `hillshade` + `setTerrain`을 붙이고, 미시지도에 들어가면 그 지도의 `dem.dir`(`terrain-<id>/`)로 소스를 갈아 끼운다.
 
-"입체 보기"는 기본이 카메라 pitch만이다 — 굴곡은 DEM 타일이 있어야 생긴다. 타일은 용량·라이선스 때문에 레포에 없다(`.gitignore`).
+| 폴더 | 원본 | 범위 | 크기 |
+|---|---|---|---|
+| `terrain/` | ETOPO 2022 15초(NOAA, 자유 이용) | z0~8, BBOX(`scripts/extent.ts`) | 4,780장 144 MB |
+| `terrain-<id>/` | Copernicus GLO-30(출처 표기) | z8~12, 미시지도 `home.at ± span` | 지도당 1~15 MB |
+| `landcover-<id>/` | ESA WorldCover 2021(CC BY 4.0) | z8~12, 같은 범위 | 지도당 1~5 MB |
 
 ```
-TERRAIN=1 npm run fetch-external
+python3 scripts/bake-dem.py --selftest
+python3 scripts/bake-dem.py continental          # 원본 35장(884 MB)은 data/external/dem/에 캐시(gitignore). 굽기 자체는 2분
+python3 scripts/bake-dem.py inset <id> | --all   # 미시지도 파일을 바꾸면 그 인셋을 다시 굽는다
+python3 scripts/bake-landcover.py <id> | --all
 ```
 
-지형만 받고 즉시 끝난다(NE 재다운로드·PIL·mapshaper 안 씀). AWS Terrain Tiles(terrarium) bbox·z0~7, **840장 53MB**(2026-09-16 `public/datasets/rome/terrain/` 실측. 「730장 20MB」는 네 문서에 퍼져 있던 낡은 추정이다).
-브라우저 새로고침하면 켜진다 — `terrain/meta.json`을 엔진이 런타임에 보고 `raster-dem` + `hillshade` + `setTerrain`을 붙인다. **adapt 불필요**
-(manifest에 박지 않는 이유: manifest는 커밋되는데 타일은 아니라서 없는 타일을 요청하게 된다).
-
-**타일이 없으면 콘솔에 `terrain/meta.json` 404가 한 줄 남는다. 이건 정상이다** — 런타임 감지가 곧 이 요청이다.
-Lighthouse의 "errors in console"이 이걸 잡지만 고치지 말 것. 없애려고 meta.json을 커밋하면 위 괄호의 버그로 되돌아간다.
-
-- 더 촘촘히: `TERRAIN_MAX=8` (z0~8. 타일당 실측 65KB 기준 **3,160장 약 200MB**. 옛 「2,900장 55MB」는 z0~7의 낡은 추정에서 파생된 값이다). z8 이상은 MapLibre가 오버줌해서 부드럽게 쓴다.
-- 과장·인코딩은 `public/datasets/<ds>/terrain/meta.json`의 `exaggeration`·`encoding`(terrarium|mapbox).
-- 끄기: `rm -rf public/datasets/rome/terrain`
-- 검증됨(2026-09-09): MapLibre 데모 타일(JAXA AW3D30, mapbox 인코딩)로 알프스 융기·인스브루크 고도 939m 확인.
-- 라이선스가 출처별로 섞여 있다(SRTM·GMTED PD, 일부 ODbL) — 커밋할 거면 확인 후.
+- 인코딩은 terrarium이되 **대륙 2 m·인셋 1 m로 양자화하고 바다는 0**이다. 원 정밀도로 구우면 4배(600 MB)가 된다. 수심 색은 DEM이 아니라 NE 수심 벡터 몫.
+- 총량 상한 200 MB는 `test/terrain.test.ts`가 지킨다. 넘으면 인셋 `maxzoom`을 11로 내린다.
+- 크레딧은 `public/assets/CREDITS.md`, 원본 라이선스는 `data/external/LICENSES.md`. AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다.
+- 과장·인코딩은 `terrain/meta.json`의 `exaggeration`·`encoding`.
 
 ## 정본 온톨로지 경로
 

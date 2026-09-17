@@ -98,7 +98,11 @@
   "short_caveat": "바탕 도판 팔라키 1866 — 1866년 당시 도시가 함께 그려져 있다",
   "opacity_note": "River: \"지도 투명도 30% 줄이기\" → 0.85 × 0.7 = 0.595. 팔라키 도판은 1866년 도시까지 그려 넣어 선이 많다 — 배경으로 물러나야 우리 마킹이 읽힌다."
  },
- "dem": null,
+ "dem": {
+  "dir": "terrain-alexandria",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
  "board": null,
  "features": [
   {
@@ -807,5 +811,11 @@
     "alt": "알렉산드리아 세라페움 자리에 서 있는 '폼페이우스의 기둥'(서기 298~303년)"
    }
   }
- ]
+ ],
+ "landcover": {
+  "dir": "landcover-alexandria",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ }
 }

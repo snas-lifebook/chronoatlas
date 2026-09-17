@@ -134,7 +134,11 @@
   "short_caveat": "바탕 도판 Kiepert 1877 「Roma Urbs」 — 붉은 성벽은 서기 271년, 번호 구역은 기원전 7년",
   "opacity_note": "River: \"로마 시내 지도의 투명도를 50% 줄여주시오\" → 0.85 × 0.5 = 0.425. 도판이 우리 마킹(포메리움·3월 15일 자리·콜아웃 핀)과 세기를 다투고 있었다. 도판은 배경이고 마킹이 주인공이다."
  },
- "dem": null,
+ "dem": {
+  "dir": "terrain-roma",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
  "board": null,
  "features": [
   {
@@ -1531,5 +1535,11 @@
     "alt": "파브리키우스 다리와 티베리나섬, 기원전 62년 건설"
    }
   }
- ]
+ ],
+ "landcover": {
+  "dir": "landcover-roma",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ }
 }

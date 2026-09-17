@@ -60,7 +60,7 @@ schema/micromap.ts ← 신설. zod. src/에 안 넣는다(zod가 초기 번들�
 schema/board.ts    ← 있음. v2 필드 추가(§3.2)
 data/micromaps/<id>.json ← 지도 한 장 = 파일 하나 (features + callouts + view + home + basemap + dem + board)
 data/boards/<id>.json    ← 말판. 미시지도가 board로 가리킨다
-public/datasets/rome/terrain/          ← 대륙 z0~7 (커밋)
+public/datasets/rome/terrain/          ← 대륙 z0~8 (커밋)
 public/datasets/rome/terrain-<id>/     ← 인셋 z8~12 (커밋)
 ```
 
@@ -194,7 +194,7 @@ River가 가리킨 볼트 `references/캡처라이브러리/A_공간지도/` 43�
 
 **설계 세 겹.**
 1. **대륙 DEM을 z8까지**(ETOPO 15초의 원 해상도 한계, 약 460 m/px) 굽고, **모든 스킨에서** hillshade + 옅은 고도색(DESIGN 램프 `--ramp-elev`, 불투명도 15%)을 켠다. z9(미시지도 밖 최대 줌)까지 「지형이 있는 땅」이 된다.
-2. **인셋에 자연 환경 세 층**: DEM 음영(있음) 위에 **토지피복**(ESA WorldCover 10 m, CC BY 4.0 확인 뒤. 숲·경작·초지·나지·건조지·물을 `campaign` 팔레트로 재색: 연두 숲, 밀색 경작, 모래 나지) 래스터 타일 z8~12, 그 위에 **하천·호수** 벡터(HydroRIVERS·HydroLAKES, 라이선스 확인 뒤. 없으면 NE 10m만) 와 NE 해안. Google 지형도의 톤이 아니라 우리 스킨의 톤이다(P2: 지도 위 유채색은 데이터 색뿐. 토지피복은 데이터다).
+2. **인셋에 자연 환경 세 층**: **토지피복**(ESA WorldCover 10 m 2021 v200, CC BY 4.0을 Zenodo 원문으로 확인. 3°×3° 타일, 7곳 전부 있음. `scripts/bake-landcover.py`가 zarr 창 읽기로 필요한 조각만 읽어 z8~12 래스터로 굽는다. 숲·경작·초지·나지·건조지·물을 `campaign` 팔레트로 재색) 위에 **DEM 음영**(Copernicus 인셋), 그 위에 NE 10m 하천·호수·해안(PD, 이미 있음). HydroLAKES는 CC BY 4.0이지만 782 MB 단일 파일이라 보류, HydroRIVERS는 재배포 조항이 불확실해 보류(2026-09-17 실측, REQUESTS 9차 후속 2). Google 지형도의 톤이 아니라 우리 스킨의 톤이다(P2: 지도 위 유채색은 데이터 색뿐. 토지피복은 데이터다).
 3. **인셋을 데이터 한 줄로**: `data/insets.json`에 `{ "id", "at", "span", "why" }`만 적으면 `bake-dem.py`가 DEM·토지피복을 굽고 엔진이 그 범위에서 인셋 소스를 켠다. 미시지도가 없어도 된다. 미시지도의 `home`은 자동으로 인셋이다.
 
 **안 하는 것.** 전역(대륙 전체) 고해상은 타일 수가 z10에서 5만 장을 넘어 레포에 못 넣고, 온라인 타일(Mapterhorn·OpenFreeMap)은 CONSTITUTION 6-2 「런타임 외부 호출 0」의 예외다. **River가 켜기로 하면** 「온라인 지형」 토글(기본 꺼짐, 출처 표기)로 넣는다. 결정 전까지는 인셋 방식만.
@@ -226,15 +226,15 @@ River가 가리킨 볼트 `references/캡처라이브러리/A_공간지도/` 43�
 
 ### 3.7 DEM 파이프라인
 
-**소스.** 대륙은 **ETOPO 2022 15초 표면 고도**(NOAA NCEI, 15°×15° GeoTIFF 타일, 자유 이용, 인용 DOI 10.25921/fd45-gt74). 확대 범위 `[-25,12,75,62]`를 덮는 타일은 28장이다. 육지 고도와 수심이 한 그리드에 있어 슬라이스 III의 수심 색이 같은 타일에서 나온다. 인셋은 **Copernicus GLO-30**(AWS 공개 버킷 `copernicus-dem-30m`, 1°×1° COG, 출처 표기 조건). 두 소스 다 2026-09-17에 이 환경에서 200을 확인했다. 지금 로컬에 있는 AWS Terrain Tiles(라이선스 혼합)는 커밋하지 않고 지운다.
+**소스.** 대륙은 **ETOPO 2022 15초 표면 고도**(NOAA NCEI, 15°×15° GeoTIFF 타일, 자유 이용, 인용 DOI 10.25921/fd45-gt74). 확대 범위 `[-25,12,75,62]`를 덮는 타일은 35장(타일 이름은 좌상단 모서리, 각 33 MB)이다. 대륙은 **z0~8**까지 굽는다(§3.6b ①). 육지 고도와 수심이 한 그리드에 있지만 타일에는 **바다를 0으로 눌러** 굽는다(입체 보기에서 바다가 꺼지지 않게, 그리고 PNG가 반으로 준다). 수심 색은 지형이 아니라 NE 수심 벡터(`bathy-over`)가 낸다. 인셋은 **Copernicus GLO-30**(AWS 공개 버킷 `copernicus-dem-30m`, 1°×1° COG, 출처 표기 조건). 두 소스 다 2026-09-17에 이 환경에서 200을 확인했다. 지금 로컬에 있는 AWS Terrain Tiles(라이선스 혼합)는 커밋하지 않고 지운다.
 
-**도구.** GDAL이 없다. `scripts/bake-dem.py`가 numpy + tifffile(+ imagecodecs)로 직접 한다: 웹 메르카토르 타일 z/x/y의 256×256 픽셀 중심을 위경도로 풀고 소스 그리드에서 이중선형 보간, terrarium 인코딩(`(h + 32768)`을 R·G·B로), PNG 저장. `--selftest`가 인코딩 왕복과 타일 경계를 단언한다. 원본은 `data/external/dem/`(gitignore)에 캐시.
+**도구.** GDAL이 없다. `scripts/bake-dem.py`가 numpy + tifffile(+ imagecodecs)로 직접 한다: 웹 메르카토르 타일 z/x/y의 256×256 픽셀 중심을 위경도로 풀고 소스 그리드에서 이중선형 보간, terrarium 인코딩(`(h + 32768)`을 R·G·B로), PNG 저장. **양자화**: 대륙 2 m·인셋 1 m 계단으로 내린다(2026-09-17 실측: 원 정밀도 1/256 m로 구우면 z8 한 장 128 kB·대륙 4,780장 600 MB, 2 m·바다 0이면 28 kB·144 MB. 15초 화소 460 m에 2 m 계단은 경사 0.25도라 음영에 안 보인다). `--selftest`가 인코딩 왕복과 타일 경계를 단언한다. 원본은 `data/external/dem/`(gitignore)에 캐시.
 
-**범위.** 대륙 z0~7(BBOX 안). 인셋은 미시지도 `home.at` ± `home.span`(지도마다 다르다. 알레시아 0.6, 로마 0.35), z8~12(Copernicus 30 m가 z12 픽셀 크기에 맞는다. z13은 뻥튀기라 안 굽는다). 인셋 소스는 같은 값을 `bounds`로 받고 `minzoom: 8`이라 밖에서는 요청이 안 나간다. 미시지도 파일이 바뀌면 굽는 범위도 따라온다.
+**범위.** 대륙 z0~8(BBOX 안, 4,780장). 인셋은 미시지도 `home.at` ± `home.span`(지도마다 다르다. 알레시아 0.6, 로마 0.35), z8~12(Copernicus 30 m가 z12 픽셀 크기에 맞는다. z13은 뻥튀기라 안 굽는다). 인셋 소스는 같은 값을 `bounds`로 받고 `minzoom: 8`이라 밖에서는 요청이 안 나간다. 미시지도 파일이 바뀌면 굽는 범위도 따라온다.
 
 **엔진.** 대륙 `dem` 소스는 지금 코드 그대로. 인셋은 미시 진입 때 `map.addSource('dem-<id>')` + `setTerrain({source:'dem-<id>'})` + 음영 층의 소스 교체, 이탈 때 복귀. 과장 배율은 지금의 줌 연동 규칙 유지.
 
-**커밋.** `.gitignore`의 `public/datasets/*/terrain/`을 풀고 `terrain/`·`terrain-*/`을 커밋한다. `public/assets/CREDITS.md`와 `data/external/LICENSES.md`에 ETOPO·Copernicus 줄을 더한다. 총량 상한 130 MB는 테스트가 지킨다.
+**커밋.** `.gitignore`의 `public/datasets/*/terrain/`을 풀고 `terrain/`·`terrain-*/`을 커밋한다. `public/assets/CREDITS.md`와 `data/external/LICENSES.md`에 ETOPO·Copernicus 줄을 더한다. 총량 상한 200 MB는 테스트가 지킨다(2026-09-17 실측 대륙 144 MB + 인셋 일곱 35 MB = 179 MB).
 
 ### 3.8 모바일 읽기 모드
 
@@ -266,7 +266,7 @@ DESIGN §4 「모바일은 읽기 전용」을 그대로 따른다. 폭 620px �
 - `test/micromap.test.ts` 신설: 모든 `data/micromaps/*.json`이 zod를 통과 · `kind`가 paint 표 안 · 콜아웃 앵커(피처·유닛) 전원 해석 · `home.at`이 `view` 화면 안 · 장면 `micro`·미시지도 `board` 참조 실재 · 썸네일 대장의 콜아웃 id 실재 · `source` 태그 넷 중 하나.
 - `test/board.test.ts` 확장: v2 필드가 선택이라 기존 둘이 무수정 통과 · 페이즈 `caption`·`cite` 필수 · `status` 규칙 · `interpolate` 단언(t=0·1 일치, 중간은 선분 또는 `path` 위, `routed` 불투명도 감소, 결정론).
 - `test/bookmarks.test.ts` 신설: 왕복(`board`·`phase` 포함) · 그룹 고정 · 가져오기 거절.
-- `test/terrain.test.ts` 신설: `meta.json` 형식 · 인셋 `bounds`가 `home.at`을 포함 · 타일 총량 ≤ 130 MB.
+- `test/terrain.test.ts` 신설: `meta.json` 형식 · 인셋 `bounds`가 `home.at`을 포함 · 타일 총량 ≤ 200 MB.
 - 기존 `present.test.ts`(연도 단조) · `state.test.ts` · `payload.test.ts`는 그대로 지켜야 한다.
 
 **번들.** `scripts/check-bundle.mjs`를 `postbuild`에 건다. `dist/assets/index-*.js` gz ≤ 340 kB. 동적 청크는 별도 상한(미시지도 파일당 ≤ 80 kB gz, 전투 렌더러 청크 ≤ 40 kB gz).

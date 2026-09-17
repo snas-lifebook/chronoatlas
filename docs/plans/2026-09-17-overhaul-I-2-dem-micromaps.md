@@ -8,7 +8,11 @@
 
 **Tech Stack:** Python 3.13 · numpy · tifffile · imagecodecs · Pillow · MapLibre GL 6.3 raster-dem · vitest
 
-**Spec:** `docs/OVERHAUL.md` §3.5 · §3.7 (P2 · P3). 요구 원장 R47 · R48. 선행: 계획 1/4 전부.
+**Spec:** `docs/OVERHAUL.md` §3.5 · §3.6b · §3.7 (P2 · P3). 요구 원장 R47 · R48 · R56. 선행: 계획 1/4 전부.
+
+> **2026-09-17 실행 기록.** Task 2.1의 스크립트는 `scripts/bake-dem.py`로 들어갔고(대륙 기본 maxzoom 8, `inset --all`), 확대 시 자연 환경(R56, 스펙 §3.6b)을 위해 **Task 2.4가 늘었다**: `scripts/bake-landcover.py`가 ESA WorldCover(CC BY 4.0)를 zarr 창 읽기로 `landcover-<id>/` z8~12에 굽고, 미시지도 파일의 `landcover` 블록(`schema/micromap.ts`)과 엔진 진입 훅이 그것을 음영 밑에 깐다. 타일 총량 상한은 200 MB. 인셋 범위는 `home.at ± span`.
+>
+> **2026-09-17 실행 기록 2.** 첫 대륙 굽기가 697 MB로 나왔다. 원인은 terrarium의 1/256 m 정밀도와 수심이 PNG 압축을 죽이는 것. `encode(h, quant_m, sea)`로 대륙 2 m·인셋 1 m 양자화 + 바다 0을 넣어 다시 구웠다: 대륙 144 MB, 인셋 일곱(알레시아 15·로마 5.1·루비콘 7.4·칸나이 3.6·아테네 2.9·알렉산드리아 1.3·파르살루스 3.6) 합 179 MB. 증거 `docs/verify/overhaul/dem-alps-z6.png`(z6.2 알프스 음영, 계단 없음). Task 3.1~3.3의 세 미시지도는 에이전트(micromaps-3)가 초안을 냈고 검토에서 셋을 고쳤다: 아테네 「테미스토클레스 성벽」 폴리곤(안쪽 지점 다섯을 이은 발명 선)을 뺐고, 파르살루스 `source`의 자기수정 찌꺼기 문구를 지웠고, 제목·본문의 작대기를 콜론·쉼표로 바꿨다.
 
 ## Global Constraints
 

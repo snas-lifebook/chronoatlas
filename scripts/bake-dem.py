@@ -51,8 +51,13 @@ def tile_pixel_lonlat(z: int, x: int, y: int, size: int = 256):
 
 
 # ── terrarium ─────────────────────────────────────────────────────────────────
-def encode(h: np.ndarray) -> np.ndarray:
-    v = np.clip(h.astype(np.float64) + 32768.0, 0, 65535.996)
+def encode(h: np.ndarray, quant_m: float = 1.0, sea: bool = True) -> np.ndarray:
+    """quant_m 미터 단위로 양자화하고(B 채널이 0으로 눌려 PNG가 3~4배 줄어든다) 바다는 0으로 편평하게(수심은 지형이 아니라 색이다, OVERHAUL §3.7).
+    원 정밀도(1/256 m)로 구우면 z8 한 장이 128 kB, 대륙 4,780장이 600 MB였다. 2 m·바다 0 이면 28 kB."""
+    h = np.floor(h.astype(np.float64) / quant_m) * quant_m
+    if sea:
+        h = np.maximum(h, 0.0)
+    v = np.clip(h + 32768.0, 0, 65535.996)
     r = np.floor(v / 256)
     g = np.floor(v) - r * 256
     b = np.floor((v - np.floor(v)) * 256)
@@ -170,7 +175,7 @@ def copernicus_tiles(W, S, E, N) -> list[Path]:
 
 
 # ── 굽기 ──────────────────────────────────────────────────────────────────────
-def bake(mosaic: Mosaic, bbox, zmin: int, zmax: int, outdir: Path) -> int:
+def bake(mosaic: Mosaic, bbox, zmin: int, zmax: int, outdir: Path, quant_m: float = 1.0) -> int:
     W, S, E, N = bbox
     n = 0
     for z in range(zmin, zmax + 1):
@@ -181,7 +186,7 @@ def bake(mosaic: Mosaic, bbox, zmin: int, zmax: int, outdir: Path) -> int:
                 lon, lat = tile_pixel_lonlat(z, x, y)
                 png = outdir / str(z) / str(x) / f'{y}.png'
                 png.parent.mkdir(parents=True, exist_ok=True)
-                Image.fromarray(encode(mosaic.sample(lon, lat)), 'RGB').save(png, optimize=True)
+                Image.fromarray(encode(mosaic.sample(lon, lat), quant_m), 'RGB').save(png, optimize=True)
                 n += 1
         print(f'z{z} 끝, 누적 {n}장')
     return n
@@ -192,14 +197,14 @@ def bbox_from_extent():
     return [float(v) for v in m.group(1).split(',')]
 
 
-def cmd_continental(maxzoom: int):
+def cmd_continental(maxzoom: int, quant_m: float = 2.0):
     bbox = bbox_from_extent()
     grids = [Grid(p) for p in etopo_tiles(*bbox)]
     if not grids:
         sys.exit('ETOPO 타일 0장')
     out = DS / 'terrain'
-    n = bake(Mosaic(grids), bbox, 0, maxzoom, out)
-    (out / 'meta.json').write_text(json.dumps({'encoding': 'terrarium', 'minzoom': 0, 'maxzoom': maxzoom, 'exaggeration': 1.4, 'credit': ETOPO_CREDIT}, ensure_ascii=False))
+    n = bake(Mosaic(grids), bbox, 0, maxzoom, out, quant_m)   # 15초(약 460 m) 화소에 2 m 계단은 경사 0.25도, 음영에 안 보인다
+    (out / 'meta.json').write_text(json.dumps({'encoding': 'terrarium', 'minzoom': 0, 'maxzoom': maxzoom, 'exaggeration': 1.4, 'quant_m': quant_m, 'sea': 0, 'credit': ETOPO_CREDIT}, ensure_ascii=False))
     print('대륙', n, '장 →', out)
 
 
@@ -213,13 +218,15 @@ def cmd_inset(mid: str, maxzoom: int):
     if not grids:
         sys.exit('Copernicus 타일 0장')
     out = DS / mm['dem']['dir']
-    n = bake(Mosaic(grids), bbox, mm['dem'].get('minzoom', 8), min(maxzoom, mm['dem'].get('maxzoom', 12)), out)
+    n = bake(Mosaic(grids), bbox, mm['dem'].get('minzoom', 8), min(maxzoom, mm['dem'].get('maxzoom', 12)), out, 1.0)   # 30 m 화소는 1 m 그대로
+    (out / 'meta.json').write_text(json.dumps({'encoding': 'terrarium', 'minzoom': mm['dem'].get('minzoom', 8), 'maxzoom': min(maxzoom, mm['dem'].get('maxzoom', 12)), 'quant_m': 1.0, 'sea': 0, 'credit': COP_CREDIT}, ensure_ascii=False))
     print('인셋', mid, n, '장 →', out)
 
 
 def selftest():
     h = np.array([[-11000.0, 0.0], [8848.5, 1.25]])
-    assert np.allclose(decode(encode(h)), h, atol=1 / 256), 'terrarium 왕복'
+    assert np.allclose(decode(encode(h, 1.0, sea=False)), np.floor(h), atol=1 / 256), 'terrarium 왕복'
+    assert decode(encode(np.array([[-11000.0, 7.9]]), 2.0)).tolist() == [[0.0, 6.0]], '바다 0 · 2 m 양자화'
     w, s, e, n = tile_bounds(0, 0, 0)
     assert (round(w), round(e)) == (-180, 180) and abs(n - 85.0511) < 1e-3, 'z0 경계'
     assert lonlat_to_tile(0.0, 0.0, 1) == (1, 1), 'z1 원점 타일'

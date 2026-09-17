@@ -25,7 +25,11 @@
   "movements"
  ],
  "basemap": null,
- "dem": null,
+ "dem": {
+  "dir": "terrain-cannae",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
  "board": "cannae-216",
  "features": [
   {
@@ -103,5 +107,11 @@
    }
   }
  ],
- "callouts": []
+ "callouts": [],
+ "landcover": {
+  "dir": "landcover-cannae",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ }
 }

@@ -38,3 +38,15 @@ Works/관계분석_방법론/
 ```
 
 에셋을 새로 넣을 때는 레지스트리에 티어를 적고 이 표의 개수를 갱신한다. 출처가 불분명한 이미지는 넣지 않는다.
+
+## 지형·토지피복 (public/datasets/rome/terrain*, landcover-*) — 2026-09-17
+
+여기부터는 **제3자 공개 데이터**를 빌드타임에 구운 타일이다(OVERHAUL §3.6b·§3.7). 재배포 조건을 지킨다.
+
+| 폴더 | 원본 | 라이선스·표기 |
+|---|---|---|
+| `terrain/` z0~8 | ETOPO 2022 15 Arc-Second Global Relief Model, NOAA NCEI. DOI 10.25921/fd45-gt74 | 자유 이용(공공). 인용: "NOAA National Centers for Environmental Information. 2022: ETOPO 2022 15 Arc-Second Global Relief Model" |
+| `terrain-<id>/` z8~12 | Copernicus DEM GLO-30 (AWS Open Data `copernicus-dem-30m`) | "Produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under COPERNICUS by the European Union and ESA; all rights reserved" |
+| `landcover-<id>/` z8~12 | ESA WorldCover 10 m 2021 v200 (Zenodo 7254221) | CC BY 4.0. "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium" |
+
+AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다. 굽는 절차는 `scripts/bake-dem.py`·`scripts/bake-landcover.py`.

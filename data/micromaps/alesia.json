@@ -25,7 +25,11 @@
   "movements"
  ],
  "basemap": null,
- "dem": null,
+ "dem": {
+  "dir": "terrain-alesia",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
  "board": null,
  "features": [
   {
@@ -4000,5 +4004,11 @@
    ],
    "image": null
   }
- ]
+ ],
+ "landcover": {
+  "dir": "landcover-alesia",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ }
 }
