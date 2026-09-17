@@ -1,5 +1,5 @@
 // 앱 셸 (DESIGN v3 §2, TASKS 1.8): 풀블리드 지도 위에 떠 있는 astryx 카드 5 + 타임라인 띠 + 각주 줄. 상태는 store 하나.
-import { useEffect, useRef, useSyncExternalStore, useState, useMemo } from 'react';
+import { useEffect, useRef, useSyncExternalStore, useState, useMemo, lazy, Suspense } from 'react';
 import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
@@ -7,10 +7,8 @@ import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine
 import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
-import { Search } from './Search';
-import { renderPng, download } from '../export/png';
-import { timeSlice, pointsCsv } from '../export/data';
-import { renderMp4 } from '../export/mp4';
+// 검색·내보내기·콜아웃·그래프·QC는 첫 화면에 필요 없다. 동적 청크로 뗀다(OVERHAUL §3.4 P0, R46).
+const Search = lazy(() => import('./Search').then(m => ({ default: m.Search })));
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
@@ -18,9 +16,9 @@ import { peopleAtYear, peopleGeoJSON } from '../people';
 import { PACK_BASEMAPS, PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
-import { Callouts } from './Callouts';
-import { GraphPanel } from './GraphPanel';
-import { Qc } from './Qc';
+const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
+const GraphPanel = lazy(() => import('./GraphPanel').then(m => ({ default: m.GraphPanel })));
+const Qc = lazy(() => import('./Qc').then(m => ({ default: m.Qc })));
 import './shell.css';
 
 const fmt = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
@@ -266,9 +264,9 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
-      <Callouts map={engRef.current?.map ?? null} root={root} ds={ds} />
+      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} root={root} ds={ds} /></Suspense>
 
-      {searching && <Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} />}
+      {searching && <Suspense fallback={null}><Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} /></Suspense>}
 
       {/* 「그 해에 누가·어디가·무엇이」(R36). 규칙은 src/year.ts 머리에 적어 놨다 — 중요도를 지어내지 않는다.
           자리는 타이틀 옆이다. 탐색 카드(top 116)·툴바(bottom 120 중앙)·인스펙터(right 360)를 피하면 여기뿐이다. */}
@@ -430,7 +428,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
             <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>
         )}
-        {tab === 'qc' && <Qc base={`${root}datasets/${ds}`} onLocate={locate} />}
+        {tab === 'qc' && <Suspense fallback={null}><Qc base={`${root}datasets/${ds}`} onLocate={locate} /></Suspense>}
         {tab === 'scenes' && (
           <div className="shell-scenes">
             {sceneGroups.map(([group, list]) => (
@@ -460,7 +458,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       {s.sel && <div className="shell-right">
         <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
           onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
-        {graph?.nodes.has(s.sel) && on.has('graph') && <GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} />}
+        {graph?.nodes.has(s.sel) && on.has('graph') && <Suspense fallback={null}><GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} /></Suspense>}
       </div>}
 
       <div className="shell-env">
@@ -483,11 +481,13 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         <Tool label="검색" sub="⌘K" onClick={() => setSearching('find')}>⌕</Tool>
         <Tool label="PNG" sub="export" onClick={async () => {
           const eng = engRef.current; if (!eng) return;
+          const { renderPng, download } = await import('../export/png');
           const blob = await withSkin(() => renderPng(eng.map.getCanvas(), { year: fmt(s.year), subtitle: nearest(d, s.year)?.label, dark: skin === 'dark',
             legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY) · 정본 온톨로지' }));
           download(blob, `chronoatlas_${fmt(s.year).replace(' ', '')}${s.sel ? '_' + s.sel.split(':')[1] : ''}.png`);
         }}>⤓</Tool>
-        <Tool label="데이터" sub="geojson·csv" onClick={() => {
+        <Tool label="데이터" sub="geojson·csv" onClick={async () => {
+          const [{ download }, { timeSlice, pointsCsv }] = await Promise.all([import('../export/png'), import('../export/data')]);
           const tag = fmt(s.year).replace(' ', '');
           download(new Blob([JSON.stringify(timeSlice(d, s.year))], { type: 'application/geo+json' }), `chronoatlas_${ds}_${tag}.geojson`);
           setTimeout(() => download(new Blob([pointsCsv(d, s.year)], { type: 'text/csv;charset=utf-8' }), `chronoatlas_${ds}_${tag}_points.csv`), 300);
@@ -498,6 +498,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? (sc.to ?? Math.min(d.manifest.time.to, sc.year + 20)) : Math.min(d.manifest.time.to, s.year + 20);
           const y0 = s.year; setExporting(0);
           try {
+            const [{ renderMp4 }, { download }] = await Promise.all([import('../export/mp4'), import('../export/png')]);
             const blob = await withSkin(() => renderMp4({ from, to, mapCanvas: eng.map.getCanvas(), setYear: y => store.set({ year: y }), onProgress: setExporting,
               overlay: y => ({ year: fmt(y), subtitle: nearest(d, y)?.label, dark: skin === 'dark', legend: legend.map(l => ({ color: String(l.swatch.background ?? '#888'), label: l.label })), credit: '크로노아틀라스 · Natural Earth(PD) · Pleiades(CC BY) · Cliopatria/Seshat(CC BY) · 정본 온톨로지' }) }));
             download(blob, `chronoatlas_${fmt(from).replace(' ', '')}-${fmt(to).replace(' ', '')}.mp4`);
