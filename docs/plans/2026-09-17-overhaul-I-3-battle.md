@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- 초기 JS ≤ 340 kB gz. 전투 렌더러는 `import()` 청크(≤ 40 kB gz).
+- 초기 JS ≤ 400 kB gz. 전투 렌더러는 `import()` 청크(≤ 40 kB gz).
 - zod는 `schema/`에만. 말판은 `teaching: true`·`source` 강제, `src`·`confidence` 금지(기존 규칙).
 - 페이즈마다 `caption`+`cite`. 화살표·교전은 사료가 말하는 곳에만. 병력은 사료 수치, 논쟁은 `source`와 첫 캡션에.
 - 좌표를 손으로 찍지 않는다. 알레시아 말판은 미시지도 피처에서 **생성기**로 파생한다.

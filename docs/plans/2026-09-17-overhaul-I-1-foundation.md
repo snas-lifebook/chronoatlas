@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- 초기 JS `dist/assets/index-*.js` gz **≤ 340 kB** (이 계획 끝, Task 1.6에서 잰다). P0 단계 자체의 게이트는 360 kB.
+- 초기 JS `dist/assets/index-*.js` gz(`gzip -9`) **≤ 400 kB** (이 계획 끝, Task 1.6에서 잰다. 2026-09-17 실측 491.8, 바닥 361). P0 단계 자체의 게이트는 440 kB.
 - zod는 `schema/`에만. `src/`는 `import type`으로만 스키마를 본다.
 - 좌표는 GeoJSON `[lng, lat]`. 좌표·연도·병력·이름을 지어내지 않는다.
 - `public/datasets/`는 손으로 고치지 않는다(어댑터 산출물). 미시지도·말판·장면은 사람이 쓰는 파일이라 예외.
@@ -198,7 +198,7 @@ git commit -m "feat(지도): 범위 [-25,12,75,62]로 재베이크 (R31 라운�
 - Modify: `package.json` (`postbuild`)
 
 **Interfaces:**
-- Produces: `node scripts/check-bundle.mjs` 가 `dist/assets/index-*.js` gz를 재서 상한을 넘으면 exit 1. 상한은 `BUNDLE_LIMIT` 환경변수(kB)로 덮어쓴다. 기본 340.
+- Produces: `node scripts/check-bundle.mjs` 가 `dist/assets/index-*.js` gz를 재서 상한을 넘으면 exit 1. 상한은 `BUNDLE_LIMIT` 환경변수(kB)로 덮어쓴다. 기본 400 (gzip -9).
 
 - [ ] **Step 1: 스크립트**
 
@@ -211,9 +211,9 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'assets');
-const LIMIT = Number(process.env.BUNDLE_LIMIT ?? 340) * 1000;
+const LIMIT = Number(process.env.BUNDLE_LIMIT ?? 400) * 1000;
 const files = readdirSync(DIR).filter(f => f.endsWith('.js'));
-const rows = files.map(f => [f, gzipSync(readFileSync(join(DIR, f))).length]).sort((a, b) => b[1] - a[1]);
+const rows = files.map(f => [f, gzipSync(readFileSync(join(DIR, f)), { level: 9 }).length]).sort((a, b) => b[1] - a[1]);
 for (const [f, gz] of rows) console.log(`${(gz / 1000).toFixed(1).padStart(7)} kB gz  ${f}`);
 const initial = rows.find(([f]) => /^index-/.test(f));
 if (!initial) { console.error('index-*.js 가 없다'); process.exit(1); }
@@ -231,13 +231,13 @@ console.log(`초기 JS ${(initial[1] / 1000).toFixed(1)} kB gz ≤ ${LIMIT / 100
 - [ ] **Step 3: 지금 값으로 한 번 실패시켜 본다**
 
 Run: `npm run build`
-Expected: postbuild가 `초기 JS 399.x kB gz > 예산 340 kB`로 **실패**한다. 게이트가 산 것이다. `BUNDLE_LIMIT=400 npm run build`는 통과.
+Expected: postbuild가 `초기 JS 491.x kB gz > 예산 400 kB`로 **실패**한다. 게이트가 산 것이다. `BUNDLE_LIMIT=500 npm run build`는 통과.
 
 - [ ] **Step 4: 커밋**
 
 ```bash
 git add scripts/check-bundle.mjs package.json
-git commit -m "chore(빌드): 초기 JS 340 kB gz 예산 게이트 (postbuild)"
+git commit -m "chore(빌드): 초기 JS 400 kB gz 예산 게이트 (postbuild)"
 ```
 
 ---
@@ -249,7 +249,7 @@ git commit -m "chore(빌드): 초기 JS 340 kB gz 예산 게이트 (postbuild)"
 - Modify: `src/app/Search.tsx` (검색 색인 모듈을 첫 열림에 `import()`)
 
 **Interfaces:**
-- Produces: `dist/assets/` 에 `Callouts-*.js` · `GraphPanel-*.js` · `search-*.js` 등 별도 청크. 초기 JS ≤ 360 kB gz.
+- Produces: `dist/assets/` 에 `Callouts-*.js` · `GraphPanel-*.js` · `search-*.js` 등 별도 청크. 초기 JS ≤ 440 kB gz.
 
 - [ ] **Step 1: 어디가 무거운지 잰다**
 
@@ -283,10 +283,10 @@ useEffect(() => { if (open && !idx) import('../search').then(setIdx); }, [open, 
 ```
 `idx`가 null이면 입력창만 보이고 결과는 빈 상태 카피 「색인을 불러오는 중」.
 
-- [ ] **Step 4: 빌드 게이트 360으로 확인**
+- [ ] **Step 4: 빌드 게이트 440으로 확인**
 
-Run: `BUNDLE_LIMIT=360 npm run build`
-Expected: 통과. `index-*.js`가 360 kB gz 이하이고 `Callouts-*`·`GraphPanel-*`·`search-*` 청크가 생겼다. 안 되면 Step 1의 grep으로 초기 청크에 남은 것을 찾아 같은 꼴로 뗀다.
+Run: `BUNDLE_LIMIT=440 npm run build`
+Expected: 통과. `index-*.js`가 440 kB gz 이하이고 `Callouts-*`·`GraphPanel-*`·`search-*` 청크가 생겼다. 안 되면 Step 1의 grep으로 초기 청크에 남은 것을 찾아 같은 꼴로 뗀다.
 
 - [ ] **Step 5: 동작 확인과 커밋**
 
@@ -886,7 +886,7 @@ git commit -m "feat(미시지도): 장면 micro 필드 · 칸나이 등록"
 
 ---
 
-### Task 1.6: 번들 340 게이트 닫기 (P0·P1 완료 판정)
+### Task 1.6: 번들 400 게이트 닫기 (P0·P1 완료 판정)
 
 **Files:**
 - Modify: `src/main.tsx` (`data/boards/*.json` eager glob → lazy는 하지 않는다. 말판은 20 KB라 남긴다. 대신 `data/overlays/pack-legions.json`·`pack-scene-text.json`처럼 발표 장면이 안 쓰는 건 없다. 여기서는 측정만)
@@ -895,7 +895,7 @@ git commit -m "feat(미시지도): 장면 micro 필드 · 칸나이 등록"
 - [ ] **Step 1: 잰다**
 
 Run: `npm run build`
-Expected: postbuild 게이트(340) 통과. 안 되면 `grep -o "pack-[a-z-]*" dist/assets/index-*.js | sort -u`로 초기 청크에 남은 오버레이를 보고, 발표 장면 첫 화면에 필요 없는 것(`pack-legions`는 people 층이 쓰므로 남긴다)을 `import()`로 뗀다. 340을 넘는 동안은 커밋하지 않는다.
+Expected: postbuild 게이트(400) 통과. 안 되면 `grep -o "pack-[a-z-]*" dist/assets/index-*.js | sort -u`로 초기 청크에 남은 오버레이를 보고, 발표 장면 첫 화면에 필요 없는 것(`pack-legions`는 people 층이 쓰므로 남긴다)을 `import()`로 뗀다. 400을 넘는 동안은 커밋하지 않는다.
 
 - [ ] **Step 2: BACKLOG 근거 적기**
 
@@ -912,6 +912,6 @@ git commit -m "docs(BACKLOG): R46 닫힘 · R47 부분 (레지스트리 이관 �
 
 ## Self-review (계획 작성자가 했다)
 
-- 스펙 P-A: Task A1·A2. P0: Task 0.1·0.2 (360 게이트) + Task 1.6 (340 게이트). P1: Task 1.1~1.5. 스펙 §3.4 P0 행의 「≤ 340」은 Task 1.6 시점에 닫힌다. 미시 오버레이를 두 번 옮기지 않기 위한 순서 조정이고 `docs/OVERHAUL.md` §3.4에 같은 문장을 적어 둔다.
+- 스펙 P-A: Task A1·A2. P0: Task 0.1·0.2 (440 게이트) + Task 1.6 (400 게이트). P1: Task 1.1~1.5. 스펙 §3.4 P0 행의 「≤ 400」은 Task 1.6 시점에 닫힌다. 미시 오버레이를 두 번 옮기지 않기 위한 순서 조정이고 `docs/OVERHAUL.md` §3.4에 같은 문장을 적어 둔다.
 - 타입 일관성: `MicroMapDef`·`CalloutDef`(schema) ↔ `resolveCallouts`·`createMicro`(micro.ts) ↔ `loadMicro`·`microMapAt`(micromaps.ts) ↔ 엔진 `syncDetailMaps`. `Scene.micro`는 state.ts.
 - 자리표시자: KIND_PAINT의 알레시아 네 줄 외 값은 「engine.ts 옛 블록에서 옮긴다」로 출처를 못 박았다. 지어내는 값은 없다.

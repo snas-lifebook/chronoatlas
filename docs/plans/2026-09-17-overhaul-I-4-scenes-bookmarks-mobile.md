@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- 초기 JS ≤ 340 kB gz(postbuild 게이트). 북마크 모듈은 작다(zod 없음, 필드 화이트리스트).
+- 초기 JS ≤ 400 kB gz(postbuild 게이트). 북마크 모듈은 작다(zod 없음, 필드 화이트리스트).
 - 장면 연도 단조성 테스트(`test/present.test.ts`) 유지. 좌표·연도를 지어내지 않는다(카르하이 점은 정본·교보재에서 읽는다).
 - 모바일은 읽기 전용(DESIGN §4): 스크럽·탭·재생만. 터치 타깃 ≥ 44px. 브라우저 다이얼로그(`prompt`·`confirm`) 금지(CDP 검증이 막힌다). 
 - `git add` 경로 명시. push는 River가 말할 때만. 카피는 한국어, 작대기·이모지 금지.

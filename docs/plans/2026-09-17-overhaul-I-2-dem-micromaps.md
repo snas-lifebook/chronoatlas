@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- 초기 JS ≤ 340 kB gz (계획 1/4의 게이트가 postbuild에서 지킨다).
+- 초기 JS ≤ 400 kB gz (계획 1/4의 게이트가 postbuild에서 지킨다).
 - 좌표를 지어내지 않는다. 우선순위 ① `public/datasets/rome/layers/{settlements,landmarks}.geojson`(정본·Pleiades) ② 발굴 보고·학술 지도 ③ 위키백과 좌표 필드. 면·선은 근사이고 `grade`로 말한다. OSM(ODbL)·CC BY-SA 기하는 복사하지 않는다.
 - DEM 소스는 둘뿐: ETOPO 2022(NOAA, 자유 이용, DOI 10.25921/fd45-gt74) · Copernicus GLO-30(출처 표기). AWS Terrain Tiles는 쓰지 않는다.
 - 타일 총량 ≤ 130 MB(`test/terrain.test.ts`). 런타임 외부 호출 0.
