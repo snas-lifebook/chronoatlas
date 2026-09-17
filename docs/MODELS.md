@@ -1,6 +1,6 @@
 # MODELS: 모델링 시각화 (AI와 사람이 같이 보는 설계도)
 
-**이 문서를 고칠 때.** 모델(스키마·State·Scene·엔진 반환 API)이 바뀌는 커밋은 이 문서의 해당 도식을 같은 커밋에서 고친다. 데이터 모델 도식은 나중에 `scripts/models-diagram.mjs`가 zod에서 생성하도록 바꿀 예정이며, 그때까지는 손으로 맞춘다.
+**이 문서를 고칠 때.** 모델(스키마·State·Scene·엔진 반환 API)이 바뀌는 커밋은 이 문서의 해당 도식을 같은 커밋에서 고친다. 데이터 모델 도식의 zod 부분은 `scripts/models-diagram.mjs`가 생성한다(2026-09-17부터). 스키마를 바꾸면 그 스크립트를 다시 돌린다. 테스트가 낡은 블록을 잡는다.
 
 이 문서는 지금 코드(2026-09-16 상태)와 `docs/OVERHAUL.md` 전면 개선(2026-09-17 착수, 슬라이스 I)이 계획한 모델을 함께 그린다. 계획 단계인 것(미시지도 레지스트리·말판 v2·전투 재생·북마크·DEM 두 층)은 아직 코드에 없다 — 세부 규칙은 여기 적지 않고 `OVERHAUL.md`와 계획 문서로 링크만 한다(CONSTITUTION 0-4).
 
@@ -81,106 +81,6 @@ classDiagram
     +Skin skin
     +string[] layers
   }
-  class MicroMapDef {
-    +string id
-    +string title
-    +number year
-    +true teaching
-    +string source
-    +string[] hide
-    +string board
-  }
-  class MicroHome {
-    +LonLat at
-    +number minZoom
-    +number span
-  }
-  class MicroView {
-    +LonLat center
-    +number zoom
-    +number pitch
-    +number bearing
-  }
-  class BasemapDef {
-    +string id
-    +string file
-    +Corners corners
-    +number opacity
-  }
-  class TerrainInset {
-    +string dir
-    +number minzoom
-    +number maxzoom
-  }
-  class MicroFeatureProps {
-    +string id
-    +string name_ko
-    +string name_la
-    +string kind
-    +string grade
-    +string source
-    +string note_ko
-    +string wiki
-  }
-  class Callout {
-    +string id
-    +string topic
-    +string side
-    +number num
-    +string title
-    +string body
-    +string cite
-  }
-  class CalloutAnchor {
-    <<union>>
-    +string feature
-    +LonLat lnglat
-    +string unit
-  }
-  class BoardData {
-    +string id
-    +string title
-    +number year
-    +string event
-    +LonLat center
-    +true teaching
-    +string source
-  }
-  class Phase {
-    +number t
-    +string title
-    +string note
-    +string caption
-    +string cite
-  }
-  class Unit {
-    +string id
-    +LonLat at
-    +string actor
-    +Arm arm
-    +string label
-    +number strength
-    +number facing
-    +string entity
-    +UnitStatus status
-    +LonLat[] path
-  }
-  class Quote {
-    +string text
-    +string who
-    +string cite
-  }
-  class Arrow {
-    +LonLat from
-    +LonLat to
-    +LonLat via
-    +string actor
-    +string kind
-  }
-  class Clash {
-    +LonLat at
-    +string label
-  }
   class Frame {
     +number i
     +number frac
@@ -195,45 +95,206 @@ classDiagram
   }
   class BookmarkStore {
     +string key
+    +boolean available
   }
   class ContinentalMeta {
     +string encoding
     +number minzoom
     +number maxzoom
     +number exaggeration
+    +number quant_m
     +string credit
   }
-
   State ..> Scene : scene(id)로 참조
-  Scene ..> MicroMapDef : micro(id)로 참조
-  MicroMapDef ..> BoardData : board(id)로 참조
-  MicroMapDef "1" *-- "1" MicroHome : home
-  MicroMapDef "1" *-- "1" MicroView : view
-  MicroMapDef "1" o-- "0..1" BasemapDef : basemap
-  MicroMapDef "1" o-- "0..1" TerrainInset : dem
-  MicroMapDef "1" *-- "many" MicroFeatureProps : features
-  MicroMapDef "1" *-- "many" Callout : callouts
-  Callout "1" *-- "1" CalloutAnchor : anchor
-  CalloutAnchor ..> MicroFeatureProps : feature
-  CalloutAnchor ..> Unit : unit
-  BoardData "1" *-- "many" Phase : phases
-  Phase "1" *-- "many" Unit : units
-  Phase "1" o-- "many" Arrow : arrows
-  Phase "1" o-- "many" Clash : clashes
-  Phase "1" o-- "0..1" Quote : quote
+  Scene ..> MicroMap : micro(id)로 참조
+  Scene ..> Board : board(id)로 참조
   Frame "1" *-- "many" FrameUnit : units
   Frame "1" o-- "many" Arrow : arrows
   Frame "1" o-- "many" Clash : clashes
   Frame "1" o-- "0..1" Quote : quote
-  Frame ..> BoardData : interpolate(board, t)의 결과
+  Frame ..> Board : interpolate(board, t)의 결과
   FrameUnit --|> Unit
-  BookmarkStore "1" o-- "many" Scene : items
-  ContinentalMeta ..> TerrainInset : 인셋엔 meta.json이 없다\n(같은 모양을 미시지도 dem 블록이 대신 정본으로 갖는다)
+  BookmarkStore "1" o-- "many" Scene : items (group = 내 북마크)
+  ContinentalMeta ..> MicroMapDem : 인셋 폴더에도 같은 모양의 meta.json이 있다
 
   note for Unit "런타임 형태는 두 군데에 따로 있다: schema/board.ts의 zod Unit(검증용)과 src/board.ts의 BoardUnit 인터페이스(zod 없이 런타임이 쓰는 순수 타입). 번들에 zod를 안 싣기 위한 의도된 중복이다(src/board.ts 머리말)."
 ```
 
-정본: [schema/micromap.ts](../schema/micromap.ts)·[schema/board.ts](../schema/board.ts)(계획 1/4·3/4에서 신설·확장), [src/board.ts](../src/board.ts) `interpolate`/`Frame`(계획 3/4 Task 4.2), [src/bookmarks.ts](../src/bookmarks.ts)(계획 4/4 Task 6.1), [OVERHAUL.md §3.2](OVERHAUL.md) 데이터 계약.
+위는 **손으로 그린 런타임 타입**(zod가 아닌 것: State·Scene·Frame·북마크·DEM meta)이고, 아래 블록은 **zod 스키마에서 생성**한다. 같은 클래스 이름(MicroMap·Board·Unit …)을 두 도식이 공유한다.
+
+<!-- generated:schema -->
+_생성됨: `node --experimental-strip-types scripts/models-diagram.mjs` (zod schema/micromap.ts · schema/board.ts). 손으로 고치지 않는다._
+
+```mermaid
+classDiagram
+  class MicroMap {
+    +string id
+    +string title
+    +number year
+    +literal(true) teaching
+    +string source
+    +MicroMapHome home
+    +MicroMapView view
+    +string[] hide?
+    +Basemap basemap?
+    +MicroMapDem dem?
+    +MicroMapLandcover landcover?
+    +string board?
+    +MicroFeature[] features
+    +Callout[] callouts?
+  }
+  class MicroMapHome {
+    +[number,number] at
+    +number minZoom
+    +number span
+  }
+  class MicroMapView {
+    +[number,number] center
+    +number zoom
+    +number pitch?
+    +number bearing?
+  }
+  class MicroMapDem {
+    +string dir
+    +number minzoom?
+    +number maxzoom?
+  }
+  class MicroMapLandcover {
+    +string dir
+    +number minzoom?
+    +number maxzoom?
+    +number opacity?
+  }
+  class MicroFeature {
+    +literal(Feature) type
+    +MicroFeatureProperties properties
+    +MicroFeatureGeometry geometry
+  }
+  class MicroFeatureProperties {
+    +string id
+    +string name_ko
+    +string name_la?
+    +enum(oppidum|inner_line|outer_line|camp|redoubt|gaul_camp|hill|river|plain|trap|ditch|building|theatre|forum|temple|field|wall|boundary|gate|circus|road|lighthouse|island|causeway|harbor|district|cape|lake) kind
+    +enum(확정|근사|복원|논쟁) grade
+    +string source
+    +string note_ko?
+    +string wiki?
+  }
+  class MicroFeatureGeometry {
+    +enum(Point|LineString|Polygon|MultiLineString|MultiPolygon) type
+    +any coordinates
+  }
+  class Callout {
+    +string id
+    +enum(terrain|unit|event) topic?
+    +{feature} | {lnglat} | {unit} anchor
+    +enum(left|right) side
+    +number num
+    +string title
+    +string body
+    +string cite?
+    +CalloutLinks[] links?
+    +CalloutImage image?
+  }
+  class CalloutLinks {
+    +string label
+    +string url
+  }
+  class CalloutImage {
+    +string url
+    +string credit
+    +string alt
+  }
+  class Basemap {
+    +string id
+    +string file
+    +BasemapCorners corners
+    +number opacity?
+    +number min_zoom?
+    +string title?
+    +string caveat?
+    +string short_caveat?
+    +string source?
+    +number rms_m?
+  }
+  class BasemapCorners {
+    +number w
+    +number e
+    +number n
+    +number s
+  }
+  class Board {
+    +string id
+    +string title
+    +number year
+    +string event?
+    +[number,number] center
+    +number zoom?
+    +number bearing?
+    +literal(true) teaching
+    +string source
+    +Phase[] phases
+  }
+  class Phase {
+    +number t
+    +string title
+    +string note?
+    +Unit[] units
+    +string caption?
+    +string cite?
+    +Quote quote?
+    +Arrow[] arrows?
+    +Clash[] clashes?
+  }
+  class Unit {
+    +string id
+    +[number,number] at
+    +string actor
+    +enum(infantry|cavalry|light|elephant|command) arm
+    +string label
+    +number strength?
+    +number facing?
+    +string entity?
+    +enum(active|routed|destroyed) status?
+    +[number,number][] path?
+  }
+  class Quote {
+    +string text
+    +string who
+    +string cite
+  }
+  class Arrow {
+    +[number,number] from
+    +[number,number] to
+    +[number,number] via?
+    +string actor
+    +enum(advance|retreat|flank) kind
+  }
+  class Clash {
+    +[number,number] at
+    +string label?
+  }
+  MicroMap "1" *-- "1" MicroMapHome : home
+  MicroMap "1" *-- "1" MicroMapView : view
+  MicroMap "1" *-- "0..1" Basemap : basemap
+  MicroMap "1" *-- "0..1" MicroMapDem : dem
+  MicroMap "1" *-- "0..1" MicroMapLandcover : landcover
+  MicroMap "1" o-- "many" MicroFeature : features
+  MicroMap "1" o-- "many" Callout : callouts
+  MicroFeature "1" *-- "1" MicroFeatureProperties : properties
+  MicroFeature "1" *-- "1" MicroFeatureGeometry : geometry
+  Callout "1" o-- "many" CalloutLinks : links
+  Callout "1" *-- "0..1" CalloutImage : image
+  Basemap "1" *-- "1" BasemapCorners : corners
+  Board "1" o-- "many" Phase : phases
+  Phase "1" o-- "many" Unit : units
+  Phase "1" *-- "0..1" Quote : quote
+  Phase "1" o-- "many" Arrow : arrows
+  Phase "1" o-- "many" Clash : clashes
+```
+<!-- /generated -->
+
+정본: [schema/micromap.ts](../schema/micromap.ts)·[schema/board.ts](../schema/board.ts)(생성 블록은 `scripts/models-diagram.mjs`가 여기서 읽는다. `test/models.test.ts`가 최신인지 지킨다), [src/board.ts](../src/board.ts) `interpolate`/`Frame`(계획 3/4 Task 4.2), [src/bookmarks.ts](../src/bookmarks.ts)(계획 4/4 Task 6.1), [OVERHAUL.md §3.2](OVERHAUL.md) 데이터 계약.
 
 ## 3. 데이터 흐름: 미시지도 진입·이탈
 
