@@ -10,6 +10,8 @@
 
 **Spec:** `docs/OVERHAUL.md` §3.2(북마크) · §3.3(6) · §3.4 P5~P7 · §3.8. 요구 원장 R44 · R49 · R50. 선행: 계획 1/4~3/4.
 
+> **2026-09-17 실행 기록.** Task 5.1·6.1·6.2·7.1·7.2 됨. 계획과 다른 점: 평야 오버레이(`pack-plains.json`)의 유효기간이 -60~-27이라 BC 270 장면에서 곡창이 안 떠, 전 기간으로 넓혔다(지리는 해가 없다). 콜아웃 목록은 App으로 「올리지」 않고 `Callouts`가 `onResolved`로 올려 보낸다(계산은 한 곳). 시트를 펼치면(half·full) 장면 알약을 CSS로 숨긴다(펼친 시트 위에 떠서 목록을 가렸다). `Inspector`도 지연 청크로 뗐더니 초기 JS가 447 → 405, 북마크·시트 코드를 얹고 410.4. 400 게이트는 못 닫았다(R46 잔여). Task 7.3(마감 문서)은 BACKLOG·OVERHAUL §3.4·MICROMAP-UX §7·HANDOFF·00-START에 반영.
+
 ## Global Constraints
 
 - 초기 JS ≤ 400 kB gz(postbuild 게이트). 북마크 모듈은 작다(zod 없음, 필드 화이트리스트).
