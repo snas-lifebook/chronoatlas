@@ -143,7 +143,7 @@ public/datasets/rome/terrain-<id>/     ← 인셋 z8~12 (커밋)
 | 단계 | 무엇 | 완료 조건 |
 |---|---|---|
 | **P-A** 병행 | 정본 마이그레이션 → adapt → 범위 재베이크. `migrate_v2.py --write`(백업 자동, 먼저 `.bak` 존재 확인) → `adapt.ts`가 `팔레트.json`·`_registry.csv`를 `PALETTE_DIR` 또는 정본 옆 `Works/관계분석_방법론/components/`에서 읽게 고침 → `npm run adapt` → `scripts/extent.ts` `BBOX = [-25, 12, 75, 62]` → `npm run fetch-external` → `npm run adapt` 다시 → `npm run validate` | `test/extent.test.ts`·`test/year.test.ts`·`test/ontology.test.ts`의 지뢰가 초록으로. adapt 산출물 diff에서 엔티티·링크 수가 정본 행수와 같다. RUNBOOK-extent §6(콘스탄티노플·안티오키아·크테시폰·알렉산드리아 한 화면, z3~9 캡처 10장 여백 0). 기존 장면 카메라 재조준 |
-| **P0** | 번들 분할 | 초기 JS ≤ 340 kB gz(`scripts/check-bundle.mjs`가 postbuild에서 막는다). vitest 전부 초록. 기존 미시 장면 셋의 `look.py` 층 개수가 분할 전과 같다 |
+| **P0** | 번들 분할 | UI·내보내기·검색 지연 로드로 초기 JS ≤ 360 kB gz. **340 kB 게이트는 P1이 끝나는 시점에 잰다**(미시 오버레이를 두 번 옮기지 않기 위해. 계획 1/4 Task 1.6). `scripts/check-bundle.mjs`가 postbuild에서 막는다. vitest 전부 초록. 기존 미시 장면 셋의 `look.py` 층 개수가 분할 전과 같다 |
 | **P1** | 레지스트리로 이관 + 칸나이 미시지도 등록 | 세 지도가 `data/micromaps/`로 옮겨지고 엔진 미시 층이 31 → 10 이하. 칸나이 미시지도(아우피두스 강 · 평원, 말판 `cannae-216` 연결). `test/micromap.test.ts` 신설. `look.py`로 알레시아·로마·알렉산드리아 층 개수 전후 동일 |
 | **P2** | DEM 두 층 | `terrain/` 대륙 z0~7이 커밋되고 배포 뒤 `terrain/meta.json`이 200. z6 알프스 pitch 50 캡처에 능선이 선다. 인셋 7곳(알레시아·로마·알렉산드리아·루비콘·아테네·파르살루스·칸나이) z8~12. 미시 진입 시 `map.getTerrain().source`가 인셋으로 바뀌고 나가면 되돌아온다. 타일 총량 ≤ 130 MB(테스트) |
 | **P3** | 새 미시지도 셋 | 각 지도 피처 ≥ 8 · 콜아웃 ≥ 5(전부 `cite`) · 앵커 미해결 0 · `source` 태그 전원. `docs/RUBICON.md`·`ATHENS.md`·`PHARSALUS.md`. 세부 지도 그룹에 장면 셋. `look.py` 층 개수 > 0, `docs/verify/overhaul/` 캡처 |
@@ -257,4 +257,4 @@ DESIGN §4 「모바일은 읽기 전용」을 그대로 따른다. 폭 620px �
 - 미시지도 UX 규칙: [MICROMAP-UX.md](MICROMAP-UX.md)가 정본이고, 이 스펙은 그 규칙을 데이터로 옮기는 방법과 전투 재생을 더하는 방법만 적는다. 레지스트리가 붙으면 그 문서 §8 파일 표를 갱신한다.
 - 말판 규칙: BACKLOG §G(2026-09-11 「해 둔 것」)의 정한 것 셋(`teaching` 강제 · 전체 배치 · zod는 `schema/`)은 그대로 살아 있다. v2는 더하기만 한다.
 - 범위 바꾸기 절차: [RUNBOOK-extent.md](RUNBOOK-extent.md). P-A가 끝나면 「River 터미널」 문구를 실측으로 고친다.
-- 구현 계획(단계별 작업 목록)은 이 스펙이 승인된 뒤 따로 쓴다.
+- 구현 계획(단계별 작업 목록, 2026-09-17 작성): `docs/plans/2026-09-17-overhaul-I-1-foundation.md`(P-A · P0 · P1) · `…-I-2-dem-micromaps.md`(P2 · P3) · `…-I-3-battle.md`(P4) · `…-I-4-scenes-bookmarks-mobile.md`(P5 · P6 · P7 · 마감). 각 계획 머리에 「모델링」 표가 있다. 계획은 이 스펙에서 파생되며, 어긋나면 스펙이 이긴다.
