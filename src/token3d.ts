@@ -108,7 +108,11 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
   cloth.position.set(0.3, 0, 0);
   const edge = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.05), new THREE.MeshBasicMaterial({ color: 0xEFE8D4, side: THREE.DoubleSide }));
   edge.position.set(0.3, -0.19, 0.002);
-  flag.add(cloth, edge);
+  // 명패(로마 숫자)는 깃발 아랫단에 붙인다. 말 앞에 두면 이름표(people-label)와 겹쳤다(QA 2026-09-17 최대 판도 44 「XVI」)
+  const plaqueMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, side: THREE.DoubleSide });
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.14), plaqueMat);
+  plaque.position.set(0.3, -0.15, 0.004); plaque.visible = false;
+  flag.add(cloth, edge, plaque);
   if (emblem) {   // 세력 문장(있는 세력만). 흰 재질에 텍스처라 문장 색이 그대로 나온다
     const em = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.3), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, side: THREE.DoubleSide }));
     em.position.set(0.3, 0.02, 0.004); flag.add(em);
@@ -116,13 +120,9 @@ function pieceMesh(color: string, portrait?: string | null, onTexture?: () => vo
   }
   flag.position.set(0.02, 1.0, -0.62); flag.rotation.x = -0.9;   // 뒤로 눕힌다(52도)
   group.add(pole, flag);
-  // ── 명패: 말 앞(+z)에 눕힌 판. 로마 숫자는 setLegions가 넣는다
-  const plaqueMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true });
-  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.23), plaqueMat);
-  plaque.rotation.x = -Math.PI / 2; plaque.position.set(0, 0.16, 0.86); plaque.visible = false;
-  // ── 군단 무리: 장군 뒤 4열 대형. 채우는 것은 setLegions. z6 미만에서는 render가 접는다(LOD)
+  // ── 군단 무리: 장군 뒤 4열 대형. 채우는 것은 setLegions. z6~10에서만 render가 보인다(LOD: 지중해 줌에서는 얼룩, 도시 줌에서는 지도를 덮는다)
   const cluster = new THREE.Group(); cluster.name = 'cluster';
-  group.add(plaque, cluster);
+  group.add(cluster);
   group.userData.plaque = plaque; group.userData.plaqueMat = plaqueMat; group.userData.cluster = cluster; group.userData.mat = mat; group.userData.dark = dark;
   group.rotation.x = Math.PI / 2;
   return group;
@@ -186,7 +186,7 @@ export function createToken(color: string, name = '', portrait?: string | null, 
     },
     render(_gl, args: any) {
       if (!pos || !renderer || !map) return;
-      (group.userData.cluster as THREE.Group).visible = map.getZoom() >= 6;   // 지중해 줌에서 무리는 얼룩이다. 명패만 남긴다
+      { const z = map.getZoom(); (group.userData.cluster as THREE.Group).visible = z >= 6 && z < 10; }   // 지중해 줌에서 무리는 얼룩이고, 도시 줌(로마 시내)에서는 도판을 덮는다
       const mc = maplibregl.MercatorCoordinate.fromLngLat(pos, 0);
       const s = mc.meterInMercatorCoordinateUnits() * tokenMeters(map.getZoom(), scale);
       const model = new THREE.Matrix4()

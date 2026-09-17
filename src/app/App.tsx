@@ -110,6 +110,21 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   }, [s.sel, s.year, graph]);
   // zoom을 넘기는 이유: 같은 칸의 말을 벌리는 폭이 화면 기준이어야 한다(people.spreadDeg).
   const people = useMemo(() => peopleAtYear(s.year, { graph, movements: [...d.movements.features, ...PACK_MOVEMENTS], territory: d.territory.features, teaching: PACK_CAST, zoom: s.zoom ?? undefined }), [s.year, s.zoom, graph, d, dataTick]);
+  // 설명창은 **말을 가리지 않는 쪽**에 선다(QA 2026-09-17: 갈리아·최대 판도 51 장면에서 카이사르가 설명창 밑에 있었다). 장면이 바뀌어 카메라가 선 뒤 양쪽에 말이 몇 개 깔리는지 세어 적은 쪽으로. M으로 언제든 바꾼다
+  useEffect(() => {
+    if (!s.present || hud !== 'full') return;
+    const t = setTimeout(() => {
+      const el = document.querySelector('.shell-present-hud') as HTMLElement | null; const map = engRef.current?.map; if (!el || !map) return;
+      const r = el.getBoundingClientRect(); const W = map.getCanvas().clientWidth;
+      // 말의 실제 자리는 그려진 people-dot(같은 칸의 말을 벌린 좌표)이다. people[].at은 벌리기 전 자리라 알레시아의 둘이 같은 점에 있다
+      let dots: { x: number; y: number }[] = [];
+      try { dots = map.queryRenderedFeatures({ layers: ['people-dot'] }).map(f => map.project((f.geometry as { coordinates: [number, number] }).coordinates)); } catch { return; }
+      const pts = dots.filter(p => p.y >= r.top - 40 && p.y <= r.bottom + 40);
+      const inL = pts.filter(p => p.x <= r.width + 24 + 40).length, inR = pts.filter(p => p.x >= W - r.width - 24 - 40).length;
+      if (inL > inR) setHudSide('right'); else if (inR > inL) setHudSide('left');
+    }, 1500);   // flyTo(1.2초)가 끝난 뒤
+    return () => clearTimeout(t);
+  }, [s.scene, s.present, people]);
   useEffect(() => {
     const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
     engRef.current?.setPeople(peopleGeoJSON(people, palette, id => legionsAt(id, s.year)));

@@ -468,3 +468,11 @@ html[data-skin="campaign"] .shell-present-hud .ph-y, html[data-skin="oldmap"] .s
 .bc-flag img { width: 24px; height: 24px; object-fit: contain; }
 .bc-close { position: absolute; right: 6px; top: 4px; border: 0; background: none; font-size: 16px; color: #6B6353; cursor: pointer; line-height: 1; }
 
+/* 콜아웃 칸 넘침 대응(Callouts.tsx compact). 1: 글자·여백, 2: 사진·링크 접음 */
+.ca-callout-col.is-compact { gap: 6px; }
+.ca-callout-col.is-compact .ca-card { padding: 8px 10px; }
+.ca-callout-col.is-compact .ca-card h4 { font-size: 13px; margin-bottom: 2px; }
+.ca-callout-col.is-compact .ca-card p { font-size: 12px; line-height: 1.4; margin: 2px 0; }
+.ca-callout-col.is-compact .ca-cite { font-size: 10.5px; }
+.ca-callout-col.is-tight .ca-thumb, .ca-callout-col.is-tight .ca-links { display: none; }
+

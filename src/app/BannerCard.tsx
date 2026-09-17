@@ -16,7 +16,7 @@ export function BannerCard({ map, at, name, latin, color, portrait, emblem, legi
   if (!xy) return null;
   // 오른쪽에 인스펙터(.shell-right)가 서 있으면 카드를 말 왼쪽에 둔다. 그리스 장면에서 카이사르 카드가 패널 밑에 깔렸다(2026-09-17)
   const rightEdge = (() => { const el = document.querySelector('.shell-right') as HTMLElement | null; return el && el.offsetParent ? el.getBoundingClientRect().left : innerWidth; })();
-  const flip = xy.x + 44 + 300 > rightEdge - 8;
+  const flip = xy.x + 44 + 300 > Math.min(rightEdge, innerWidth) - 8;
   const men = legion?.men_low != null ? `${fmt(legion.men_low)}${legion.men_high != null && legion.men_high !== legion.men_low ? `~${fmt(legion.men_high)}` : ''}명` : null;
   return (
     <div className={`banner-card${flip ? ' is-left' : ''}`} style={{ left: flip ? xy.x - 44 - 300 : xy.x + 44, top: xy.y - 72, ['--faction' as string]: color }} role="dialog" aria-label={`${name} 배너`}>

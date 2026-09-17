@@ -57,6 +57,9 @@ export function Callouts({ map, engine, root, ds, narrow = false, onResolved, on
   // River의 알레시아 화면에서 왼쪽 카드 넷이 탐색 패널 **밑에 깔려** 아예 안 보였다.
   const [inset, setInset] = useState<{ left: number; right: number }>({ left: 10, right: 10 });
   const [anchors, setAnchors] = useState<Record<string, { x: number; y: number }>>({});
+  // 칸이 화면 아래로 넘치면 단계적으로 촘촘하게(1: 글자·여백 줄임, 2: 사진·링크 접음). 1600×900에서 알레시아 왼쪽 다섯·로마 왼쪽 셋이 잘렸다(QA 2026-09-17)
+  const [compact, setCompact] = useState<{ left: 0 | 1 | 2; right: 0 | 1 | 2 }>({ left: 0, right: 0 });
+  useEffect(() => { setCompact({ left: 0, right: 0 }); }, [which]);
   const cardRef = useRef<Record<string, HTMLElement | null>>({});
   const hostRef = useRef<HTMLDivElement | null>(null);
   const squeezeRef = useRef(false);
@@ -139,6 +142,12 @@ export function Callouts({ map, engine, root, ds, narrow = false, onResolved, on
         y: r.top - base.top + Math.min(24, r.height / 2),
       };
     }
+    // 넘침 검사: 칸의 마지막 카드 아래가 화면 밖이면 한 단계 촘촘하게
+    for (const side of ['left', 'right'] as const) {
+      const col = host.querySelector(`.ca-callout-col.is-${side}`) as HTMLElement | null; if (!col) continue;
+      const last = col.lastElementChild as HTMLElement | null; if (!last) continue;
+      if (last.getBoundingClientRect().bottom > base.bottom - 8 && compact[side] < 2) setCompact(c => ({ ...c, [side]: Math.min(2, c[side] + 1) as 0 | 1 | 2 }));
+    }
     setAnchors(prev => {
       const same = Object.keys(next).length === Object.keys(prev).length
         && Object.entries(next).every(([k, v]) => prev[k] && Math.abs(prev[k].x - v.x) < 0.5 && Math.abs(prev[k].y - v.y) < 0.5);
@@ -214,7 +223,7 @@ export function Callouts({ map, engine, root, ds, narrow = false, onResolved, on
         ))}
       </svg>
       {(['left', 'right'] as const).filter(side => cols[side].length).map(side => (
-        <div key={side} className={`ca-callout-col is-${side}`}
+        <div key={side} className={`ca-callout-col is-${side}${compact[side] ? ' is-compact' : ''}${compact[side] === 2 ? ' is-tight' : ''}`}
              style={{ width: CARD_W, [side]: inset[side],
                       top: side === hudBox.side ? Math.max(H * 0.05, hudBox.bottom + 12) : H * 0.05 }}>
           {cols[side].map(p => (
