@@ -6,10 +6,10 @@ import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
 import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
-import { Inspector } from './Inspector';
-import { BattleBar } from './BattleBar';
-// 검색·내보내기·콜아웃·그래프·QC는 첫 화면에 필요 없다. 동적 청크로 뗀다(OVERHAUL §3.4 P0, R46).
+// 검색·내보내기·콜아웃·그래프·QC·인스펙터·재생 바는 첫 화면에 필요 없다. 동적 청크로 뗀다(OVERHAUL §3.4 P0, R46).
 const Search = lazy(() => import('./Search').then(m => ({ default: m.Search })));
+const Inspector = lazy(() => import('./Inspector').then(m => ({ default: m.Inspector })));
+const BattleBar = lazy(() => import('./BattleBar').then(m => ({ default: m.BattleBar })));
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
@@ -17,7 +17,11 @@ import { peopleAtYear, peopleGeoJSON } from '../people';
 import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
+import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
+import { useNarrow } from './useNarrow';
+import type { ResolvedCallout } from '../map/micro';
 const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
+const MobileSheet = lazy(() => import('./MobileSheet').then(m => ({ default: m.MobileSheet })));
 const GraphPanel = lazy(() => import('./GraphPanel').then(m => ({ default: m.GraphPanel })));
 const Qc = lazy(() => import('./Qc').then(m => ({ default: m.Qc })));
 import './shell.css';
@@ -44,6 +48,16 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const s = useSyncExternalStore(store.subscribe, store.get);
   const mapRef = useRef<HTMLDivElement>(null);
   const engRef = useRef<Engine | null>(null);
+  // 즉석 북마크(R44): localStorage의 장면이 「내 북마크」 그룹으로 파일 장면에 합쳐진다. 엔진(syncDetailMaps)에는 파일 장면만 준다(micro는 파일 장면에만 있다).
+  const bm = useMemo(() => createBookmarks(ds), [ds]);
+  const [marks, setMarks] = useState<Scene[]>(() => bm.list());
+  const allScenes = useMemo(() => [...scenes, ...marks], [scenes, marks]);
+  const allRef = useRef(allScenes); allRef.current = allScenes;   // 키 핸들러는 한 번만 붙는다. 최신 목록은 ref로
+  const [newTitle, setNewTitle] = useState(''); const [importNote, setImportNote] = useState('');
+  // 좁은 화면 읽기 모드(R50): 시트 하나가 설명·콜아웃·객체·재생을 맡는다
+  const narrow = useNarrow();
+  const [microCallouts, setMicroCallouts] = useState<ResolvedCallout[]>([]);
+  const [focusCallout, setFocusCallout] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
@@ -133,8 +147,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       else if (e.key === 'm' || e.key === 'M') setHudSide(x => (x === 'left' ? 'right' : 'left'));
       else if (e.key === '[' || e.key === ']') {
         e.preventDefault();
-        const group = presentGroupOf(scenes, st.scene);
-        const next = stepScene(scenesInGroup(scenes, group), st.scene, e.key === ']' ? 1 : -1);
+        const group = presentGroupOf(allRef.current, st.scene);
+        const next = stepScene(scenesInGroup(allRef.current, group), st.scene, e.key === ']' ? 1 : -1);
         if (next) goScene(next);
       }
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
@@ -172,9 +186,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   // 장면 탭은 프로젝트(발표자)별로 묶는다. group이 없으면 「장면」 한 덩어리(R35).
   const sceneGroups = useMemo(() => {
     const m = new Map<string, Scene[]>();
-    for (const sc of scenes) (m.get(sc.group ?? '장면') ?? m.set(sc.group ?? '장면', []).get(sc.group ?? '장면')!).push(sc);
+    for (const sc of allScenes) (m.get(sc.group ?? '장면') ?? m.set(sc.group ?? '장면', []).get(sc.group ?? '장면')!).push(sc);
     return [...m];
-  }, [scenes]);
+  }, [allScenes]);
+  const curScene = useMemo(() => allScenes.find(sc => sc.id === s.scene) ?? null, [allScenes, s.scene]);
 
   // 객체 목록(1.8 최소판): 도시 rank≤2 + 전투. 2.3 검색에서 people·전체로.
   const objects = useMemo(() => [
@@ -267,7 +282,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
-      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} /></Suspense>
+      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} narrow={narrow} onResolved={setMicroCallouts} onPin={setFocusCallout} /></Suspense>
+      {narrow && <Suspense fallback={null}><MobileSheet scene={curScene} brief={sceneBrief(s.scene)} callouts={microCallouts} board={liveBoard?.board ?? null} engine={engRef.current} focus={focusCallout}
+        onPick={id => { const c = microCallouts.find(x => x.id === id); if (c) engRef.current?.map.easeTo({ center: c.at, duration: 400 }); }}
+        selNode={s.sel ? <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} onHoverNeighbor={() => {}} onLocate={locate} /></Suspense> : null} /></Suspense>}
 
       {searching && <Suspense fallback={null}><Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} /></Suspense>}
 
@@ -296,10 +314,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       )}
 
       {s.present && (() => {
-        const group = presentGroupOf(scenes, s.scene);
-        const list = scenesInGroup(scenes, group);
+        const group = presentGroupOf(allScenes, s.scene);
+        const list = scenesInGroup(allScenes, group);
         const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
-        const cur = list[i] ?? scenes.find(sc => sc.id === s.scene);
+        const cur = list[i] ?? curScene ?? undefined;
         // 설명창이 지도를 가린다(River). H로 **전체 → 간략 → 숨김**을 돌고 M으로 좌우를 바꾼다.
         // 간략에서도 **연도와 말 이름은 남긴다** — River가 「토글로 가려도 년도나 핵심 인물
         // 정도는 뜨게 해야 한다」고 했다. 숨김에서는 되돌릴 단추 하나만 남는다.
@@ -360,8 +378,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       {/* 장면 넘기기 — 손가락용. `[` `]`는 키보드가 없으면 못 쓴다(River: 모바일).
           발표 모드에서만 띄운다. 일반 모드는 툴바·타임라인이 이미 아래를 채운다. */}
       {s.present && (() => {
-        const group = presentGroupOf(scenes, s.scene);
-        const list = scenesInGroup(scenes, group);
+        const group = presentGroupOf(allScenes, s.scene);
+        const list = scenesInGroup(allScenes, group);
         if (list.length < 2) return null;
         const i = Math.max(0, list.findIndex(sc => sc.id === s.scene));
         const go = (dir: -1 | 1) => { const n = stepScene(list, s.scene, dir); if (n) goScene(n); };
@@ -369,7 +387,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         // 그렇다고 손가락으로 갈 길이 없으면 github.io에서 도달 자체가 안 된다(River).
         const inDetail = group === DETAIL_GROUP;
         const other = inDetail ? PRESENT_GROUP : DETAIL_GROUP;
-        const otherList = scenesInGroup(scenes, other);
+        const otherList = scenesInGroup(allScenes, other);
         return (
           <nav className="shell-scene-nav" aria-label="장면 넘기기">
             <button onClick={() => go(-1)} title="앞 장면 ([)" aria-label="앞 장면">◀</button>
@@ -392,8 +410,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         <Text size="sm" color="secondary">{d.manifest.title}</Text>
       </header>
 
-      {!explorerOpen && <button className="shell-explorer-pill" onClick={() => setExplorerOpen(true)}>탐색 ▸</button>}
-      {explorerOpen && <Card padding={3} elevation="low" className="shell-explorer">
+      {!explorerOpen && !narrow && <button className="shell-explorer-pill" onClick={() => setExplorerOpen(true)}>탐색 ▸</button>}
+      {explorerOpen && !narrow && <Card padding={3} elevation="low" className="shell-explorer">
         <div className="shell-explorer-head">
         <SegmentedControl label="탐색" value={tab} onChange={setTab} size="sm">
           <SegmentedControlItem value="objects" label="객체" />
@@ -442,25 +460,36 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
                     <li key={sc.id} className={sc.id === s.scene ? 'is-sel' : ''} onClick={() => goScene(sc)}>
                       <span className="num">{String(i + 1).padStart(2, '0')}</span>
                       <span className="name">{sc.title}<small>{fmtKo(sc.year)}</small></span>
+                      {sc.group === BOOKMARK_GROUP && <button className="bm-del" aria-label="삭제" onClick={e => { e.stopPropagation(); setMarks(bm.remove(sc.id)); }}>지우기</button>}
                       <span className="arrow">↗</span>
                     </li>
                   ))}
                 </ol>
               </div>
             ))}
-            {/* 서버가 없으니 북마크 저장은 URL과 파일뿐이다(R35). 주소는 그대로 공유하고, 파일에 남길 것은 조각으로 복사한다. */}
+            {/* 즉석 북마크(R44): 서버 없이 localStorage에 저장한다. 다이얼로그 없음(CDP 검증이 막힌다). 파일에 남길 것은 내보내기·조각 복사로. */}
             <div className="scene-new">
-              <Button label={copied === 'url' ? '복사됨' : '이 화면 링크 복사'} size="sm" variant="secondary" onClick={() => copy('url', location.href)} />
-              <Button label={copied === 'json' ? '복사됨' : '북마크 조각 복사'} size="sm" variant="ghost" onClick={() => copy('json', JSON.stringify(bookmarkOf(store.get(), { id: bookmarkId(), title: bookmarkTitle(), layers: [...on] }), null, 2))} />
-              <Text size="sm" color="secondary">연도·카메라·스킨·레이어가 함께 담긴다. 조각은 <code>data/scenes/{ds}.json</code>에 붙여넣고 <code>title</code>·<code>group</code>을 고쳐 커밋한다.</Text>
+              <div className="bm-row">
+                <input className="bm-title" value={newTitle} onChange={e => setNewTitle(e.currentTarget.value)} placeholder={bookmarkTitle()} aria-label="북마크 제목" />
+                <Button label="지금 화면 저장" size="sm" variant="secondary" isDisabled={!bm.available}
+                  onClick={() => { setMarks(bm.save(bookmarkOf(store.get(), { id: bookmarkId(), title: newTitle.trim() || bookmarkTitle(), group: BOOKMARK_GROUP, layers: [...on] }))); setNewTitle(''); }} />
+              </div>
+              {!bm.available && <Text size="sm" color="secondary">이 브라우저는 저장 공간을 막아 두었다. 링크 복사만 된다.</Text>}
+              <div className="bm-row">
+                <Button label={copied === 'url' ? '복사됨' : '이 화면 링크 복사'} size="sm" variant="ghost" onClick={() => copy('url', location.href)} />
+                <Button label={copied === 'json' ? '복사됨' : '북마크 조각 복사'} size="sm" variant="ghost" onClick={() => copy('json', JSON.stringify(bookmarkOf(store.get(), { id: bookmarkId(), title: bookmarkTitle(), layers: [...on] }), null, 2))} />
+                <Button label="내보내기" size="sm" variant="ghost" isDisabled={!marks.length} onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([bm.exportJson()], { type: 'application/json' })); a.download = `chronoatlas-bookmarks-${ds}.json`; a.click(); URL.revokeObjectURL(a.href); }} />
+                <label className="bm-import"><input type="file" accept="application/json" onChange={async e => { const f = e.currentTarget.files?.[0]; if (!f) return; const r = bm.importJson(await f.text()); setMarks(bm.list()); setImportNote(`${r.added}개 가져옴${r.dropped ? `, ${r.dropped}개 버림` : ''}`); e.currentTarget.value = ''; }} />가져오기</label>
+              </div>
+              {importNote && <Text size="sm" color="secondary">{importNote}</Text>}
             </div>
           </div>
         )}
       </Card>}
 
-      {s.sel && <div className="shell-right">
-        <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
-          onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
+      {s.sel && !narrow && <div className="shell-right">
+        <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
+          onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} /></Suspense>
         {graph?.nodes.has(s.sel) && on.has('graph') && <Suspense fallback={null}><GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} /></Suspense>}
       </div>}
 
@@ -498,7 +527,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         <Tool label={exporting != null ? `${Math.round(exporting * 100)}%` : 'MP4'} sub="scene" onClick={async () => {
           const eng = engRef.current; if (!eng || exporting != null) return;
           // 현재 장면 구간(없으면 현재 연도 ±20) 을 1년/프레임 12fps로. 끝나면 원래 연도로.
-          const sc = scenes.find(x => x.id === s.scene); const from = sc ? sc.year : s.year - 20, to = sc ? (sc.to ?? Math.min(d.manifest.time.to, sc.year + 20)) : Math.min(d.manifest.time.to, s.year + 20);
+          const sc = curScene; const from = sc ? sc.year : s.year - 20, to = sc ? (sc.to ?? Math.min(d.manifest.time.to, sc.year + 20)) : Math.min(d.manifest.time.to, s.year + 20);
           const y0 = s.year; setExporting(0);
           try {
             const [{ renderMp4 }, { download }] = await Promise.all([import('../export/mp4'), import('../export/png')]);
@@ -527,7 +556,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         </div>
       </footer>
 
-      {liveBoard && engRef.current && <BattleBar engine={engRef.current} store={store} board={liveBoard.board} shift={explorerOpen} />}
+      {liveBoard && engRef.current && !narrow && <Suspense fallback={null}><BattleBar engine={engRef.current} store={store} board={liveBoard.board} shift={explorerOpen} /></Suspense>}
 
       <div className="shell-footnote">
         <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>

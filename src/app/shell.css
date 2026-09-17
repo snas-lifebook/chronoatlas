@@ -413,3 +413,30 @@ html[data-micro] .shell-year-brief { display: none; }
 .ca-chips { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 4; pointer-events: auto; }
 .ca-chip { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-secondary); background: color-mix(in srgb, var(--color-background-surface) 85%, transparent); cursor: pointer; }
 .ca-chip.is-on { color: var(--color-text-primary); border-color: var(--color-text-primary); }
+
+/* 즉석 북마크 (R44, 장면 탭) */
+.bm-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.bm-title { flex: 1 1 140px; min-width: 0; height: 32px; padding: 0 10px; border: 1px solid var(--color-border); border-radius: var(--radius-element, 8px); background: var(--color-background-surface); color: var(--color-text-primary); font: 500 13px/1 var(--font-family-body); }
+.bm-import { font-size: 12px; color: var(--color-text-secondary); cursor: pointer; } .bm-import input { display: none; }
+.bm-del { margin-left: auto; font-size: 11px; color: var(--color-text-secondary); background: none; border: 0; cursor: pointer; }
+
+/* 모바일 읽기 모드 (R50, MobileSheet.tsx). 620px 이하에서만 존재한다 */
+.mobile-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-rows: 24px 44px 1fr; background: var(--color-background-surface); border-top: 1px solid var(--color-border); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-med, 0 -4px 16px rgba(0,0,0,.12)); transition: height 180ms ease; }
+.mobile-sheet.is-peek { height: 68px; } .mobile-sheet.is-half { height: 46vh; } .mobile-sheet.is-full { height: 88vh; }
+.ms-grip { height: 24px; background: none; border: 0; position: relative; cursor: pointer; } .ms-grip::after { content: ''; position: absolute; left: 50%; top: 9px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--color-border); }
+.ms-tabs { display: flex; gap: 4px; padding: 0 12px; } .ms-tabs button { flex: 1; min-height: 44px; border: 0; background: none; font: 600 13px/1 var(--font-family-body); color: var(--color-text-secondary); border-bottom: 2px solid transparent; cursor: pointer; } .ms-tabs button.is-on { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+.ms-body { overflow: auto; padding: 8px 16px 24px; display: grid; gap: 8px; align-content: start; }
+.ms-callouts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .ms-callouts li { display: flex; gap: 10px; min-height: 44px; padding: 4px; } .ms-callouts li.is-focus { background: var(--color-background-muted); border-radius: 8px; }
+.ms-callouts .num { flex: 0 0 24px; height: 24px; border-radius: 50%; background: #B8860B; color: #fff; font: 700 12px/24px var(--font-family-body); text-align: center; }
+.ms-callouts p { margin: 2px 0; font-size: 13px; line-height: 1.5; } .ms-callouts small { color: var(--color-text-secondary); }
+.ms-play { display: grid; gap: 8px; }
+.mobile-sheet .shell-right { position: static; width: auto; max-height: none; }   /* 시트 안의 인스펙터는 흐름 배치 */
+.ca-callouts.is-narrow .ca-callout-lines { pointer-events: none; } .ca-callouts.is-narrow .ca-tap { pointer-events: auto; cursor: pointer; }
+@media (max-width: 620px) {
+  .shell-explorer, .shell-explorer-pill, .shell-legend, .shell-env, .shell-footnote, .shell-scan-note, .shell-board, .shell-toolbar, .shell-timeline, .shell-year-brief, .shell-title { display: none !important; }
+  .shell-scene-nav { bottom: 76px; }          /* 시트(peek 68px) 위 */
+  .shell-scene-nav .sn-jump { min-height: 44px; }
+  .mobile-sheet.is-half ~ .shell-scene-nav, .mobile-sheet.is-full ~ .shell-scene-nav { display: none; }   /* 시트를 펼치면 장면 알약은 시트 밑에 깔린다. 손잡이로 접으면 돌아온다 */
+  .shell-present-hud { max-width: calc(100% - 24px); }
+}
+

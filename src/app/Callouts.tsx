@@ -28,7 +28,8 @@ type Pin = { c: Callout; x: number; y: number };
 /** 카드가 세로로 쌓이는 칸. 화면 높이에 맞춰 잘라 쓴다. */
 const CARD_W = 300;
 
-export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null; engine: Engine | null; root: string; ds: string }) {
+export function Callouts({ map, engine, root, ds, narrow = false, onResolved, onPin }:
+  { map: maplibregl.Map | null; engine: Engine | null; root: string; ds: string; narrow?: boolean; onResolved?: (list: ResolvedCallout[]) => void; onPin?: (id: string) => void }) {
   // 어느 미시지도가 켜져 있는가는 엔진이 말한다(레지스트리 진입·이탈). 줌 문턱 계산은 엔진 몫이다.
   const [def, setDef] = useState<MicroMapDef | null>(null);
   useEffect(() => { const off = engine?.onMicro(setDef); return () => { off?.(); }; }, [engine]);
@@ -45,6 +46,8 @@ export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null
     ? resolveCallouts(def, id => engine?.battle()?.unitAt(id) ?? null).filter(c => topics.has(c.topic)).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null }))
     : [], [def, engine, tick, topics]);
   const hasTopic = useMemo(() => new Set(def?.callouts.map(c => c.topic) ?? []), [def]);
+  // 좁은 화면(R50)에서는 카드가 시트로 간다. 목록을 App에 올려 보낸다
+  useEffect(() => { onResolved?.(resolved); }, [resolved, onResolved]);
   const which = def?.id ?? null;
   const [pins, setPins] = useState<Pin[]>([]);
   const [size, setSize] = useState<[number, number]>([0, 0]);
@@ -151,6 +154,21 @@ export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null
   }
   if (!which || (!pins.length && hasTopic.size < 2)) return null;
   const [W, H] = size;
+  // 좁은 화면: 핀만 지도에 남긴다. 누르면 시트의 그 항목으로. 지시선·카드·칩은 없다(카드가 지도를 다 덮는다)
+  if (narrow) {
+    return (
+      <div className="ca-callouts is-narrow" ref={hostRef}>
+        <svg className="ca-callout-lines" width={W} height={H}>
+          {pins.map(p => (
+            <g key={`pin-${p.c.id}`} className="ca-leader ca-tap" onClick={() => onPin?.(p.c.id)}>
+              <circle cx={p.x} cy={p.y} r={14} className="ca-pin" />
+              <text x={p.x} y={p.y + 4} className="ca-pin-num">{p.c.num}</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  }
   const chips = hasTopic.size >= 2 && (
     <div className="ca-chips">
       {([['terrain', '지형'], ['unit', '부대'], ['event', '사건']] as const).filter(([k]) => hasTopic.has(k)).map(([k, label]) => (
