@@ -11,6 +11,8 @@
 
 ## 1. 지금 상태
 
+> **2026-09-17 갱신(슬라이스 I).** 아래 수치 여럿이 낡았다: vitest **255**, 초기 JS **449.9 kB(gzip -9, 게이트 450, 라체트 → 400)**, `terrain/meta.json` 404는 **더 이상 나지 않는다**(DEM 179 MB가 레포에 있다, `AGENTS.md` 「기하 3D 지형」). 미시지도는 `data/micromaps/` 일곱 장, 말판은 v2(전투 재생). 상태의 정본은 `BACKLOG.md` R번호와 `plans/2026-09-17-overhaul-I-*.md` 실행 기록이다. 커밋 넷+는 **미푸시**.
+
 - **라이브: https://snas-lifebook.github.io/chronoatlas/** (2026-09-10 배포). 원격 `origin` = `snas-lifebook/chronoatlas`(public).
   push하면 Actions가 `npm ci` → `npm run build`(= gen·lint·typecheck·vitest·vite) → Pages. **빌드가 깨지면 배포가 안 된다.**
   옛 레포 `visual-pipeline`은 archived이고 옛 Pages 주소는 여기로 리다이렉트한다.
