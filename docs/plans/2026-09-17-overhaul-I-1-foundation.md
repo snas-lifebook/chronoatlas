@@ -682,7 +682,7 @@ export const KIND_PAINT: Record<string, Paint> = {
   district: { fill: { color: '#E1D5B5', opacity: 0.35 }, label: true }, cape: { point: 'site', label: true }, lake: { fill: { color: '#9DBBD1', opacity: 0.45 }, label: true },
 };
 
-export const MICRO_LAYERS = ['micro-basemap', 'micro-fill', 'micro-fill-outline', 'micro-line', 'micro-point', 'micro-label'] as const;
+export const MICRO_LAYERS = ['micro-basemap', 'micro-fill', 'micro-fill-outline', 'micro-line', 'micro-line-dash', 'micro-point', 'micro-label'] as const;
 const EMPTY = { type: 'FeatureCollection', features: [] } as const;
 
 export function representativePoint(g: { type: string; coordinates: unknown } | undefined): [number, number] | null {

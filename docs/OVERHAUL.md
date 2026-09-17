@@ -92,13 +92,13 @@ public/datasets/rome/terrain-<id>/     ← 인셋 z8~12 (커밋)
   "basemap": { "file": "…jpg", "corners": [[lon,lat],[…],[…],[…]], "opacity": 0.5, "credit": "…", "epoch_note": "…" } | null,
   "dem": { "dir": "terrain-rubicon", "minzoom": 8, "maxzoom": 12 } | null,          // 범위는 home.at ± home.span에서 파생. 두 번 적지 않는다
   "board": "pharsalus-48" | null,
-  "features": [ { "type": "Feature", "properties": { "id": "rubicon:river", "name_ko": "루비콘 강", "name_la": "Rubico", "kind": "river", "source": "논쟁 | 확정 | 근사 | 복원", "note_ko": "…", "wiki": "https://…" }, "geometry": { … } } ],
+  "features": [ { "type": "Feature", "properties": { "id": "rubicon:river", "name_ko": "루비콘 강", "name_la": "Rubico", "kind": "river", "grade": "논쟁", "source": "사료·근거 문장 (알레시아는 BG 절 번호)", "note_ko": "…", "wiki": "https://…" }, "geometry": { … } } ],
   "callouts": [ { "id": "rubicon:call-size", "topic": "terrain | unit | event", "anchor": { "feature": "rubicon:river" }, "side": "left", "num": 1, "title": "…", "body": "160자 이내", "cite": "수에토니우스 『카이사르』 31~33", "links": [ … ], "image": null } ]
 }
 ```
 
 - `kind` 어휘는 기존 세 파일의 합집합에서 시작한다(MICROMAP-UX §4 + 알레시아 전용 `ditch`·`trap`·`tower`·`camp`·`redoubt`·`oppidum` 등). **표에 없는 kind는 린트가 막는다.** 어휘를 늘리면 `micro.ts`의 paint 표에 한 줄 더한다.
-- `source` 태그 넷(확정·근사·복원·논쟁)은 그대로. 태그가 없거나 빈 피처는 린트 실패.
+- 정직성 태그 넷(확정·근사·복원·논쟁)은 **별도 필드 `grade`**다. `source`는 사료·근거 문장(자유 텍스트)이고, 알레시아처럼 `source`가 「BG 7.72」인 파일도 그대로 둔다(이관 스크립트가 `attested`에서 `grade`를 파생). `grade`가 없거나 넷 밖이면 린트 실패.
 - 콜아웃 `topic`은 필터 칩(지형·부대·사건)의 근거다. 부대 콜아웃은 `anchor.unit`으로 말판 유닛 id를 가리킬 수 있고, 그 페이즈에 유닛이 있을 때만 뜬다.
 - 좌표는 GeoJSON `[lng, lat]`.
 
