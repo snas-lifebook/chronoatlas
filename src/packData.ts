@@ -69,8 +69,7 @@ export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
 export const PACK_PLAINS = Object.values(import.meta.glob('../data/overlays/pack-plains.json', { eager: true, import: 'default' }))[0] as
   { teaching?: boolean; features: Feature[] } | undefined;
 
-export const PACK_PEOPLES = Object.values(import.meta.glob('../data/overlays/pack-peoples.json', { eager: true, import: 'default' }))[0] as
-  { teaching?: boolean; features: Feature[] } | undefined;
+// 주변 민족(pack-peoples.json)은 엔진이 자산 URL로 받는다(R46). 여기서 eager로 실으면 초기 번들 11 kB.
 
 // 미시지도 셋(알레시아·로마·알렉산드리아)과 도판은 2026-09-17에 data/micromaps/<id>.json 레지스트리로 갔다.
 
@@ -87,8 +86,14 @@ export function legionsAt(personId: string, year: number) {
   return best;
 }
 
-const sceneText = Object.values(import.meta.glob('../data/overlays/pack-scene-text.json', { eager: true, import: 'default' }))[0] as
-  { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> } | undefined;
+// 발표 설명문(4.5 kB gz)은 발표 모드에서만 읽는다. 자산 URL로 두고 받는다(R46). 받기 전엔 sceneBrief가 null이고 App이 받은 뒤 다시 그린다.
+type SceneText = { scenes: Record<string, { note?: string; event_ko?: string; look_for?: string; stat?: { value: string; label: string } }> };
+let sceneText: SceneText | undefined;
+let sceneTextReady: Promise<void> | null = null;
+export function loadSceneText(): Promise<void> {
+  if (!sceneTextReady) sceneTextReady = fetch(new URL('../data/overlays/pack-scene-text.json', import.meta.url).href).then(r => (r.ok ? r.json() : undefined)).then(j => { sceneText = j; }).catch(() => {});
+  return sceneTextReady;
+}
 
 /** 북마크로 점프했을 때 발표자가 읽을 사건 설명. 장면 파일의 한 줄 note와 별개로,
  *  「무슨 일이 벌어지는가 · 왜 중요한가 · 지도에서 무엇을 볼 것인가」를 담는다. */

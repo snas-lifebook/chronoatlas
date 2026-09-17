@@ -3,8 +3,8 @@
 
   python3 scripts/bake-dem.py --selftest
   python3 scripts/bake-dem.py continental [--maxzoom 8]     # ETOPO 2022 15초 → public/datasets/rome/terrain/ (BBOX는 scripts/extent.ts)
-  python3 scripts/bake-dem.py inset <id> [--maxzoom 12]     # Copernicus GLO-30 → public/datasets/rome/<dem.dir>/ (범위는 data/micromaps/<id>.json home)
-  python3 scripts/bake-dem.py inset --all                   # dem 블록이 있는 미시지도 전부
+  python3 scripts/bake-dem.py inset <id> [--maxzoom 12]     # Copernicus GLO-30 → public/datasets/rome/terrain-<id>/ (범위는 미시지도 home 또는 data/insets.json)
+  python3 scripts/bake-dem.py inset --all                   # dem 블록이 있는 미시지도 + insets.json 전부
 
 원본은 data/external/dem/ 에 캐시(gitignore). 산출물은 커밋한다(ETOPO 자유 이용 · Copernicus 출처 표기).
 ETOPO 15초 타일 이름은 **좌상단** 모서리(N60E000 = 북위 45~60 · 동경 0~15). Copernicus는 **좌하단**(N44_00_E012_00 = 북위 44~45 · 동경 12~13).
@@ -208,20 +208,38 @@ def cmd_continental(maxzoom: int, quant_m: float = 2.0):
     print('대륙', n, '장 →', out)
 
 
+def inset_spec(mid: str) -> dict:
+    """미시지도(home ± span, dem 블록) 또는 data/insets.json 한 줄. 둘 다 같은 꼴로 돌려준다(OVERHAUL §3.6b ③)."""
+    mm_path = ROOT / 'data' / 'micromaps' / f'{mid}.json'
+    if mm_path.exists():
+        mm = json.loads(mm_path.read_text())
+        if not mm.get('dem'):
+            sys.exit(f'{mid}: dem 블록이 없다')
+        (lon, lat), span = mm['home']['at'], mm['home']['span']
+        return {'bbox': [lon - span, lat - span, lon + span, lat + span], 'dir': mm['dem']['dir'], 'minzoom': mm['dem'].get('minzoom', 8), 'maxzoom': mm['dem'].get('maxzoom', 12)}
+    for ins in json.loads((ROOT / 'data' / 'insets.json').read_text()):
+        if ins['id'] == mid:
+            (lon, lat), span = ins['at'], ins['span']
+            return {'bbox': [lon - span, lat - span, lon + span, lat + span], 'dir': f'terrain-{mid}', 'minzoom': ins.get('minzoom', 8), 'maxzoom': ins.get('maxzoom', 12)}
+    sys.exit(f'{mid}: 미시지도에도 insets.json에도 없다')
+
+
+def all_inset_ids() -> list[str]:
+    ids = [f.stem for f in sorted((ROOT / 'data' / 'micromaps').glob('*.json')) if f.name != 'index.json' and json.loads(f.read_text()).get('dem')]
+    return ids + [ins['id'] for ins in json.loads((ROOT / 'data' / 'insets.json').read_text())]
+
+
 def cmd_inset(mid: str, maxzoom: int):
-    mm = json.loads((ROOT / 'data' / 'micromaps' / f'{mid}.json').read_text())
-    if not mm.get('dem'):
-        sys.exit(f'{mid}: dem 블록이 없다')
-    (lon, lat), span = mm['home']['at'], mm['home']['span']
-    bbox = [lon - span, lat - span, lon + span, lat + span]
+    spec = inset_spec(mid)
+    bbox = spec['bbox']
     grids = [Grid(p) for p in copernicus_tiles(*bbox)]
     if not grids:
         sys.exit('Copernicus 타일 0장')
-    out = DS / mm['dem']['dir']
-    n = bake(Mosaic(grids), bbox, mm['dem'].get('minzoom', 8), min(maxzoom, mm['dem'].get('maxzoom', 12)), out, 1.0)   # 30 m 화소는 1 m 그대로
-    (out / 'meta.json').write_text(json.dumps({'encoding': 'terrarium', 'minzoom': mm['dem'].get('minzoom', 8), 'maxzoom': min(maxzoom, mm['dem'].get('maxzoom', 12)), 'quant_m': 1.0, 'sea': 0, 'credit': COP_CREDIT}, ensure_ascii=False))
+    out = DS / spec['dir']
+    zmax = min(maxzoom, spec['maxzoom'])
+    n = bake(Mosaic(grids), bbox, spec['minzoom'], zmax, out, 1.0)   # 30 m 화소는 1 m 그대로
+    (out / 'meta.json').write_text(json.dumps({'encoding': 'terrarium', 'minzoom': spec['minzoom'], 'maxzoom': zmax, 'quant_m': 1.0, 'sea': 0, 'credit': COP_CREDIT}, ensure_ascii=False))
     print('인셋', mid, n, '장 →', out)
-
 
 def selftest():
     h = np.array([[-11000.0, 0.0], [8848.5, 1.25]])
@@ -254,11 +272,8 @@ if __name__ == '__main__':
         cmd_continental(a.maxzoom or 8)
     elif a.cmd == 'inset':
         if a.all:
-            for f in sorted((ROOT / 'data' / 'micromaps').glob('*.json')):
-                if f.name == 'index.json':
-                    continue
-                if json.loads(f.read_text()).get('dem'):
-                    cmd_inset(f.stem, a.maxzoom or 12)
+            for mid in all_inset_ids():
+                cmd_inset(mid, a.maxzoom or 12)
         else:
             cmd_inset(a.id, a.maxzoom or 12)
     else:

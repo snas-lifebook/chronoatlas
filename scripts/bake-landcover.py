@@ -130,19 +130,37 @@ def windows_for(bbox) -> list[Window]:
     return out
 
 
+def inset_spec(mid: str) -> dict:
+    """미시지도(landcover 블록) 또는 data/insets.json. bake-dem.py와 같은 규칙."""
+    mm_path = ROOT / 'data' / 'micromaps' / f'{mid}.json'
+    if mm_path.exists():
+        mm = json.loads(mm_path.read_text()); lc = mm.get('landcover')
+        if not lc:
+            sys.exit(f'{mid}: landcover 블록이 없다')
+        (lon, lat), span = mm['home']['at'], mm['home']['span']
+        return {'bbox': [lon - span, lat - span, lon + span, lat + span], 'dir': lc['dir'], 'minzoom': lc.get('minzoom', 8), 'maxzoom': lc.get('maxzoom', 12)}
+    for ins in json.loads((ROOT / 'data' / 'insets.json').read_text()):
+        if ins['id'] == mid:
+            (lon, lat), span = ins['at'], ins['span']
+            return {'bbox': [lon - span, lat - span, lon + span, lat + span], 'dir': f'landcover-{mid}', 'minzoom': ins.get('minzoom', 8), 'maxzoom': ins.get('maxzoom', 12)}
+    sys.exit(f'{mid}: 미시지도에도 insets.json에도 없다')
+
+
+def all_inset_ids() -> list[str]:
+    ids = [f.stem for f in sorted((ROOT / 'data' / 'micromaps').glob('*.json')) if f.name != 'index.json' and json.loads(f.read_text()).get('landcover')]
+    return ids + [ins['id'] for ins in json.loads((ROOT / 'data' / 'insets.json').read_text())]
+
+
 def bake(mid: str, maxzoom: int):
-    mm = json.loads((ROOT / 'data' / 'micromaps' / f'{mid}.json').read_text())
-    lc = mm.get('landcover')
-    if not lc:
-        sys.exit(f'{mid}: landcover 블록이 없다')
-    (lon, lat), span = mm['home']['at'], mm['home']['span']
-    bbox = [lon - span, lat - span, lon + span, lat + span]
+    spec = inset_spec(mid)
+    bbox = spec['bbox']
     wins = windows_for(bbox)
     if not wins:
         sys.exit('WorldCover 창 0')
-    out = DS / lc['dir']
+    out = DS / spec['dir']
     n = 0
-    for z in range(lc.get('minzoom', 8), min(maxzoom, lc.get('maxzoom', 12)) + 1):
+    zmax = min(maxzoom, spec['maxzoom'])
+    for z in range(spec['minzoom'], zmax + 1):
         x0, y0 = lonlat_to_tile(bbox[0], bbox[3], z); x1, y1 = lonlat_to_tile(bbox[2], bbox[1], z)
         for x in range(x0, x1 + 1):
             for y in range(y0, y1 + 1):
@@ -155,9 +173,8 @@ def bake(mid: str, maxzoom: int):
                 Image.fromarray(LUT[cls], 'RGB').save(png, optimize=True)
                 n += 1
         print(f'{mid} z{z} 끝, 누적 {n}장')
-    (out / 'meta.json').write_text(json.dumps({'source': 'ESA WorldCover 10m 2021 v200', 'credit': CREDIT, 'minzoom': lc.get('minzoom', 8), 'maxzoom': min(maxzoom, lc.get('maxzoom', 12))}, ensure_ascii=False))
+    (out / 'meta.json').write_text(json.dumps({'source': 'ESA WorldCover 10m 2021 v200', 'credit': CREDIT, 'minzoom': spec['minzoom'], 'maxzoom': zmax}, ensure_ascii=False))
     print('토지피복', mid, n, '장 →', out)
-
 
 def selftest():
     assert tuple(LUT[10]) == PALETTE[10] and tuple(LUT[80]) == PALETTE[80] and tuple(LUT[3]) == (0xD8, 0xCB, 0xB0), 'LUT'
@@ -176,9 +193,8 @@ if __name__ == '__main__':
     if a.selftest:
         selftest()
     elif a.all:
-        for f in sorted((ROOT / 'data' / 'micromaps').glob('*.json')):
-            if f.name != 'index.json' and json.loads(f.read_text()).get('landcover'):
-                bake(f.stem, a.maxzoom)
+        for mid in all_inset_ids():
+            bake(mid, a.maxzoom)
     elif a.id:
         bake(a.id, a.maxzoom)
     else:

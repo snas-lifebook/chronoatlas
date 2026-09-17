@@ -23,6 +23,15 @@ describe('DEM 타일', () => {
       expect(existsSync(join(DS, mm.dem.dir, String(mm.dem.minzoom))), `${mm.id} ${mm.dem.dir}`).toBe(true);
     }
   });
+  it('insets.json 인셋마다 terrain-<id>·landcover-<id> 폴더가 있고 미시지도 id와 겹치지 않는다', () => {
+    const insets = JSON.parse(readFileSync(join(ROOT, 'data', 'insets.json'), 'utf8')) as { id: string; at: number[]; span: number; why: string }[];
+    const micro = new Set(readdirSync(join(ROOT, 'data', 'micromaps')).map(f => f.replace(/\.json$/, '')));
+    for (const ins of insets) {
+      expect(micro.has(ins.id), `${ins.id}: 미시지도와 같은 id`).toBe(false);
+      expect(ins.why.length, `${ins.id}: why`).toBeGreaterThan(0);
+      for (const d of [`terrain-${ins.id}`, `landcover-${ins.id}`]) expect(existsSync(join(DS, d, '8')), `${ins.id} ${d}`).toBe(true);
+    }
+  });
   it('타일 총량이 200 MB 이하다', () => {
     const dirs = readdirSync(DS).filter(d => /^terrain(-|$)/.test(d));
     const total = dirs.reduce((s, d) => s + walk(join(DS, d)), 0);

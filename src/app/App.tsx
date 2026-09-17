@@ -14,7 +14,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
@@ -58,6 +58,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const narrow = useNarrow();
   const [microCallouts, setMicroCallouts] = useState<ResolvedCallout[]>([]);
   const [focusCallout, setFocusCallout] = useState<string | null>(null);
+  const [, setTextTick] = useState(0);
+  useEffect(() => { loadSceneText().then(() => setTextTick(t => t + 1)); }, []);   // 발표 설명문이 오면 HUD를 다시 그린다
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)

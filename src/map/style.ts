@@ -19,6 +19,10 @@ export const MAP = {
     depth: ['#C7D2CB', '#BFCAC3', '#B7C2BB', '#AFBAB3', '#A7B2AB', '#9FAAA3', '#97A29B'], relief: { brightnessMax: 0.9, contrast: 0.25, saturation: -0.4, opacity: 1 } },
 } as const;
 export type Skin = keyof typeof MAP;
+
+/** 고도색 램프(DESIGN 토큰 `--ramp-elev`, hypsometric 7단: 저지 녹회 → 고지 갈회 → 설선 흰). 모든 스킨에서 hillshade 밑에 불투명도 0.15로 깔린다(OVERHAUL §3.6b ①).
+ *  [고도 m, 색]. 바다는 DEM에서 0으로 눌려 있어 0 m 색이 바다에도 깔리지만 그 위를 ocean-mask가 덮는다. */
+export const ELEV_RAMP: [number, string][] = [[0, '#A9B79C'], [200, '#B8BFA0'], [500, '#C6BE9C'], [1000, '#C9B48E'], [1500, '#B9A088'], [2500, '#C9C1B8'], [3500, '#F4F3EE']];
 export const SKINS: { id: Skin; label: string }[] = [{ id: 'light', label: '중립' }, { id: 'dark', label: '야간' }, { id: 'oldmap', label: '고지도' }, { id: 'press', label: '신문톤' }, { id: 'campaign', label: '작전' }];
 
 /** 지도 위에 **판 없이 맨글씨로** 얹는 크롬(좌상단 연도·제목·각주·「그 해」)이 쓸 색.

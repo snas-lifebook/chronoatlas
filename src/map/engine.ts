@@ -1,17 +1,20 @@
 // 지도 엔진 (TASKS 1.3·1.8): MapLibre + 데이터 레이어 + 토큰. store만 구독한다 — React 크롬과는 store로만 이야기한다.
 import * as maplibregl from 'maplibre-gl';
 import { type Dataset, dateWindow, MARCH_MAX_YEARS, OPEN_PAST, routeGeometry } from '../schema';
-import { buildStyle, DEPTHS, MAP, type Skin } from './style';
+import { buildStyle, DEPTHS, MAP, type Skin, ELEV_RAMP } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
 import { ARM_KO, FALLBACK_COLOR, type BoardData } from '../board';
 import { BATTLE_LAYERS, type BattleCtl } from './battle';
+import { insetAt } from '../insets';
+// 주변 민족 교보재(11 kB gz)는 첫 페인트에 필요 없다. 자산 URL로 두고 받아서 얹는다(R46).
+const peoplesUrl = new URL('../../data/overlays/pack-peoples.json', import.meta.url).href;
 import { fitZoom, showGalliaOverlay, showGalliaRoman } from '../present';
 import { createMicro, MICRO_LAYERS } from './micro';
 import { loadMicro, microMapAt } from '../micromaps';
 import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { PACK_BATTLES, PACK_CLIENTS, PACK_PEOPLES, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -181,7 +184,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   // 이 발표가 말하는 전투 넷(알레시아·파르살루스·젤라·문다). 교보재 오버레이라 수가 적다.
   story_battles: ['pack-battle', 'pack-battle-label'],
   movements: ['movement', 'movement-halo', 'movement-arrow', 'movement-seq'],
-  relief: ['relief', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
+  relief: ['relief', 'elev-tint', 'hillshade'], // DEM이 있으면 hillshade가 relief.jpg를 대체한다(addTerrain에서 relief 제거)
   bathy: ['bathy'],
   rivers: ['rivers-major', 'rivers-minor'],
   labels: ['label-settle-1', 'label-settle-2', 'label-settle-3', 'region-name'],
@@ -439,6 +442,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   };
   map.on('zoom', syncTerrain);
   function hillshadeTo(src: string, before?: string) {
+    // 고도색(color-relief)은 음영 밑. 모든 스킨에서 옅게(0.15) — 「확대하면 빈 화면」의 대륙 쪽 처방(OVERHAUL §3.6b ①)
+    if (map.getLayer('elev-tint')) map.removeLayer('elev-tint');
+    map.addLayer({ id: 'elev-tint', type: 'color-relief', source: src, paint: { 'color-relief-color': ['interpolate', ['linear'], ['elevation'], ...ELEV_RAMP.flat()], 'color-relief-opacity': 0.15 } } as any, before);
     if (map.getLayer('hillshade')) map.removeLayer('hillshade');
     map.addLayer({ id: 'hillshade', type: 'hillshade', source: src, paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
   }
@@ -458,29 +464,51 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     before: () => map.getLayer('label-marine') ? 'label-marine' : undefined,
     onEnter: def => {
       hideContinental(true, def.hide);
-      // 인셋 DEM(Copernicus GLO-30 z8~12): 지도 범위(home.at ± span)에만 있고 밖에서는 요청이 안 나간다(bounds·minzoom).
-      const [lon, lat] = def.home.at, sp = def.home.span, bounds: [number, number, number, number] = [lon - sp, lat - sp, lon + sp, lat + sp];
-      if (def.dem) {
-        const id = `dem-${def.id}`;
-        if (!map.getSource(id)) map.addSource(id, { type: 'raster-dem', tiles: [`${root}datasets/${ds}/${def.dem.dir}/{z}/{x}/{y}.png`], encoding: 'terrarium', tileSize: 256, minzoom: def.dem.minzoom, maxzoom: def.dem.maxzoom, bounds });
-        useTerrain(id);
-      }
-      // 토지피복(ESA WorldCover, CC BY 4.0)은 음영 **밑에**: 색은 피복이, 굴곡은 음영이 말한다(OVERHAUL §3.6b). River: 「자연 환경이라도」.
-      if (def.landcover) {
-        const id = `landcover-${def.id}`;
-        if (!map.getSource(id)) map.addSource(id, { type: 'raster', tiles: [`${root}datasets/${ds}/${def.landcover.dir}/{z}/{x}/{y}.png`], tileSize: 256, minzoom: def.landcover.minzoom, maxzoom: def.landcover.maxzoom, bounds });
-        if (!map.getLayer(id)) map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': def.landcover.opacity, 'raster-fade-duration': 0 } }, map.getLayer('hillshade') ? 'hillshade' : (map.getLayer('micro-fill') ? 'micro-fill' : undefined));
-        landcoverLayer = id;
-      }
+      // 미시지도의 home은 자동으로 인셋이다(OVERHAUL §3.6b ③). DEM·토지피복 부착은 insets.json 인셋과 같은 길로
+      const [lon, lat] = def.home.at, sp = def.home.span;
+      attachInset({ id: def.id, bounds: [lon - sp, lat - sp, lon + sp, lat + sp], dem: def.dem ? { dir: def.dem.dir, minzoom: def.dem.minzoom, maxzoom: def.dem.maxzoom } : null,
+        landcover: def.landcover ? { dir: def.landcover.dir, minzoom: def.landcover.minzoom, maxzoom: def.landcover.maxzoom, opacity: def.landcover.opacity } : null });
       microFns.forEach(fn => fn(def));
     },
     onLeave: () => {
       hideContinental(false);
-      if (map.getSource('dem')) useTerrain('dem');
-      if (landcoverLayer && map.getLayer(landcoverLayer)) map.removeLayer(landcoverLayer);
-      landcoverLayer = null;
+      detachInset();
       microFns.forEach(fn => fn(null));
+      syncInset();                           // 미시지도를 나왔지만 insets.json 인셋 안일 수 있다
     } });
+  // ── 인셋 DEM·토지피복 (OVERHAUL §3.6b, R56): 미시지도 home과 data/insets.json 둘 다 이 둘로 붙인다 ──
+  type InsetSpec = { id: string; bounds: [number, number, number, number]; dem: { dir: string; minzoom: number; maxzoom: number } | null; landcover: { dir: string; minzoom: number; maxzoom: number; opacity: number } | null };
+  let activeInset: string | null = null;
+  function attachInset(spec: InsetSpec) {
+    if (activeInset === spec.id) return;
+    detachInset();
+    if (spec.dem) {
+      const id = `dem-${spec.id}`;   // 범위(bounds)·minzoom이 있어 밖에서는 요청이 안 나간다
+      if (!map.getSource(id)) map.addSource(id, { type: 'raster-dem', tiles: [`${root}datasets/${ds}/${spec.dem.dir}/{z}/{x}/{y}.png`], encoding: 'terrarium', tileSize: 256, minzoom: spec.dem.minzoom, maxzoom: spec.dem.maxzoom, bounds: spec.bounds });
+      useTerrain(id);
+    }
+    if (spec.landcover) {
+      const id = `landcover-${spec.id}`;   // 토지피복은 음영 **밑에**: 색은 피복이, 굴곡은 음영이 말한다. River: 「자연 환경이라도」
+      if (!map.getSource(id)) map.addSource(id, { type: 'raster', tiles: [`${root}datasets/${ds}/${spec.landcover.dir}/{z}/{x}/{y}.png`], tileSize: 256, minzoom: spec.landcover.minzoom, maxzoom: spec.landcover.maxzoom, bounds: spec.bounds });
+      if (!map.getLayer(id)) map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': spec.landcover.opacity, 'raster-fade-duration': 0 } }, map.getLayer('elev-tint') ? 'elev-tint' : (map.getLayer('hillshade') ? 'hillshade' : (map.getLayer('micro-fill') ? 'micro-fill' : undefined)));
+      landcoverLayer = id;
+    }
+    activeInset = spec.id;
+  }
+  function detachInset() {
+    if (!activeInset) return;
+    if (map.getSource('dem')) useTerrain('dem');
+    if (landcoverLayer && map.getLayer(landcoverLayer)) map.removeLayer(landcoverLayer);
+    landcoverLayer = null; activeInset = null;
+  }
+  /** insets.json 인셋: 미시지도가 없어도 그 범위·줌에서 DEM·토지피복이 켜진다. 미시지도가 켜져 있으면 그쪽이 우선. */
+  function syncInset() {
+    if (micro.active()) return;
+    const ins = insetAt(map.getZoom(), map.getCenter().toArray() as [number, number]);
+    if (!ins) { detachInset(); return; }
+    const sp = ins.span, z0 = ins.minzoom ?? 8, z1 = ins.maxzoom ?? 12;
+    attachInset({ id: ins.id, bounds: [ins.at[0] - sp, ins.at[1] - sp, ins.at[0] + sp, ins.at[1] + sp], dem: { dir: `terrain-${ins.id}`, minzoom: z0, maxzoom: z1 }, landcover: { dir: `landcover-${ins.id}`, minzoom: z0, maxzoom: z1, opacity: 0.55 } });
+  }
   let landcoverLayer: string | null = null;
   let battle: BattleCtl | null = null;
   const battleFns = new Set<(b: BattleCtl) => void>();
@@ -488,10 +516,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   /** 미시 축척에서 대륙 축척의 것들을 끈다. 이동 경로는 지중해를 가로지르는 선 몇 개일 뿐이고, 폴리티 이름표는
    *  면적 문턱만 봐서 64만 km² 왕국이 z14에서도 통과한다(River가 알렉산드리아 판에서 「프톨레마이오스 왕국」을 잡았다).
    *  나갈 때는 상태의 레이어 목록대로 되돌린다. */
-  function hideContinental(on: boolean, groups: string[] = ['movements']) {
+  let hiddenGroups: string[] = ['movements'];   // 들어갈 때 끈 그룹을 기억했다가 나갈 때 그대로 되살린다(예전엔 movements만 되살려 people이 꺼진 채 남았다)
+  function hideContinental(on: boolean, groups: string[] = hiddenGroups) {
     const set = (ids: string[], vis: boolean) => { for (const l of ids) if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', vis ? 'visible' : 'none'); };
     const st = store.get(); const lit = new Set(st.layers ?? d.manifest.layers ?? []);
+    if (on) hiddenGroups = groups;
     for (const g of groups) set(LAYER_GROUPS[g] ?? [], !on && lit.has(g));
+    // 인물 초상 토큰은 커스텀 층(token3d)이라 그룹 목록에 없다. 전투 미시지도(hide에 people)에서는 블록을 가리므로 같이 치운다
+    if (groups.includes('people')) syncPeopleTokens(on || !lit.has('people') ? EMPTY_FC : peopleFc);
     set(['territory-label', 'territory-outline', 'territory-glow', 'region-name', 'peoples-label', 'peoples-line', 'client-hatch', 'client-edge'], !on && lit.has('territory'));
   }
   function syncDetailMaps(scene: string | null) {
@@ -504,6 +536,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
   map.on('moveend', () => syncDetailMaps(store.get().scene)); // 이동만으로 지도를 벗어나는 경우
+  map.on('zoomend', syncInset); map.on('moveend', syncInset);
 
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
@@ -512,6 +545,43 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (map.getLayer('relief')) map.removeLayer('relief');
     const act = micro.active();
     if (act?.dem && map.getSource(`dem-${act.id}`)) useTerrain(`dem-${act.id}`, before); else useTerrain('dem', before);
+    if (!act) { activeInset = null; syncInset(); }   // setStyle이 소스를 지웠으면 인셋을 다시 붙인다
+  }
+
+  let peoplesFc: { features: unknown[] } | null = null;
+  fetch(peoplesUrl).then(r => (r.ok ? r.json() : null)).then(j => { peoplesFc = j; if (map.getStyle() && map.getSource('territory')) addPeoples(map.getLayer('label-marine') ? 'label-marine' : undefined); }).catch(() => {});
+  function addPeoples(before?: string) {
+    if (!peoplesFc?.features?.length || map.getSource('peoples') || !map.getLayer('territory-fill')) return;
+    {
+      map.addSource('peoples', { type: 'geojson', data: peoplesFc! as any });
+      map.addLayer({ id: 'peoples-fill', type: 'fill', source: 'peoples',
+        paint: { 'fill-color': polityColor, 'fill-opacity': 0.2 } }, 'territory-fill');
+      map.addLayer({ id: 'peoples-line', type: 'line', source: 'peoples',
+        paint: { 'line-color': polityColor, 'line-width': 1.2, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } }, 'territory-fill');
+      // **이름표는 따로 만든 점에 붙인다.** 폴리곤 소스에 직접 심볼을 얹으면 MapLibre가
+      // **조각마다 하나씩** 찍는다 — 사르마티아(2조각)와 보스포루스 왕국(2조각)의 이름이
+      // 나란히 두 번 떴다(실측). 대표점 하나를 뽑아 점 소스로 만들면 한 번만 찍힌다.
+      map.addSource('peoples-pt', { type: 'geojson', data: {
+        type: 'FeatureCollection',
+        features: (peoplesFc!.features as any[]).map(f => {
+          const g = f.geometry;
+          const rings: number[][][] = g.type === 'MultiPolygon'
+            ? (g.coordinates as number[][][][]).map(poly => poly[0])
+            : [(g.coordinates as number[][][])[0]];
+          // 가장 큰 조각의 정점 평균. 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 —
+          // 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
+          const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
+          const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
+          return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
+        }),
+      } as any });
+      map.addLayer({ id: 'peoples-label', type: 'symbol', source: 'peoples-pt',
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 13, 6, 16] as any, 'text-max-width': 8,
+          'text-allow-overlap': false, 'text-optional': true,
+          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.6 } as any,
+        paint: { 'text-color': polityColor, 'text-halo-color': halo(), 'text-halo-width': 2.4 } }, before);
+    }
   }
 
   function addData() {
@@ -579,36 +649,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     //
     // **정본 폴리곤 아래에 깐다** — 교보재가 정본을 덮으면 안 된다. 테는 점선이다:
     // 이 경계들은 국경이 아니라 「이 민족이 살던 대략의 자리」이고, 점선이 그 정도를 말한다.
-    if (PACK_PEOPLES?.features?.length && !map.getSource('peoples')) {
-      map.addSource('peoples', { type: 'geojson', data: PACK_PEOPLES as any });
-      map.addLayer({ id: 'peoples-fill', type: 'fill', source: 'peoples',
-        paint: { 'fill-color': polityColor, 'fill-opacity': 0.2 } }, 'territory-fill');
-      map.addLayer({ id: 'peoples-line', type: 'line', source: 'peoples',
-        paint: { 'line-color': polityColor, 'line-width': 1.2, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } }, 'territory-fill');
-      // **이름표는 따로 만든 점에 붙인다.** 폴리곤 소스에 직접 심볼을 얹으면 MapLibre가
-      // **조각마다 하나씩** 찍는다 — 사르마티아(2조각)와 보스포루스 왕국(2조각)의 이름이
-      // 나란히 두 번 떴다(실측). 대표점 하나를 뽑아 점 소스로 만들면 한 번만 찍힌다.
-      map.addSource('peoples-pt', { type: 'geojson', data: {
-        type: 'FeatureCollection',
-        features: (PACK_PEOPLES.features as any[]).map(f => {
-          const g = f.geometry;
-          const rings: number[][][] = g.type === 'MultiPolygon'
-            ? (g.coordinates as number[][][][]).map(poly => poly[0])
-            : [(g.coordinates as number[][][])[0]];
-          // 가장 큰 조각의 정점 평균. 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 —
-          // 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
-          const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
-          const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
-          return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
-        }),
-      } as any });
-      map.addLayer({ id: 'peoples-label', type: 'symbol', source: 'peoples-pt',
-        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 13, 6, 16] as any, 'text-max-width': 8,
-          'text-allow-overlap': false, 'text-optional': true,
-          'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.6 } as any,
-        paint: { 'text-color': polityColor, 'text-halo-color': halo(), 'text-halo-width': 2.4 } }, before);
-    }
+    addPeoples(before);
     // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
     //
     // River: 기원전 60년 판에서 누미디아·마우레타니아·갈라티아·카파도키아·폰토스·유대·

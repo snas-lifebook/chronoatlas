@@ -38,14 +38,16 @@ DEM 타일은 **레포에 커밋돼 있다**(2026-09-17, OVERHAUL §3.7). 런타
 | `terrain/` | ETOPO 2022 15초(NOAA, 자유 이용) | z0~8, BBOX(`scripts/extent.ts`) | 4,780장 144 MB |
 | `terrain-<id>/` | Copernicus GLO-30(출처 표기) | z8~12, 미시지도 `home.at ± span` | 지도당 1~15 MB |
 | `landcover-<id>/` | ESA WorldCover 2021(CC BY 4.0) | z8~12, 같은 범위 | 지도당 1~5 MB |
+| (인셋 추가) | `data/insets.json`에 `{ id, at, span, why }` 한 줄 | 미시지도 없이도 그 범위에서 인셋 DEM·토지피복이 켜진다(`src/insets.ts`). 굽기는 같은 두 스크립트에 `<id>` | |
 
 ```
 python3 scripts/bake-dem.py --selftest
 python3 scripts/bake-dem.py continental          # 원본 35장(884 MB)은 data/external/dem/에 캐시(gitignore). 굽기 자체는 2분
-python3 scripts/bake-dem.py inset <id> | --all   # 미시지도 파일을 바꾸면 그 인셋을 다시 굽는다
+python3 scripts/bake-dem.py inset <id> | --all   # <id>는 미시지도 또는 insets.json. 범위를 바꾸면 다시 굽는다
 python3 scripts/bake-landcover.py <id> | --all
 ```
 
+- 대륙 DEM 위에는 모든 스킨에서 `color-relief` 고도색(0.15)과 hillshade가 깔린다(`style.ts ELEV_RAMP`). 「확대하면 빈 화면」의 완료 조건은 `scripts/blank-ratio.py`로 잰다.
 - 인코딩은 terrarium이되 **대륙 2 m·인셋 1 m로 양자화하고 바다는 0**이다. 원 정밀도로 구우면 4배(600 MB)가 된다. 수심 색은 DEM이 아니라 NE 수심 벡터 몫.
 - 총량 상한 200 MB는 `test/terrain.test.ts`가 지킨다. 넘으면 인셋 `maxzoom`을 11로 내린다.
 - 크레딧은 `public/assets/CREDITS.md`, 원본 라이선스는 `data/external/LICENSES.md`. AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다.
