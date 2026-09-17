@@ -1,0 +1,338 @@
+{
+ "id": "athens",
+ "title": "아테네 아크로폴리스 · BC 60",
+ "year": -60,
+ "teaching": true,
+ "source": "연도는 발표 축(기원전 60년)에 두고 그 해 서 있던 것만 그렸다. 좌표는 정본 landmarks.geojson의 Pleiades 점(Areopagus·Pnyx·Ilissos·Kolonos Agoraios)을 우선하고, 없는 것은 위키백과 각 문서의 좌표 필드(Acropolis of Athens·Parthenon·Propylaea·Erechtheion·Theatre of Dionysus·Kerameikos)를 썼다. 테미스토클레스 성벽은 측량 좌표가 없어 그리지 않았다. 아그리파 오데온(BC 15)·하드리아누스 도서관(AD 132) 등 BC 60 이후 건물은 넣지 않았다.",
+ "home": {
+  "at": [
+   23.7266,
+   37.9715
+  ],
+  "minZoom": 12,
+  "span": 0.3
+ },
+ "view": {
+  "center": [
+   23.7266,
+   37.9715
+  ],
+  "zoom": 14.0,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-athens",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-athens",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": null,
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:acropolis",
+    "name_ko": "아크로폴리스",
+    "name_la": null,
+    "kind": "hill",
+    "grade": "확정",
+    "source": "위키백과 'Acropolis of Athens' 좌표(37.97167N 23.72611E).",
+    "note_ko": "페리클레스기(기원전 447~406년경) 건축이 BC 60에 이미 400년 가까이 서 있었다.",
+    "wiki": "https://ko.wikipedia.org/wiki/아크로폴리스"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.72611,
+     37.97167
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:parthenon",
+    "name_ko": "파르테논",
+    "name_la": null,
+    "kind": "temple",
+    "grade": "확정",
+    "source": "위키백과 'Parthenon' 좌표(37.9715N 23.7266E).",
+    "note_ko": "기원전 438년 봉헌. BC 60에 이미 380년 가까이 서 있다.",
+    "wiki": "https://ko.wikipedia.org/wiki/파르테논_신전"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.7266,
+     37.9715
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:propylaea",
+    "name_ko": "프로필라이아",
+    "name_la": null,
+    "kind": "gate",
+    "grade": "확정",
+    "source": "위키백과 'Propylaea (Acropolis of Athens)' 좌표(37.97169N 23.72511E).",
+    "note_ko": "기원전 432년 완공. BC 60에 서 있다.",
+    "wiki": "https://en.wikipedia.org/wiki/Propylaea_(Acropolis_of_Athens)"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.72511,
+     37.97169
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:erechtheion",
+    "name_ko": "에레크테이온",
+    "name_la": null,
+    "kind": "temple",
+    "grade": "확정",
+    "source": "위키백과 'Erechtheion' 좌표(37.9721N 23.7265E).",
+    "note_ko": "기원전 406년 완공. BC 60에 서 있다.",
+    "wiki": "https://ko.wikipedia.org/wiki/에레크테이온"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.7265,
+     37.9721
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:theatre-dionysus",
+    "name_ko": "디오니소스 극장",
+    "name_la": null,
+    "kind": "theatre",
+    "grade": "확정",
+    "source": "위키백과 'Theatre of Dionysus' 좌표(37.97034N 23.727784E). 현재 남은 석조 구조 대부분은 기원전 4세기 리쿠르고스 시대 개축이며 BC 60에 서 있다.",
+    "note_ko": "비극·희극 경연이 열린 자리. BC 60에 이미 석조 극장으로 서 있다.",
+    "wiki": "https://ko.wikipedia.org/wiki/디오니소스_극장"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.727784,
+     37.97034
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:agora",
+    "name_ko": "아고라",
+    "name_la": null,
+    "kind": "forum",
+    "grade": "확정",
+    "source": "확정(면은 근사). 정본 landmarks.geojson Pleiades 'Kolonos Agoraios'(아고라를 내려다보는 언덕) 점(37.9754N 23.7212E). 위키백과 'Ancient Agora of Athens' 좌표(37.975N 23.7225E)와 근접해 교차 확인. 다각형 경계는 발굴 구역을 감싼 근사.",
+    "note_ko": "민회 이전의 정치·상업 중심지. 불레(평의회)와 헬리아이아(법정)가 이 광장 둘레에 있었다."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       23.7197,
+       37.9769
+      ],
+      [
+       23.7227,
+       37.9769
+      ],
+      [
+       23.7227,
+       37.9739
+      ],
+      [
+       23.7197,
+       37.9739
+      ],
+      [
+       23.7197,
+       37.9769
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:pnyx",
+    "name_ko": "프닉스",
+    "name_la": null,
+    "kind": "field",
+    "grade": "확정",
+    "source": "확정(위치)/근사(면). 정본 landmarks.geojson Pleiades Pnyx 점(37.9714N 23.7195E).",
+    "note_ko": "민회(에클레시아)가 열린 반원형 언덕. BC 60에도 여기서 민회가 열렸다."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       23.7183,
+       37.9721
+      ],
+      [
+       23.7207,
+       37.9721
+      ],
+      [
+       23.7207,
+       37.9708
+      ],
+      [
+       23.7183,
+       37.9708
+      ],
+      [
+       23.7183,
+       37.9721
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:areopagus",
+    "name_ko": "아레오파고스",
+    "name_la": null,
+    "kind": "hill",
+    "grade": "확정",
+    "source": "정본 landmarks.geojson Pleiades Areopagus 점(37.9724N 23.7234E).",
+    "note_ko": "기원전 462년 에피알테스 개혁 이후 정치 권한은 잃고 살인죄 재판 정도만 남은 원로 회의. BC 60에도 그 기능으로 존속."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.7234,
+     37.9724
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "athens:ilissos",
+    "name_ko": "일리소스 강",
+    "name_la": "Ilissos",
+    "kind": "river",
+    "grade": "근사",
+    "source": "정본 landmarks.geojson Pleiades Ilissos 점(37.9658N 23.7237E). 선형은 정본에 없어 점으로 둔다.",
+    "note_ko": "아크로폴리스 남쪽을 흐르던 강. 지금은 대부분 복개됐다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.7237,
+     37.9658
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "athens:call-pnyx",
+   "topic": "event",
+   "anchor": {
+    "feature": "athens:pnyx"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "프닉스: 민회의 정족수",
+   "body": "도편추방 같은 특별 의결에는 최소 6,000표가 필요했다. 평범한 안건에는 정족수가 없었다는 점도 아테네 직접민주정의 특징이다.",
+   "cite": "플루타르코스 『아리스티데스』 7",
+   "links": []
+  },
+  {
+   "id": "athens:call-theatre",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "athens:theatre-dionysus"
+   },
+   "side": "left",
+   "num": 2,
+   "title": "디오니소스 극장: 비극의 출생지",
+   "body": "디오니소스 축제 경연에서 비극과 희극이라는 형식 자체가 태어났다. 관객은 시민 전체였다.",
+   "cite": "아리스토텔레스 『시학』 4",
+   "links": []
+  },
+  {
+   "id": "athens:call-parthenon",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "athens:parthenon"
+   },
+   "side": "right",
+   "num": 3,
+   "title": "파르테논: 동맹의 금고로 지은 신전",
+   "body": "델로스 동맹의 공동 자금을 아테네가 끌어와 지었다는 것이 페리클레스 건축 사업의 정치적 논쟁거리였다.",
+   "cite": "플루타르코스 『페리클레스』 12~14",
+   "links": []
+  },
+  {
+   "id": "athens:call-agora",
+   "topic": "event",
+   "anchor": {
+    "feature": "athens:agora"
+   },
+   "side": "right",
+   "num": 4,
+   "title": "아고라: 불레와 법정",
+   "body": "500인 평의회(불레)가 안건을 준비하고 시민 배심 법정(헬리아이아)이 재판했다. 이 광장이 그 실무 공간이었다.",
+   "cite": "아리스토텔레스 『아테네인의 국제』 43",
+   "links": []
+  },
+  {
+   "id": "athens:call-areopagus",
+   "topic": "event",
+   "anchor": {
+    "feature": "athens:areopagus"
+   },
+   "side": "left",
+   "num": 5,
+   "title": "아레오파고스: 권한을 잃은 원로 회의",
+   "body": "본래 정치 감독권을 쥔 귀족 회의였으나 기원전 462년 에피알테스 개혁으로 대부분을 민회·법정에 넘겼다.",
+   "cite": "아리스토텔레스 『아테네인의 국제』 25",
+   "links": []
+  },
+  {
+   "id": "athens:call-rome",
+   "topic": "event",
+   "anchor": {
+    "feature": "athens:areopagus"
+   },
+   "side": "right",
+   "num": 6,
+   "title": "로마가 그리스 정치체제를 받아들였다",
+   "body": "12표법 이전 로마가 그리스에 사절단을 보내 법을 살폈다는 리비우스의 전승은 사실성 논쟁이 있다. 그래도 이 언덕은 그리스가 로마보다 먼저, 더 오래 정치 기술을 실험했다는 증거다.",
+   "cite": "리비우스 『로마사』 3.31~33",
+   "links": []
+  }
+ ]
+}

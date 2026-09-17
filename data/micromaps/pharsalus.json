@@ -1,0 +1,224 @@
+{
+ "id": "pharsalus",
+ "title": "파르살루스 · BC 48",
+ "year": -48,
+ "teaching": true,
+ "source": "지형 피처는 정본 place:파르살루스, landmarks.geojson Pleiades Enipeus(테살리아, 39.3195N 22.3585E) 점, 말판 pharsalus-48의 유닛 좌표(t=0~2 전 배치 범위)를 썼다. 진영 둘은 정확한 좌표가 없어 카이사르 『내전기』 3.85 '언덕 기슭에 진영을 쳤다'는 서술과 말판 배치 방향을 근거로 후방에 추정했다(복원). 전장 자체가 강 북안이냐 남안이냐로 논쟁 중이다(Morgan 1983 대 Pelling 1973).",
+ "home": {
+  "at": [
+   22.3833,
+   39.3
+  ],
+  "minZoom": 10,
+  "span": 0.3
+ },
+ "view": {
+  "center": [
+   22.3833,
+   39.3
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-pharsalus",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-pharsalus",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": "pharsalus-48",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "pharsalus:city",
+    "name_ko": "파르살루스",
+    "name_la": "Pharsalus",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 place:파르살루스(현대 파르살라).",
+    "note_ko": "전투의 이름이 된 도시. 전장은 도시 자체가 아니라 인근 평야다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.3833,
+     39.3
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "pharsalus:enipeus",
+    "name_ko": "에니페우스 강",
+    "name_la": "Enipeus",
+    "kind": "river",
+    "grade": "논쟁",
+    "source": "정본 landmarks.geojson Pleiades Enipeus 점(39.3195N 22.3585E, 테살리아 쪽, 펠로폰네소스에 동명 하천이 따로 있어 구분). 선형은 정본에 없어 점으로 둔다.",
+    "note_ko": "전장이 이 강의 북안이냐 남안이냐 자체가 논쟁이다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.3585,
+     39.3195
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "pharsalus:camp-pompeius",
+    "name_ko": "폼페이우스 진영",
+    "name_la": null,
+    "kind": "camp",
+    "grade": "복원",
+    "source": "『내전기』 3.85 '언덕 기슭에 진영을 쳤다'는 서술 기반. 정확한 좌표는 없어 말판 pharsalus-48 t=0 폼페이우스 보병 3개 군단 중심에서 후방(동쪽)으로 옮겨 추정했다.",
+    "note_ko": "전투 뒤 카이사르 군이 이날 안에 함락한 진영."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.3983,
+     39.3003
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "pharsalus:camp-caesar",
+    "name_ko": "카이사르 진영",
+    "name_la": null,
+    "kind": "camp",
+    "grade": "복원",
+    "source": "『내전기』 3.85 기반. 정확한 좌표는 없어 말판 t=0 카이사르 보병 3개 군단 중심에서 후방(서쪽)으로 옮겨 추정했다.",
+    "note_ko": "병력을 아낀 카이사르가 처음엔 싸움을 피하려 물러나 있던 진영."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.3683,
+     39.3003
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "pharsalus:plain",
+    "name_ko": "전장 평원",
+    "name_la": null,
+    "kind": "plain",
+    "grade": "복원",
+    "source": "말판 pharsalus-48 전 페이즈 유닛 좌표 범위를 감싼 근사 다각형. 실측 전장 경계가 아니라 배치 도식의 포괄 범위다.",
+    "note_ko": "8개 군단 대 11개 군단이 마주 선 벌판."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       22.3665,
+       39.275
+      ],
+      [
+       22.402,
+       39.275
+      ],
+      [
+       22.402,
+       39.317
+      ],
+      [
+       22.3665,
+       39.317
+      ],
+      [
+       22.3665,
+       39.275
+      ]
+     ]
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "pharsalus:call-strength",
+   "topic": "unit",
+   "anchor": {
+    "feature": "pharsalus:plain"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "병력: 당사자의 숫자",
+   "body": "카이사르는 폼페이우스가 보병 45,000·기병 7,000, 자신은 보병 22,000·기병 1,000이라 적었다. 패자를 부풀리고 자신을 줄였다는 것이 통설이다.",
+   "cite": "카이사르 『내전기』 3.88",
+   "links": []
+  },
+  {
+   "id": "pharsalus:call-fourthline",
+   "topic": "unit",
+   "anchor": {
+    "feature": "pharsalus:camp-caesar"
+   },
+   "side": "right",
+   "num": 2,
+   "title": "넷째 줄",
+   "body": "카이사르는 셋째 줄에서 대대 여섯을 빼 우익 뒤에 비스듬히 숨겼다. 기병 7,000을 정면으로 막을 수 없어 마련한 수였다.",
+   "cite": "카이사르 『내전기』 3.89",
+   "links": []
+  },
+  {
+   "id": "pharsalus:call-oneday",
+   "topic": "event",
+   "anchor": {
+    "feature": "pharsalus:camp-pompeius"
+   },
+   "side": "right",
+   "num": 3,
+   "title": "하루 만에 도망자",
+   "body": "전투가 시작된 바로 그날, 지중해 최고의 장군이 진영을 버리고 달아났다. 로마 최고 부자 중 한 명이 하루 만에 도망자가 됐다.",
+   "cite": "카이사르 『내전기』 3.96",
+   "links": []
+  },
+  {
+   "id": "pharsalus:call-location",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "pharsalus:enipeus"
+   },
+   "side": "left",
+   "num": 4,
+   "title": "위치 논쟁",
+   "body": "전장이 강 북안이냐 남안이냐로 학계가 갈린다. 이 지도는 통설(북쪽 전선)만 그렸고 측량이 아니라 도식이다.",
+   "cite": "J.D. Morgan, Palaepharsalus (1983) 대 C.B.R. Pelling, Historia 22 (1973)",
+   "links": []
+  },
+  {
+   "id": "pharsalus:call-distance",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "pharsalus:plain"
+   },
+   "side": "left",
+   "num": 5,
+   "title": "진영 거리",
+   "body": "두 진영은 들판 하나를 사이에 두고 서로 가까이 있었다. 카이사르는 처음엔 싸움을 피하려 했다고 적었다.",
+   "cite": "카이사르 『내전기』 3.85",
+   "links": []
+  }
+ ]
+}

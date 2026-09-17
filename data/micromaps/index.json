@@ -38,5 +38,35 @@
   ],
   "minZoom": 10,
   "span": 0.35
+ },
+ {
+  "id": "rubicon",
+  "title": "루비콘 강 · BC 49",
+  "at": [
+   12.36,
+   44.07
+  ],
+  "minZoom": 10,
+  "span": 0.45
+ },
+ {
+  "id": "athens",
+  "title": "아테네 아크로폴리스 · BC 60",
+  "at": [
+   23.7266,
+   37.9715
+  ],
+  "minZoom": 12,
+  "span": 0.3
+ },
+ {
+  "id": "pharsalus",
+  "title": "파르살루스 · BC 48",
+  "at": [
+   22.3833,
+   39.3
+  ],
+  "minZoom": 10,
+  "span": 0.3
  }
 ]

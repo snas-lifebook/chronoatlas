@@ -1,0 +1,253 @@
+{
+ "id": "rubicon",
+ "title": "루비콘 강 · BC 49",
+ "year": -49,
+ "teaching": true,
+ "source": "좌표는 정본 settlements.geojson(place:라벤나·place:리미니·place:루비콘강)과 landmarks.geojson의 Pleiades Rubico 점, 위키백과 Savignano sul Rubicone 좌표 필드를 썼다. 강의 비정 자체가 논쟁이다, 1933년 재명명된 현대 루비코네(피우미치노) 통설 대 우소·피사텔로 대안설(OVERHAUL §3.5). 진군 경로는 수에토니우스 『카이사르』 31~33·플루타르코스 『카이사르』 32의 서술(라벤나 → 강 → 아리미눔)을 정본 세 지점으로 이은 근사이며 측량이 아니다.",
+ "home": {
+  "at": [
+   12.36,
+   44.07
+  ],
+  "minZoom": 10,
+  "span": 0.45
+ },
+ "view": {
+  "center": [
+   12.4,
+   44.1
+  ],
+  "zoom": 10.8,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-rubicon",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-rubicon",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": null,
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rubicon:river",
+    "name_ko": "루비콘 강",
+    "name_la": "Rubico",
+    "kind": "river",
+    "grade": "논쟁",
+    "source": "위치 자체가 논쟁이다. 정본 place:루비콘강(=위키백과 'Rubicon' 좌표, 44.1681N 12.4431E), landmarks.geojson Pleiades Rubico 대표점(44.0722N 12.3607E), 위키백과 'Savignano sul Rubicone' 좌표(44.1N 12.4E) 세 점을 이었다. 현대 루비코네(피우미치노) 통설 대 우소·피사텔로 대안설로 학계가 갈린다.",
+    "note_ko": "폭 몇 미터의 개천이다. 갈리아 키살피나와 이탈리아 본토를 가르던 경계선이 이 정도 크기였다.",
+    "wiki": "https://ko.wikipedia.org/wiki/루비콘_강"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      12.3607,
+      44.0722
+     ],
+     [
+      12.4,
+      44.1
+     ],
+     [
+      12.4431,
+      44.1681
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rubicon:ravenna",
+    "name_ko": "라벤나",
+    "name_la": "Ravenna",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 place:라벤나.",
+    "note_ko": "카이사르가 기원전 49년 1월 원로원의 최후통첩을 받은 곳."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.1966,
+     44.4157
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rubicon:ariminum",
+    "name_ko": "아리미눔(리미니)",
+    "name_la": "Ariminum",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 place:리미니(고대 아리미눔).",
+    "note_ko": "강을 건넌 뒤 카이사르가 처음 점령한 도시."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.5754,
+     44.0603
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rubicon:march",
+    "name_ko": "카이사르의 진군",
+    "name_la": null,
+    "kind": "road",
+    "grade": "근사",
+    "source": "수에토니우스 『카이사르』 31~33, 플루타르코스 『카이사르』 32의 서술(라벤나 → 강 → 아리미눔)을 정본 세 지점(place:라벤나 · place:루비콘강 · place:리미니)으로 이은 근사선. 실측 도로 측량이 아니다.",
+    "note_ko": "라벤나에서 강을 건너 아리미눔까지, 하룻밤 사이의 행군."
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      12.1966,
+      44.4157
+     ],
+     [
+      12.4431,
+      44.1681
+     ],
+     [
+      12.5754,
+      44.0603
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "rubicon:boundary",
+    "name_ko": "속주 경계",
+    "name_la": null,
+    "kind": "boundary",
+    "grade": "복원",
+    "source": "강을 따라 그어진 갈리아 키살피나/이탈리아 경계를 시각화한 학설 리본(rubicon:river 세 점을 폭 약 2.6km로 버퍼). 경계가 이 강이었다는 것은 확정, 어느 물줄기냐는 논쟁(rubicon:river 참고).",
+    "note_ko": "이 선을 무장한 채 넘으면 속주 총독의 명령권(임페리움)이 끝나고 반역이 된다."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       12.35377,
+       44.082
+      ],
+      [
+       12.3909,
+       44.10782
+      ],
+      [
+       12.43296,
+       44.17452
+      ],
+      [
+       12.45324,
+       44.16168
+      ],
+      [
+       12.4091,
+       44.09218
+      ],
+      [
+       12.36763,
+       44.0624
+      ],
+      [
+       12.35377,
+       44.082
+      ]
+     ]
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "rubicon:call-size",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "rubicon:river"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "얼마나 작은 강인가",
+   "body": "루비콘은 폭 몇 미터의 얕은 개천이다. 이탈리아와 갈리아 키살피나를 가르던 경계선의 실제 크기가 이 정도였다.",
+   "cite": null,
+   "links": []
+  },
+  {
+   "id": "rubicon:call-boundary",
+   "topic": "event",
+   "anchor": {
+    "feature": "rubicon:boundary"
+   },
+   "side": "left",
+   "num": 2,
+   "title": "무장한 채 넘으면 반란",
+   "body": "속주 총독은 임페리움(군사지휘권)을 이 경계 안으로 가져올 수 없었다. 무장한 채 건너는 순간 사병을 이끈 반역자가 된다.",
+   "cite": "수에토니우스 『카이사르』 30~31",
+   "links": []
+  },
+  {
+   "id": "rubicon:call-dice",
+   "topic": "event",
+   "anchor": {
+    "feature": "rubicon:march"
+   },
+   "side": "right",
+   "num": 3,
+   "title": "주사위는 던져졌다",
+   "body": "건너기 직전 '주사위는 던져졌다'고 외쳤다는 전승이 있다. 되돌릴 수 없는 결정이라는 뜻으로 후대의 관용구가 됐다.",
+   "cite": "수에토니우스 『카이사르』 32",
+   "links": []
+  },
+  {
+   "id": "rubicon:call-ravenna",
+   "topic": "event",
+   "anchor": {
+    "feature": "rubicon:ravenna"
+   },
+   "side": "right",
+   "num": 4,
+   "title": "라벤나의 밤",
+   "body": "카이사르는 저녁 식사와 검투 시합을 태연히 즐기다 자리를 떴고, 소수 병력만 데리고 어둠 속에서 강으로 향했다.",
+   "cite": "수에토니우스 『카이사르』 31",
+   "links": []
+  },
+  {
+   "id": "rubicon:call-sulla",
+   "topic": "event",
+   "anchor": {
+    "feature": "rubicon:ariminum"
+   },
+   "side": "right",
+   "num": 5,
+   "title": "처음이 아니다: 술라의 선례",
+   "body": "군대를 이끌고 로마로 진군한 장군은 카이사르가 처음이 아니다. 기원전 88년 술라가 이미 그렇게 했다.",
+   "cite": "아피아노스 『내전기』 1.57~58",
+   "links": []
+  }
+ ]
+}
