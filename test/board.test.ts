@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { Board, lintBoard, ARMS } from '../schema/board';
-import { inPolygon, nearestSettlement, containingPolity, distanceKm, snap, phaseOf, clampPhase, unitsGeoJSON, pickBoard, ARM_KO } from '../src/board';
+import { inPolygon, nearestSettlement, containingPolity, distanceKm, snap, phaseOf, clampPhase, unitsGeoJSON, pickBoard, ARM_KO, interpolate, unitPolygon, arrowLine, bearingDeg, battleGeoJSON } from '../src/board';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const rd = (p: string) => JSON.parse(readFileSync(join(ROOT, p), 'utf8'));
@@ -42,7 +42,7 @@ describe('말판 계약 (R37, BACKLOG 라운드 G)', () => {
     expect(board.phases[2].note).toBeTruthy();
     // 설명이 없으면 린트가 잡는다
     const broken = { ...board, phases: board.phases.map((p, i) => (i === 2 ? { ...p, note: undefined } : p)) };
-    expect(lintBoard(broken as any).some(e => e.includes('note가 없다'))).toBe(true);
+    expect(lintBoard(broken as any).some(e => e.includes('note도 없다'))).toBe(true); // v2: status(routed·destroyed)로도 설명할 수 있다
   });
   it('병종은 정해진 것만 쓴다', () => {
     for (const p of board.phases) for (const u of p.units) expect(ARMS).toContain(u.arm);
@@ -161,5 +161,83 @@ describe('자석 — 두 단계 (R39)', () => {
     const s = snap(raw.center, { settlements, territory, year: -216 });
     expect(s.settlement?.id).toBe('place:칸나이평원');
     expect(s.polity).not.toBe(null);
+  });
+});
+
+describe('말판 v2 (OVERHAUL §3.2 전투 재생)', () => {
+  const base = Board.parse(rd('data/boards/cannae-216.json'));
+  it('v2 필드는 전부 선택이라 옛 파일이 그대로 통과한다', () => {
+    expect(base.phases[0].units[0].status).toBe('active');
+    expect(base.phases[0].arrows).toEqual([]);
+  });
+  it('caption 이 있으면 cite 가 있어야 한다', () => {
+    const b = { ...raw, phases: raw.phases.map((p: any, i: number) => i ? p : { ...p, caption: '배치' }) };
+    expect(lintBoard(Board.parse(b))).toContain('t0: caption이 있는데 cite가 없다');
+  });
+  it('유닛이 사라질 때 status 나 note 가 있어야 한다', () => {
+    // 셋째 페이즈에서 note를 지우고 유닛 하나를 더 뺀다 → 잡힌다. 그 유닛에 둘째 페이즈에서 status를 달면 note 없이도 통과한다.
+    const b = { ...raw, phases: raw.phases.map((p: any, i: number) => i === 2 ? { ...p, note: undefined, units: p.units.slice(1) } : p) };
+    expect(lintBoard(Board.parse(b)).some(e => e.includes('빠졌는데'))).toBe(true);
+    const goneIds = raw.phases[1].units.map((u: any) => u.id).filter((id: string) => !b.phases[2].units.some((v: any) => v.id === id));
+    const ok = { ...b, phases: b.phases.map((p: any, i: number) => i === 1 ? { ...p, units: p.units.map((x: any) => goneIds.includes(x.id) ? { ...x, status: 'destroyed' } : x) } : p) };
+    expect(lintBoard(Board.parse(ok)).some(e => e.includes('빠졌는데'))).toBe(false);
+  });
+  it('path 는 자기 위치에서 시작해 다음 페이즈 위치에서 끝난다', () => {
+    const u0 = raw.phases[0].units.find((u: any) => raw.phases[1].units.some((v: any) => v.id === u.id));
+    const u1 = raw.phases[1].units.find((u: any) => u.id === u0.id);
+    const bad = { ...raw, phases: raw.phases.map((p: any, i: number) => i ? p : { ...p, units: p.units.map((u: any) => u.id === u0.id ? { ...u, path: [[0, 0], u1.at] } : u) }) };
+    expect(lintBoard(Board.parse(bad))).toContain(`t0 ${u0.id}: path 시작점이 at과 다르다`);
+  });
+  it('화살표 kind 는 셋뿐이고 인용은 cite 가 있어야 한다', () => {
+    expect(() => Board.parse({ ...raw, phases: [{ ...raw.phases[0], arrows: [{ from: [0, 0], to: [1, 1], actor: '로마', kind: 'charge' }] }] })).toThrow();
+    expect(() => Board.parse({ ...raw, phases: [{ ...raw.phases[0], quote: { text: 'x', who: 'y' } }] })).toThrow();
+  });
+});
+
+describe('프레임 보간 (전투 재생)', () => {
+  const board = Board.parse(rd('data/boards/cannae-216.json')) as any;
+  it('t=0·1 은 페이즈 그대로', () => {
+    const f0 = interpolate(board, 0), f1 = interpolate(board, 1);
+    expect(f0.units.map(u => u.id)).toEqual(board.phases[0].units.map((u: any) => u.id));
+    expect(f1.units.find(u => u.id === board.phases[1].units[0].id)!.at).toEqual(board.phases[1].units[0].at);
+  });
+  it('중간은 선분 위에 있고 사라지는 유닛은 흐려진다', () => {
+    const u = board.phases[0].units.find((x: any) => board.phases[1].units.some((y: any) => y.id === x.id));
+    const v = board.phases[1].units.find((y: any) => y.id === u.id);
+    const m = interpolate(board, 0.5).units.find(x => x.id === u.id)!;
+    expect(m.at[0]).toBeCloseTo((u.at[0] + v.at[0]) / 2, 9); expect(m.at[1]).toBeCloseTo((u.at[1] + v.at[1]) / 2, 9);
+    const gone = board.phases[0].units.find((x: any) => !board.phases[1].units.some((y: any) => y.id === x.id));
+    if (gone) expect(interpolate(board, 0.5).units.find(x => x.id === gone.id)!.opacity).toBeCloseTo(0.5, 6);
+  });
+  it('path 가 있으면 그 위를 간다', () => {
+    const id = board.phases[0].units[0].id;
+    const dst = board.phases[1].units.find((y: any) => y.id === id)?.at ?? board.phases[0].units[0].at;
+    const b = { ...board, phases: board.phases.map((p: any, i: number) => i ? p : { ...p, units: p.units.map((x: any, k: number) => k ? x : { ...x, path: [x.at, [x.at[0] + 0.01, x.at[1]], dst] }) }) };
+    const q = interpolate(b, 0.1).units.find(x => x.id === id)!;
+    expect(q.at[1]).toBeCloseTo(board.phases[0].units[0].at[1], 6);   // 첫 구간은 동쪽으로만 간다
+  });
+  it('결정론: 같은 t 는 같은 프레임', () => { expect(interpolate(board, 0.37)).toEqual(interpolate(board, 0.37)); });
+  it('battleGeoJSON 은 유닛마다 몸통·앞띠·이름표 셋을 만든다', () => {
+    const g = battleGeoJSON(interpolate(board, 0), { 로마: '#A4243B' }, 'cannae-216');
+    expect(g.units.features.length).toBe(board.phases[0].units.length * 3);
+    expect(g.units.features.filter(f => f.properties.kind === 'body').every(f => f.geometry.type === 'Polygon')).toBe(true);
+  });
+});
+describe('블록 기하', () => {
+  it('보병 블록은 닫힌 사각형이고 향을 따라 돈다', () => {
+    const a = unitPolygon({ at: [16, 41], arm: 'infantry', facing: 0, strength: 10000 });
+    expect(a.length).toBe(5); expect(a[0]).toEqual(a[4]);
+    const b = unitPolygon({ at: [16, 41], arm: 'infantry', facing: 90, strength: 10000 });
+    expect(Math.abs(a[1][0] - a[0][0])).toBeGreaterThan(Math.abs(b[1][0] - b[0][0]));
+  });
+  it('앞띠는 전면 쪽에 있다', () => {
+    const body = unitPolygon({ at: [16, 41], arm: 'infantry', facing: 0 }), front = unitPolygon({ at: [16, 41], arm: 'infantry', facing: 0 }, true);
+    const cy = (p: number[][]) => p.slice(0, 4).reduce((s, q) => s + q[1], 0) / 4;
+    expect(cy(front)).toBeGreaterThan(cy(body));
+  });
+  it('화살표는 from 에서 to 로 24점', () => {
+    const l = arrowLine({ from: [0, 0], to: [1, 0], actor: '로마', kind: 'advance' });
+    expect(l.length).toBe(25); expect(l[0]).toEqual([0, 0]); expect(l[24]).toEqual([1, 0]); expect(l[12][1]).not.toBe(0);
+    expect(bearingDeg([0, 0], [0, 1])).toBeCloseTo(0, 6); expect(bearingDeg([0, 0], [1, 0])).toBeCloseTo(90, 6);
   });
 });

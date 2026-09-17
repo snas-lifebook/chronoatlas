@@ -182,16 +182,14 @@ describe('세부 지도 그룹', () => {
   it('세 장이고 각각 자기 미시 레이어를 켠다', () => {
     // River: "세부지도들도 깃허브 io에서 북마크 따라갈 수 있게 하라." 장면이 없으면
     // 줌으로만 도달하고 손가락으로는 못 간다 — 로마·알렉산드리아가 그 상태였다.
-    expect(detail.map(s => s.id)).toEqual(['pack-alesia-52', 'pack-roma-urbs', 'pack-alexandria-47']);
-    const want: Record<string, string> = {
-      'pack-alesia-52': 'alesia', 'pack-roma-urbs': 'roma', 'pack-alexandria-47': 'alexandria',
-    };
-    for (const s of detail) expect(s.layers, s.id).toContain(want[s.id]);
+    // 2026-09-17: 미시지도는 레이어 이름이 아니라 장면의 micro 필드가 부른다(레지스트리, OVERHAUL §3.2). 셋에서 늘어난다.
+    for (const id of ['pack-alesia-52', 'pack-roma-urbs', 'pack-alexandria-47']) expect(detail.map(s => s.id)).toContain(id);
+    for (const s of detail) expect(typeof (s as any).micro, s.id).toBe('string');
   });
 
   it('문턱을 넘는 줌이라야 미시 지도가 실제로 켜진다', () => {
     for (const s of detail) {
-      expect(s.zoom, s.id).toBeGreaterThan(11);
+      expect(s.zoom, s.id).toBeGreaterThanOrEqual(10);   // 루비콘은 z10.8 (강 유역이 넓다)
       expect(s.skin, s.id).toBe('campaign');
     }
   });

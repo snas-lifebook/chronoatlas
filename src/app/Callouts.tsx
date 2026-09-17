@@ -32,7 +32,19 @@ export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null
   // 어느 미시지도가 켜져 있는가는 엔진이 말한다(레지스트리 진입·이탈). 줌 문턱 계산은 엔진 몫이다.
   const [def, setDef] = useState<MicroMapDef | null>(null);
   useEffect(() => { const off = engine?.onMicro(setDef); return () => { off?.(); }; }, [engine]);
-  const resolved = useMemo<Callout[]>(() => def ? resolveCallouts(def).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null })) : [], [def]);
+  // 부대에 매단 콜아웃(anchor.unit)은 재생 중 블록을 따라간다. 프레임마다 다시 푼다(R54).
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    let offF: (() => unknown) | undefined;
+    const off = engine?.onBattle(b => { offF?.(); offF = b.onFrame(() => setTick(x => x + 1)); });
+    return () => { off?.(); offF?.(); };
+  }, [engine]);
+  // 주제 칩: 지형·부대·사건. River 「콜아웃 인포메이션으로 보거나 숨기거나」.
+  const [topics, setTopics] = useState<Set<'terrain' | 'unit' | 'event'>>(() => new Set(['terrain', 'unit', 'event']));
+  const resolved = useMemo<Callout[]>(() => def
+    ? resolveCallouts(def, id => engine?.battle()?.unitAt(id) ?? null).filter(c => topics.has(c.topic)).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null }))
+    : [], [def, engine, tick, topics]);
+  const hasTopic = useMemo(() => new Set(def?.callouts.map(c => c.topic) ?? []), [def]);
   const which = def?.id ?? null;
   const [pins, setPins] = useState<Pin[]>([]);
   const [size, setSize] = useState<[number, number]>([0, 0]);
@@ -137,8 +149,16 @@ export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null
     return <button className="ca-callout-toggle is-off" onClick={() => setOpen(true)}
                    title="설명 보이기 (C)">설명 ▸</button>;
   }
-  if (!which || !pins.length) return null;
+  if (!which || (!pins.length && hasTopic.size < 2)) return null;
   const [W, H] = size;
+  const chips = hasTopic.size >= 2 && (
+    <div className="ca-chips">
+      {([['terrain', '지형'], ['unit', '부대'], ['event', '사건']] as const).filter(([k]) => hasTopic.has(k)).map(([k, label]) => (
+        <button key={k} className={`ca-chip${topics.has(k) ? ' is-on' : ''}`} aria-pressed={topics.has(k)}
+          onClick={() => setTopics(prev => { const n = new Set(prev); if (n.has(k)) n.delete(k); else n.add(k); return n; })}>{label}</button>
+      ))}
+    </div>
+  );
   // 왼쪽에 앱 패널(탐색)이 서 있으면 **카드를 전부 오른쪽으로 몰아넣는다.** 패널을 비켜
   // 오른쪽으로 밀면 카드가 지도 한가운데(x 336~636)를 덮어 알레시아 포위선의 서쪽 절반을
   // 가렸다 — 여백에 두려고 만든 장치가 여백을 벗어나면 뜻이 없다. 발표 모드는 패널이
@@ -155,6 +175,7 @@ export function Callouts({ map, engine, root, ds }: { map: maplibregl.Map | null
   return (
     <div className="ca-callouts" ref={hostRef} aria-hidden={false}>
       <button className="ca-callout-toggle" onClick={() => setOpen(false)} title="설명 숨기기 (C)">설명 ×</button>
+      {chips}
       <svg className="ca-callout-lines" width={W} height={H}>
         {pins.map(p => {
           const a = anchors[p.c.id];

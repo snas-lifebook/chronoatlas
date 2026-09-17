@@ -26,15 +26,25 @@ export const ARM_KO: Record<(typeof ARMS)[number], string> = {
   infantry: '중보병', cavalry: '기병', light: '경보병', elephant: '전투코끼리', command: '지휘',
 };
 
+// ── v2 (2026-09-17, OVERHAUL §3.2·§3.6 전투 재생) ────────────────────────────
+// 전부 선택 필드다. 옛 파일(칸나이·파르살루스)이 무수정으로 통과한다. 캡션이 있으면 사료(cite)를 강제한다.
+const LonLat = z.tuple([z.number(), z.number()]);
+export const STATUS = ['active', 'routed', 'destroyed'] as const;
+export const Quote = z.object({ text: z.string().min(1).max(200), who: z.string().min(1), cite: z.string().min(1) });
+export const Arrow = z.object({ from: LonLat, to: LonLat, via: LonLat.nullable().optional(), actor: z.string().min(1), kind: z.enum(['advance', 'retreat', 'flank']) });
+export const Clash = z.object({ at: LonLat, label: z.string().optional() });
+
 export const Unit = z.object({
   id: z.string().min(1),                         // 말판 안에서만 유일하면 된다
-  at: z.tuple([z.number(), z.number()]),         // [경도, 위도]
+  at: LonLat,                                    // [경도, 위도]
   actor: z.string().min(1),                      // 세력. 정본 팔레트 id면 색이 붙는다
   arm: z.enum(ARMS),
   label: z.string().min(1),
   strength: z.number().int().positive().optional(),
   facing: z.number().min(0).max(360).optional(), // 방위(도). 없으면 렌더가 알아서
   entity: z.string().optional(),                 // 정본 엔티티 id. 있으면 클릭으로 인스펙터
+  status: z.enum(STATUS).default('active'),      // v2. routed = 패주(반투명) · destroyed = 궤멸(사라짐)
+  path: z.array(LonLat).min(2).nullable().optional(), // v2. 다음 페이즈까지 가는 길. 사료가 우회를 말할 때만
 });
 
 export const Phase = z.object({
@@ -42,6 +52,11 @@ export const Phase = z.object({
   title: z.string().min(1),
   note: z.string().optional(),
   units: z.array(Unit).min(1),
+  caption: z.string().min(1).max(160).optional(), // v2. 캡션 띠
+  cite: z.string().min(1).optional(),              // v2. 캡션의 사료
+  quote: Quote.nullable().optional(),              // v2. 인용 카드
+  arrows: z.array(Arrow).default([]),              // v2. 큰 기동. 사료가 말하는 것만
+  clashes: z.array(Clash).default([]),             // v2. 교전 표식
 });
 
 export const Board = z.object({
@@ -60,6 +75,9 @@ export const Board = z.object({
 export type TUnit = z.infer<typeof Unit>;
 export type TPhase = z.infer<typeof Phase>;
 export type TBoard = z.infer<typeof Board>;
+export type TArrow = z.infer<typeof Arrow>;
+export type TClash = z.infer<typeof Clash>;
+export type TQuote = z.infer<typeof Quote>;
 
 /** 스키마만으로는 못 잡는 것들. 반환값이 빈 배열이면 통과. */
 export function lintBoard(b: TBoard): string[] {
@@ -75,11 +93,19 @@ export function lintBoard(b: TBoard): string[] {
       if (lon < -180 || lon > 180 || lat < -90 || lat > 90) err.push(`t${p.t} ${u.id}: 좌표 범위 밖 ${u.at}`);
     }
   }
-  // 페이즈마다 전체 배치라, 유닛이 소리 없이 사라지면 대개 오타다. 진짜 전멸이면 note에 적게 한다.
-  const first = new Set(b.phases[0].units.map(u => u.id));
-  for (const p of b.phases.slice(1)) {
-    const gone = [...first].filter(id => !p.units.some(u => u.id === id));
-    if (gone.length && !p.note) err.push(`t${p.t}: 유닛 ${gone.length}개가 빠졌는데 note가 없다 (${gone.slice(0, 3).join(', ')})`);
+  // 페이즈마다 전체 배치라, 유닛이 소리 없이 사라지면 대개 오타다. 진짜 전멸이면 앞 페이즈에 status(routed·destroyed)를 달거나 note에 적게 한다.
+  for (let i = 1; i < b.phases.length; i++) {
+    const prev = b.phases[i - 1], p = b.phases[i];
+    const gone = prev.units.filter(u => !p.units.some(v => v.id === u.id) && u.status === 'active');
+    if (gone.length && !p.note) err.push(`t${p.t}: 유닛 ${gone.length}개가 빠졌는데 status도 note도 없다 (${gone.slice(0, 3).map(u => u.id).join(', ')})`);
+    for (const u of prev.units) {
+      if (!u.path) continue;
+      const v = p.units.find(x => x.id === u.id);
+      const near = (a: number[], c: number[]) => Math.hypot(a[0] - c[0], a[1] - c[1]) < 1e-4;
+      if (!near(u.path[0], u.at)) err.push(`t${prev.t} ${u.id}: path 시작점이 at과 다르다`);
+      if (v && !near(u.path[u.path.length - 1], v.at)) err.push(`t${prev.t} ${u.id}: path 끝점이 다음 at과 다르다`);
+    }
   }
+  for (const p of b.phases) if (p.caption && !p.cite) err.push(`t${p.t}: caption이 있는데 cite가 없다`);
   return err;
 }

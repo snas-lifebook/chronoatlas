@@ -165,10 +165,26 @@ export function createMicro(map: maplibregl.Map, opts: {
     // 도판은 배경이고 우리 마킹이 주인공이다: 미시 채움 층 아래에 깐다.
     map.addLayer({ id: 'micro-basemap', type: 'raster', source: 'micro-basemap', minzoom: bm.min_zoom ?? 11, paint: { 'raster-opacity': bm.opacity ?? 0.85, 'raster-fade-duration': 0 } }, 'micro-fill');
   }
+  /** 그 해에 아직 안 세워진 건물을 가린다(옛 엔진 hideUnbuilt). 피처의 `built_year`가 해보다 크면 숨긴다. 연도 없는 피처는 늘 보인다.
+   *  카이사레움(BC 30년대 착수)이 BC 47 알렉산드리아 판에, 폼페이우스 극장(BC 55 봉헌)이 BC 60 로마 판에 서 있던 구멍이다. */
+  const BASE = new Map<string, unknown>();
+  let year: number | null = null;
+  function applyYear() {
+    if (year == null || !map.getSource('micro')) return;
+    const f: any = ['any', ['!', ['has', 'built_year']], ['<=', ['get', 'built_year'], year]];
+    for (const id of MICRO_LAYERS) {
+      if (id === 'micro-basemap' || !map.getLayer(id)) continue;
+      if (!BASE.has(id)) BASE.set(id, map.getFilter(id) ?? null);
+      const base = BASE.get(id);
+      map.setFilter(id, (base ? ['all', base, f] : f) as any);
+    }
+  }
   return {
     active: () => active,
+    /** 연도가 바뀌면 부른다. 건물의 built_year를 본다. */
+    setYear(y: number) { year = y; applyYear(); },
     /** setStyle이 소스를 지운 뒤 다시 들어오게 한다(같은 id면 enter가 조기 반환하므로). */
-    reset() { active = null; },
+    reset() { active = null; BASE.clear(); },
     enter(def: MicroMapDef) {
       if (active?.id === def.id && map.getSource('micro')) return;
       ensureLayers();
@@ -178,6 +194,7 @@ export function createMicro(map: maplibregl.Map, opts: {
       setBasemap(def);
       // 도판이 깔리면 채움을 씻어 내린다(옛 SCAN_WASH). 도판이 없으면 원래 값.
       map.setPaintProperty('micro-fill', 'fill-opacity', fillOpacity(def.basemap ? 0.45 : 1));
+      applyYear();
       opts.onEnter?.(def);
     },
     leave() {

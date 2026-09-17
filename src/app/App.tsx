@@ -7,6 +7,7 @@ import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine
 import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
 import { Inspector } from './Inspector';
+import { BattleBar } from './BattleBar';
 // 검색·내보내기·콜아웃·그래프·QC는 첫 화면에 필요 없다. 동적 청크로 뗀다(OVERHAUL §3.4 P0, R46).
 const Search = lazy(() => import('./Search').then(m => ({ default: m.Search })));
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
@@ -97,7 +98,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   }, [people, d, s.year]);
 
   useEffect(() => { engRef.current = createEngine(mapRef.current!, d, store, root, ds, isDark(readTheme()), boards, scenes); engRef.current.onData(() => setDataTick(t => t + 1));
-    engRef.current.map.on('idle', () => setDrawTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt, boards, micro: () => engRef.current?.micro() ?? null }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
+    engRef.current.map.on('idle', () => setDrawTick(t => t + 1)); (window as any).__ca = { map: engRef.current.map, store, clientsAt, boards, micro: () => engRef.current?.micro() ?? null, battle: () => engRef.current?.battle() ?? null }; /* 검수 스크립트(P13·P14)용 훅 */ return () => engRef.current?.map.remove(); }, []);
   const firstTheme = useRef(true);
   useEffect(() => {
     document.documentElement.dataset.theme = isDark(theme) ? 'dark' : 'light';
@@ -137,6 +138,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         if (next) goScene(next);
       }
       else if (/^[1-9]$/.test(e.key)) { const l = CATALOG.filter(c => !c.p1)[Number(e.key) - 1]; if (l) toggleLayer(l.id); }
+      else if ((e.key === 'p' || e.key === 'P') && st.board) { const b = engRef.current?.battle(); if (b) (b.playing() ? b.pause() : b.play()); }   // 전투 재생(R54)
+      else if ((e.key === '.' || e.key === ',') && st.board) { const b = engRef.current?.battle(); if (b) { const v = e.key === '.' ? Math.floor(b.t()) + 1 : Math.ceil(b.t()) - 1; b.seek(v); store.set({ phase: Math.max(0, Math.min(v, b.board()!.phases.length - 1)) }); } }
     };
     addEventListener('keydown', onKey); return () => removeEventListener('keydown', onKey);
   }, []);
@@ -456,7 +459,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       </Card>}
 
       {s.sel && <div className="shell-right">
-        <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
+        <Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} getMapCanvas={() => engRef.current?.map.getCanvas() ?? null}
           onHoverNeighbor={id => engRef.current?.pulse(id)} onLocate={locate} pathTo={pathTo} onAskPath={() => setSearching('path')} onClearPath={() => setPathTo(null)} />
         {graph?.nodes.has(s.sel) && on.has('graph') && <Suspense fallback={null}><GraphPanel graph={graph} sel={s.sel} year={s.year} onSelect={locate} onHover={id => engRef.current?.pulse(id)} /></Suspense>}
       </div>}
@@ -524,17 +527,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         </div>
       </footer>
 
-      {liveBoard && <Card padding={3} elevation="low" className={`shell-board${explorerOpen ? ' is-shift' : ''}`}>
-        <Text size="sm" color="secondary">말판 · 교보재</Text>
-        <div className="bd-title">{liveBoard.board.title}</div>
-        <input type="range" className="bd-slider" min={0} max={liveBoard.board.phases.length - 1} step={1} value={liveBoard.idx}
-          aria-label="말판 페이즈"
-          onChange={e => store.set({ phase: liveBoard.board.phases[Number(e.currentTarget.value)].t })} />
-        <div className="bd-ticks">{liveBoard.board.phases.map(p => <span key={p.t}>{p.title}</span>)}</div>
-        <div className="bd-phase">{liveBoard.phase.title}</div>
-        {liveBoard.phase.note && <div className="bd-note">{liveBoard.phase.note}</div>}
-        <div className="bd-source">{liveBoard.board.source}</div>
-      </Card>}
+      {liveBoard && engRef.current && <BattleBar engine={engRef.current} store={store} board={liveBoard.board} shift={explorerOpen} />}
 
       <div className="shell-footnote">
         <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>

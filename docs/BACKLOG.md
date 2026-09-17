@@ -121,17 +121,17 @@ R39 목각은 볼트 3.7 조율, R41은 릴 스크린샷.
 | ID | 요구 | 상태 | 슬라이스 |
 |---|---|---|---|
 | R46 | 초기 JS **400 kB gz(gzip -9) 이하**로 번들 분할. 2026-09-17 재실측 491.8 kB(문서의 399.6은 측정법이 달랐다. 바닥 maplibre+react+astryx 361). **래칫**: 검색·내보내기·콜아웃·그래프·QC 동적 청크로 **471.7**(게이트 480, `scripts/check-bundle.mjs` postbuild) → P1 미시지도 지연 로드 뒤 440 → 대륙 교보재(pack-*) 청크 뒤 400 | ◐ | I |
-| R47 | 미시지도를 데이터 한 장으로 선언하는 레지스트리 + 루비콘 · 아테네 아크로폴리스 · 파르살루스 신설 | ○ | I |
-| R48 | 입체 보기가 라이브에서 선다: DEM 두 층(ETOPO 2022 대륙 z0~7 · Copernicus GLO-30 인셋 z8~12)을 레포에 커밋 | ○ | I |
+| R47 | 미시지도를 데이터 한 장으로 선언하는 레지스트리 + 루비콘 · 아테네 아크로폴리스 · 파르살루스 신설 | ● | I. **2026-09-17 닫힘.** `data/micromaps/<id>.json` 일곱 장(zod `schema/micromap.ts`, 렌더러 `src/map/micro.ts`), 옛 `pack-*.json` 다섯 삭제. 새 셋은 `docs/RUBICON.md`·`ATHENS.md`·`PHARSALUS.md`(좌표 출처·등급 표). 장면 `rubicon-49`·`athens-acropolis`·`pharsalus-48` |
+| R48 | 입체 보기가 라이브에서 선다: DEM 두 층(ETOPO 2022 대륙 z0~8 · Copernicus GLO-30 인셋 z8~12)을 레포에 커밋 | ● | I. **2026-09-17 닫힘.** `scripts/bake-dem.py`(numpy+tifffile, 2 m 양자화·바다 0) 대륙 4,780장 144 MB + 인셋 일곱 35 MB, `test/terrain.test.ts` 상한 200 MB. 캡처 `docs/verify/overhaul/dem-alps-z6.png`. 크레딧 `public/assets/CREDITS.md` |
 | R49 | 대표님 녹취(PACK-CAESAR §14)에서 아직 없던 장면 둘: 「왜 제국인가: 평야」 · 「카르하이 BC 53」 | ○ | I |
 | R50 | 620px 이하 읽기 모드(하단 시트 하나, 핀은 번호만). 즉석 북마크는 R44 | ○ | I |
 | R51 | 시각 문법(대륙 축척): `campaign` 스킨 v2(국경 점선 사슬·연도 리본·세리프 자간 라벨·채색 음영) · 장군 배너 카드 · 장기말 프로시저럴 v2 · 군단 무리. 미시 축척 몫은 R54로 갔다 | ○ | II |
 | R52 | 수심 색(`color-relief`, 깊을수록 짙게) · 위성 스킨(PD 래스터) | ○ | III |
 | R53 | 장면 의미체계(장면 ↔ 사건·시대 링크 층) · 프로젝트별 북마크 내보내기 | ○ | IV |
 | R55 | **모델링 시각화** `docs/MODELS.md`: AI와 사람이 같이 보는 Mermaid 도식 7, 데이터 모델은 zod에서 생성, 모델 바꾸는 커밋마다 갱신 (9차 후속 2 Z) | ○ | I |
-| R56 | **확대하면 빈 화면**: 대륙 DEM z8 + 모든 스킨 음영·고도색, 인셋에 토지피복(ESA WorldCover)·하천·호수, `data/insets.json` 한 줄로 인셋 추가. 온라인 지형은 River 결정 (A) | ○ | I |
+| R56 | **확대하면 빈 화면**: 대륙 DEM z8 + 모든 스킨 음영·고도색, 인셋에 토지피복(ESA WorldCover)·하천·호수, `data/insets.json` 한 줄로 인셋 추가. 온라인 지형은 River 결정 (A) | ◐ | I. 2026-09-17: 대륙 z8 DEM(R48)과 `scripts/bake-landcover.py`(WorldCover 2021 CC BY 4.0, 인셋 일곱 z8~12, 음영 밑 55%) 됨. 캡처 `micro-alesia-dem-landcover.png`. 남은 것: 모든 스킨 고도색, 인셋 하천·호수(HydroRIVERS는 라이선스 보류), `data/insets.json` |
 | R57 | **영역 마감**: 부드럽게 → 넉넉하게 → 섬 귀속(가장 가까운 폴리티 40 km) → 겹침 정리 파이프라인 + **바다 마스크**·안쪽 후광·해안선 잉크 렌더. R33(라운드 C)을 흡수 (B) | ● | I. **2026-09-17 닫힘.** `npm run finish`(scripts/finish-territory.py) 23버킷: 정점 2.1배, 예각 비율 0.009→0.004, 섬 귀속 8,474행(`docs/verify/overhaul/islands.csv`), 총 13→30 MB. 해안 자르기는 데이터가 아니라 `layers/ocean.geojson` 마스크. 캡처 `territory-aegean-z6.png`(키클라데스·크레타·키프로스 칠해짐) · `territory-bc49.png` · `territory-bc27.png`. River 판정: 섬 귀속 표와 후광 세기 |
-| R54 | **전투 재생**: 미시지도에서 재생하면 말판이 페이즈 사이를 움직인다. 부대 블록·기동 화살표·교전 표식·캡션 띠·사료 인용 카드, 부대 탭 세부, 병종·지형 콜아웃 필터. 고증(페이즈마다 cite). 알레시아 말판 신설. A_공간지도 네 문법(전투전술·도시공성·이동경로·인용) | ○ | I |
+| R54 | **전투 재생**: 미시지도에서 재생하면 말판이 페이즈 사이를 움직인다. 부대 블록·기동 화살표·교전 표식·캡션 띠·사료 인용 카드, 부대 탭 세부, 병종·지형 콜아웃 필터. 고증(페이즈마다 cite). 알레시아 말판 신설. A_공간지도 네 문법(전투전술·도시공성·이동경로·인용) | ◐ | I. 2026-09-17: 스키마 v2(`schema/board.ts`) · 보간 `src/board.ts` · 렌더러 `src/map/battle.ts`(지연 청크) · 재생 바 `BattleBar.tsx`(P · . ,) · 부대 카드(`unit:` 선택) · 콜아웃 주제 칩. 검증 `scripts/battle-frame.py cannae-board 1.5` → 13블록 모두 양 끝 사이, 캡처 `battle-cannae-board-playing.png`·`battle-pharsalus-48-unit.png`. 남은 것: 세 말판 캡션·cite·화살표·인용 내용, 알레시아 말판 생성기 |
 
 ---
 

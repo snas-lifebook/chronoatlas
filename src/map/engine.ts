@@ -4,7 +4,8 @@ import { type Dataset, dateWindow, MARCH_MAX_YEARS, OPEN_PAST, routeGeometry } f
 import { buildStyle, DEPTHS, MAP, type Skin } from './style';
 import { rememberPitch3d, roundCam, type Store, type Scene, type State } from '../state';
 import type { Neighbor } from '../graph/data';
-import { ARM_KO, FALLBACK_COLOR, phaseOf, unitsGeoJSON, type BoardData } from '../board';
+import { ARM_KO, FALLBACK_COLOR, type BoardData } from '../board';
+import { BATTLE_LAYERS, type BattleCtl } from './battle';
 import { fitZoom, showGalliaOverlay, showGalliaRoman } from '../present';
 import { createMicro, MICRO_LAYERS } from './micro';
 import { loadMicro, microMapAt } from '../micromaps';
@@ -26,23 +27,6 @@ const FADE_SPAN = 8;
 const MOVE_MAX_AGE = 40; // 이보다 오래된 행군 구간은 안 그린다(2026-09-17, 정본 경로 16종 유입)
 const EMPTY_FC = { type: 'FeatureCollection' as const, features: [] };
 
-function armIcon(arm: string, color: string): ImageData {
-  const size = 64, c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d')!;
-  g.translate(size / 2, size / 2);
-  g.fillStyle = color;
-  g.strokeStyle = '#fff';
-  g.lineWidth = 3;
-  g.beginPath();
-  if (arm === 'cavalry') { g.moveTo(0, -18); g.lineTo(14, 0); g.lineTo(0, 18); g.lineTo(-14, 0); }
-  else if (arm === 'light') g.arc(0, 0, 11, 0, Math.PI * 2);
-  else if (arm === 'elephant') g.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2);
-  else if (arm === 'command') { g.moveTo(0, -18); g.lineTo(16, 14); g.lineTo(-16, 14); }
-  else g.rect(-12, -14, 24, 28);
-  g.closePath(); g.fill(); g.stroke();
-  return g.getImageData(0, 0, size, size);
-}
 
 /** 군기(vexillum). 장대에 가로대, 거기 늘어뜨린 네모 깃발, 그 위에 군단 수.
  *  로마 군단기가 장대에 가로대를 달고 천을 늘어뜨린 형태라 그 실루엣을 따랐다.
@@ -208,7 +192,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   // 아무도 끄지 않아 오히려 항상 켜진다. 팩 장면이 안 켜는 landmarks로 옮겨서 끈다.
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'label-region'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
-  board: ['board-unit', 'board-label'],
+  board: [...BATTLE_LAYERS], // 말판 v2 렌더러(map/battle.ts). 지연 청크지만 층 이름은 상수라 여기서 안다
   people: ['people-dot', 'people-pad', 'people-label', 'people-standard', 'people-force'],
   // 미시지도(OVERHAUL §3.1): 어느 지도든 같은 층. 그리는 법은 map/micro.ts KIND_PAINT, 데이터는 data/micromaps/<id>.json
   micro: [...MICRO_LAYERS],
@@ -224,7 +208,6 @@ export const LAYER_GROUPS: Record<string, string[]> = {
 // 그래서 시간 필터를 쓰는 레이어는 `timed` 표의 원본을 보고 여기서 직접 조립한다.
 const BASE_FILTER = new Map<string, unknown>();
 // 미시 지도 레이어의 **원래** 필터(kind 분류). built_year 조건을 AND로 덧붙일 때 쓴다.
-const UNBUILT_BASE = new Map<string, unknown>();
 function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
                                  timedBase: (id: string) => { timed: boolean; base: any },
                                  compose: (base: any, y: number) => any) {
@@ -446,14 +429,26 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   // 고도 과장은 줌에 따라 — 낮은 줌에서 1.4배는 화면상 1~2px라 "3D인데 굴곡이 없다"가 된다.
   // 산이 화면에서 비슷한 높이로 보이도록 줌이 낮을수록 크게(z3 12배 → z9 1.4배). setTerrain은 표현식을 못 받아서 zoom 이벤트로 갱신.
   let lastEx = 0;
+  let terrainSrc = 'dem';   // 지금 지형을 주는 소스. 미시지도 진입 때 인셋(dem-<id>)으로, 이탈 때 대륙(dem)으로 (OVERHAUL §3.7)
   const syncTerrain = () => {
-    if (!terrainMeta || !map.getSource('dem')) return;
-    const base = terrainMeta.exaggeration ?? 1.4;
+    if (!map.getSource(terrainSrc)) return;
+    const base = terrainMeta?.exaggeration ?? 1.4;
     const ex = Math.round(base * Math.min(11, Math.max(1, 2 ** ((9 - map.getZoom()) * 0.62))) * 10) / 10;
-    if (ex === lastEx && map.getTerrain()) return;
-    lastEx = ex; map.setTerrain({ source: 'dem', exaggeration: ex });
+    if (ex === lastEx && map.getTerrain()?.source === terrainSrc) return;
+    lastEx = ex; map.setTerrain({ source: terrainSrc, exaggeration: ex });
   };
   map.on('zoom', syncTerrain);
+  function hillshadeTo(src: string, before?: string) {
+    if (map.getLayer('hillshade')) map.removeLayer('hillshade');
+    map.addLayer({ id: 'hillshade', type: 'hillshade', source: src, paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
+  }
+  /** 지형 소스를 바꾼다. 미시지도 진입은 인셋, 이탈은 대륙. 음영 층도 그 소스로 다시 얹는다. */
+  function useTerrain(src: string, before?: string) {
+    if (!map.getSource(src)) return;
+    terrainSrc = src; lastEx = 0;
+    hillshadeTo(src, before ?? (map.getLayer('label-marine') ? 'label-marine' : undefined));
+    syncTerrain();
+  }
   // 세부 지도 둘은 **줌으로** 켠다 — 발표 장면 수는 아홉으로 묶여 있고(River),
   // 세부는 「거기로 들어가면 보인다」가 맞는 동작이다.
 
@@ -461,8 +456,34 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   const microFns = new Set<(def: MicroMapDef | null) => void>();
   const micro = createMicro(map, { root, ds, palette: Object.fromEntries(d.actors.map(a => [a.id, a.color])), halo,
     before: () => map.getLayer('label-marine') ? 'label-marine' : undefined,
-    onEnter: def => { hideContinental(true, def.hide); microFns.forEach(fn => fn(def)); },
-    onLeave: () => { hideContinental(false); microFns.forEach(fn => fn(null)); } });
+    onEnter: def => {
+      hideContinental(true, def.hide);
+      // 인셋 DEM(Copernicus GLO-30 z8~12): 지도 범위(home.at ± span)에만 있고 밖에서는 요청이 안 나간다(bounds·minzoom).
+      const [lon, lat] = def.home.at, sp = def.home.span, bounds: [number, number, number, number] = [lon - sp, lat - sp, lon + sp, lat + sp];
+      if (def.dem) {
+        const id = `dem-${def.id}`;
+        if (!map.getSource(id)) map.addSource(id, { type: 'raster-dem', tiles: [`${root}datasets/${ds}/${def.dem.dir}/{z}/{x}/{y}.png`], encoding: 'terrarium', tileSize: 256, minzoom: def.dem.minzoom, maxzoom: def.dem.maxzoom, bounds });
+        useTerrain(id);
+      }
+      // 토지피복(ESA WorldCover, CC BY 4.0)은 음영 **밑에**: 색은 피복이, 굴곡은 음영이 말한다(OVERHAUL §3.6b). River: 「자연 환경이라도」.
+      if (def.landcover) {
+        const id = `landcover-${def.id}`;
+        if (!map.getSource(id)) map.addSource(id, { type: 'raster', tiles: [`${root}datasets/${ds}/${def.landcover.dir}/{z}/{x}/{y}.png`], tileSize: 256, minzoom: def.landcover.minzoom, maxzoom: def.landcover.maxzoom, bounds });
+        if (!map.getLayer(id)) map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': def.landcover.opacity, 'raster-fade-duration': 0 } }, map.getLayer('hillshade') ? 'hillshade' : (map.getLayer('micro-fill') ? 'micro-fill' : undefined));
+        landcoverLayer = id;
+      }
+      microFns.forEach(fn => fn(def));
+    },
+    onLeave: () => {
+      hideContinental(false);
+      if (map.getSource('dem')) useTerrain('dem');
+      if (landcoverLayer && map.getLayer(landcoverLayer)) map.removeLayer(landcoverLayer);
+      landcoverLayer = null;
+      microFns.forEach(fn => fn(null));
+    } });
+  let landcoverLayer: string | null = null;
+  let battle: BattleCtl | null = null;
+  const battleFns = new Set<(b: BattleCtl) => void>();
   let microWanted: string | null = null;
   /** 미시 축척에서 대륙 축척의 것들을 끈다. 이동 경로는 지중해를 가로지르는 선 몇 개일 뿐이고, 폴리티 이름표는
    *  면적 문턱만 봐서 64만 km² 왕국이 z14에서도 통과한다(River가 알렉산드리아 판에서 「프톨레마이오스 왕국」을 잡았다).
@@ -484,29 +505,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('zoomend', () => syncDetailMaps(store.get().scene)); // 스킨 전환(setStyle)마다 addTerrain이 다시 불려서, 리스너는 여기 한 번만 건다
   map.on('moveend', () => syncDetailMaps(store.get().scene)); // 이동만으로 지도를 벗어나는 경우
 
-  /** 그 해에 아직 안 세워진 건물을 가린다.
-   *
-   *  미시 지도 피처에 `built_year`가 달려 있는데 **아무도 안 보고 있었다.** 그래서
-   *  카이사레움(기원전 30년대 착수)이 **기원전 47년 알렉산드리아 판에** 서 있었고,
-   *  폼페이우스 극장(기원전 55년 봉헌)이 기원전 60년 로마 판에 서 있었다. 정착지·속주에
-   *  냈던 것과 같은 구멍인데 이쪽은 **데이터가 이미 연도를 들고 있다** — 지어낼 것이 없고
-   *  필터 한 줄이면 된다. 연도가 없는 피처(대부분)는 늘 보인다. */
-  function hideUnbuilt(year: number) {
-    const f: any = ['any', ['!', ['has', 'built_year']], ['<=', ['get', 'built_year'], year]];
-    for (const id of [...LAYER_GROUPS.roma, ...LAYER_GROUPS.alexandria]) {
-      if (!map.getLayer(id)) continue;
-      const base = UNBUILT_BASE.get(id) ?? (UNBUILT_BASE.set(id, map.getFilter(id) ?? null), map.getFilter(id) ?? null);
-      map.setFilter(id, (base ? ['all', base, f] : f) as any);
-    }
-  }
-
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
-    if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 12 });
-    if (!map.getLayer('hillshade')) map.addLayer({ id: 'hillshade', type: 'hillshade', source: 'dem', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': activeSkin === 'dark' ? '#0B0F14' : '#5C6157', 'hillshade-highlight-color': activeSkin === 'dark' ? '#3A424C' : '#FFFFFF' } }, before);
+    if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 8 });
     // 베이크된 relief.jpg(NE Gray Earth 1.85km/px)와 겹치면 그림자가 두 벌이라 능선이 뭉갠다 — DEM 음영이 해상도·광원 모두 낫다.
     if (map.getLayer('relief')) map.removeLayer('relief');
-    syncTerrain();
+    const act = micro.active();
+    if (act?.dem && map.getSource(`dem-${act.id}`)) useTerrain(`dem-${act.id}`, before); else useTerrain('dem', before);
   }
 
   function addData() {
@@ -745,21 +750,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-radial-offset': 1.4, 'text-optional': true, 'text-allow-overlap': false },
         paint: { 'text-color': '#3A2F22', 'text-halo-color': halo(), 'text-halo-width': 1.8 } }, before);
     }
-    // 말판(R37). 페이즈마다 통째로 setData. 보간하지 않는다. 아이콘 색은 팔레트(데이터 색, P2).
-    const actorIds = d.actors.map(a => a.id);
-    for (const a of [...d.actors, { id: '_', color: FALLBACK_COLOR }]) {
-      for (const arm of Object.keys(ARM_KO)) {
-        const iid = `board-${arm}-${a.id}`;
-        if (!map.hasImage(iid)) map.addImage(iid, armIcon(arm, a.color), { pixelRatio: 2 });
-      }
-    }
-    if (!map.getSource('board')) map.addSource('board', { type: 'geojson', data: EMPTY_FC as any, promoteId: 'id' });
-    const boardIcon: any = ['concat', 'board-', ['get', 'arm'], '-', ['case', ['in', ['get', 'actor'], ['literal', actorIds]], ['get', 'actor'], '_']];
-    map.addLayer({ id: 'board-unit', type: 'symbol', source: 'board',
-      layout: { 'icon-image': boardIcon, 'icon-size': ['match', ['get', 'arm'], 'command', 1, 'elephant', 1.1, 'light', 0.7, 0.9] as any,
-        'icon-rotate': ['get', 'facing'], 'icon-rotation-alignment': 'map', 'icon-pitch-alignment': 'viewport',
-        'icon-allow-overlap': true, 'icon-ignore-placement': true },
-      paint: { 'icon-opacity': ['case', ['boolean', ['feature-state', 'selected'], false], 1, ['boolean', ['feature-state', 'hover'], false], 1, 0.92] as any } }, before);
     if (!map.getSource('people')) map.addSource('people', { type: 'geojson', data: peopleFc as any, promoteId: 'id' });
     else (map.getSource('people') as maplibregl.GeoJSONSource).setData(peopleFc as any);
     if (!map.hasImage('person-fallback')) map.addImage('person-fallback', portraitIcon(null, '#6B6F76', '·'), { pixelRatio: 2 });
@@ -843,10 +833,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.moveLayer('pack-battle-label', 'story-place-label');
     }
 
-    map.addLayer({ id: 'board-label', type: 'symbol', source: 'board', minzoom: 10,
-      layout: { 'text-field': ['get', 'label'], 'text-font': ['KlokanTech Noto Sans CJK Regular'], 'text-size': 11,
-        'text-offset': [0, 1.35], 'text-anchor': 'top', 'text-max-width': 8, 'text-allow-overlap': false, 'text-optional': true },
-      paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 1.4 } }, before);
     // 교보재 경로(pack-pompey)는 **정본에 같은 route가 없을 때만** 싣는다. 2026-09-17 adapt 뒤 정본이
     // 폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다.
     const routesInData = new Set(d.movements.features.map(f => f.properties.route));
@@ -935,28 +921,24 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     import('../token3d').then(mod => { tokenMod = mod; syncPeopleTokens(peopleFc); }).catch(() => { tokenMod = null; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
     syncDetailMaps(store.get().scene);   // 스킨 전환 뒤에도 활성 미시지도를 다시 얹는다
+    battle?.refresh();                   // 말판도 같은 이유로
     apply(store.get());
   }
   map.on('load', addData);
   // 클릭 → 선택(store). 패널은 React가 store를 보고 그린다.
-  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'movement', 'board-unit', 'people-dot', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
+  for (const layerId of ['territory-fill', 'admin-line', 'settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'movement', 'people-dot', 'landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades']) {
     map.on('click', layerId, e => {
       const f = e.features?.[0]; if (!f) return;
       if (layerId.startsWith('landmark-')) { // 점 객체가 위에 있으면 그쪽이 이긴다
-        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'board-unit', 'people-dot'].filter(l => map.getLayer(l)) }).length) return;
+        if (map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'people-dot'].filter(l => map.getLayer(l)) }).length) return;
         // 정본 place 아님 — NE·Pleiades 지형지물(제안 대상). Pleiades는 id, NE는 이름.
         // marine_labels(바다 마스크)는 properties가 통째로 비어 있다 — 'landmark:undefined'를 만들지 않는다.
         const key = f.properties.pid ?? f.properties.name;
         if (key != null) store.set({ sel: `landmark:${key}` });
         return; }
-      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'board-unit', 'people-dot', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
+      if (layerId === 'territory-fill' && map.queryRenderedFeatures(e.point, { layers: ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle', 'people-dot', 'landmark-pleiades'].filter(l => map.getLayer(l)) }).length) return;
       if (layerId === 'people-dot') {
         const sel = f.properties?.id;
-        if (sel) store.set({ sel });
-        return;
-      }
-      if (layerId === 'board-unit') {
-        const sel = f.properties?.entity || f.properties?.event;
         if (sel) store.set({ sel });
         return;
       }
@@ -970,7 +952,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   map.on('click', e => { if (!map.queryRenderedFeatures(e.point, { layers: Object.values(LAYER_GROUPS).flat().filter(l => map.getLayer(l)) }).length) store.set({ sel: null }); });
 
   // hover feature-state + 툴팁(120ms 지연, 이름·연도 한 줄). 소스별 id는 promoteId 'id'.
-  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', 'story-place': 'settlements', battle: 'battles', 'pack-battle': 'pack-battles', 'board-unit': 'board', 'people-dot': 'people', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
+  const SRC_OF: Record<string, string> = { 'territory-fill': 'territory', 'settle-major': 'settlements', 'settle-minor': 'settlements', 'story-place': 'settlements', battle: 'battles', 'pack-battle': 'pack-battles', 'people-dot': 'people', 'landmark-region_labels': 'region_labels', 'landmark-marine_labels': 'marine_labels', 'landmark-pleiades': 'landmarks' };
   let hovered: { source: string; id: string | number } | null = null;
   const tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 12, className: 'ca-tip', maxWidth: '240px' });
   let tipTimer: number | null = null;
@@ -1036,15 +1018,6 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       const fs = { source: 'pack-battles', id: sel };
       map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
     }
-    if (map.getSource('board')) {
-      for (const f of map.querySourceFeatures('board')) {
-        if (f.id == null) continue;
-        if (sel && (f.properties?.entity === sel || f.properties?.event === sel)) {
-          const fs = { source: 'board', id: f.id };
-          map.setFeatureState(fs, { selected: true }); selectedFs.push(fs);
-        }
-      }
-    }
     for (const id of ['settle-major', 'settle-minor', 'story-place', 'battle', 'pack-battle']) if (map.getLayer(id)) map.setPaintProperty(id, 'circle-opacity', (selectedFs.length ? dimExpr(0.6) : 1) as any);
   }
 
@@ -1096,7 +1069,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       // 배지는 'seq'가 있는 구간만. 해 필터를 덮어쓰면 안 간 구간의 번호까지 뜬다.
       if (map.getLayer('movement-seq')) map.setFilter('movement-seq', ['all', ['has', 'seq'], movementFilter(s.year)] as any);
       fadeMovements(s.year);
-      hideUnbuilt(s.year);
+      micro.setYear(s.year);
       if (map.getLayer('pack-battle-label')) map.setFilter('pack-battle-label', dateWindow(s.year) as any);
     }
     const on = new Set(s.layers ?? allLayers(d));
@@ -1116,15 +1089,17 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
     if (s.board !== lastBoard || s.phase !== lastPhase) {
       lastBoard = s.board; lastPhase = s.phase;
-      const b = boards.find(x => x.id === s.board);
-      const src = map.getSource('board') as maplibregl.GeoJSONSource | undefined;
+      const b = boards.find(x => x.id === s.board) ?? null;
       map.setMaxZoom(b ? BOARD_MAX_ZOOM : MAP_MAX_ZOOM);
-      if (!b) src?.setData(EMPTY_FC as any);
-      else {
-        const palette = Object.fromEntries(d.actors.map(a => [a.id, a.color]));
-        src?.setData(unitsGeoJSON(phaseOf(b, s.phase), palette, { event: b.event }) as any);
-        if (s.sel) applySel(s.sel);
-      }
+      // 전투 재생(말판 v2, OVERHAUL §3.6): 렌더러는 지연 청크다. 처음 말판이 켜질 때 싣는다.
+      const apply = () => { if (!battle) return; if (!b) battle.setBoard(null); else if (!battle.playing() || Math.floor(battle.t()) !== s.phase) battle.setBoard(b, s.phase); };
+      if (battle || !b) apply();
+      else import('./battle').then(m => {
+        if (battle) { apply(); return; }
+        battle = m.createBattle(map, { palette: Object.fromEntries(d.actors.map(a => [a.id, a.color])), before: () => map.getLayer('label-marine') ? 'label-marine' : undefined, onSelect: sel => store.set({ sel }) });
+        battle.onPhase(i => { if (store.get().phase !== i) store.set({ phase: i }); });
+        battleFns.forEach(fn => fn(battle!)); apply();
+      });
     }
     if (map.getLayer('gallia-free')) {
       const onTerr = s.layers == null || new Set(s.layers).has('territory');
@@ -1178,6 +1153,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     setEgo,
     /** 활성 미시지도 정의(없으면 null). 콜아웃·모바일 시트가 본다. */
     micro: () => micro.active(),
+    /** 전투 재생 컨트롤러(말판이 한 번 켜진 뒤에만). */
+    battle: () => battle,
+    onBattle(fn: (b: BattleCtl) => void) { battleFns.add(fn); if (battle) fn(battle); return () => battleFns.delete(fn); },
     onMicro(fn: (def: MicroMapDef | null) => void) { microFns.add(fn); fn(micro.active()); return () => microFns.delete(fn); },
     setPeople(fc: { type: 'FeatureCollection'; features: object[] }) {
       peopleFc = fc as typeof EMPTY_FC;

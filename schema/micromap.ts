@@ -62,6 +62,8 @@ export const MicroMap = z.object({
   hide: z.array(z.string()).default(['movements']),
   basemap: Basemap.nullable().default(null),
   dem: z.object({ dir: z.string().regex(/^terrain-[a-z0-9-]+$/), minzoom: z.number().int().default(8), maxzoom: z.number().int().default(12) }).nullable().default(null),
+  /** 토지피복 래스터 인셋(ESA WorldCover, CC BY 4.0). DEM 음영 밑에 깐다(OVERHAUL §3.6b). */
+  landcover: z.object({ dir: z.string().regex(/^landcover-[a-z0-9-]+$/), minzoom: z.number().int().default(8), maxzoom: z.number().int().default(12), opacity: z.number().min(0).max(1).default(0.55) }).nullable().default(null),
   board: z.string().nullable().default(null),
   features: z.array(MicroFeature).min(1),
   callouts: z.array(Callout).default([]),

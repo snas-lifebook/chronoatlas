@@ -135,8 +135,7 @@
    "people",
    "relief",
    "rivers",
-   "labels",
-   "alesia"
+   "labels"
   ],
   "group": "세부 지도",
   "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다.",
@@ -162,8 +161,7 @@
    "people",
    "relief",
    "rivers",
-   "labels",
-   "roma"
+   "labels"
   ],
   "group": "세부 지도",
   "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다.",
@@ -189,12 +187,91 @@
    "people",
    "relief",
    "rivers",
-   "labels",
-   "alexandria"
+   "labels"
   ],
   "group": "세부 지도",
   "note": "헵타스타디온이 이 지도의 요점이다 — 섬과 본토를 잇는 둑길 하나가 항구를 둘로 가르고, 알렉산드리아 전쟁이 그 둑길에서 갈렸다.",
   "micro": "alexandria"
+ },
+ {
+  "id": "rubicon-49",
+  "title": "루비콘 강 · BC 49",
+  "year": -49,
+  "micro": "rubicon",
+  "center": [
+   12.4,
+   44.1
+  ],
+  "zoom": 10.8,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "속주 경계였던 개천 하나. 무장한 채 이 선을 넘는 순간 총독은 반란자가 된다."
+ },
+ {
+  "id": "athens-acropolis",
+  "title": "아테네 아크로폴리스 · 민회의 현장",
+  "year": -60,
+  "micro": "athens",
+  "center": [
+   23.7266,
+   37.9715
+  ],
+  "zoom": 14.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "밑에서 말해도 들리는 언덕. 그리스는 왜 제국이 못 됐고 로마는 왜 공화정으로 시작했나의 현장이다."
+ },
+ {
+  "id": "pharsalus-48",
+  "title": "파르살루스 · BC 48",
+  "year": -48,
+  "micro": "pharsalus",
+  "board": "pharsalus-48",
+  "phase": 0,
+  "center": [
+   22.3833,
+   39.3
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "8개 군단 대 11개 군단. 하루 만에 로마 제일의 장군이 도망자가 된다."
  },
  {
   "id": "pack-extent-51",

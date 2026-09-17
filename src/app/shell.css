@@ -11,7 +11,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell.is-present .shell-toolbar,
 .shell.is-present .shell-timeline,
 .shell.is-present .shell-footnote,
-.shell.is-present .shell-board { display: none !important; }
+.shell.is-present .shell-board .bd-source, .shell.is-present .shell-board .bd-ticks { display: none; }   /* 발표 때는 재생 바만. 출처·눈금은 교보재 */
 .shell.is-present .shell-year-brief { display: none !important; } /* HUD에 합침 */
 .shell.is-present .shell-graph { display: none !important; }
 .shell.is-present .shell-right { top: 20px; left: auto; right: 24px; width: 360px; max-height: calc(100% - 48px); }
@@ -401,3 +401,15 @@ html[data-micro] .shell-year-brief { display: none; }
   font: 500 12px/1 var(--font-family-body); color: var(--color-text-secondary); white-space: nowrap;
 }
 .shell-scene-nav .sn-jump:hover { color: var(--color-text-primary); }
+
+/* 전투 재생 바·인용 카드·콜아웃 주제 칩 (R54, BattleBar.tsx·Callouts.tsx) */
+.bt-controls { display: flex; gap: 6px; align-items: center; }
+.bt-count { margin-left: auto; font-size: 12px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.shell-board .bd-cite { font-size: 11px; color: var(--color-text-secondary); }
+.bt-quote { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 5; max-width: min(640px, 80vw); padding: 20px 28px; text-align: center;
+  background: color-mix(in srgb, var(--color-background-surface) 88%, transparent); border: 1px solid var(--color-border); border-radius: var(--radius-element, 8px); box-shadow: var(--shadow-med, 0 4px 16px rgba(0,0,0,.12)); }
+.bt-quote p { margin: 0 0 8px; font-size: 20px; line-height: 1.5; font-weight: 600; color: var(--color-text-primary); word-break: keep-all; }
+.bt-quote footer { font-size: 12px; color: var(--color-text-secondary); }
+.ca-chips { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 4; pointer-events: auto; }
+.ca-chip { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--color-border); color: var(--color-text-secondary); background: color-mix(in srgb, var(--color-background-surface) 85%, transparent); cursor: pointer; }
+.ca-chip.is-on { color: var(--color-text-primary); border-color: var(--color-text-primary); }

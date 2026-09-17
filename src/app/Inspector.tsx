@@ -9,6 +9,7 @@ import { stateAt } from '../time';
 import { routeGeometry } from '../schema';
 import { libraryObject, libraryPoint } from '../links';
 import { peopleAtYear, companionsOf } from '../people';
+import { ARM_KO, phaseOf, type BoardData } from '../board';
 import { renderCard } from '../export/card';
 import { Profile } from './Profile';
 import { download } from '../export/png';
@@ -35,11 +36,28 @@ function Portrait({ node, root, color }: { node: GNode | undefined; root: string
   );
 }
 
-export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath }:
-  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void }) {
+export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, onLocate, getMapCanvas, dark, pathTo, onAskPath, onClearPath, boards = [] }:
+  { d: Dataset; store: Store; sel: string; year: number; base: string; root: string; onHoverNeighbor: (id: string | null) => void; onLocate: (id: string) => void; getMapCanvas?: () => HTMLCanvasElement | null; dark?: boolean; pathTo?: string | null; onAskPath?: () => void; onClearPath?: () => void; boards?: BoardData[] }) {
   const [graph, setGraph] = useState<Graph | null>(null);
   useEffect(() => { if (!/^(landmark|territory):/.test(sel)) loadGraph(base).then(setGraph).catch(() => setGraph(null)); }, [base]);
   const close = () => store.set({ sel: null });
+  if (sel.startsWith('unit:')) {                     // 말판 부대 카드(R54). 블록을 누르면 battle.ts가 unit:<말판>:<부대>를 고른다
+    const [, boardId, unitId] = sel.split(':');
+    const b = boards.find(x => x.id === boardId); const phase = b ? phaseOf(b, store.get().phase) : null;
+    const u = phase?.units.find(x => x.id === unitId) ?? b?.phases.flatMap(p => p.units).find(x => x.id === unitId);
+    if (!b || !u) return null;
+    const status = u.status === 'routed' ? ' · 패주' : u.status === 'destroyed' ? ' · 궤멸' : '';
+    return (
+      <Card padding={4} className="shell-right">
+        <Heading level={2}>{u.label}</Heading>
+        <Text size="sm" color="secondary">{ARM_KO[u.arm]} · {u.actor}{u.strength != null ? ` · ${u.strength.toLocaleString()}명` : ''}{status}</Text>
+        {u.entity && <Button label="지휘관 보기" size="sm" variant="secondary" onClick={() => store.set({ sel: u.entity! })} />}
+        <Text size="sm">{b.source}</Text>
+        <Text size="sm" color="secondary">이 배치는 도식이지 측량이 아니다. 좌표는 사료의 서술을 통설대로 옮긴 것이다.</Text>
+        <Button label="닫기" size="sm" variant="ghost" onClick={close} />
+      </Card>
+    );
+  }
 
   // 영토(Cliopatria) — 정본 객체가 아니다. 이름·기간·세력·Wikidata
   if (sel.startsWith('territory:')) {

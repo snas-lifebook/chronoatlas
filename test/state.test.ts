@@ -197,3 +197,9 @@ describe('장면 평면/입체 (발표 팩)', () => {
     expect(b).toMatchObject({ board: 'cannae-216', phase: 1, year: -216, zoom: 11 });
   });
 });
+
+describe('부대 선택 (R54)', () => {
+  it('unit:<말판>:<부대> 선택이 URL을 왕복한다', () => {
+    expect(parseState(serializeState({ ...DEFAULTS, sel: 'unit:pharsalus-48:x' })).sel).toBe('unit:pharsalus-48:x');
+  });
+});
