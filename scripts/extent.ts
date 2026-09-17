@@ -11,7 +11,7 @@
 // 범위를 바꿀 때 할 일은 `docs/RUNBOOK-extent.md`에 적어 놨다. 여기만 고치고 끝나지 않는다.
 
 /** [서, 남, 동, 북]. DESIGN v3 §1. 종횡비를 2:1로 유지하면 relief 크롭이 소스 비율 그대로 떨어진다. */
-export const BBOX = [-15, 20, 65, 60] as const;
+export const BBOX = [-25, 12, 75, 62] as const;
 
 /** 영토(Cliopatria) 100년 버킷과 그 시간 범위. manifest.territory가 이걸 그대로 싣고 엔진이 지연 로드에 쓴다. */
 export const TERRITORY_BUCKET = 100;
