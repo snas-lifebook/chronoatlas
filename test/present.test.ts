@@ -200,3 +200,14 @@ describe('세부 지도 그룹', () => {
     expect(pack).toHaveLength(8);
   });
 });
+
+describe('없던 장면 둘 (R49)', () => {
+  it('대표님 녹취에서 없던 장면 둘이 있고 그룹 안 연도가 오름차순이다', () => {
+    const scenes = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'scenes', 'rome.json'), 'utf8')) as { id: string; year: number; group?: string }[];
+    for (const id of ['plains-empire', 'carrhae-53']) expect(scenes.some(s => s.id === id), id).toBe(true);
+    for (const g of ['로마의 확장', '선례']) {
+      const ys = scenes.filter(s => s.group === g).map(s => s.year);
+      expect(ys).toEqual([...ys].sort((a, b) => a - b));
+    }
+  });
+});
