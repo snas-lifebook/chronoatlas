@@ -7,7 +7,8 @@
 ## 0. 30초
 
 - 9개 feature, 6개 콜아웃. 권장 화면: center `[23.7266, 37.9715]`, zoom `14.0`.
-- **도판(basemap) 채택 실패.** 위키미디어 커먼즈에서 PD 19세기 지도(Curtius·Kaupert 「Karten von Attika」 1881 계열)를 조사했으나, 이번 세션에서는 접근 가능한 이미지 파일과 지오레퍼런싱 제어점을 확보하지 못해 시도를 완료하지 못했다. 알레시아 사례처럼 `basemap: null`로 남기고 벡터로만 간다. 후속 세션에서 재시도할 것.
+- **도판(basemap): 2026-09-18 채택.** 커먼즈 CC0 「Athenae in usum scholarum」(Rheinhard, Stuttgart ca. 1880, 1:7500 학교용 벽지도)을 통제점 12개로 지오레퍼런싱(RMS 35 m)해 `rasters/basemap-athens.jpg`로 굽고 `basemap`에 실었다. 절차·숫자는 `docs/MICROMAP-BASEMAP.md` §2 athens, 재현은 `python3 scripts/bake-basemap.py athens --write`(통제점 `data/basemaps/athens.json`). 2026-09-17의 실패 기록(Curtius·Kaupert 계열을 못 구함)은 그 아래 이력으로 남긴다.
+- (2026-09-17) 도판 채택 실패. 위키미디어 커먼즈에서 PD 19세기 지도(Curtius·Kaupert 「Karten von Attika」 1881 계열)를 조사했으나 접근 가능한 이미지 파일과 지오레퍼런싱 제어점을 확보하지 못했다.
 - 아그리파 오데온(BC 15)·하드리아누스 도서관(AD 132)은 이 연대에 없어서 뺐다. §3 참고.
 
 ## 1. 무엇이 들어 있나

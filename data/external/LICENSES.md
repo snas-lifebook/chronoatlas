@@ -25,6 +25,7 @@
 | Copernicus_DSM_COG_10_*_DEM.tif (data/external/dem/copernicus) | Copernicus DEM GLO-30 | 출처 표기 조건(CREDITS.md 문구) | → terrain-<id>/ z8~12 (bake-dem.py inset) |
 | ESA_WorldCover_10m_2021_v200_*_Map.tif (data/external/landcover) | ESA WorldCover 10 m 2021 | CC BY 4.0 | → landcover-<id>/ z8~12 (bake-landcover.py) |
 | Cinzel.ttf (data/external/fonts) | google/fonts ofl/cinzel (가변 폰트) | SIL OFL 1.1 | → public/glyphs/Cinzel Regular/ (build-glyphs.mjs) · public/fonts/Cinzel.ttf |
+| athenae_rheinhard_1880.jpg (data/external/basemaps) | Wikimedia Commons File:Athenae in usum scholarum edidit.jpg (Rheinhard, Stuttgart ca. 1880) | CC0 | → rasters/basemap-athens.jpg (bake-basemap.py, 통제점 data/basemaps/athens.json) |
 | world.topo.bathy.200407.3x21600x10800.png (data/external/satellite) | NASA Blue Marble Next Generation 2004-07 topo+bathy (NASA Earth Observatory) | Public Domain(NASA), 표기 "NASA Earth Observatory" | → rasters/satellite.jpg 6000×3000 · satellite-sea.png 3000×1500 (bake-satellite.py, 위성 스킨) |
 
 생성: scripts/fetch-external.ts · 2026-09-17. 아래 다섯 줄(DEM·토지피복·글꼴·위성)은 이 스크립트가 받지 않는 원본이지만 대장이 한 곳이어야 해서 같이 쓴다(2026-09-17: 재생성이 손으로 붙인 줄을 지웠다).

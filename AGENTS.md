@@ -45,6 +45,7 @@ python3 scripts/bake-dem.py --selftest
 python3 scripts/bake-dem.py continental          # 원본 35장(884 MB)은 data/external/dem/에 캐시(gitignore). 굽기 자체는 2분
 python3 scripts/bake-dem.py inset <id> | --all   # <id>는 미시지도 또는 insets.json. 범위를 바꾸면 다시 굽는다
 python3 scripts/bake-landcover.py <id> | --all
+python3 scripts/bake-basemap.py <id> --write      # 미시지도 도판 지오레퍼런싱(통제점 data/basemaps/<id>.json, 원본 data/external/basemaps/). 아테네 선례 RMS 35 m
 python3 scripts/bake-satellite.py                # 위성 스킨 래스터 둘(rasters/satellite.jpg + satellite-sea.png). 원본 Blue Marble 190 MB는 data/external/satellite/(gitignore), 주소는 스크립트 머리
 npm run fetch-external && npm run finish         # 영토 버킷 재베이크(span_from·span_to·color 포함). 순서 고정: fetch가 굽고 finish가 마감한다
 npm run adapt                                    # 정착지 rank(LOD 5단)·그래프. ONTOLOGY_DIR 또는 data/ontology-dir.txt

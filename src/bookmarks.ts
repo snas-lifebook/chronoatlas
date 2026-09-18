@@ -3,7 +3,7 @@
 import type { Scene } from './state';
 
 export const BOOKMARK_GROUP = '내 북마크';
-const KEYS = ['id', 'title', 'year', 'to', 'sel', 'center', 'zoom', 'pitch', 'bearing', 'view', 'skin', 'layers', 'note', 'board', 'phase'] as const;
+const KEYS = ['id', 'title', 'year', 'to', 'sel', 'center', 'zoom', 'pitch', 'bearing', 'view', 'skin', 'layers', 'note', 'board', 'phase', 'lines', 'events'] as const;
 
 function clean(x: unknown): Scene | null {
   if (!x || typeof x !== 'object') return null;

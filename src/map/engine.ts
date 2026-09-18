@@ -22,8 +22,8 @@ const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-f
 // 알레시아 포위선은 z12.4, 로마 시내는 z14가 있어야 보이는데 z9에서 잘려 영영 도달할 수 없었다.
 // 말판이 같은 이유로 이미 12로 올려 두고 있었다. 그 위는 지형 음영이 흐려지지만
 // 그 축척의 내용은 벡터 오버레이가 댄다.
-const MAP_MAX_ZOOM = 15;
-const BOARD_MAX_ZOOM = 12; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다.
+const MAP_MAX_ZOOM = 18;   // 15는 아테네(z14 장면)에서 한 단도 못 들어갔다(River 2026-09-18). 인셋 DEM·토지피복 z12, 도판 image 소스는 오버줌으로 늘어난다
+const BOARD_MAX_ZOOM = 14; // 칸나이 전장 ~5km. z9면 유닛이 한 점에 겹친다. 블록은 미터 폴리곤이라 더 들어가도 된다(2026-09-18 12→14)
 // 경로가 다 옅어지는 데 걸리는 해. 카이사르 원정이 기원전 58~45년 열세 해라
 // 8이면 발표 장면 안에서 「올해 · 최근 · 옛날」 세 단계가 눈에 갈린다.
 const FADE_SPAN = 8;
@@ -484,6 +484,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       attachInset({ id: def.id, bounds: [lon - sp, lat - sp, lon + sp, lat + sp], dem: def.dem ? { dir: def.dem.dir, minzoom: def.dem.minzoom, maxzoom: def.dem.maxzoom } : null,
         landcover: def.landcover ? { dir: def.landcover.dir, minzoom: def.landcover.minzoom, maxzoom: def.landcover.maxzoom, opacity: def.landcover.opacity } : null });
       microFns.forEach(fn => fn(def));
+      if (!linesOn) syncLines(false);          // 미시지도 선 층이 방금 들어왔다
     },
     onLeave: () => {
       hideContinental(false);
@@ -505,7 +506,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (spec.landcover) {
       const id = `landcover-${spec.id}`;   // 토지피복은 음영 **밑에**: 색은 피복이, 굴곡은 음영이 말한다. River: 「자연 환경이라도」
       if (!map.getSource(id)) map.addSource(id, { type: 'raster', tiles: [`${root}datasets/${ds}/${spec.landcover.dir}/{z}/{x}/{y}.png`], tileSize: 256, minzoom: spec.landcover.minzoom, maxzoom: spec.landcover.maxzoom, bounds: spec.bounds });
-      if (!map.getLayer(id)) map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': spec.landcover.opacity, 'raster-fade-duration': 0 } }, map.getLayer('elev-tint') ? 'elev-tint' : (map.getLayer('hillshade') ? 'hillshade' : (map.getLayer('micro-fill') ? 'micro-fill' : undefined)));
+      // 도판이 있는 미시지도(아테네·로마·알렉산드리아)에서는 토지피복을 **도판 밑에** 깐다. 위에 얹으면 초록 얼룩이 옛 지도를 덮어 읽히지 않는다(2026-09-18 아테네 실측).
+      if (!map.getLayer(id)) map.addLayer({ id, type: 'raster', source: id, paint: { 'raster-opacity': spec.landcover.opacity, 'raster-fade-duration': 0 } }, map.getLayer('micro-basemap') ? 'micro-basemap' : (map.getLayer('elev-tint') ? 'elev-tint' : (map.getLayer('hillshade') ? 'hillshade' : (map.getLayer('micro-fill') ? 'micro-fill' : undefined))));
       landcoverLayer = id;
     }
     activeInset = spec.id;
@@ -531,6 +533,29 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   /** 미시 축척에서 대륙 축척의 것들을 끈다. 이동 경로는 지중해를 가로지르는 선 몇 개일 뿐이고, 폴리티 이름표는
    *  면적 문턱만 봐서 64만 km² 왕국이 z14에서도 통과한다(River가 알렉산드리아 판에서 「프톨레마이오스 왕국」을 잡았다).
    *  나갈 때는 상태의 레이어 목록대로 되돌린다. */
+  // ── 선 토글(River 2026-09-18 「선들도 보거나 가릴 수 있어야 한다」) ─────────────────────────
+  // type 'line' 층 가운데 제 토글이 없는 것(국경 테·성벽·도로·전투 화살표·평야 점선…)을 한 번에 가린다.
+  // 강·이동 경로·속주·관계 그래프·해안 잉크는 제 토글이 있거나 지리라 둔다. 가리는 법은 visibility가 아니라
+  // **line-width 0**이다: visibility는 그룹 토글·hideContinental·미시지도 진입이 다 만지는 자리라 되살릴 때 충돌한다.
+  // 원래 폭은 지도에서 읽어 기억했다가 되살린다. 미시지도·말판 층은 나중에 들어오므로 그때 다시 적용한다.
+  const LINE_KEEP = /^(rivers-|movement|admin-line|ego-|coast)/;
+  const lineOrig = new Map<string, unknown>();
+  let linesOn = true;
+  function syncLines(on: boolean = linesOn) {
+    linesOn = on;
+    const layers = map.getStyle()?.layers ?? [];
+    if (!on) {
+      for (const l of layers) {
+        if (l.type !== 'line' || LINE_KEEP.test(l.id) || lineOrig.has(l.id)) continue;
+        lineOrig.set(l.id, map.getPaintProperty(l.id, 'line-width') ?? 1);
+        map.setPaintProperty(l.id, 'line-width', 0);
+      }
+      if (map.getLayer('battle-head') && !lineOrig.has('battle-head')) { lineOrig.set('battle-head', map.getPaintProperty('battle-head', 'icon-opacity') ?? 1); map.setPaintProperty('battle-head', 'icon-opacity', 0); }
+    } else {
+      for (const [id, w] of lineOrig) if (map.getLayer(id)) map.setPaintProperty(id, id === 'battle-head' ? 'icon-opacity' : 'line-width', w as any);
+      lineOrig.clear();
+    }
+  }
   let tokensHidden = false;
   let hiddenGroups: string[] = ['movements'];   // 들어갈 때 끈 그룹을 기억했다가 나갈 때 그대로 되살린다(예전엔 movements만 되살려 people이 꺼진 채 남았다)
   function hideContinental(on: boolean, groups: string[] = hiddenGroups) {
@@ -672,6 +697,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // **정본 폴리곤 아래에 깐다** — 교보재가 정본을 덮으면 안 된다. 테는 점선이다:
     // 이 경계들은 국경이 아니라 「이 민족이 살던 대략의 자리」이고, 점선이 그 정도를 말한다.
     addPeoples(before);
+    if (!linesOn) { lineOrig.clear(); syncLines(false); }   // setStyle 뒤 새 층은 원래 폭이라 기억을 비우고 다시 가린다
     // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
     //
     // River: 기원전 60년 판에서 누미디아·마우레타니아·갈라티아·카파도키아·폰토스·유대·
@@ -1163,6 +1189,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     const on = new Set(s.layers ?? allLayers(d));
     const key = [...on].join(',');
     peopleLayerOn = on.has('people');
+    if (s.lines !== linesOn) syncLines(s.lines);
     if (key !== lastLayers || s.board !== lastBoard) {
       lastLayers = key;
       for (const [group, ids] of Object.entries(LAYER_GROUPS)) {
@@ -1187,6 +1214,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         battle = m.createBattle(map, { palette: Object.fromEntries(d.actors.map(a => [a.id, a.color])), before: () => map.getLayer('label-marine') ? 'label-marine' : undefined, onSelect: sel => store.set({ sel }) });
         battle.onPhase(i => { if (store.get().phase !== i) store.set({ phase: i }); });
         battleFns.forEach(fn => fn(battle!)); apply();
+        if (!linesOn) syncLines(false);           // 말판 화살표·블록 테두리가 방금 들어왔다
       });
     }
     if (map.getLayer('gallia-free')) {

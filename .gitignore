@@ -46,3 +46,6 @@ scripts/__pycache__/
 
 # 위성 원본(NASA Blue Marble). 산출물 rasters/satellite.jpg·satellite-sea.png 은 커밋한다(bake-satellite.py)
 data/external/satellite/
+
+# 미시지도 도판 원본(커먼즈 스캔, 수십 MB). 산출물 rasters/basemap-*.jpg 은 커밋한다(bake-basemap.py)
+data/external/basemaps/

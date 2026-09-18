@@ -18,6 +18,7 @@ import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLO
 import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
+import { LIBRARY, libraryObject } from '../links';
 import { useNarrow } from './useNarrow';
 import type { ResolvedCallout } from '../map/micro';
 const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
@@ -162,6 +163,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       else if (e.key === 'Escape') store.set({ sel: null });
       else if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) { e.preventDefault(); setSearching('find'); }
       else if (e.key === 'v' || e.key === 'V') store.set({ view: st.view === '2d' ? '3d' : '2d' }); // '3'은 레이어 3(도시)와 충돌해 V로
+      else if (e.key === 'l' || e.key === 'L') store.set({ lines: !st.lines });   // 선 토글(2026-09-18)
       else if (e.key === 'f' || e.key === 'F') store.set({ present: !st.present });
       // H 설명창 접기(전체 → 간략 → 숨김 → 전체) · M 좌우 옮기기. 발표 중에 손이 가는 키다.
       else if (e.key === 'h' || e.key === 'H') setHud(x => (x === 'full' ? 'slim' : x === 'slim' ? 'off' : 'full'));
@@ -491,6 +493,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
                 {c.p1 ? <Badge label="P1" /> : i < 9 && <Kbd keys={String(i + 1)} />}
               </div>
             ))}
+            {/* 선 토글(River 2026-09-18): 국경 테·성벽·도로·전투 화살표·평야 점선. 강·경로·속주·그래프는 위의 제 토글 */}
+            <div className="row"><Switch label="선 (국경·성벽·도로·화살표)" value={s.lines} onChange={() => store.set({ lines: !s.lines })} size="sm" /><Kbd keys="l" /></div>
             <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>
         )}
@@ -587,6 +591,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           } catch (e: any) { console.error(e); } finally { store.set({ year: y0 }); setExporting(null); }
         }}>▣</Tool>
         <Tool label="전체 화면" sub="fullscreen" onClick={() => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()}>⛶</Tool>
+        {/* 자료실로(River 2026-09-18 「크로노아틀라스에서도 로마쇠망사 자료실로 갈 수 있어야」): 객체가 골라져 있으면 그 객체 화면, 아니면 첫 화면. 새 탭 */}
+        <Tool label="자료실" sub="library" onClick={() => { const n = s.sel ? graph?.nodes.get(s.sel) : null; open(n ? libraryObject(s.sel!, n.name) : LIBRARY, '_blank', 'noopener'); }}>▤</Tool>
       </nav>
 
       <footer className="shell-timeline">
@@ -609,7 +615,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       {liveBoard && engRef.current && !narrow && <Suspense fallback={null}><BattleBar engine={engRef.current} store={store} board={liveBoard.board} shift={explorerOpen} /></Suspense>}
 
       <div className="shell-footnote">
-        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>
+        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <a className="lib-link" href={LIBRARY} target="_blank" rel="noreferrer">자료실 ↗</a> · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>
       </div>
     </div>
   );

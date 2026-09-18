@@ -491,3 +491,7 @@ html[data-skin="satellite"] .shell-year, html[data-skin="satellite"] .shell-pres
 .ca-callout-col.is-compact .ca-cite { font-size: 10.5px; }
 .ca-callout-col.is-tight .ca-thumb, .ca-callout-col.is-tight .ca-links { display: none; }
 
+
+/* 자료실 링크(각주 줄). 크롬 색을 따르고 밑줄만 */
+.lib-link { color: inherit; text-decoration: underline dotted; text-underline-offset: 2px; }
+.lib-link:hover { text-decoration-style: solid; }

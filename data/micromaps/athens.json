@@ -24,7 +24,28 @@
  "hide": [
   "movements"
  ],
- "basemap": null,
+ "basemap": {
+  "id": "athens",
+  "file": "basemap-athens.jpg",
+  "size": [
+   2246,
+   1558
+  ],
+  "corners": {
+   "w": 23.70728,
+   "e": 23.74567,
+   "n": 37.981,
+   "s": 37.96
+  },
+  "opacity": 0.7,
+  "min_zoom": 13,
+  "rotation_deg": 0,
+  "title": "Athenae, in usum scholarum edidit Herm. Rheinhard (Stuttgart, Carl Hoffmann, ca. 1880, 1:7500)",
+  "source": "https://commons.wikimedia.org/wiki/File:Athenae_in_usum_scholarum_edidit.jpg",
+  "rms_m": 35.2,
+  "caveat": "벽걸이 학교용 고대 아테네 지도 144×115 cm, 8면 접이(패널 사이가 조금씩 어긋난다). 스캔 17778×14232, 축척바 실측 0.215 m/px. 도판의 위쪽은 진북에서 약 12도 동쪽으로 기울어 있어 아핀으로 편다(알렉산드리아 선례).",
+  "short_caveat": "통제점 12 RMS 35 m"
+ },
  "dem": {
   "dir": "terrain-athens",
   "minzoom": 8,

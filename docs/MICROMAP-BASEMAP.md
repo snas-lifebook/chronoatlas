@@ -228,6 +228,7 @@ public/datasets/rome/terrain/  z0~7  →  53MB
 |---|---|---|---|
 | roma | 「Roma urbs ab Augusti Imp. tempore cum muris ab Aureliano et Honorio conditis」, **Atlas Antiquus 제5판 Tab. IX** (Berlin, Dietrich Reimer, 1877), 석판 J. Sulzer. 원판 축척 1/20000 | Heinrich Kiepert (1818~1899) | 저자 사후 127년, 만료 |
 | alexandria | 「**Carte de l'antique Alexandrie et de ses faubourgs**. Dressee sur les ordres de S.A. le Vice-Roi d'Egypte a l'aide de fouilles, nivellements et autres recherches par Mahmoud-Bey, Astronome de Son Altesse. Fait en 1866」. 축척 1/20000. 각 Erhard, 인쇄 Monrocq(Paris) | Mahmoud-Bey = 마흐무드 아흐마드 함디 알팔라키 (1815~1885) | 저자 사후 141년, 만료 |
+| athens | 「**Athenae**, in usum scholarum edidit Herm. Rheinhard, Gymn. Stuttg. Prof.」 학교용 벽걸이 고대 아테네 지도 144×115 cm, 8면 접이, 축척 1:7500, Stuttgart, Carl Hoffmann, ca. 1880. 커먼즈 `File:Athenae in usum scholarum edidit.jpg`(17778×14232, 52 MB) | Hermann Rheinhard·Friedrich Bohnert(19세기) | CC0(소장 기관 공개), 저자 만료. 2026-09-18 채택 |
 | alesia | 「**Plan d'Alise et de ses Environs**, Pour l'intelligence de l'explication Topographique du Siege de cette Place (Commentariorum Caesaris libro VII)」, 1755, 판각 P. Bourgoin. BnF 소인 'Page 437' / 'Ge D 10765' / '19099(671)' | d'Anville 계열 (1755) | 만료. 다만 **못 쓴다**(§3) |
 
 **조사 파트의 미결 하나가 여기서 닫혔다.** 위 §4.1 표는 알렉산드리아 후보를 "마흐무드 베이 알팔라키의 1866년 실측도가 PD 요건은 충족하지만 커먼즈에 어떤 파일명으로 있는지는 못 찾았다. **미확정**"으로 남겨 뒀는데, 레포에 이미 들어와 있던 `basemap-alexandria.jpg`가 바로 그 도판이었다. 원본 디지털화는 Gallica/BnF `ark:/12148/btv1b10101093b`, 커먼즈 미러는 `Category:Mahmud Ahmad Hamdi al-Falaki`.
@@ -282,6 +283,31 @@ public/datasets/rome/terrain/  z0~7  →  53MB
 `corners`: w 29.88, e 29.9165, n 31.217, s 31.181.
 
 정북 직사각형이라 도판 사각형이 프레임 안에서 비스듬해진다. 빈 여백이 한 픽셀도 안 들어가는 **최대 정북 직사각형**을 shapely로 찾았고(pack의 모든 피처를 담는다는 제약을 걸고 최대화), 그 대가로 니코폴리스, 마레오티스 호 동안, 알렉산드리아 운하, 파로스 섬 서쪽 절반(라스 엘틴)이 빠졌다. 제목 카르투슈와 축척바도 같이 빠졌다(둘 다 도판 동쪽 절반에 있다). **전 판면을 다 담고 싶으면** 빈 삼각형 네 개를 종이색으로 채운 2400 x 1835 판을 대신 만들 수 있다. 지시하면 바꾼다.
+
+### athens (2026-09-18, `scripts/bake-basemap.py athens --write`)
+
+이번엔 스크립트가 있다. 통제점·뺀 점·출력 해상도는 `data/basemaps/athens.json`에, 원본은 `data/external/basemaps/`(gitignore)에.
+
+**완전 아핀**(6모수) 최소제곱 → 정북 격자로 리샘플 1회(알렉산드리아 선례). 축척바 실측 0.215 m/px(100 m = 465 px). 아핀 척도 0.224/0.232 m/px(지표 m), x축은 동에서 -2.9°인데 **위쪽이 북에서 +10.6°** 기울어 있다. 회전이 아니라 전단이다: 8면 접이 벽지도라 패널마다 조금씩 어긋나 있고(북서 패널은 21% 늘어나 디필론이 93 m 밖), 도판 자체의 자오선 기준도 오늘과 다르다. `type:'image'`는 전단을 못 실으므로 폈다.
+
+| 통제점(출처는 spec 파일) | 도판 px | 잔차 m |
+|---|---|---|
+| 올림피에이온 | 11570, 7672 | 6.5 |
+| 하드리아누스 문 | 11152, 7350 | 12.4 |
+| 파나테나이코 경기장 | 14823, 7986 | 13.9 |
+| 디오니소스 극장 | 9449, 7379 | 19.5 |
+| 에레크테이온 | 8875, 6589 | 27.9 |
+| 프닉스 | 5948, 6834 | 28.0 |
+| 파르테논 | 8983, 6874 | 29.5 |
+| 리카베토스(Templum Jovis) | 15586, 820 | 32.1 |
+| 헤로데스 오데온 | 8047, 7310 | 44.7 |
+| 헤파이스토스 신전(Templum Thesei) | 6629, 4747 | 51.9 |
+| 리시크라테스 기념비 | 10422, 6890 | 54.3 |
+| 필로파포스 | 7003, 8864 | 54.8 |
+
+**RMS 35.2 m, 최대 54.8 m, n=12.** 뺀 셋: 「Gymnasium Hadriani」를 하드리아누스 도서관으로 본 것이 불확실(136 m) · 아레오파고스는 언덕 이름표라 점이 아니다(122 m) · 디필론(94 m, 패널 어긋남). 열다섯 다 넣으면 RMS 66 m.
+
+`corners`: w 23.70728, e 23.74567, n 37.98100, s 37.96000 (도판 사각형에 내접하는 정북 직사각형 3.37×3.04 km에서 제목 「ATHENAE」 띠와 「NUMERI」 범례·인쇄소 표기를 위아래로 잘라 3.37×2.34 km. 빈 삼각형 없음. 리카베토스 정상과 「Portus Athenarum」 인셋은 밖). 산출 2246×1558 @ 1.5 m/px, q82, 880 KB. 불투명도 0.7, z13부터. 토지피복 래스터는 도판 **밑**에 깐다(engine `attachInset`, 위에 얹으면 초록 얼룩이 옛 지도를 덮는다).
 
 ### alesia: 실패
 

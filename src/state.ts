@@ -19,6 +19,7 @@ export interface State {
   board: string | null;      // 말판 id (R37). null = 꺼짐
   phase: number;             // 말판 페이즈 t. board가 있을 때만 의미
   present: boolean;          // 발표 모드. 크롬을 숨기고 [ ] 로 장면을 넘긴다
+  lines: boolean;            // 선(국경·성벽·도로·화살표) 보이기. 강·경로·속주·그래프는 제 토글이 있다(River 2026-09-18 「선들도 보거나 가릴 수 있어야」)
 }
 export interface Scene {
   id: string; title: string; year: number;
@@ -30,6 +31,7 @@ export interface Scene {
   note?: string;
   board?: string; phase?: number;  // 말판 북마크 (R37)
   micro?: string;                  // 미시지도 id. 있으면 줌 문턱과 무관하게 그 지도가 켜진다 (OVERHAUL §3.2, R47)
+  lines?: boolean;                 // 선 감춘 채 저장한 북마크(2026-09-18)
   events?: string[];               // 장면 의미체계(R53, OVERHAUL-IV): 이 장면이 다루는 정본 사건 id. 인스펙터가 사건 → 장면, HUD가 장면 → 사건으로 잇는다. 시대는 연도로 계산한다
 }
 
@@ -47,9 +49,9 @@ export function rememberPitch3d(prev: number, pitch: number, view: View): number
   return pitch;
 }
 
-export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0, present: false };
+export const DEFAULTS: State = { year: -60, sel: null, layers: null, view: '3d', ds: 'rome', scene: null, center: null, zoom: null, pitch: null, bearing: null, skin: 'light', board: null, phase: 0, present: false, lines: true };
 
-const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin', board: 'board', bt: 'phase', present: 'present' };
+const KEYS: Record<string, keyof State> = { y: 'year', sel: 'sel', layers: 'layers', view: 'view', ds: 'ds', scene: 'scene', c: 'center', z: 'zoom', p: 'pitch', b: 'bearing', skin: 'skin', board: 'board', bt: 'phase', present: 'present', lines: 'lines' };
 
 // 카메라 반올림. 상태에 들어가기 전에 깎는다 — URL을 짧게 하고, 부동소수 잡음으로
 // store.set이 매번 "바뀌었다"고 판정해 리렌더가 도는 것을 막는다.
@@ -82,6 +84,7 @@ export function parseState(search: string, defaults: State = DEFAULTS): State {
     board: q.get('board') || defaults.board,
     phase: (() => { const n = Number(q.get('bt')); return q.has('bt') && Number.isInteger(n) ? n : defaults.phase; })(),
     present: q.get('present') === '1' || q.get('present') === 'true',
+    lines: q.get('lines') !== '0',
   };
 }
 
@@ -134,6 +137,7 @@ export function applyScene(store: Store, scene: Scene, search = '') {
     layers: q.has('layers') ? cur.layers : scene.layers ?? cur.layers,
     board: q.has('board') ? cur.board : scene.board ?? null,
     phase: q.has('bt') ? cur.phase : scene.phase ?? 0,
+    lines: q.has('lines') ? cur.lines : scene.lines ?? true,
   });
 }
 
@@ -148,6 +152,7 @@ export function bookmarkOf(s: State, opts: { id: string; title: string; group?: 
     ...(s.view !== DEFAULTS.view ? { view: s.view } : {}),
     skin: s.skin, layers: opts.layers,
     ...(s.board ? { board: s.board, phase: s.phase } : {}),
+    ...(s.lines === false ? { lines: false } : {}),
   };
 }
 
