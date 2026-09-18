@@ -196,7 +196,7 @@ export const LAYER_GROUPS: Record<string, string[]> = {
   landmarks: ['landmark-region_labels', 'landmark-marine_labels', 'landmark-pleiades', 'label-region'],
   graph: ['ego-edge'], // 지도엔 선만 그린다(D4 하이브리드). 노드·이름표는 이미 settle-*·battle·label-settle-*가 그린 위에 겹칠 뿐이다
   board: [...BATTLE_LAYERS], // 말판 v2 렌더러(map/battle.ts). 지연 청크지만 층 이름은 상수라 여기서 안다
-  people: ['people-dot', 'people-pad', 'people-label', 'people-standard', 'people-force'],
+  people: ['people-dot', 'people-pad', 'people-label', 'people-standard'],
   // 미시지도(OVERHAUL §3.1): 어느 지도든 같은 층. 그리는 법은 map/micro.ts KIND_PAINT, 데이터는 data/micromaps/<id>.json
   micro: [...MICRO_LAYERS],
 };
@@ -426,7 +426,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           t = tokenMod.createToken(p.color || '#6B6F76', p.name, p.asset ? `${root}${p.asset}` : null, p.scale ?? 1, { emblem: p.faction && PACK_EMBLEMS.has(p.faction) ? `${root}assets/emblems/${p.faction}.png` : null });
           const path = tokenRoutes.get(p.id);
           if (path) t.setRoute(path);
-          if (!map.getLayer(t.layer.id)) map.addLayer(t.layer);
+          // 말은 이름표·도시 이름 **밑**에 그린다(2026-09-18). 위에 그리면 미끄러진 이름이 말·깃발 뒤로 숨는다. 다른 이름표는 people-pad 발자국을 피하므로 말 위에 겹치지 않는다
+          if (!map.getLayer(t.layer.id)) map.addLayer(t.layer, map.getLayer('people-label') ? 'people-label' : undefined);
           peopleTokens.set(p.id, t);
         }
         t.setPosition(f.geometry.coordinates as [number, number]);
@@ -625,6 +626,11 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     }
   }
 
+  /** 이름표 순서(도시 > 인물 > 나머지). 인물 층은 setPeople 때 뒤늦게 들어오므로 addData 끝과 인물 층을 만든 뒤 다시 부른다. 말(custom)은 people-label 바로 밑. */
+  function orderLabels() {
+    for (const id of ['people-label', 'people-standard', 'story-place-label', 'label-sea', 'label-settle-5', 'label-settle-4', 'label-settle-3', 'label-settle-2', 'label-settle-1']) if (map.getLayer(id)) map.moveLayer(id);
+    for (const t of peopleTokens.values()) if (map.getLayer(t.layer.id) && map.getLayer('people-label')) map.moveLayer(t.layer.id, 'people-label');
+  }
   function addData() {
     if (map.getSource('territory')) return; // setStyle 직후 load/style.load가 겹쳐 두 번 불릴 수 있다
     micro.reset(); microWanted = null;        // setStyle이 소스를 지웠다. 활성 미시지도는 끝에서 다시 들어온다
@@ -697,6 +703,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // **정본 폴리곤 아래에 깐다** — 교보재가 정본을 덮으면 안 된다. 테는 점선이다:
     // 이 경계들은 국경이 아니라 「이 민족이 살던 대략의 자리」이고, 점선이 그 정도를 말한다.
     addPeoples(before);
+    // 이름표 우선순위(River 2026-09-18 「장기말 인물의 이름이 가린다」): **도시(정착지·이야기 장소·바다) > 인물 > 나머지**. 심볼은 위 층이 먼저 자리를 잡으므로
+    // 도시 이름표를 맨 위로, 인물 이름표를 그 바로 밑으로 올린다. 인물 이름표를 베이스 스타일의 도시 층 밑에 끼워 넣으면 자리는 잡히는데
+    // 그려지지 않았다(지형 RTT 스택 아래로 들어간 탓으로 보인다, BC 60 실측). 말(custom 층)은 people-label 바로 밑에 들어오므로 이름이 말 위에 그려진다.
+    orderLabels();
     if (!linesOn) { lineOrig.clear(); syncLines(false); }   // setStyle 뒤 새 층은 원래 폭이라 기억을 비우고 다시 가린다
     // ── 로마의 속국(client kingdom) ─────────────────────────────────────────
     //
@@ -884,7 +894,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'icon-allow-overlap': true, 'icon-ignore-placement': false } as any,
       paint: { 'icon-opacity': 0 } }, before);
     map.addLayer({ id: 'people-label', type: 'symbol', source: 'people',
-      layout: { 'text-field': ['get', 'name'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+      layout: { 'text-field': ['case', ['has', 'force'], ['format', ['get', 'name'], {}, '\n', {}, ['get', 'force'], { 'font-scale': 0.75 }], ['get', 'name']], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         // 조역은 이름도 작다(scale 0.62). 말만 줄이고 이름을 그대로 두면 작은 말 옆에
         // 큰 이름이 붙어 오히려 조역이 더 눈에 띈다. offset은 em 단위라 같이 줄어든다.
         //
@@ -902,15 +912,16 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         // 한 칸에 여럿이면 이름이 서로 위에 겹쳐 찍힌다. 말을 더 벌려서는 못 푼다 —
         // 한글 이름표가 150px쯤이라 안 겹치게 벌리면 폼페이우스가 리비아로 간다.
         // 그래서 **이름을 말 둘레 바깥으로 돌려 붙인다**(people.labelSide). 혼자면 예전대로 아래.
-        'text-offset': ['array', 'number', 2, ['get', 'nameOffset']],
-        'text-anchor': ['coalesce', ['get', 'anchor'], 'top'], 'text-optional': false,
-        // allow-overlap은 유지한다 — 인물 이름은 무조건 뜬다(R45g). 다만 ignore-placement는
-        // 껐다. true면 이 라벨이 충돌 색인에 안 올라가서, 전투·도시 이름표가 인물 이름이
-        // 거기 있는 줄도 모르고 위에 겹쳐 찍혔다. pack-greece-48에서 디르하키움·브룬디시가
-        // 검은 얼룩이 된 원인이 이것이다. false면 인물 이름이 자리를 점유하므로 남들이 비켜 간다.
-        'text-allow-overlap': true, 'text-ignore-placement': false,
+        // **도시 이름이 먼저다**(River 2026-09-18 「장기말 인물의 이름이 가린다」). 전에는 allow-overlap으로 인물 이름이 무조건 앉고
+        // 도시 이름표가 비켜 갔다(폼페이우스 말 밑에서 「로마」가 사라졌다). 이제 이 층을 도시 이름표 층 **밑**에 넣어 도시가 먼저
+        // 자리를 잡고, 인물 이름은 네 방향(아래·위·오른쪽·왼쪽)으로 미끄러진다(variable-anchor는 allow-overlap이 꺼져 있어야 미끄러진다).
+        // 대가: 네 방향이 다 막히면 이름이 빠진다(R45g 「무조건 뜬다」와 맞바꿈). qa-sweep이 빠진 이름을 센다.
+        // 병력 줄은 같은 이름표의 둘째 줄로 합쳤다. 따로 두면 이름이 어디로 갔는지 모른다. ring 자리(people.labelSide)는 이제 안 쓴다.
+        // 여덟 방향. 넷이면 로마에 셋이 둘러선 장면(BC 60)에서 이웃 말의 발자국(people-pad)에 다 막혀 이름이 셋 다 빠졌다(실측). 아래 → 옆 → 대각 → 위(깃발이 서 있어 마지막)
+        'text-variable-anchor': ['top', 'right', 'left', 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'bottom'], 'text-radial-offset': 2.2, 'text-justify': 'auto',
+        'text-allow-overlap': false, 'text-ignore-placement': false, 'text-optional': false,
         'text-pitch-alignment': 'viewport' },
-      paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 2.2 } }, before);
+      paint: { 'text-color': ['get', 'color'], 'text-halo-color': halo(), 'text-halo-width': 2.2 } }, before);   // 순서는 addData 끝에서 다시 세운다(도시 > 인물)
     // 군기 + 병력. **말 위로 세로로 쌓는다** — 깃발 / 말 / 이름 / 병력.
     //
     // 예전에는 깃발이 오른쪽(anchor bottom-left, offset [26,10])에 섰다. 그러면 옆에 다른
@@ -929,16 +940,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         // 가리면 안 된다"). false면 깃발이 자리를 점유하므로 이름표들이 비켜 간다.
         // allow-overlap은 유지 — 군기는 무조건 뜬다, 다만 남이 피해 간다.
         'icon-allow-overlap': true, 'icon-ignore-placement': false } as any }, before);
-    map.addLayer({ id: 'people-force', type: 'symbol', source: 'people',
-      filter: ['has', 'force'] as any,
-      layout: { 'text-field': ['coalesce', ['get', 'force'], ''], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
-        // 이름표가 1.9em(24px 기준 46px)에 앉고 높이가 있으니 그 아래로 확실히 내린다
-        'text-size': ['*', 12, ['coalesce', ['get', 'scale'], 1]] as any,
-        'text-offset': ['array', 'number', 2, ['get', 'forceOffset']],
-        'text-anchor': ['coalesce', ['get', 'anchor'], 'top'],
-        'text-allow-overlap': true, 'text-optional': true, 'text-pitch-alignment': 'viewport' } as any,
-      paint: { 'text-color': ['get', 'color'] as any, 'text-halo-color': halo(), 'text-halo-width': 2.4 } }, before);
+    // people-force(병력 줄)는 2026-09-18에 이름표 둘째 줄로 합쳐 없앴다.
     syncPeopleIcons(peopleFc);
+    orderLabels();
     // **이야기 전투 이름을 도시 이름보다 먼저 놓는다.** MapLibre는 스타일 배열 순서대로
     // 자리를 잡아서, 먼저 온 레이어가 자리를 이긴다. 정착지 이름표가 먼저라 기원전 48년
     // 판에서 「라리사」가 자리를 먹고 **정작 그 장면의 제목인 「파르살루스」가 사라졌다.**
@@ -1277,6 +1281,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       peopleFc = fc as typeof EMPTY_FC;
       (map.getSource('people') as maplibregl.GeoJSONSource | undefined)?.setData(fc as any);
       syncPeopleIcons(peopleFc);
+    orderLabels();
       syncPeopleTokens(peopleFc);
     },
     onData(fn: () => void) { onData = fn; },

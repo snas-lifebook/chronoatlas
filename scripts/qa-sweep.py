@@ -14,9 +14,11 @@ JS = """() => {
   const toks = m.queryRenderedFeatures({ layers: ['people-dot'] }).map(f => ({ name: f.properties.name, p: m.project(f.geometry.coordinates) }));
   const cards = [...document.querySelectorAll('.ca-card')].map(e => { const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
   const labels = m.queryRenderedFeatures({ layers: ['territory-label'] }).length;
+  const named = new Set(m.queryRenderedFeatures({ layers: ['people-label'] }).map(f => f.properties.name));
+  const namesDropped = toks.map(t => t.name).filter(n => !named.has(n));   // 인물 이름이 네 방향 다 막혀 빠진 것(2026-09-18 도시 우선 뒤)
   return { z: +m.getZoom().toFixed(1), tokensUnderHud: toks.filter(t => inside(t.p, hud)).map(t => t.name), tokensUnderNav: toks.filter(t => inside(t.p, nav)).map(t => t.name),
     cardsOverBoard: cards.filter(c => ov(c, board)).length, cardsOverNav: cards.filter(c => ov(c, nav)).length, cardsOverHud: cards.filter(c => ov(c, hud)).length, cards: cards.length,
-    cardsOffscreen: cards.filter(c => c.y + c.h > innerHeight || c.y < 0).length, labels, micro: window.__ca.micro()?.id ?? null, board: !!board };
+    cardsOffscreen: cards.filter(c => c.y + c.h > innerHeight || c.y < 0).length, labels, namesDropped, micro: window.__ca.micro()?.id ?? null, board: !!board };
 }"""
 with sync_playwright() as p:
     br = p.chromium.connect_over_cdp('http://127.0.0.1:9222'); ctx = br.contexts[0]; page = ctx.pages[0] if ctx.pages else ctx.new_page()
