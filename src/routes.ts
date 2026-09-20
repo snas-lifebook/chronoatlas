@@ -90,9 +90,15 @@ export function legAge(p: MoveProps, year: number, span = 8): number {
 // 국면은 **끝난 해로** 가른다. 첫 구간만 예외다 — 기원전 52년에 시작해 49년에 끝나는
 // 세 해짜리 구간이라 「BC 49」에 묶으면 브린디시·일레르다와 한 색이 되어 갈리아에서
 // 돌아오는 그 이동이 안 보인다. 레퍼런스도 이것만 별색으로 뺐다.
-export interface RoutePhase { id: string; label: string; color: string }
+/** `route`·`to`가 있으면 그 경로의 구간 중 **끝난 해가 [to[0], to[1]] 안**인 것만 이 국면이다.
+ *  없는 것(카이사르 여섯·기타)은 legPhase의 규칙이 맡는다. */
+export interface RoutePhase { id: string; label: string; color: string; route?: string; to?: [number, number] }
 
-/** 표시 순서가 곧 범례 순서다. */
+/** 표시 순서가 곧 범례 순서다.
+ *
+ *  2026-09-21(R59): 카이사르·폼페이우스 도피만 있던 표에 정본 경로 넷을 더했다 — 한니발 12구간·
+ *  스키피오 3구간·클레오파트라/안토니우스 12구간·폼페이우스 동방 원정. 그전에는 전부 「그 밖의 이동」
+ *  회색이었다. 국면은 사료가 가르는 대목으로 끊었다(알프스 → 이탈리아 → 귀환 → 자마 등). */
 export const ROUTE_PHASES: RoutePhase[] = [
   { id: 'return', label: '갈리아에서 귀환 · BC 52–49', color: '#7B3F3F' },
   { id: 'bc49', label: 'BC 49 이탈리아·에스파냐', color: '#2F7D5B' },
@@ -100,16 +106,30 @@ export const ROUTE_PHASES: RoutePhase[] = [
   { id: 'bc47', label: 'BC 47 이집트·동방', color: '#1E8A8A' },
   { id: 'bc46', label: 'BC 46 아프리카', color: '#C46A1B' },
   { id: 'bc45', label: 'BC 45 에스파냐', color: '#7A4FA0' },
-  { id: 'pompey', label: '폼페이우스의 도피 · BC 49–48', color: '#5C6B7A' },
+  { id: 'pompey-east', label: '폼페이우스의 동방 · BC 67–63', color: '#8C7A3E', route: 'pompey', to: [-99, -63] },
+  { id: 'pompey', label: '폼페이우스의 도피 · BC 49–48', color: '#5C6B7A', route: 'pompey', to: [-62, 0] },
+  { id: 'han-alps', label: '한니발 · 알프스 횡단 · BC 218', color: '#B5452B', route: 'hannibal', to: [-218, -218] },
+  { id: 'han-italy', label: '한니발 · 이탈리아 종횡 · BC 217–212', color: '#D9822B', route: 'hannibal', to: [-217, -205] },
+  { id: 'han-return', label: '한니발 · 아프리카 귀환 · BC 204–203', color: '#8E6B2E', route: 'hannibal', to: [-204, -203] },
+  { id: 'han-zama', label: '한니발 · 자마 · BC 202', color: '#6E3B2A', route: 'hannibal', to: [-202, -202] },
+  { id: 'scipio-spain', label: '스키피오 · 에스파냐 · BC 209–205', color: '#3B7EA1', route: 'scipio_africanus', to: [-209, -205] },
+  { id: 'scipio-africa', label: '스키피오 · 아프리카 · BC 204–202', color: '#245E8A', route: 'scipio_africanus', to: [-204, -202] },
+  { id: 'cleo-caesar', label: '클레오파트라 · 카이사르와 · BC 48–44', color: '#9C3D6E', route: 'cleopatra_antony', to: [-48, -44] },
+  { id: 'cleo-antony', label: '클레오파트라 · 안토니우스와 · BC 41–32', color: '#A0527A', route: 'cleopatra_antony', to: [-43, -32] },
+  { id: 'cleo-actium', label: '클레오파트라 · 악티움과 최후 · BC 31–30', color: '#5E3A6B', route: 'cleopatra_antony', to: [-31, -30] },
   { id: 'other', label: '그 밖의 이동', color: '#8A8F98' },
 ];
 const PHASE_BY_ID = new Map(ROUTE_PHASES.map(p => [p.id, p]));
 
 /** 구간 → 국면 id. 모르면 'other' — 없는 국면을 발명하지 않는다. */
 export function legPhase(p: MoveProps): string {
-  if (p.route === 'pompey') return 'pompey';
   const from = typeof p.from_year === 'number' ? p.from_year : null;
   const to = legYear(p);
+  if (p.route && p.route !== 'caesar') {
+    // 표에 route가 적힌 국면만. 끝난 해가 범위 안이면 그 국면이다.
+    for (const ph of ROUTE_PHASES) if (ph.route === p.route && ph.to && to != null && to >= ph.to[0] && to <= ph.to[1]) return ph.id;
+    return 'other';
+  }
   if (from != null && to != null && from <= -52 && to >= -50) return 'return';
   if (to == null) return 'other';
   return PHASE_BY_ID.has(`bc${-to}`) ? `bc${-to}` : 'other';

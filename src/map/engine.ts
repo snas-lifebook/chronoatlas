@@ -627,6 +627,36 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   /** 이름표 순서(도시 > 인물 > 나머지). 인물 층은 setPeople 때 뒤늦게 들어오므로 addData 끝과 인물 층을 만든 뒤 다시 부른다. 말(custom)은 people-label 바로 밑. */
+  // ── 교보재 경로·전투·이야기 장소는 늦게 올 수 있다(R59, 포인트 묶음 지연 로드). addData와 refreshPack이 같은 셋을 쓴다. ──
+  /** 이야기 장소 필터. PACK_PLACES는 살아 있는 배열이라 부를 때마다 새로 만든다. */
+  const storyFilter = (): any => ['in', ['get', 'id'], ['literal', [...PACK_PLACES]]];
+  /** 정본 경로 + 교보재 경로. 교보재는 **정본에 같은 route가 없을 때만** 싣는다 — 2026-09-17 adapt 뒤 정본이
+   *  폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다. */
+  function movesData() {
+    const routesInData = new Set(d.movements.features.map(f => f.properties.route));
+    const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS.filter(f => !routesInData.has(f.properties.route))] };
+    const legs = annotateLegs(allMoves.features as any);
+    return { allMoves, legs };
+  }
+  /** 순번 배지를 국면색으로 굽는다. 이미 있는 것은 건너뛴다. */
+  function bakeSeq(legs: ReturnType<typeof annotateLegs>) {
+    for (const f of legs) {
+      const p: any = f.properties ?? {};
+      const iid = `seq-${p.phase}-${p.seq}`;
+      if (p.seq && !map.hasImage(iid)) map.addImage(iid, seqIcon(String(p.phaseColor), Number(p.seq)), { pixelRatio: 2 });
+    }
+  }
+  /** 말이 걸을 경로. owner마다 첫 route 하나. */
+  function rebuildTokenRoutes(allMoves: { features: { properties: Record<string, unknown> }[] }) {
+    tokenRoutes.clear();
+    for (const f of allMoves.features) {
+      const owner = f.properties.owner as string | undefined;
+      const route = f.properties.route as string | undefined;
+      if (!owner || !route || tokenRoutes.has(owner)) continue;
+      tokenRoutes.set(owner, routeGeometry(allMoves.features as any, route).path);
+    }
+  }
+
   function orderLabels() {
     for (const id of ['people-label', 'people-standard', 'story-place-label', 'label-sea', 'label-settle-5', 'label-settle-4', 'label-settle-3', 'label-settle-2', 'label-settle-1']) if (map.getLayer(id)) map.moveLayer(id);
     for (const t of peopleTokens.values()) if (map.getLayer(t.layer.id) && map.getLayer('people-label')) map.moveLayer(t.layer.id, 'people-label');
@@ -821,14 +851,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.addLayer({ id, type: 'circle', source: 'settlements', minzoom, paint: { 'circle-radius': hov(radius, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
     circle('settle-major', 3, 5); circle('settle-minor', 4.5, 3.5);   // rank 2 이름표가 z4.5부터라 점도 같이(R34)
-    const storyFilter: any = ['in', ['get', 'id'], ['literal', [...PACK_PLACES]]];
     map.addLayer({ id: 'story-place', type: 'circle', source: 'settlements', minzoom: 3,
-      filter: storyFilter,
+      filter: storyFilter(),
       paint: { 'circle-radius': hov(6, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any,
         'circle-stroke-width': hov(1.4, 1) as any, 'circle-opacity': 1 } }, before);
     map.addLayer({ id: 'story-place-label', type: 'symbol', source: 'settlements', minzoom: 3,
-      filter: storyFilter,
+      filter: storyFilter(),
       layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, 12, 6, 15] as any,
         // 고정 anchor면 그 자리가 막혔을 때 이름표가 그냥 사라진다. 네 방향을 주면 옆으로
@@ -951,14 +980,10 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       map.moveLayer('pack-battle-label', 'story-place-label');
     }
 
-    // 교보재 경로(pack-pompey)는 **정본에 같은 route가 없을 때만** 싣는다. 2026-09-17 adapt 뒤 정본이
-    // 폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다.
-    const routesInData = new Set(d.movements.features.map(f => f.properties.route));
-    const allMoves = { type: 'FeatureCollection' as const, features: [...d.movements.features, ...PACK_MOVEMENTS.filter(f => !routesInData.has(f.properties.route))] };
     // 화면에 깔리는 것은 **휜 사본**이다. 원본은 tokenRoutes가 그대로 쓴다 —
     // 말은 실제 정점을 밟아야 하고(walkRoute가 좌표 일치로 구간을 찾는다) 선만 활이 된다.
     // annotateLegs가 순번·국면·국면색을 properties에 얹고, curveMovements가 좌표만 휜다.
-    const legs = annotateLegs(allMoves.features as any);
+    const { allMoves, legs } = movesData();
     map.addSource('movements', { type: 'geojson', data: { type: 'FeatureCollection', features: curveMovements(legs) } as any });
     // 경로는 세 겹이다. 아래에서부터 **테(paper) → 선(세력색) → 화살표**.
     //
@@ -995,12 +1020,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         // 실제로 그랬다. 자리를 뺏지도 않게 ignore-placement까지 켠다.
         'icon-allow-overlap': true, 'icon-ignore-placement': true } as any,
       paint: { 'icon-opacity': 0.85 } as any }, before);
-    // 순번. 구간마다 하나, 선의 가운데('line-center')에. 구간이 열셋뿐이라 배지를 전부 굽는다.
-    for (const f of legs) {
-      const p: any = f.properties ?? {};
-      const iid = `seq-${p.phase}-${p.seq}`;
-      if (p.seq && !map.hasImage(iid)) map.addImage(iid, seqIcon(String(p.phaseColor), Number(p.seq)), { pixelRatio: 2 });
-    }
+    // 순번. 구간마다 하나, 선의 가운데('line-center')에. 구간이 수십뿐이라 배지를 전부 굽는다.
+    bakeSeq(legs);
     map.addLayer({ id: 'movement-seq', type: 'symbol', source: 'movements',
       filter: ['has', 'seq'],
       layout: { 'symbol-placement': 'line-center',
@@ -1029,13 +1050,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (ego) setEgo(ego.sel, ego.name, ego.neighbors);
 
     // Three.js 장기말은 인물 레이어가 켤 때. 경로가 있으면 그 선을 따라 걷는다.
-    tokenRoutes.clear();
-    for (const f of allMoves.features) {
-      const owner = f.properties.owner as string | undefined;
-      const route = f.properties.route as string | undefined;
-      if (!owner || !route || tokenRoutes.has(owner)) continue;
-      tokenRoutes.set(owner, routeGeometry(allMoves.features, route).path);
-    }
+    rebuildTokenRoutes(allMoves);
     import('../token3d').then(mod => { tokenMod = mod; syncPeopleTokens(peopleFc); }).catch(() => { tokenMod = null; });
     loaded = true; lastYear = null; lastLayers = ''; lastSel = undefined; lastBoard = undefined; lastPhase = undefined; selectedFs = [];
     syncDetailMaps(store.get().scene);   // 스킨 전환 뒤에도 활성 미시지도를 다시 얹는다
@@ -1285,6 +1300,20 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       syncPeopleTokens(peopleFc);
     },
     onData(fn: () => void) { onData = fn; },
+    /** 포인트 묶음 교보재(p12·p345·p911)가 늦게 왔다(R59). 전투점·경로·순번·말 경로·이야기 장소를 다시 싣고 그 해를 다시 적용한다.
+     *  addData가 아직이면 아무것도 안 한다 — addData가 그때 살아 있는 배열을 그대로 읽는다. */
+    refreshPack() {
+      if (!loaded) return;
+      (map.getSource('pack-battles') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: PACK_BATTLES } as any);
+      const { allMoves, legs } = movesData();
+      (map.getSource('movements') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: curveMovements(legs) } as any);
+      bakeSeq(legs);
+      rebuildTokenRoutes(allMoves);
+      // 이야기 장소 필터는 BASE_FILTER에 캐시돼 있다(hideAnachronisticPlaces). 원본을 같이 갈아야 다음 apply가 새 목록 위에 연도 조건을 얹는다.
+      for (const id of ['story-place', 'story-place-label']) if (map.getLayer(id)) { const f = storyFilter(); map.setFilter(id, f); BASE_FILTER.set(id, f); }
+      lastYear = null;
+      apply(store.get());
+    },
     // 좁은 화면에서는 줌을 깎는다 — 장면은 데스크톱 프레임으로 잡혀 있다(present.fitZoom).
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom != null ? fitZoom(sc.zoom, container.clientWidth) : undefined, pitch: store.get().view === '2d' ? 0 : (sc.pitch ?? pitch3d), bearing: store.get().view === '2d' ? 0 : (sc.bearing ?? bearing3d), duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.

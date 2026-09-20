@@ -69,9 +69,11 @@ export function representativePoint(g: { type: string; coordinates: unknown } | 
 }
 
 export interface ResolvedCallout extends CalloutDef { at: [number, number] }
-/** 앵커를 좌표로 푼다. 못 푼 것은 버리고 콘솔에 남긴다(test/micromap.test.ts가 같은 것을 CI에서 막는다). */
-export function resolveCallouts(def: MicroMapDef, unitAt?: (unitId: string) => [number, number] | null): ResolvedCallout[] {
+/** 앵커를 좌표로 푼다. 못 푼 것은 버리고 콘솔에 남긴다(test/micromap.test.ts가 같은 것을 CI에서 막는다).
+ *  `year`를 주면 시기 밖 콜아웃(`[from_year, to_year)`)은 뺀다 — 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59). */
+export function resolveCallouts(def: MicroMapDef, unitAt?: (unitId: string) => [number, number] | null, year?: number | null): ResolvedCallout[] {
   return def.callouts.flatMap(c => {
+    if (year != null && ((c.from_year != null && year < c.from_year) || (c.to_year != null && year >= c.to_year))) return [];
     let at: [number, number] | null = null;
     if ('lnglat' in c.anchor) at = c.anchor.lnglat;
     else if ('feature' in c.anchor) { const fid = c.anchor.feature; at = representativePoint(def.features.find(f => f.properties.id === fid)?.geometry); }
@@ -171,7 +173,10 @@ export function createMicro(map: maplibregl.Map, opts: {
   let year: number | null = null;
   function applyYear() {
     if (year == null || !map.getSource('micro')) return;
-    const f: any = ['any', ['!', ['has', 'built_year']], ['<=', ['get', 'built_year'], year]];
+    // built_year: 그 해보다 앞이면 숨김 · gone_year: 그 해부터 숨김(R59, 로마 시내 BC 44/AD 41 겸용)
+    const f: any = ['all',
+      ['any', ['!', ['has', 'built_year']], ['<=', ['get', 'built_year'], year]],
+      ['any', ['!', ['has', 'gone_year']], ['>', ['get', 'gone_year'], year]]];
     for (const id of MICRO_LAYERS) {
       if (id === 'micro-basemap' || !map.getLayer(id)) continue;
       if (!BASE.has(id)) BASE.set(id, map.getFilter(id) ?? null);

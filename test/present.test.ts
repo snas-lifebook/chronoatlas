@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect } from 'vitest';
 import { parseState, serializeState, DEFAULTS } from '../src/state';
-import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE, fitZoom, DETAIL_GROUP } from '../src/present';
+import { scenesInGroup, stepScene, PRESENT_GROUP, showGalliaOverlay, showGalliaRoman, GALLIA_SCENE, GALLIA_ROMAN_SCENE, fitZoom, DETAIL_GROUP, isPresentGroup, presentGroups } from '../src/present';
 
 const pack = [
   { id: 'a', title: '1', year: -60, group: PRESENT_GROUP },
@@ -114,6 +114,36 @@ describe('카이사르 팩 장면 파일', () => {
       // 에셋 사양서 B절 「스킨은 campaign으로 고정한다. 전부」 —
       // 장마다 바꾸면 지도끼리 따로 논다. 라이브와 내보낸 이미지도 같은 톤이어야 한다.
       expect(s.skin, s.id).toBe('campaign');
+    }
+  });
+});
+
+describe('발표 그룹 전부 (R59, 포인트 묶음)', () => {
+  const raw = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/scenes/rome.json'), 'utf8')) as
+    { id: string; year: number; group?: string; note?: string; view?: string; skin?: string }[];
+  const text = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../data/overlays/pack-scene-text.json'), 'utf8')).scenes as Record<string, unknown>;
+
+  it('카이사르 팩과 「포인트 …」 그룹만 발표 그룹이다', () => {
+    expect(isPresentGroup(PRESENT_GROUP)).toBe(true);
+    expect(isPresentGroup('포인트 01·02 · 일곱 언덕에서 시칠리아까지')).toBe(true);
+    expect(isPresentGroup(DETAIL_GROUP)).toBe(false);
+    expect(isPresentGroup('말판')).toBe(false);
+    expect(isPresentGroup('내 북마크')).toBe(false);
+  });
+
+  it('그룹마다 연도가 되감기지 않고, 장마다 설명·평면/입체·campaign 스킨·낭독 텍스트가 있다', () => {
+    const groups = presentGroups(raw as any);
+    expect(groups).toContain(PRESENT_GROUP);
+    for (const g of groups) {
+      const list = raw.filter(s => s.group === g);
+      const years = list.map(s => s.year);
+      expect(years, g).toEqual([...years].sort((a, b) => a - b));
+      for (const s of list) {
+        expect(s.note && s.note.length > 8, `${g} ${s.id} note`).toBeTruthy();
+        expect(s.view === '2d' || s.view === '3d', `${g} ${s.id} view`).toBeTruthy();
+        expect(s.skin, `${g} ${s.id} skin`).toBe('campaign');
+        expect(text[s.id], `${g} ${s.id} 낭독 텍스트(pack-scene-text.json)`).toBeTruthy();
+      }
     }
   });
 });

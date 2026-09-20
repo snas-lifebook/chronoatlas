@@ -14,8 +14,8 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText } from '../packData';
-import { scenesInGroup, stepScene, presentGroupOf, PRESENT_GROUP, DETAIL_GROUP } from '../present';
+import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText, loadLegions, loadPack, packsFor } from '../packData';
+import { scenesInGroup, stepScene, presentGroupOf, isPresentGroup, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
 import { LIBRARY, libraryObject } from '../links';
@@ -64,6 +64,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   const [focusCallout, setFocusCallout] = useState<string | null>(null);
   const [, setTextTick] = useState(0);
   useEffect(() => { loadSceneText().then(() => setTextTick(t => t + 1)); }, []);   // 발표 설명문이 오면 HUD를 다시 그린다
+  useEffect(() => { loadLegions().then(() => setDataTick(t => t + 1)); }, []);     // 군단 표가 오면 말의 병력 줄을 다시 세운다(자산 URL, R46)
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
   const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
@@ -195,6 +196,13 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] });
   };
   const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
+  // 세부 지도에서 「↩ 발표」가 돌아갈 그룹. 발표 그룹이 하나(카이사르 팩)일 때는 상수였는데 포인트 묶음이 생겨 **왔던 그룹**을 기억한다(R59).
+  const lastPresentRef = useRef(PRESENT_GROUP);
+  useEffect(() => { const g = presentGroupOf(allScenes, s.scene); if (isPresentGroup(g)) lastPresentRef.current = g; }, [s.scene, allScenes]);
+  // 포인트 묶음 교보재(p12·p345·p911)는 그 해나 그 장면에 들어설 때 받는다(R59). 처음 받은 묶음만 엔진을 다시 싣고 말·범례를 다시 센다.
+  useEffect(() => {
+    for (const id of packsFor(s.year, s.scene)) loadPack(id).then(fresh => { if (fresh) { engRef.current?.refreshPack(); setDataTick(t => t + 1); } });
+  }, [s.year, s.scene]);
   // dataTick: 영토 버킷이 바뀌면 d.territory.features가 통째로 갈린다 — 그때 다시 센다.
   const brief = useMemo(() => yearBrief(s.year, { graph, territory: d.territory.features, events: d.events, battles: [...d.battles.features, ...PACK_BATTLES] }),
     [s.year, graph, dataTick]);
@@ -312,7 +320,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
-      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} narrow={narrow} onResolved={setMicroCallouts} onPin={setFocusCallout} /></Suspense>
+      <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} narrow={narrow} year={s.year} onResolved={setMicroCallouts} onPin={setFocusCallout} /></Suspense>
       {/* 장군 배너 카드(OVERHAUL-II §3.4): 고른 인물이 그 해 지도에 말로 서 있을 때만. 「선택했을 때만」(River). 좁은 화면은 시트가 맡는다 */}
       {!narrow && s.sel?.startsWith('person:') && (() => {
         const p = people.find(x => x.id === s.sel); if (!p || !engRef.current) return null;
@@ -435,7 +443,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         // 두 그룹을 오간다. 세부 지도는 본 발표 여덟 장과 따로 걸어야 흐름이 안 끊기는데,
         // 그렇다고 손가락으로 갈 길이 없으면 github.io에서 도달 자체가 안 된다(River).
         const inDetail = group === DETAIL_GROUP;
-        const other = inDetail ? PRESENT_GROUP : DETAIL_GROUP;
+        const other = inDetail ? lastPresentRef.current : DETAIL_GROUP;
         const otherList = scenesInGroup(allScenes, other);
         return (
           <nav className="shell-scene-nav" aria-label="장면 넘기기">

@@ -67,6 +67,20 @@ export function presentGroupOf(scenes: Scene[], currentId: string | null): strin
   return cur?.group ?? PRESENT_GROUP;
 }
 
+/** 발표 그룹인가. 카이사르 팩 하나뿐이던 것이 2026-09-21(R59)부터 포인트 묶음 그룹
+ *  (「포인트 01·02 · …」·「포인트 03·04·05 · …」·「포인트 09·10·11 · …」)으로 늘었다.
+ *  세부 지도·말판·내 북마크는 발표 흐름이 아니다 — 「↩ 발표」가 돌아갈 자리를 고를 때 쓴다. */
+export function isPresentGroup(group: string): boolean {
+  return group === PRESENT_GROUP || group.startsWith('포인트 ');
+}
+
+/** 장면 파일 순서대로의 발표 그룹 이름. 테스트가 그룹마다 연도 단조·설명·스킨을 검사한다. */
+export function presentGroups(scenes: Scene[]): string[] {
+  const out: string[] = [];
+  for (const s of scenes) { const g = s.group ?? '장면'; if (isPresentGroup(g) && !out.includes(g)) out.push(g); }
+  return out;
+}
+
 /** 좁은 화면에서 장면 줌을 내린다.
  *
  *  장면 카메라는 16:9 데스크톱 프레임(가로 1600px 기준)으로 잡혀 있다. 390px 폰에서

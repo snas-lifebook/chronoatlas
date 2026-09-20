@@ -56,9 +56,10 @@ export function clientsAt(year: number): { client: string[]; ally: string[]; all
   return { client, ally, all: [...new Set([...client, ...ally])] };
 }
 
+// 아래 셋은 **살아 있는 배열**이다. 포인트 묶음 교보재(loadPack)가 늦게 와서 여기에 합쳐진다(R59). 새 배열로 바꾸지 말 것.
 export const PACK_MOVEMENTS: Feature[] = pompey?.features ?? [];
 export const PACK_BATTLES: Feature[] = battles?.features ?? [];
-export const PACK_CAST = cast ?? { teaching: true as const, people: [] };
+export const PACK_CAST: import('./people').TeachingCast = cast ?? { teaching: true as const, people: [] };
 
 /** 비국가 민족·주변 왕국 교보재. 정본이 국가 단위로만 코딩돼 게르마니아·다키아·
  *  사르마티아·아오르시·보스포루스·브리타니아가 한 면도 없다 — 갈리아와 같은 원인이다.
@@ -76,13 +77,23 @@ export const PACK_EMBLEMS = new Set<string>(emblems?.actors ?? []);
 
 // 미시지도 셋(알레시아·로마·알렉산드리아)과 도판은 2026-09-17에 data/micromaps/<id>.json 레지스트리로 갔다.
 
-const legions = Object.values(import.meta.glob('../data/overlays/pack-legions.json', { eager: true, import: 'default' }))[0] as
-  { by_person: Record<string, { year: number; legions: number | null; men_low: number | null; men_high: number | null; confidence?: string }[]> } | undefined;
+type LegionRow = { year: number; legions: number | null; men_low: number | null; men_high: number | null; confidence?: string };
+const LEGIONS: Record<string, LegionRow[]> = {};   // 살아 있는 표. loadLegions(카이사르 팩)·loadPack(묶음)이 채운다(R59)
+let legionsReady: Promise<void> | null = null;
+/** 카이사르 팩 군단 표(pack-legions.json, 5.6 kB gz)는 첫 페인트에 필요 없다 — 말의 병력 줄에만 쓴다. 자산 URL로 받는다(R46).
+ *  2026-09-21에 eager에서 뺐다: 포인트 묶음 기반을 얹자 초기 JS가 400.1 kB로 게이트를 넘었다. 받으면 App이 dataTick을 올려 말을 다시 세운다. */
+export function loadLegions(): Promise<void> {
+  if (!legionsReady) legionsReady = fetch(new URL('../data/overlays/pack-legions.json', import.meta.url).href)
+    .then(r => (r.ok ? r.json() : undefined))
+    .then(j => { for (const [pid, rows] of Object.entries((j?.by_person as Record<string, LegionRow[]> | undefined) ?? {})) (LEGIONS[pid] ??= []).push(...rows); })
+    .catch(() => {});
+  return legionsReady;
+}
 
 /** 그 해에 이 사람이 쥔 군단 수와 병력. 해당 연도 이하에서 가장 가까운 기록을 쓴다 —
  *  자료가 있는 해만 찍혀 있어서(BC 58·55·53·52·49·48…) 그 사이 해는 직전 기록이 유효하다. */
 export function legionsAt(personId: string, year: number) {
-  const rows = legions?.by_person?.[personId];
+  const rows = LEGIONS[personId];
   if (!rows?.length) return null;
   let best: (typeof rows)[number] | null = null;
   for (const r of rows) if (r.year <= year && (!best || r.year > best.year)) best = r;
@@ -104,26 +115,87 @@ export function sceneBrief(id: string | null) {
   return (id && sceneText?.scenes?.[id]) || null;
 }
 
+const HIDE_BEFORE: HideRow[] = anachro?.hide_before ?? [];         // 살아 있는 배열. loadPack이 합친다(R59)
+const HIDE_ADMIN: HideRow[] = anachro?.hide_admin_before ?? [];
+
 /** 그 해에 아직 없는 이름의 정착지 id. 정착지 레이어에 연도 필드가 없어서 생기는 구멍이다
  *  — 어느 해를 띄워도 220개가 다 뜬다. 연도를 지어내지 않고, 확실히 후대인 이름만 가린다. */
 export function hiddenPlaces(year: number): string[] {
-  return (anachro?.hide_before ?? []).filter(h => year < h.valid_from).map(h => h.id);
+  return HIDE_BEFORE.filter(h => year < h.valid_from).map(h => h.id);
 }
 
 /** 그 해에 아직 없던 속주 경계. 정착지와 같은 구멍이 admin_regions에도 있다 —
  *  아우구스투스가 만든 갈리아 속주 셋이 `valid_from: null`이라 **기원전 60년 판에도**
  *  보라 점선으로 그어져 있었다. 그 해 갈리아는 로마 땅도 아니었다. */
 export function hiddenAdmin(year: number): string[] {
-  return (anachro?.hide_admin_before ?? []).filter(h => year < h.valid_from).map(h => h.id);
+  return HIDE_ADMIN.filter(h => year < h.valid_from).map(h => h.id);
 }
 
 // 발표 줌(4~6)에서 rank 3 도시가 안 떠서, 경로 정점만 이름표를 따로 켠다.
-export const PACK_PLACES = [
+// 살아 있는 배열이다 — 포인트 묶음의 `<묶음>-places.json`이 자기 이야기 장소를 더한다(R59).
+export const PACK_PLACES: string[] = [
   'place:로마', 'place:알레시아', 'place:루비콘강', 'place:브린디시',
   'place:일레르다', 'place:파르살루스', 'place:알렉산드리아', 'place:문다평원',
   'place:라벤나',
-] as const;
+];
 // 라리사를 뺐다. 파르살루스에서 30km라 지중해 축척에서 **화면 8px** 거리인데, 이름표
 // 자리다툼에서 먼저 놓이는 쪽(정착지)이 이겨서 **정작 그 장면의 제목인 「파르살루스」가
 // 사라졌다.** 둘 다 띄울 방법은 없고(8px다) 이야기가 쓰는 쪽은 전투다. 폼페이우스가
 // 패주해 들른 곳이지만 아홉 장 어디도 라리사를 말하지 않는다.
+
+// ── 포인트 묶음 교보재 (2026-09-21, R59) ────────────────────────────────────
+// p12(포인트 01·02) · p345(03·04·05) · p911(09·10·11). 파일은 `data/overlays/<묶음>-<종류>.json`이고 **지연 로드**다 —
+// eager로 실으면 초기 번들 400 kB 게이트를 넘는다(R46). 그 해(PACK_YEARS, 반열림)나 그 묶음의 장면(`p12-…`)에
+// 들어설 때 받아 위의 살아 있는 배열에 합친다. 합친 뒤에는 엔진 refreshPack()이 소스를 다시 싣는다.
+//
+// 종류(파일 이름 접미)와 합쳐지는 자리:
+//   cast → PACK_CAST.people(+principals.ids) · battles → PACK_BATTLES · routes → PACK_MOVEMENTS(정본에 같은 route가 있으면 엔진이 뺀다)
+//   places → PACK_PLACES · anachronisms → hide_before/hide_admin_before · legions → by_person
+//   그 밖(hatch·islands·rivers…) → PACK_EXTRA['<묶음>-<종류>'] 에 원문 그대로. 엔진이 이름으로 집는다.
+export const PACK_YEARS: Record<string, [number, number]> = { p12: [-800, -230], p345: [-230, -60], p911: [-45, 70] };
+const PACK_LOADERS: Record<string, Record<string, () => Promise<unknown>>> = {
+  p12: import.meta.glob('../data/overlays/p12-*.json', { import: 'default' }),
+  p345: import.meta.glob('../data/overlays/p345-*.json', { import: 'default' }),
+  p911: import.meta.glob('../data/overlays/p911-*.json', { import: 'default' }),
+};
+export const PACK_EXTRA: Record<string, unknown> = {};
+const packDone = new Map<string, Promise<boolean>>();
+
+/** 이 해·이 장면이 필요로 하는 묶음 id. 장면 id 접두(`p345-`)가 연도 창보다 우선 — 창 경계의 장면도 제 교보재를 받는다. */
+export function packsFor(year: number, scene: string | null): string[] {
+  const out = Object.entries(PACK_YEARS).filter(([, [lo, hi]]) => lo <= year && year < hi).map(([k]) => k);
+  const m = scene?.match(/^(p12|p345|p911)-/);
+  if (m && !out.includes(m[1])) out.push(m[1]);
+  return out;
+}
+
+/** 한 묶음을 받아 합친다. **처음 받은 때만 true** — 그때만 엔진 refreshPack과 다시 그리기가 필요하다. */
+export function loadPack(id: string): Promise<boolean> {
+  const done = packDone.get(id);
+  if (done) return done.then(() => false);
+  const loaders = PACK_LOADERS[id];
+  if (!loaders) return Promise.resolve(false);
+  const p = Promise.all(Object.entries(loaders).map(async ([path, load]) =>
+      [path.replace(/^.*\/p\d+-([a-z0-9_-]+)\.json$/, '$1'), await load()] as const))
+    .then(entries => { for (const [kind, json] of entries) mergePack(id, kind, json as Record<string, unknown> | undefined); return true; })
+    .catch(() => false);
+  packDone.set(id, p);
+  return p;
+}
+
+function mergePack(pack: string, kind: string, j: Record<string, unknown> | undefined) {
+  if (!j) return;
+  const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+  if (kind === 'cast') {
+    PACK_CAST.people.push(...arr<TeachingCast['people'][number]>(j.people));
+    const ids = arr<string>((j.principals as { ids?: unknown } | undefined)?.ids);
+    if (ids.length) (PACK_CAST.principals ??= { ids: [] }).ids.push(...ids.filter(x => !PACK_CAST.principals!.ids.includes(x)));
+  }
+  else if (kind === 'battles') PACK_BATTLES.push(...arr<Feature>(j.features));
+  else if (kind === 'routes') PACK_MOVEMENTS.push(...arr<Feature>(j.features));
+  else if (kind === 'places') { for (const id of arr<string>(j.places)) if (!PACK_PLACES.includes(id)) PACK_PLACES.push(id); }
+  else if (kind === 'anachronisms') { HIDE_BEFORE.push(...arr<HideRow>(j.hide_before)); HIDE_ADMIN.push(...arr<HideRow>(j.hide_admin_before)); }
+  else if (kind === 'legions') { for (const [pid, rows] of Object.entries((j.by_person as Record<string, unknown>) ?? {})) (LEGIONS[pid] ??= []).push(...arr<LegionRow>(rows)); }
+  else PACK_EXTRA[`${pack}-${kind}`] = j;
+}
+type TeachingCast = import('./people').TeachingCast;

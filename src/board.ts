@@ -71,7 +71,7 @@ export function snap(at: LonLat, ctx: { settlements: Feat[]; territory: Feat[]; 
 
 // ── 렌더 계약 (R37). 뷰는 이 산출물을 그리기만 한다. 페이즈 사이를 보간하지 않는다. ────────
 // schema/board.ts의 zod를 여기로 들이지 않는다 — 예전에 graph가 상수 하나 때문에 zod를 번들에 실었다.
-export const ARM_KO = { infantry: '중보병', cavalry: '기병', light: '경보병', elephant: '전투코끼리', command: '지휘' } as const;
+export const ARM_KO = { infantry: '중보병', cavalry: '기병', light: '경보병', elephant: '전투코끼리', command: '지휘', fleet: '함대' } as const;
 export type Arm = keyof typeof ARM_KO;
 export const FALLBACK_COLOR = '#8A8F98'; // 팔레트 밖·기타중립. 지어낸 색이 아니다.
 
@@ -173,7 +173,7 @@ export function interpolate(board: BoardData, t: number): Frame {
 }
 
 /** 병종별 블록 크기(m). 보병은 넓고 얕게, 기병은 좁고 깊게 (Epic History 전투전술 문법, A_공간지도). */
-const SIZE_M: Record<Arm, [number, number]> = { infantry: [320, 90], cavalry: [200, 140], light: [220, 70], elephant: [160, 110], command: [110, 110] };
+const SIZE_M: Record<Arm, [number, number]> = { infantry: [320, 90], cavalry: [200, 140], light: [220, 70], elephant: [160, 110], command: [110, 110], fleet: [420, 70] };
 /** 병력은 로그 스케일로 폭만 키운다(1,000 → 0.7배, 10,000 → 1.05배, 45,000 → 1.27배). 수치 논쟁이 그림을 크게 안 바꾼다. */
 const sizeK = (strength?: number) => Math.min(1.4, Math.max(0.7, 0.7 + 0.35 * Math.log10(Math.max(1, (strength ?? 1000) / 1000))));
 /** 중심·향(도, 북 = 0, 시계방향)·병종 → 닫힌 사각형. front면 전면 30%의 앞띠(향을 말한다). */

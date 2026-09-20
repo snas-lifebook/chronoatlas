@@ -28,8 +28,8 @@ type Pin = { c: Callout; x: number; y: number };
 /** 카드가 세로로 쌓이는 칸. 화면 높이에 맞춰 잘라 쓴다. */
 const CARD_W = 300;
 
-export function Callouts({ map, engine, root, ds, narrow = false, onResolved, onPin }:
-  { map: maplibregl.Map | null; engine: Engine | null; root: string; ds: string; narrow?: boolean; onResolved?: (list: ResolvedCallout[]) => void; onPin?: (id: string) => void }) {
+export function Callouts({ map, engine, root, ds, narrow = false, year = null, onResolved, onPin }:
+  { map: maplibregl.Map | null; engine: Engine | null; root: string; ds: string; narrow?: boolean; year?: number | null; onResolved?: (list: ResolvedCallout[]) => void; onPin?: (id: string) => void }) {
   // 어느 미시지도가 켜져 있는가는 엔진이 말한다(레지스트리 진입·이탈). 줌 문턱 계산은 엔진 몫이다.
   const [def, setDef] = useState<MicroMapDef | null>(null);
   useEffect(() => { const off = engine?.onMicro(setDef); return () => { off?.(); }; }, [engine]);
@@ -42,9 +42,10 @@ export function Callouts({ map, engine, root, ds, narrow = false, onResolved, on
   }, [engine]);
   // 주제 칩: 지형·부대·사건. River 「콜아웃 인포메이션으로 보거나 숨기거나」.
   const [topics, setTopics] = useState<Set<'terrain' | 'unit' | 'event'>>(() => new Set(['terrain', 'unit', 'event']));
+  // year: 시기 콜아웃(`[from_year, to_year)`)은 그 해에만 뜬다 — 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59).
   const resolved = useMemo<Callout[]>(() => def
-    ? resolveCallouts(def, id => engine?.battle()?.unitAt(id) ?? null).filter(c => topics.has(c.topic)).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null }))
-    : [], [def, engine, tick, topics]);
+    ? resolveCallouts(def, id => engine?.battle()?.unitAt(id) ?? null, year).filter(c => topics.has(c.topic)).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null }))
+    : [], [def, engine, tick, topics, year]);
   const hasTopic = useMemo(() => new Set(def?.callouts.map(c => c.topic) ?? []), [def]);
   // 좁은 화면(R50)에서는 카드가 시트로 간다. 목록을 App에 올려 보낸다
   useEffect(() => { onResolved?.(resolved); }, [resolved, onResolved]);

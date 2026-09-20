@@ -184,6 +184,8 @@ classDiagram
     +string source
     +string note_ko?
     +string wiki?
+    +number built_year?
+    +number gone_year?
   }
   class MicroFeatureGeometry {
     +enum(Point|LineString|Polygon|MultiLineString|MultiPolygon) type
@@ -192,6 +194,8 @@ classDiagram
   class Callout {
     +string id
     +enum(terrain|unit|event) topic?
+    +number from_year?
+    +number to_year?
     +{feature} | {lnglat} | {unit} anchor
     +enum(left|right) side
     +number num
@@ -255,7 +259,7 @@ classDiagram
     +string id
     +[number,number] at
     +string actor
-    +enum(infantry|cavalry|light|elephant|command) arm
+    +enum(infantry|cavalry|light|elephant|command|fleet) arm
     +string label
     +number strength?
     +number facing?

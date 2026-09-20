@@ -90,9 +90,23 @@ describe('여정 국면과 순번', () => {
     expect(phaseColor('return')).not.toBe(phaseColor('bc49'));
   });
 
-  it('폼페이우스 교보재는 카이사르와 다른 색이다 — 둘 다 actor가 로마다', () => {
-    for (const f of pompey) expect(legPhase(f.properties)).toBe('pompey');
+  it('폼페이우스 경로는 카이사르와 다른 색이다 — 둘 다 actor가 로마다. 동방 원정(BC 67~63)과 도피(BC 49~48)는 국면이 갈린다(R59)', () => {
+    for (const f of pompey) expect(legPhase(f.properties)).toBe((f.properties.to_year ?? 0) <= -63 ? 'pompey-east' : 'pompey');
+    expect(pompey.map(f => legPhase(f.properties))).toContain('pompey-east');
     expect(new Set(caesar.map(f => phaseColor(legPhase(f.properties)))).has(phaseColor('pompey'))).toBe(false);
+  });
+
+  it('정본 경로 넷(한니발·스키피오·클레오파트라/안토니우스)이 회색 「그 밖의 이동」으로 떨어지지 않는다(R59)', () => {
+    for (const route of ['hannibal', 'scipio_africanus', 'cleopatra_antony']) {
+      const legs = all.filter(f => f.properties.route === route);
+      expect(legs.length, route).toBeGreaterThan(0);
+      for (const f of legs) expect(legPhase(f.properties), `${route} ${f.properties.id}`).not.toBe('other');
+    }
+    // 한니발은 사료가 가르는 대목으로 넷: 알프스(-218) → 이탈리아(-217~-212) → 귀환(-204) → 자마(-202)
+    const han = all.filter(f => f.properties.route === 'hannibal').map(f => legPhase(f.properties));
+    expect(new Set(han)).toEqual(new Set(['han-alps', 'han-italy', 'han-return', 'han-zama']));
+    // 표에 route를 적은 국면은 그 route에만 붙는다 — 카이사르 구간이 한니발 색을 입지 않는다
+    for (const f of caesar) expect(legPhase(f.properties)).not.toMatch(/^han-|^scipio-|^cleo-/);
   });
 
   it('순번은 route 안에서 1부터, 좌표는 안 건드린다', () => {
