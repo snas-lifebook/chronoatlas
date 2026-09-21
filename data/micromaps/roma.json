@@ -3,7 +3,7 @@
  "title": "로마 시내 · BC 44",
  "year": -44,
  "teaching": true,
- "source": "공화정 말기(기원전 60~44) 로마 시내 미시지도 교보재. 정본 온톨로지에는 도시 내부 지형지물이 없어서 별도로 얹는다. 좌표는 현대 로마의 실측 위치이며, 각 feature의 source가 '확정'(발굴·현존 유구로 위치가 잡힌 것), '근사'(위치는 확실하나 면을 점·단순 도형으로 줄인 것), '복원'(학설로 그린 선)을 구분한다. 기원전 44년에 서 있지 않았던 것은 post_44 플래그로 표시한다. 상세 근거·출처 URL은 docs/ROMA-URBS.md.",
+ "source": "공화정 말기(기원전 60~44) 로마 시내 미시지도 교보재. 정본 온톨로지에는 도시 내부 지형지물이 없어서 별도로 얹는다. 좌표는 현대 로마의 실측 위치이며, 각 feature의 source가 '확정'(발굴·현존 유구로 위치가 잡힌 것), '근사'(위치는 확실하나 면을 점·단순 도형으로 줄인 것), '복원'(학설로 그린 선)을 구분한다. 기원전 44년에 서 있지 않았던 것은 post_44 플래그로 표시한다. 상세 근거·출처 URL은 docs/ROMA-URBS.md. 2026-09-21: 서기 41년 피처(카스트라 프라이토리아, built_year 23)와 시기 콜아웃 8~10(from_year)을 합쳤다. 근거는 docs/CAPRI.md 「로마 AD 41 피처」 절.",
  "home": {
   "at": [
    12.4823,
@@ -1413,6 +1413,26 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "roma:castra-praetoria",
+    "name_ko": "카스트라 프라이토리아",
+    "name_la": "Castra Praetoria",
+    "kind": "camp",
+    "grade": "확정",
+    "built_year": 23,
+    "source": "확정. 위키데이터 Q1049836 좌표(41.908799N, 12.507941E). 서기 21~23년 근위대장 세야누스가 흩어져 있던 근위대 아홉 코호르스를 도심 동쪽 외곽 한 병영에 집결시켜 지었다. 성벽 일부가 후대 아우렐리아누스 성벽(서기 271~275)에 그대로 편입돼 현재도 카스트로 프레토리오 구역에 남아 있다.",
+    "note_ko": "근위대를 한곳에 모은 이 순간부터, 근위대는 누가 황제가 되는지를 실제로 결정하는 세력이 된다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.507940792130867,
+     41.908798668980765
+    ]
+   }
   }
  ],
  "callouts": [
@@ -1433,7 +1453,9 @@
      "url": "https://en.wikipedia.org/wiki/Pomerium"
     }
    ],
-   "image": null
+   "image": null,
+   "from_year": -378,
+   "from_year_why": "그린 선이 세르비우스 성벽 시대의 것"
   },
   {
    "topic": "terrain",
@@ -1456,7 +1478,9 @@
     "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/ServianWallRome2005.jpg",
     "credit": "Kleuske, CC BY 3.0 (Wikimedia Commons)",
     "alt": "테르미니역 앞 친퀘첸토 광장에 남은 세르비우스 성벽 응회암 구간"
-   }
+   },
+   "from_year": -378,
+   "from_year_why": "현존 유구 착공 BC 378(피처 built_year와 같다)"
   },
   {
    "topic": "terrain",
@@ -1479,7 +1503,9 @@
     "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Le_th%C3%A9%C3%A2tre_de_Pomp%C3%A9e_avec_le_temple_de_V%C3%A9nus_Victrix%2C_Adolf_Schill.jpg",
     "credit": "Adolf Schill, Public Domain (Wikimedia Commons, 폼페이우스 극장 복원도)",
     "alt": "폼페이우스 극장과 베누스 빅트릭스 신전 복원 삽화, 회의장은 회랑 반대쪽 끝"
-   }
+   },
+   "from_year": -55,
+   "from_year_why": "폼페이우스 극장·회의장 봉헌 BC 55"
   },
   {
    "topic": "terrain",
@@ -1544,7 +1570,9 @@
      "url": "https://ko.wikipedia.org/wiki/포룸_로마눔"
     }
    ],
-   "image": null
+   "image": null,
+   "from_year": -44,
+   "from_year_why": "카이사르 화장(BC 44) 이야기라 그 해부터"
   },
   {
    "topic": "terrain",
@@ -1567,7 +1595,71 @@
     "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Pons_Fabricius%2C_it_connects_the_left_bank_of_the_Tiber_to_the_Isola_Tiberina_and_was_built_in_62_BC_by_Lucius_Fabricius%2C_Fields_of_Mars_%28Campus_Martius%29%2C_Rome_%2831904067874%29.jpg",
     "credit": "Carole Raddato, CC BY-SA 2.0 (Wikimedia Commons)",
     "alt": "파브리키우스 다리와 티베리나섬, 기원전 62년 건설"
-   }
+   },
+   "from_year": -62,
+   "from_year_why": "파브리키우스 다리 BC 62 비문"
+  },
+  {
+   "id": "roma:call-castrapraetoria",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "roma:castra-praetoria"
+   },
+   "side": "right",
+   "num": 8,
+   "from_year": 23,
+   "title": "카스트라 프라이토리아, 근위대를 한곳에",
+   "body": "세야누스가 서기 21~23년 아홉 근위대 코호르스를 도심 밖 한 병영에 집결시켰다. 흩어져 주둔하던 근위대가 이 순간부터 로마 정치의 상수가 된다.",
+   "cite": "타키투스, 『연대기』 4.2",
+   "links": [
+    {
+     "label": "카스트라 프라이토리아",
+     "url": "https://ko.wikipedia.org/wiki/카스트라_프라이토리아"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "roma:call-caligula-assassination",
+   "topic": "event",
+   "anchor": {
+    "feature": "roma:palatinus"
+   },
+   "side": "left",
+   "num": 9,
+   "from_year": 41,
+   "to_year": 42,
+   "title": "칼리굴라, 팔라티움 통로에서",
+   "body": "서기 41년 1월 24일, 칼리굴라는 팔라티움에서 연극 공연을 보고 나오던 지하 통로에서 근위대 장교들에게 살해됐다.",
+   "cite": "수에토니우스, 『칼리굴라』 58; 요세푸스, 『유대고대사』 19.1.14",
+   "links": [
+    {
+     "label": "칼리굴라",
+     "url": "https://ko.wikipedia.org/wiki/칼리굴라"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "roma:call-claudius-acclaimed",
+   "topic": "event",
+   "anchor": {
+    "feature": "roma:castra-praetoria"
+   },
+   "side": "right",
+   "num": 10,
+   "from_year": 41,
+   "to_year": 42,
+   "title": "클라우디우스, 병영에서 황제로",
+   "body": "암살 현장에서 커튼 뒤에 숨어 있던 클라우디우스를 근위병이 찾아내 카스트라 프라이토리아로 데려갔다. 근위대가 그를 황제로 옹립하면서 원로원의 논의는 뒤로 밀렸다.",
+   "cite": "수에토니우스, 『클라우디우스』 10",
+   "links": [
+    {
+     "label": "클라우디우스",
+     "url": "https://ko.wikipedia.org/wiki/클라우디우스"
+    }
+   ],
+   "image": null
   }
  ],
  "landcover": {

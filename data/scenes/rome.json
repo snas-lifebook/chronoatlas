@@ -299,6 +299,174 @@
   "note": "8개 군단 대 11개 군단. 하루 만에 로마 제일의 장군이 도망자가 된다."
  },
  {
+  "id": "aegates-241",
+  "title": "아이가테스 해전 · BC 241",
+  "year": -241,
+  "micro": "aegates",
+  "center": [
+   12.3,
+   37.95
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "짐을 실은 채 붙잡힌 카르타고 보급 함대. 스물네 해 전쟁이 이 앞바다에서 끝난다.",
+  "board": "aegates-241",
+  "phase": 0
+ },
+ {
+  "id": "zama-202",
+  "title": "자마 · BC 202",
+  "year": -202,
+  "micro": "zama",
+  "center": [
+   9.4492,
+   36.2989
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "코끼리가 통로로 빠지고, 양쪽 기병이 전장을 떠났다가 돌아와 뒤를 닫는다. 전장의 자리 자체가 논쟁이다.",
+  "board": "zama-202",
+  "phase": 0,
+  "events": [
+   "event:자마전투"
+  ]
+ },
+ {
+  "id": "philippi-42",
+  "title": "필리피 · BC 42",
+  "year": -42,
+  "micro": "philippi",
+  "center": [
+   24.3387,
+   41.0251
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "비아 에그나티아를 가로지른 두 진영. 첫 전투에서 카시우스가, 스무 날 뒤 브루투스가 진다."
+ },
+ {
+  "id": "actium-31",
+  "title": "악티움 · BC 31",
+  "year": -31,
+  "micro": "actium",
+  "center": [
+   20.75,
+   38.93
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "만 입구에서 나온 함대와 그것을 기다린 함대. 클레오파트라의 예순 척이 돌파해 남쪽으로 빠진다.",
+  "board": "actium-31",
+  "phase": 0,
+  "events": [
+   "event:악티움해전"
+  ]
+ },
+ {
+  "id": "capri-27",
+  "title": "카프리 · AD 27~37",
+  "year": 27,
+  "micro": "capri",
+  "center": [
+   14.262628,
+   40.55823
+  ],
+  "zoom": 13,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "황제가 열 해를 머문 섬. 빌라 요비스는 유구가 남아 있고, 절벽 이야기는 전승이다."
+ },
+ {
+  "id": "roma-41",
+  "title": "로마 시내 · AD 41",
+  "year": 41,
+  "micro": "roma",
+  "center": [
+   12.497,
+   41.897
+  ],
+  "zoom": 13.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "세부 지도",
+  "note": "친위대 병영이 도시 북동쪽 성벽 밖에 섰다. 팔라티움에서 황제가 죽고, 그 병영에서 다음 황제가 뽑힌다."
+ },
+ {
   "id": "pack-extent-51",
   "title": "갈리아, 로마 안으로 · BC 51",
   "year": -51,
@@ -1042,5 +1210,244 @@
   "events": [
    "event:카틸리나사건"
   ]
+ },
+ {
+  "id": "p911-philippi-42",
+  "title": "필리피 · BC 42",
+  "year": -42,
+  "center": [
+   21.5,
+   40.0
+  ],
+  "zoom": 5.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "암살자들과 카이사르의 후계자들이 마케도니아에서 맞붙는다. 두 번의 전투로 공화정의 마지막 군대가 사라진다."
+ },
+ {
+  "id": "p911-partition-40",
+  "title": "셋으로 나눈 제국 · BC 40",
+  "year": -40,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "브룬디시움에서 세 사람이 지중해를 나눈다. 서쪽은 옥타비아누스, 동쪽은 안토니우스, 아프리카는 레피두스."
+ },
+ {
+  "id": "p911-donations-34",
+  "title": "알렉산드리아의 기증 · BC 34",
+  "year": -34,
+  "center": [
+   29,
+   34.5
+  ],
+  "zoom": 4.8,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "안토니우스가 동방의 땅을 클레오파트라와 그 아이들에게 나눠 준다. 로마 시민의 눈에는 로마 땅을 이집트 여왕에게 준 것이다."
+ },
+ {
+  "id": "p911-actium-31",
+  "title": "악티움 · BC 31",
+  "year": -31,
+  "center": [
+   19,
+   38.5
+  ],
+  "zoom": 5.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "그리스 서쪽 만 입구에서 두 함대가 맞선다. 하루 만에 지중해의 주인이 정해진다.",
+  "events": [
+   "event:악티움해전"
+  ]
+ },
+ {
+  "id": "p911-augustus-14",
+  "title": "아우구스투스의 제국 · AD 14",
+  "year": 14,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "라인·다뉴브·유프라테스 안에 머물라. 마흔 해를 다스린 사람이 남긴 유언이 제국의 테두리가 된다."
+ },
+ {
+  "id": "p911-capri-27",
+  "title": "카프리 · AD 27~37",
+  "year": 27,
+  "center": [
+   13.5,
+   41.0
+  ],
+  "zoom": 7.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "황제는 섬으로 물러나고 로마는 친위대장의 손에 들어간다. 세야누스가 로마에, 티베리우스가 카프리에."
+ },
+ {
+  "id": "p911-caligula-41",
+  "title": "팔라티움의 칼 · AD 41",
+  "year": 41,
+  "center": [
+   12.497,
+   41.897
+  ],
+  "zoom": 12.8,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "황제를 지키라고 만든 부대가 황제를 죽이고 다음 황제를 고른다. 팔라티움에서 병영까지 한 시간 거리다.",
+  "micro": "roma"
+ },
+ {
+  "id": "p911-claudius-43",
+  "title": "브리타니아 · 푸키누스 · AD 43~52",
+  "year": 43,
+  "center": [
+   7,
+   47
+  ],
+  "zoom": 4.4,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "뽑힌 황제가 바다 건너 브리타니아를 정복하고, 호수를 비우는 공사로 모의 해전을 벌인다.",
+  "events": [
+   "event:모의해전"
+  ]
+ },
+ {
+  "id": "p911-nero-54",
+  "title": "아그리피나의 아들 · AD 54",
+  "year": 54,
+  "center": [
+   14,
+   40
+  ],
+  "zoom": 4.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 09·10·11 · 필리피에서 네로까지",
+  "note": "클라우디우스가 죽고 아그리피나의 아들이 황제가 된다. 율리우스 클라우디우스 왕조의 마지막 사람이다."
  }
 ]

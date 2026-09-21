@@ -14,7 +14,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, hiddenIds, legionsAt, sceneBrief, loadSceneText, loadLegions, loadPack, packsFor } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, hiddenIds, legionsAt, packHatchAt, sceneBrief, loadSceneText, loadLegions, loadPack, packsFor } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, isPresentGroup, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
@@ -279,6 +279,10 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         opacity: o, border: '1px solid var(--color-border)' });
       if (cl.client.length) items.push({ swatch: hatch(0.85), label: '로마의 속국' });
       if (cl.ally.length) items.push({ swatch: hatch(0.5), label: '로마의 동맹' });
+      // 묶음 사선(삼두 분할·기증·황제/원로원 속주, R59). 그 해에 실제로 칠해진 배우만.
+      const ph = packHatchAt(s.year);
+      for (const a of [...new Set(ph.rows.map(r => r.actor))]) items.push({
+        swatch: { backgroundImage: `repeating-linear-gradient(45deg, ${ph.colors[a] ?? '#8A8F98'} 0 2px, transparent 2px 5px)`, opacity: 0.9, border: '1px solid var(--color-border)' }, label: a });
     }
     if (on.has('settlements')) items.push({ swatch: { background: '#b8860b', borderRadius: '50%', border: '1px solid #3a2f22' }, label: '도시' });
     if (on.has('battles') && d.battles.features.some(f => (f.properties.valid_from ?? -1e6) <= s.year)) items.push({ swatch: { background: '#333', borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 0 1px #999' }, label: '전투·사건' });
@@ -428,7 +432,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
           화면에서 무대에 서는 사람이 그 한마디를 할 수 있어야 한다. 전문은 title 속성에. */}
       {s.present && (() => {
         const bm = micro ? engRef.current?.micro()?.basemap : null;
-        if (!bm) return null;
+        if (!bm || (bm.from_year != null && s.year < bm.from_year)) return null;   // 도판을 안 깐 해에는 고지도 안내도 없다(R59)
         return <div className="shell-scan-note" title={bm.caveat ?? ''}>{bm.short_caveat ?? bm.title}</div>;
       })()}
 

@@ -173,7 +173,8 @@ export function interpolate(board: BoardData, t: number): Frame {
 }
 
 /** 병종별 블록 크기(m). 보병은 넓고 얕게, 기병은 좁고 깊게 (Epic History 전투전술 문법, A_공간지도). */
-const SIZE_M: Record<Arm, [number, number]> = { infantry: [320, 90], cavalry: [200, 140], light: [220, 70], elephant: [160, 110], command: [110, 110], fleet: [420, 70] };
+// fleet는 「전열」이라 넓고, 깊이도 어느 정도 있어야 z11에서 막대가 아니라 블록으로 읽힌다(악티움 첫 캡처에서 70 m 깊이는 실선 하나였다).
+const SIZE_M: Record<Arm, [number, number]> = { infantry: [320, 90], cavalry: [200, 140], light: [220, 70], elephant: [160, 110], command: [110, 110], fleet: [460, 160] };
 /** 병력은 로그 스케일로 폭만 키운다(1,000 → 0.7배, 10,000 → 1.05배, 45,000 → 1.27배). 수치 논쟁이 그림을 크게 안 바꾼다. */
 const sizeK = (strength?: number) => Math.min(1.4, Math.max(0.7, 0.7 + 0.35 * Math.log10(Math.max(1, (strength ?? 1000) / 1000))));
 /** 중심·향(도, 북 = 0, 시계방향)·병종 → 닫힌 사각형. front면 전면 30%의 앞띠(향을 말한다). */

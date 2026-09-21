@@ -222,3 +222,32 @@ function mergePack(pack: string, kind: string, j: Record<string, unknown> | unde
   else PACK_EXTRA[`${pack}-${kind}`] = j;
 }
 type TeachingCast = import('./people').TeachingCast;
+
+// ── 묶음 사선·강 강조 (R59, p911) ────────────────────────────────────────────
+export type HatchRow = { name: string; actor: string; from: number; to: number; source?: string };
+/** 그 해에 칠할 사선(모든 묶음의 `-hatch` 세트). 같은 이름에 둘이면 **늦게 시작한 행**이 이긴다 — 기증(BC 34)이 삼두 분할(BC 42) 위에 얹힌다. 반열림 [from, to). */
+export function packHatchAt(year: number): { rows: HatchRow[]; colors: Record<string, string> } {
+  const rows = new Map<string, HatchRow>(); const colors: Record<string, string> = {};
+  for (const [k, v] of Object.entries(PACK_EXTRA)) {
+    if (!k.endsWith('-hatch')) continue;
+    const h = v as { sets?: Record<string, { rows?: HatchRow[] }>; colors?: Record<string, string> };
+    Object.assign(colors, h.colors ?? {});
+    for (const set of Object.values(h.sets ?? {})) for (const r of set.rows ?? []) {
+      if (!(r.from <= year && year < r.to)) continue;
+      const prev = rows.get(r.name);
+      if (!prev || r.from > prev.from) rows.set(r.name, r);
+    }
+  }
+  return { rows: [...rows.values()], colors };
+}
+/** 장면이 지목한 강 강조 이름(`-rivers`, rivers.geojson의 name 문자열). `scenes`가 있으면 그 장면에서만. */
+export function packRiversFor(scene: string | null): string[] {
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(PACK_EXTRA)) {
+    if (!k.endsWith('-rivers')) continue;
+    const r = v as { scenes?: string[]; rivers?: { canon_names?: string[] }[] };
+    if (r.scenes && !(scene && r.scenes.includes(scene))) continue;
+    for (const x of r.rivers ?? []) out.push(...(x.canon_names ?? []));
+  }
+  return out;
+}

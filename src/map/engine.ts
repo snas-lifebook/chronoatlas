@@ -14,7 +14,7 @@ import { createMicro, MICRO_LAYERS } from './micro';
 import { loadMicro, microMapAt } from '../micromaps';
 import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_EXTRA, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenIds, hiddenPlaces, storyPlacesAt } from '../packData';
+import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_EXTRA, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenIds, hiddenPlaces, packHatchAt, packRiversFor, storyPlacesAt } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -175,7 +175,8 @@ function repPointsFC(features: unknown[], pick: (props: Record<string, unknown>)
 export const LAYER_GROUPS: Record<string, string[]> = {
   // 평야·곡창은 **따로 켠다** — 항상 깔면 여덟 장이 노랗게 물든다. 장면이 `plains`를 쓸 때만.
   plains: ['plains-granary', 'plains-barren', 'plains-line', 'plains-label'],
-  territory: ['territory-fill', 'territory-casing', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line'],
+  territory: ['territory-fill', 'territory-casing', 'territory-outline', 'territory-glow', 'territory-label', 'client-hatch', 'client-edge', 'peoples-fill', 'peoples-line', 'peoples-label', 'gallia-free', 'gallia-free-line', 'gallia-roman', 'gallia-roman-line',
+    'pack-hatch-admin', 'pack-hatch-admin-edge', 'pack-hatch-terr', 'pack-hatch-terr-edge'],
   admin_regions: ['admin-line'],
   settlements: ['settle-major', 'settle-minor', 'label-settle-1', 'label-settle-2', 'label-settle-3', 'label-settle-4', 'label-settle-5', 'label-sea', 'story-place', 'story-place-label'],
   // 정본 전투 전부. 지중해 판에서 **69개가 한꺼번에** 뜬다 — 대부분 이 발표와 무관한
@@ -665,6 +666,27 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   function syncPackAreas(scene: string | null) {
     for (const id of ['pack-area-fill', 'pack-area-line', 'pack-area-label']) if (map.getLayer(id)) map.setFilter(id, packAreaFilter(scene));
   }
+  /** 그 해의 묶음 사선. 배우마다 제 색 무늬를 굽고(`hatch-<배우>`), 이름 → 무늬를 match로 얹는다. 폴리티 쪽은 연도 창도 같이(다른 프레임의 같은 이름이 칠해지지 않게). */
+  function syncPackHatch(year: number) {
+    const { rows, colors } = packHatchAt(year);
+    const names = rows.map(r => r.name);
+    const patt: any[] = ['match', ['get', 'name']], col: any[] = ['match', ['get', 'name']];
+    for (const r of rows) {
+      const c = colors[r.actor] ?? '#8A8F98', iid = `hatch-${r.actor}`;
+      if (!map.hasImage(iid)) map.addImage(iid, hatchIcon(c), { pixelRatio: 2 });
+      patt.push(r.name, iid); col.push(r.name, c);
+    }
+    patt.push('hatch-client'); col.push('#333');
+    for (const id of ['pack-hatch-admin', 'pack-hatch-terr']) {
+      if (!map.getLayer(id)) continue;
+      const f: any = ['all', ['in', ['get', 'name'], ['literal', names]], ...dateWindow(year).slice(1)];
+      map.setFilter(id, f); map.setFilter(`${id}-edge`, f);
+      if (names.length) { map.setPaintProperty(id, 'fill-pattern', patt as any); map.setPaintProperty(`${id}-edge`, 'line-color', col as any); }
+    }
+  }
+  function syncPackRivers(scene: string | null) {
+    if (map.getLayer('rivers-emph')) map.setFilter('rivers-emph', ['in', ['get', 'name'], ['literal', packRiversFor(scene)]] as any);
+  }
   /** 말이 걸을 경로. owner마다 첫 route 하나. */
   function rebuildTokenRoutes(allMoves: { features: { properties: Record<string, unknown> }[] }) {
     tokenRoutes.clear();
@@ -879,6 +901,18 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     // 216개 「책의 지역」 점선이 대륙 축척(z4)을 뒤덮는다(2026-09-17 캡처). z5.5부터만 그린다.
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', minzoom: 5.5, paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
+    // 묶음 사선(R59, `<묶음>-hatch`): 삼두 분할·알렉산드리아의 기증·황제/원로원 속주. 속주(admin_regions)와 폴리티(territory) 두 소스에
+    // 같은 규칙으로 얹는다. 기하를 새로 만들지 않고 이름만 가리키는 것은 client-hatch와 같다. 채움 무늬·필터는 apply()의 syncPackHatch가 해마다.
+    for (const [id, src] of [['pack-hatch-admin', 'admin_regions'], ['pack-hatch-terr', 'territory']] as const) {
+      map.addLayer({ id, type: 'fill', source: src, filter: ['in', ['get', 'name'], ['literal', []]] as any,
+        paint: { 'fill-pattern': 'hatch-client', 'fill-opacity': 0.6 } } as any, before);
+      map.addLayer({ id: `${id}-edge`, type: 'line', source: src, filter: ['in', ['get', 'name'], ['literal', []]] as any,
+        paint: { 'line-color': '#333', 'line-width': 1.4, 'line-opacity': 0.8 } as any }, before);
+    }
+    // 강 강조(R59, `<묶음>-rivers`): 아우구스투스 유언의 세 강. 장면이 지목할 때만(syncPackRivers). id가 `rivers-`로 시작해야 선 토글(LINE_KEEP)이 살려 둔다.
+    if (map.getSource('rivers')) map.addLayer({ id: 'rivers-emph', type: 'line', source: 'rivers', filter: ['in', ['get', 'name'], ['literal', []]] as any,
+      layout: { 'line-cap': 'round', 'line-join': 'round' },
+      paint: { 'line-color': '#2E6F9E', 'line-width': ['interpolate', ['linear'], ['zoom'], 3, 3, 6, 5.5] as any, 'line-opacity': 0.85 } as any }, before);
     if (!map.getSource('settlements')) map.addSource('settlements', { type: 'geojson', data: d.settlements as any, promoteId: 'id' });
     // hover: +반지름·외곽 1.5px / selected: 외곽 2px(세력색 대신 잉크 — 정착지는 세력 없음) — DESIGN §2, GPU만
     const hov = (base: number, plus: number) => ['case', ['boolean', ['feature-state', 'selected'], false], base + plus, ['boolean', ['feature-state', 'hover'], false], base + plus * 0.6, ['boolean', ['feature-state', 'linked'], false], base + plus * 0.6, base];
@@ -1227,6 +1261,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
       // 이야기 장소는 해마다 다르다(R59). 원본 필터를 갈아 두면 아래 hideAnachronisticPlaces가 그 위에 제외를 얹어 setFilter한다.
       for (const id of ['story-place', 'story-place-label']) if (map.getLayer(id)) BASE_FILTER.set(id, storyFilter(s.year));
+      syncPackHatch(s.year);
       // 속국 사선은 해마다 다시 고른다. 폰토스가 기원전 48~47년에 빠지는 자리다(clientsAt).
       const cl = clientsAt(s.year);
       for (const id of ['client-hatch', 'client-edge']) if (map.getLayer(id))
@@ -1250,6 +1285,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (key !== lastLayers || s.board !== lastBoard) {
       lastLayers = key;
       for (const [group, ids] of Object.entries(LAYER_GROUPS)) {
+        // 미시지도 층은 micro.enter/leave가 켜고 끈다. 장면의 layers 목록에 'micro'가 없어 여기서 전부 none이 됐고(2026-09-17 레지스트리부터),
+        // 말판 장면처럼 이 블록이 미시지도 진입 뒤에 한 번 더 돌면 포위선·언덕·콜아웃 앵커 면이 사라졌다(2026-09-21 look-micro로 발견, 라이브도 같았다).
+        if (group === 'micro') continue;
         const vis = group === 'board' ? !!s.board : group === 'labels' ? on.has('labels') : on.has(group);
         for (const id of ids) if (map.getLayer(id)) {
           // 정착지 라벨은 settlements와 labels 둘 다 켜져야 보인다
@@ -1287,7 +1325,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       id => { const row = timed.find(t => t[0] === id); return { timed: !!row, base: row ? row[1] : null }; },
       filterFor);
     syncDetailMaps(s.scene);
-    if (s.scene !== lastScene) { lastScene = s.scene; syncPackAreas(s.scene); }
+    if (s.scene !== lastScene) { lastScene = s.scene; syncPackAreas(s.scene); syncPackRivers(s.scene); }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
