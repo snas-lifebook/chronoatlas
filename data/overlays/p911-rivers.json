@@ -1,0 +1,36 @@
+{
+ "teaching": true,
+ "source": "기하 없음. 아우구스투스 유언의 세 강(\"라인 강 넘어가지 마... 내부를 지켜\", 대표님 9/13 발언과 일치)을 layers/rivers.geojson에서 찾은 이름 목록. 그 파일은 properties에 id가 아예 없다(name·scalerank·min_zoom뿐): 그래서 이 목록은 place id가 아니라 rivers.geojson의 name 문자열 그대로다. 강 하나가 국가별 표기로 여러 번(2~4개) 들어 있는 것은 정본의 성질이지 이 파일의 오류가 아니다.",
+ "format_note": "이 종류(-rivers.json)는 POINTS-01-11.md §4 표의 '그 밖' 행에 해당하고 형식이 미리 정해져 있지 않다. { river_ko, canon_names: [rivers.geojson의 name 문자열들], source } 배열로 정의했다.",
+ "rivers": [
+  {
+   "river_ko": "라인강",
+   "canon_names": [
+    "Rhein",
+    "Rhin",
+    "Rhine"
+   ],
+   "note": "주 물줄기 표기 셋(독일어·프랑스어·영어). 하류 삼각주 분류(Waal·Lek·Nederrijn·IJssel)는 라인강의 분류이지만 별개 name으로 들어 있어 목록에서 뺐다: 유언이 말하는 '국경으로서의 라인강'은 본류를 가리킨다.",
+   "source": "타키투스 『연대기』 1.11, 카시우스 디오 56.33."
+  },
+  {
+   "river_ko": "다뉴브강",
+   "canon_names": [
+    "Danube",
+    "Donau"
+   ],
+   "note": "영어·독일어 표기 둘.",
+   "source": "타키투스 『연대기』 1.11, 카시우스 디오 56.33."
+  },
+  {
+   "river_ko": "유프라테스강",
+   "canon_names": [
+    "Euphrates",
+    "Firat",
+    "Al Furat"
+   ],
+   "note": "영어·튀르키예어·아랍어 표기 셋: 강이 지나는 나라별로 세그먼트가 나뉘어 있다.",
+   "source": "타키투스 『연대기』 1.11, 카시우스 디오 56.33."
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "teaching": true,
+ "source": "정본 settlements id만. 알바롱가·릴리바이움은 정본에 없어 뺐다(제안만 냈다). 사르데냐 섬·코르시카는 정본에 있지만 kind:island라 '이야기 장소' 이름표 층위가 아니라 p12-islands.json의 면으로 강조한다.",
+ "places": [
+  "place:로마",
+  "place:카푸아",
+  "place:타란토",
+  "place:베네벤토",
+  "place:메시나",
+  "place:시라쿠사",
+  "place:아그리젠토시",
+  "place:팔레르모",
+  "place:드레파나",
+  "place:카르타고",
+  "place:우티카"
+ ]
+}

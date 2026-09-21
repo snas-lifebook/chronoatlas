@@ -195,10 +195,13 @@ export function labelSide(angle: number | null | undefined): LabelSide {
     : { anchor: 'top', name: [0, 2.0], force: [0, 3.5] };       // 남쪽 — 말 아래로
 }
 
-export function peopleAtYear(year: number, src: { graph: Graph | null; movements: Feature[]; territory?: { properties: Record<string, any>; geometry: { type: string; coordinates: any } }[]; teaching?: TeachingCast | null; zoom?: number }): PersonAt[] {
+export function peopleAtYear(year: number, src: { graph: Graph | null; movements: Feature[]; territory?: { properties: Record<string, any>; geometry: { type: string; coordinates: any } }[]; teaching?: TeachingCast | null; zoom?: number; hidden?: Set<string> }): PersonAt[] {
   const out = new Map<string, PersonAt>();
   const regionOnly = new Set<string>();   // 권역 중심점밖에 못 찾은 사람 — 교보재 도시가 이길 수 있다
   const { graph, movements } = src;
+  // 9. 정본 좌표가 틀려 가린 장소(packData.hiddenIds)는 사람도 못 세운다 — place:본곶이 프랑스로 들어 있어
+  //    레굴루스·크산티포스가 영불해협에 섰다(2026-09-21). 정본이 고쳐지면 목록이 비고 이 조건은 아무것도 안 한다.
+  const hidden = src.hidden ?? new Set<string>();
 
   if (graph) {
     const best = new Map<string, { span: number; point: boolean; name: string; at: PersonAt }>();
@@ -207,7 +210,7 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       if (!edgeActive(l, year)) continue;
       const person = graph.nodes.get(l.from);
       const place = graph.nodes.get(l.to);
-      if (person?.type !== 'person' || !place?.lonlat) continue;
+      if (person?.type !== 'person' || !place?.lonlat || hidden.has(place.id)) continue;
       const point = l.from_year === year && l.to_year === year;
       const rec = {
         span: span(l), point, name: place.name,
@@ -258,11 +261,11 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       let at: [number, number] | null = null;
       if (l.rel === 'participated_in') {
         const occ = occurredPlace(graph, l.to);
-        if (!occ) continue;
+        if (!occ || hidden.has(occ.id)) continue;
         placeId = occ.id; placeName = occ.name; at = occ.lonlat;
       } else {
         const place = graph.nodes.get(l.to);
-        if (place?.type !== 'place' || !place.lonlat) continue;
+        if (place?.type !== 'place' || !place.lonlat || hidden.has(place.id)) continue;
         placeId = place.id; placeName = place.name; at = place.lonlat;
       }
       const point = l.from_year === year && l.to_year === year;
@@ -302,7 +305,8 @@ export function peopleAtYear(year: number, src: { graph: Graph | null; movements
       // 좌표는 정본 place에서, 없으면 항목이 직접 준 `at`에서. 둘 다 없으면 버린다 —
       // 자리를 모르는 사람을 지도 어딘가에 세우지 않는다.
       const place = graph.nodes.get(t.place);
-      const at = place?.lonlat ?? t.at;
+      // 정본 좌표가 틀려 가린 place(hidden)면 항목의 `at`이 이긴다 — 레굴루스가 「본 곶」을 가리키는데 정본 본곶이 프랑스라 그리로 갔다(2026-09-21).
+      const at = (place && !hidden.has(place.id) ? place.lonlat : null) ?? t.at ?? place?.lonlat;
       if (!at) continue;
       out.set(t.id, {
         id: t.id, name: person.name, at, place: place?.id ?? t.place, placeName: place?.name ?? t.place.replace(/^place:/, ''),
@@ -335,8 +339,13 @@ export interface PersonProps {
 /** 「군단 10 · 4~6만」처럼 한 줄로. 숫자가 없으면 빈 칸을 만들지 않고 null. */
 function forceLabel(l: { legions: number | null; men_low: number | null; men_high: number | null } | null): string | null {
   if (!l) return null;
-  const man = (n: number) => (n >= 10000 ? `${Math.round(n / 10000)}만` : `${Math.round(n / 1000)}천`);
-  const troops = l.men_low && l.men_high ? `${man(l.men_low)}~${man(l.men_high)}` : null;
+  // 5만 9천은 「6만」이 아니라 「5만 9천」. 사료가 한 값을 주면(low == high) 범위로 쓰지 않는다 — 「6만~6만명」이 실제로 떴다(한니발 BC 218, 2026-09-21).
+  const man = (n: number) => {
+    if (n < 10000) return `${Math.round(n / 1000)}천`;
+    const k = Math.round(n / 1000), w = Math.floor(k / 10), r = k % 10;
+    return r ? `${w}만 ${r}천` : `${w}만`;
+  };
+  const troops = l.men_low && l.men_high ? (l.men_low === l.men_high ? man(l.men_low) : `${man(l.men_low)}~${man(l.men_high)}`) : null;
   if (l.legions != null && l.legions > 0) return troops ? `${l.legions}군단 · ${troops}` : `${l.legions}군단`;
   return troops ? `${troops}명` : null;
 }

@@ -1,0 +1,302 @@
+{
+ "id": "capri",
+ "title": "카프리 섬 · AD 27~37",
+ "year": 27,
+ "teaching": true,
+ "source": "티베리우스가 로마를 떠나 카프리에 머문 기간(서기 27~37년)의 미시지도 교보재. 섬 폴리곤은 정본 public/datasets/rome/layers/land.geojson의 Natural Earth 10m minor-islands 폴리곤(속성 minor:true, 정본 place:카프리섬 점 [14.2333, 40.55]과 근접해 같은 섬임을 교차 확인)을 그대로 잘라 썼다. 건물·지형 점은 위키데이터 P625를 우선 조회했다(빌라 요비스 Q2165460, 티베리오 산 Q31220206, 마리나 그란데 Q6763830, 아나카프리 Q71617). 「티베리우스의 절벽(Salto di Tiberio)」은 위키데이터 Q3945844에 항목은 있으나 좌표(P625)가 없어 빌라 요비스 좌표를 그대로 빌려 썼다 — 이는 근사가 아니라 좌표 부재를 그대로 드러낸 것이다. grade는 확정(유구·좌표 확정)·근사(위치는 확실, 경계·정확 지점은 흐림)·논쟁(전승은 있으나 유구·좌표가 없음) 셋을 썼다. 도판(바탕지도)은 이 라운드에서 굽지 않았다 — 후보는 docs/CAPRI.md 「도판 후보」 절.",
+ "home": {
+  "at": [
+   14.2333,
+   40.55
+  ],
+  "minZoom": 11,
+  "span": 0.25
+ },
+ "view": {
+  "center": [
+   14.262628,
+   40.55823
+  ],
+  "zoom": 13,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-capri",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-capri",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": null,
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:island",
+    "name_ko": "카프리 섬",
+    "name_la": "Capreae",
+    "kind": "island",
+    "grade": "확정",
+    "source": "확정. 정본 public/datasets/rome/layers/land.geojson 629개 폴리곤 중 313번(속성 minor:true), bbox 14.196~14.2621E, 40.538~40.561N — Natural Earth 10m minor-islands 파생. 정본 settlements.geojson의 place:카프리섬(Capreae) 점 [14.2333, 40.55]이 이 폴리곤 안에 든다.",
+    "note_ko": "티베리우스는 서기 27년경부터 서기 37년 죽을 때까지 이 섬을 떠나지 않았다.",
+    "wiki": "https://ko.wikipedia.org/wiki/카프리_섬"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       14.2575,
+       40.5567
+      ],
+      [
+       14.2621,
+       40.554
+      ],
+      [
+       14.255,
+       40.5465
+      ],
+      [
+       14.2462,
+       40.5439
+      ],
+      [
+       14.2374,
+       40.5445
+      ],
+      [
+       14.2083,
+       40.538
+      ],
+      [
+       14.196,
+       40.5412
+      ],
+      [
+       14.1986,
+       40.5585
+      ],
+      [
+       14.2101,
+       40.561
+      ],
+      [
+       14.2194,
+       40.5605
+      ],
+      [
+       14.2575,
+       40.5567
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:villa-jovis",
+    "name_ko": "빌라 요비스",
+    "name_la": "Villa Iovis",
+    "kind": "building",
+    "grade": "확정",
+    "source": "확정. 위키데이터 Q2165460 좌표(40.55823N, 14.262628E). 섬 북동쪽 끝 티베리오 산 정상, 발굴로 평면이 확인된 유구다.",
+    "note_ko": "티베리우스가 카프리에서 지낸 12개 별장 중 발굴로 확정된 유일한 곳이며, 사실상의 통치 거처였다.",
+    "wiki": "https://en.wikipedia.org/wiki/Villa_Jovis"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.262628,
+     40.55823
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:monte-tiberio",
+    "name_ko": "티베리오 산",
+    "name_la": "Mons Tiberii",
+    "kind": "hill",
+    "grade": "확정",
+    "source": "확정(위치) / 근사(현대 지명). 위키데이터 Q31220206 좌표(40.55917N, 14.26166E). 빌라 요비스가 선 봉우리 자체를 가리키는 현대 이탈리아어 지명이며, 고대 라틴어 이름은 사료에 남아 있지 않다.",
+    "note_ko": "섬 북동쪽 끝의 곶 봉우리. 빌라 요비스가 이 위에 섰다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.26166,
+     40.55917
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:salto-di-tiberio",
+    "name_ko": "티베리우스의 절벽",
+    "name_la": "Salto di Tiberio",
+    "kind": "cape",
+    "grade": "논쟁",
+    "source": "논쟁. 위키데이터에 항목은 있으나(Q3945844, 이탈리아어 라벨만) 좌표(P625)가 없다. 빌라 요비스 부지에 붙은 동쪽 벼랑이라는 전승만 있고 특정 지점을 가리키는 유구·좌표가 없어, 이 지도에서는 빌라 요비스와 같은 좌표를 그대로 썼다 — 독립적으로 확인한 위치가 아니라는 뜻이다.",
+    "note_ko": "수에토니우스가 전하는 처형 전승의 무대다. 정확한 지점은 확인되지 않는다.",
+    "wiki": "https://it.wikipedia.org/wiki/Salto_di_Tiberio"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.262628,
+     40.55823
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:marina-grande",
+    "name_ko": "마리나 그란데",
+    "name_la": null,
+    "kind": "harbor",
+    "grade": "근사",
+    "source": "근사. 위키데이터 Q6763830(현대 마을 좌표, 40.55528N, 14.24056E)를 썼다. 오늘날 카프리 섬의 주 선착장이며 지형상 고대에도 본토를 오가는 주 상륙지였을 것으로 보이지만, 로마 시대 항만 시설의 위치를 특정하는 유구·사료는 이번 조사에서 확인하지 못했다.",
+    "note_ko": "섬과 본토를 잇는 관문. 고대 항구 시설의 정확한 흔적은 확인되지 않는다.",
+    "wiki": "https://en.wikipedia.org/wiki/Marina_Grande,_Capri"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.24055556,
+     40.55527778
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "capri:anacapri",
+    "name_ko": "아나카프리",
+    "name_la": null,
+    "kind": "district",
+    "grade": "근사",
+    "source": "근사. 위키데이터 Q71617(현대 코무네 좌표, 40.55139N, 14.21667E)를 썼다. 섬 서쪽 고원 지대의 취락으로, 로마 시대 이 지역에 거주 흔적이 있었는지를 특정하는 사료·유구는 이번 조사에서 확인하지 못했다 — 현대 행정구역 이름과 위치만 표시한다.",
+    "note_ko": "섬 서쪽 고원. 이 시기 거주 여부를 특정할 사료는 확인하지 못했다.",
+    "wiki": "https://ko.wikipedia.org/wiki/아나카프리"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.216666666667,
+     40.551388888889
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "capri:call-villajovis",
+   "topic": "event",
+   "anchor": {
+    "feature": "capri:villa-jovis"
+   },
+   "side": "right",
+   "num": 1,
+   "title": "빌라 요비스, 통치의 자리",
+   "body": "티베리우스는 서기 27년부터 37년 죽을 때까지 카프리를 떠나지 않고 이 별장에서 로마를 통치했다. 원로원에 서한을 보내 정무를 처리했고 로마 방문은 없었다.",
+   "cite": "수에토니우스, 『티베리우스』 40~43; 타키투스, 『연대기』 4.67",
+   "links": [
+    {
+     "label": "Villa Jovis",
+     "url": "https://en.wikipedia.org/wiki/Villa_Jovis"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "capri:call-saltoditiberio",
+   "topic": "event",
+   "anchor": {
+    "feature": "capri:salto-di-tiberio"
+   },
+   "side": "right",
+   "num": 2,
+   "title": "티베리우스의 절벽, 전승과 유구 사이",
+   "body": "수에토니우스는 티베리우스가 실각한 이들을 이 절벽에서 바다로 던져 죽였다고 전한다. 정확한 지점을 가리키는 유구는 없고 빌라 요비스 인근이라는 전승만 남는다.",
+   "cite": "수에토니우스, 『티베리우스』 62",
+   "links": [
+    {
+     "label": "Salto di Tiberio",
+     "url": "https://it.wikipedia.org/wiki/Salto_di_Tiberio"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "capri:call-twelvevillas",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "capri:island"
+   },
+   "side": "left",
+   "num": 3,
+   "title": "열두 채의 별장, 확인된 것은 하나",
+   "body": "타키투스는 티베리우스가 올림포스 열두 신의 이름을 딴 별장 열두 채를 섬에 지었다고 전한다. 발굴로 자리가 확정된 것은 빌라 요비스 하나뿐이다.",
+   "cite": "타키투스, 『연대기』 4.67",
+   "links": [
+    {
+     "label": "Tiberius",
+     "url": "https://en.wikipedia.org/wiki/Tiberius"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "capri:call-whyleft",
+   "topic": "event",
+   "anchor": {
+    "feature": "capri:island"
+   },
+   "side": "left",
+   "num": 4,
+   "title": "왜 로마를 떠났는가",
+   "body": "타키투스는 티베리우스가 서기 26년 캄파니아로 떠난 뒤 이듬해 카프리에 정착해 다시는 로마로 돌아오지 않았다고 기록한다.",
+   "cite": "타키투스, 『연대기』 4.57",
+   "links": [
+    {
+     "label": "Tiberius",
+     "url": "https://en.wikipedia.org/wiki/Tiberius"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "capri:call-montetiberio",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "capri:monte-tiberio"
+   },
+   "side": "right",
+   "num": 5,
+   "title": "티베리오 산, 섬의 감시탑",
+   "body": "카프리 섬 북동쪽 끝, 나폴리만과 소렌토 반도 방향이 한눈에 들어오는 곶이다. 이 조망이 빌라 요비스 입지 선택의 이유로 꼽힌다.",
+   "cite": "위키데이터 Q31220206(좌표)",
+   "links": [
+    {
+     "label": "Monte Tiberio (Wikidata)",
+     "url": "https://www.wikidata.org/wiki/Q31220206"
+    }
+   ],
+   "image": null
+  }
+ ]
+}

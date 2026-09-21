@@ -1,0 +1,259 @@
+{
+ "id": "actium",
+ "title": "악티움 해전 · BC 31",
+ "year": -31,
+ "teaching": true,
+ "source": "지형 피처는 landmarks.geojson Pleiades 점(Actium pid 530772·Ambracius Sinus pid 530795·Leucas pid 530975)과 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, Nicopolis pid 531013 — 정본 settlements.geojson의 place:니코폴리스는 다른 도시라 쓰지 않았다, §전제 오류)를 썼다. 안토니우스 진영·교전 해역은 사료 서술과 말판 actium-31 유닛 범위에서 역산한 복원이다. 사료: 플루타르코스 『안토니우스』 65~68, 카시우스 디오 50.31~35, 벨레이우스 파테르쿨루스 2.84~85. 함선 수는 사료마다 크게 갈려 docs/ACTIUM.md에 표로 남긴다.",
+ "home": {
+  "at": [
+   20.75,
+   38.93
+  ],
+  "minZoom": 10,
+  "span": 0.4
+ },
+ "view": {
+  "center": [
+   20.75,
+   38.93
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements",
+  "people"
+ ],
+ "basemap": null,
+ "dem": null,
+ "landcover": null,
+ "board": "actium-31",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:cape",
+    "name_ko": "악티움 곶",
+    "name_la": "Actium",
+    "kind": "cape",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 530772 'Actium'(암브라키아 만 입구 남쪽 곶). 좌표는 proposals/20260911_place_actium.jsonl이 제안한 place:악티움과 동일 값이며 아직 정본에 없다.",
+    "note_ko": "안토니우스 함대의 해상 근거지. 만 어귀 남쪽에 자리해 이 이름이 전투의 이름이 됐다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.7498,
+     38.9236
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:ambracius-sinus",
+    "name_ko": "암브라키아 만",
+    "name_la": "Ambracius Sinus",
+    "kind": "plain",
+    "grade": "근사",
+    "source": "landmarks.geojson Pleiades pid 530795 'Ambracius Sinus'. KINDS에 '만(bay)'이 없어 plain으로 근사했다. Pleiades 자체가 점 하나뿐이라 만의 실제 해안선은 그리지 않았다.",
+    "note_ko": "안토니우스·클레오파트라 함대가 전투 전 정박해 있던 안쪽 바다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.9664,
+     38.968
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:nicopolis",
+    "name_ko": "니코폴리스",
+    "name_la": "Nicopolis",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 settlements.geojson의 place:니코폴리스는 이 도시가 아니다(모이시아 도나우 강변 니코폴리스 아드 이스트룸, name_modern '터누, 루마니아') — 좌표를 잘못 쓸 뻔한 지점이다(문서 §전제 오류). 이 지도의 니코폴리스는 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, pid 531013 'Nicopolis' [20.7360035, 39.0157])에서 직접 가져왔다. 같은 CSV의 pid 391966942('City wall, Nicopolis')·pid 82145424('Roman theater at Nicopolis')가 유구 확정을 뒷받침한다.",
+    "note_ko": "아우구스투스가 자신의 진영 자리에 세운 '승리의 도시'. 카시우스 디오 51.1에 창건이 기록된다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.7360035,
+     39.0157
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:leucas",
+    "name_ko": "레우카스 섬",
+    "name_la": "Leucas",
+    "kind": "island",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 530975 'Leucas'(현대 레프카다). 폴리곤 캐시 없어 Point.",
+    "note_ko": "악티움 앞바다 이오니아 해의 섬. 함대가 오간 뱃길의 지리적 맥락이다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.6537,
+     38.6988
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:camp-antonius",
+    "name_ko": "안토니우스 진영",
+    "name_la": null,
+    "kind": "camp",
+    "grade": "복원",
+    "source": "정확한 유구 좌표는 없다. 카시우스 디오 50.12~13이 안토니우스가 곶을 따라 방벽을 쌓고 함대와 연결했다고 적은 서술을 근거로 actium:cape 인근에 추정 배치했다.",
+    "note_ko": "곶에서 함선까지 방벽으로 이었다는 진영. 아우구스투스가 훗날 이 자리에 니코폴리스를 세웠다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.755,
+     38.918
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "actium:battle-zone",
+    "name_ko": "교전 해역",
+    "name_la": null,
+    "kind": "plain",
+    "grade": "복원",
+    "source": "KINDS에 '해역'이 없어 plain으로 근사한다. 말판 actium-31 전 페이즈 유닛 좌표 범위를 약 0.05도 여백으로 감싼 사각형이며, 실측 좌표가 아니라 배치 도식의 포괄 범위다.",
+    "note_ko": "만 어귀 밖 열린 바다. 아그리파가 좁은 만 안으로 들어가지 않고 이 바깥에서 안토니우스를 기다렸다고 전한다."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       20.5,
+       38.75
+      ],
+      [
+       20.85,
+       38.75
+      ],
+      [
+       20.85,
+       39.0
+      ],
+      [
+       20.5,
+       39.0
+      ],
+      [
+       20.5,
+       38.75
+      ]
+     ]
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "actium:call-ships",
+   "topic": "event",
+   "anchor": {
+    "feature": "actium:battle-zone"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "함선 수는 사료마다 다르다",
+   "body": "플루타르코스는 안토니우스가 애초 500척을 모았으나 노잡이가 모자라 일부를 불태우고 실제로는 그보다 적게 싸웠다고 적었다. 디오·벨레이우스의 수치도 서로 다르다. docs/ACTIUM.md 표 참고.",
+   "cite": "플루타르코스 『안토니우스』 61·64; 카시우스 디오 50.23; 벨레이우스 파테르쿨루스 2.84",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "actium:call-cleopatra",
+   "topic": "unit",
+   "anchor": {
+    "unit": "cleo-reserve"
+   },
+   "side": "right",
+   "num": 2,
+   "title": "예비 함대, 예정된 퇴로였나",
+   "body": "클레오파트라의 60척은 전열 뒤에 물러나 있다가 싸움 중 돛을 올리고 빠져나갔다. 미리 짠 퇴로였는지 전황이 기울어 달아난 것인지는 고대부터 갈린다.",
+   "cite": "플루타르코스 『안토니우스』 66",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "actium:call-antony-flees",
+   "topic": "unit",
+   "anchor": {
+    "unit": "ant-center"
+   },
+   "side": "right",
+   "num": 3,
+   "title": "기함을 버리다",
+   "body": "안토니우스는 클레오파트라의 배가 멀어지는 것을 보고 자신의 대형 기함을 그대로 둔 채 작은 배로 옮겨 타 뒤쫓았다. 남은 함대는 지휘관 없이 싸웠다.",
+   "cite": "플루타르코스 『안토니우스』 67",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "actium:call-nicopolis",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "actium:nicopolis"
+   },
+   "side": "left",
+   "num": 4,
+   "title": "승리를 새긴 도시",
+   "body": "아우구스투스는 자신이 진을 쳤던 이 자리에 '승리의 도시' 니코폴리스를 세웠다. 성벽과 극장 유구가 남아 있다.",
+   "cite": "카시우스 디오 51.1",
+   "links": [
+    {
+     "label": "Pleiades: Nicopolis",
+     "url": "https://pleiades.stoa.org/places/531013"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "actium:call-agrippa",
+   "topic": "unit",
+   "anchor": {
+    "unit": "oct-agrippa"
+   },
+   "side": "left",
+   "num": 5,
+   "title": "실전 지휘는 아그리파",
+   "body": "옥타비아누스가 명목상 총사령관이었지만 해전의 실제 전술은 아그리파가 짰다. 좁은 만 안으로 들어가지 않고 바깥에서 안토니우스를 끌어내는 전략이었다.",
+   "cite": "카시우스 디오 50.31; 벨레이우스 파테르쿨루스 2.85",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "actium:call-samecolor",
+   "topic": "event",
+   "anchor": {
+    "feature": "actium:cape"
+   },
+   "side": "right",
+   "num": 6,
+   "title": "로마가 로마와 싸우다",
+   "body": "이 전투는 로마 내전의 마지막 국면이다. 양쪽 다 로마 군단·로마 함선이라 이 지도의 세력색은 두 편 모두 '로마'로 같다 — 라벨로만 구분한다.",
+   "cite": "카시우스 디오 50.6",
+   "links": [],
+   "image": null
+  }
+ ]
+}

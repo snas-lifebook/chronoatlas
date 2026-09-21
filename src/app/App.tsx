@@ -14,7 +14,7 @@ import { loadGraph, neighborsOf, type Graph } from '../graph/data';
 import { yearBrief } from '../year';
 import { phaseOf, pickBoard, type BoardData } from '../board';
 import { peopleAtYear, peopleGeoJSON } from '../people';
-import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, legionsAt, sceneBrief, loadSceneText, loadLegions, loadPack, packsFor } from '../packData';
+import { PACK_BATTLES, PACK_CAST, PACK_EMBLEMS, PACK_MOVEMENTS, PACK_POLITY_COLORS, clientsAt, hiddenIds, legionsAt, sceneBrief, loadSceneText, loadLegions, loadPack, packsFor } from '../packData';
 import { scenesInGroup, stepScene, presentGroupOf, isPresentGroup, PRESENT_GROUP, DETAIL_GROUP } from '../present';
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
@@ -113,7 +113,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
     eng.setEgo(s.sel, graph.nodes.get(s.sel)?.name ?? '', neighborsOf(graph, s.sel, s.year));
   }, [s.sel, s.year, graph]);
   // zoom을 넘기는 이유: 같은 칸의 말을 벌리는 폭이 화면 기준이어야 한다(people.spreadDeg).
-  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: [...d.movements.features, ...PACK_MOVEMENTS], territory: d.territory.features, teaching: PACK_CAST, zoom: s.zoom ?? undefined }), [s.year, s.zoom, graph, d, dataTick]);
+  const people = useMemo(() => peopleAtYear(s.year, { graph, movements: [...d.movements.features, ...PACK_MOVEMENTS], territory: d.territory.features, teaching: PACK_CAST, zoom: s.zoom ?? undefined, hidden: new Set(hiddenIds('settlements')) }), [s.year, s.zoom, graph, d, dataTick]);
   // 설명창은 **말을 가리지 않는 쪽**에 선다(QA 2026-09-17: 갈리아·최대 판도 51 장면에서 카이사르가 설명창 밑에 있었다). 장면이 바뀌어 카메라가 선 뒤 양쪽에 말이 몇 개 깔리는지 세어 적은 쪽으로. M으로 언제든 바꾼다
   useEffect(() => {
     if (!s.present || hud !== 'full') return;

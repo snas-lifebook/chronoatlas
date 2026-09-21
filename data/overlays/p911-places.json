@@ -1,0 +1,15 @@
+{
+ "teaching": true,
+ "source": "이야기 장소 이름표. 정본 settlements id만: 악티움·카물로두눔은 아직 정본에 없어(제안 대기) 뺐고, 라인강·다뉴브강은 kind가 river라(p911-rivers.json이 따로 다룬다) 뺐다.",
+ "places": [
+  "place:필리피",
+  "place:브린디시",
+  "place:타르수스",
+  "place:아테네",
+  "place:알렉산드리아",
+  "place:로도스섬",
+  "place:카프리섬",
+  "place:푸키누스호수",
+  "place:안티오키아"
+ ]
+}

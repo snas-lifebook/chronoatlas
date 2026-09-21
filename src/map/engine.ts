@@ -14,7 +14,7 @@ import { createMicro, MICRO_LAYERS } from './micro';
 import { loadMicro, microMapAt } from '../micromaps';
 import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
-import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_PLACES, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenPlaces } from '../packData';
+import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_EXTRA, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenIds, hiddenPlaces, storyPlacesAt } from '../packData';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -214,7 +214,7 @@ const BASE_FILTER = new Map<string, unknown>();
 function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
                                  timedBase: (id: string) => { timed: boolean; base: any },
                                  compose: (base: any, y: number) => any) {
-  const hide = hiddenPlaces(year);
+  const hide = [...hiddenPlaces(year), ...hiddenIds('settlements')];   // 후대 이름 + 정본 오류 임시 가리기(R59)
   const apply = (id: string, out: string[]) => {
     const t = timedBase(id);
     let base: any;
@@ -239,10 +239,13 @@ function hideAnachronisticPlaces(map: maplibregl.Map, year: number,
     // 알렉산드리아가 어느 층에도 없어 어느 줌에서도 안 보였다(AD 400 실측).
     const battleIds = PACK_BATTLES.filter(f => { const p = (f as { properties: { valid_from?: number; valid_to?: number } }).properties ?? {}; return (p.valid_from ?? -1e9) <= year && year < (p.valid_to ?? 1e9); })
       .map(f => String((f as { properties: { id?: string } }).properties?.id ?? ''));
-    const dup = id.startsWith('label-settle') ? [...PACK_PLACES]
+    const dup = id.startsWith('label-settle') ? storyPlacesAt(year)
       : id === 'story-place-label' ? battleIds : [];
     apply(id, [...hide, ...dup]);
   }
+  // 정본 전투점도 가릴 수 있다(좌표가 틀린 본곶전투). timed 표의 battle은 base가 null이라 연도 창에 제외만 얹는다.
+  const hb = hiddenIds('battle');
+  if (hb.length && map.getLayer('battle')) map.setFilter('battle', ['all', compose(null, year), ['!', ['in', ['get', 'id'], ['literal', hb]]]] as any);
 }
 
 // 의미군 선색(DESIGN: 유채색은 데이터 색뿐 — 관계 의미도 데이터다)
@@ -591,7 +594,29 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   let peoplesFc: { features: unknown[] } | null = null;
-  fetch(peoplesUrl).then(r => (r.ok ? r.json() : null)).then(j => { peoplesFc = j; if (map.getStyle() && map.getSource('territory')) addPeoples(map.getLayer('label-marine') ? 'label-marine' : undefined); }).catch(() => {});
+  /** 주변 민족 면을 합친다(id 중복 제거). 자산 URL(pack-peoples)과 묶음 교보재(`<묶음>-peoples`, refreshPack) 어느 쪽이 먼저 와도 같다. */
+  function mergePeoples(features: unknown[]) {
+    const have = new Set((peoplesFc?.features ?? []).map(f => (f as { properties?: { id?: string } }).properties?.id));
+    const add = features.filter(f => !have.has((f as { properties?: { id?: string } }).properties?.id));
+    if (!add.length) return;
+    peoplesFc = { features: [...(peoplesFc?.features ?? []), ...add] };
+    if (map.getSource('peoples')) {
+      (map.getSource('peoples') as maplibregl.GeoJSONSource).setData(peoplesFc as any);
+      (map.getSource('peoples-pt') as maplibregl.GeoJSONSource | undefined)?.setData(peoplesPoints(peoplesFc) as any);
+    } else if (map.getStyle() && map.getSource('territory')) addPeoples(map.getLayer('label-marine') ? 'label-marine' : undefined);
+  }
+  fetch(peoplesUrl).then(r => (r.ok ? r.json() : null)).then(j => { if (j?.features) mergePeoples(j.features); }).catch(() => {});
+  /** 이름표용 대표점. 폴리곤 소스에 직접 심볼을 얹으면 조각마다 하나씩 찍힌다(사르마티아·보스포루스 2조각, 실측). 가장 큰 조각의 정점 평균. */
+  function peoplesPoints(fc: { features: unknown[] }) {
+    return { type: 'FeatureCollection', features: (fc.features as any[]).map(f => {
+      const g = f.geometry;
+      const rings: number[][][] = g.type === 'MultiPolygon' ? (g.coordinates as number[][][][]).map(poly => poly[0]) : [(g.coordinates as number[][][])[0]];
+      // 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 — 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
+      const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
+      const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
+      return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
+    }) };
+  }
   function addPeoples(before?: string) {
     if (!peoplesFc?.features?.length || map.getSource('peoples') || !map.getLayer('territory-fill')) return;
     {
@@ -600,23 +625,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'fill-color': polityColor, 'fill-opacity': 0.2 } }, 'territory-fill');
       map.addLayer({ id: 'peoples-line', type: 'line', source: 'peoples',
         paint: { 'line-color': polityColor, 'line-width': 1.2, 'line-dasharray': [4, 3], 'line-opacity': 0.65 } }, 'territory-fill');
-      // **이름표는 따로 만든 점에 붙인다.** 폴리곤 소스에 직접 심볼을 얹으면 MapLibre가
-      // **조각마다 하나씩** 찍는다 — 사르마티아(2조각)와 보스포루스 왕국(2조각)의 이름이
-      // 나란히 두 번 떴다(실측). 대표점 하나를 뽑아 점 소스로 만들면 한 번만 찍힌다.
-      map.addSource('peoples-pt', { type: 'geojson', data: {
-        type: 'FeatureCollection',
-        features: (peoplesFc!.features as any[]).map(f => {
-          const g = f.geometry;
-          const rings: number[][][] = g.type === 'MultiPolygon'
-            ? (g.coordinates as number[][][][]).map(poly => poly[0])
-            : [(g.coordinates as number[][][])[0]];
-          // 가장 큰 조각의 정점 평균. 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 —
-          // 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
-          const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
-          const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
-          return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
-        }),
-      } as any });
+      // **이름표는 따로 만든 점에 붙인다.** 폴리곤 소스에 직접 심볼을 얹으면 MapLibre가 조각마다 하나씩 찍는다(peoplesPoints 주석).
+      map.addSource('peoples-pt', { type: 'geojson', data: peoplesPoints(peoplesFc!) as any });
       map.addLayer({ id: 'peoples-label', type: 'symbol', source: 'peoples-pt',
         layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
           'text-size': ['interpolate', ['linear'], ['zoom'], 3, 13, 6, 16] as any, 'text-max-width': 8,
@@ -628,8 +638,9 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   /** 이름표 순서(도시 > 인물 > 나머지). 인물 층은 setPeople 때 뒤늦게 들어오므로 addData 끝과 인물 층을 만든 뒤 다시 부른다. 말(custom)은 people-label 바로 밑. */
   // ── 교보재 경로·전투·이야기 장소는 늦게 올 수 있다(R59, 포인트 묶음 지연 로드). addData와 refreshPack이 같은 셋을 쓴다. ──
-  /** 이야기 장소 필터. PACK_PLACES는 살아 있는 배열이라 부를 때마다 새로 만든다. */
-  const storyFilter = (): any => ['in', ['get', 'id'], ['literal', [...PACK_PLACES]]];
+  /** 이야기 장소 필터. 해마다 다르고(카이사르 팩 장소는 기원전 1세기에만) 목록은 살아 있는 배열이라 부를 때마다 새로 만든다.
+   *  apply()가 해가 바뀔 때 BASE_FILTER에 넣고, hideAnachronisticPlaces가 그 위에 제외를 얹는다. */
+  const storyFilter = (year: number): any => ['in', ['get', 'id'], ['literal', storyPlacesAt(year)]];
   /** 정본 경로 + 교보재 경로. 교보재는 **정본에 같은 route가 없을 때만** 싣는다 — 2026-09-17 adapt 뒤 정본이
    *  폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다. */
   function movesData() {
@@ -645,6 +656,14 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       const iid = `seq-${p.phase}-${p.seq}`;
       if (p.seq && !map.hasImage(iid)) map.addImage(iid, seqIcon(String(p.phaseColor), Number(p.seq)), { pixelRatio: 2 });
     }
+  }
+  /** 묶음 교보재 면(`<묶음>-islands`·`-areas`, R59): 장면이 지목할 때만 켜는 강조면. 「섬 셋」(rome-sicily-241)이 첫 손님이다.
+   *  면마다 `scenes`(장면 id 목록)가 있으면 그 장면에서만, 없으면 늘 보인다. 늦게 오면 refreshPack이 setData. */
+  const packAreasFC = () => ({ type: 'FeatureCollection' as const,
+    features: Object.entries(PACK_EXTRA).filter(([k]) => /-(islands|areas)$/.test(k)).flatMap(([, v]) => ((v as { features?: unknown[] } | undefined)?.features ?? [])) });
+  const packAreaFilter = (scene: string | null): any => ['any', ['!', ['has', 'scenes']], ['in', scene ?? '', ['get', 'scenes']]];
+  function syncPackAreas(scene: string | null) {
+    for (const id of ['pack-area-fill', 'pack-area-line', 'pack-area-label']) if (map.getLayer(id)) map.setFilter(id, packAreaFilter(scene));
   }
   /** 말이 걸을 경로. owner마다 첫 route 하나. */
   function rebuildTokenRoutes(allMoves: { features: { properties: Record<string, unknown> }[] }) {
@@ -720,6 +739,22 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
           'text-variable-anchor': ['center', 'top', 'bottom', 'left', 'right'], 'text-radial-offset': 0.5 } as any,
         paint: { 'text-color': ['case', isKind('granary'), '#6B5310', '#6B6353'] as any,
           'text-halo-color': halo(), 'text-halo-width': 2 } }, before);
+    }
+    // 묶음 교보재 강조면(packAreasFC 주석). 영토 위에 얹는다 — 「섬 셋」은 로마색 위에서 읽혀야 한다.
+    if (!map.getSource('pack-areas')) {
+      const fc = packAreasFC(); const scene0 = store.get().scene;
+      map.addSource('pack-areas', { type: 'geojson', data: fc as any });
+      map.addLayer({ id: 'pack-area-fill', type: 'fill', source: 'pack-areas', filter: packAreaFilter(scene0),
+        paint: { 'fill-color': ['coalesce', ['get', 'color'], '#B8860B'] as any, 'fill-opacity': 0.22 } }, before);
+      map.addLayer({ id: 'pack-area-line', type: 'line', source: 'pack-areas', filter: packAreaFilter(scene0),
+        paint: { 'line-color': ['coalesce', ['get', 'color'], '#8A6D1B'] as any, 'line-width': 1.8, 'line-dasharray': [3, 2], 'line-opacity': 0.85 } }, before);
+      map.addSource('pack-areas-pt', { type: 'geojson', data: repPointsFC(fc.features as unknown[], () => true) as any });
+      map.addLayer({ id: 'pack-area-label', type: 'symbol', source: 'pack-areas-pt', filter: packAreaFilter(scene0),
+        layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 3, 12, 6, 15] as any, 'text-max-width': 8,
+          'text-allow-overlap': false, 'text-optional': true,
+          'text-variable-anchor': ['center', 'top', 'bottom'], 'text-radial-offset': 0.5 } as any,
+        paint: { 'text-color': ['coalesce', ['get', 'color'], '#6B5310'] as any, 'text-halo-color': halo(), 'text-halo-width': 2 } }, before);
     }
 
     // ── 주변 민족·왕국 교보재 ──────────────────────────────────────────────
@@ -852,12 +887,12 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any, 'circle-stroke-width': hov(1.2, 1) as any, 'circle-opacity': 1 } }, before);
     circle('settle-major', 3, 5); circle('settle-minor', 4.5, 3.5);   // rank 2 이름표가 z4.5부터라 점도 같이(R34)
     map.addLayer({ id: 'story-place', type: 'circle', source: 'settlements', minzoom: 3,
-      filter: storyFilter(),
+      filter: storyFilter(store.get().year),
       paint: { 'circle-radius': hov(6, 2) as any, 'circle-color': '#b8860b',
         'circle-stroke-color': ['case', ['boolean', ['feature-state', 'selected'], false], '#111418', '#3a2f22'] as any,
         'circle-stroke-width': hov(1.4, 1) as any, 'circle-opacity': 1 } }, before);
     map.addLayer({ id: 'story-place-label', type: 'symbol', source: 'settlements', minzoom: 3,
-      filter: storyFilter(),
+      filter: storyFilter(store.get().year),
       layout: { 'text-field': ['get', 'name_ko'], 'text-font': ['KlokanTech Noto Sans CJK Bold'],
         'text-size': ['interpolate', ['linear'], ['zoom'], 3, 12, 6, 15] as any,
         // 고정 anchor면 그 자리가 막혔을 때 이름표가 그냥 사라진다. 네 방향을 주면 옆으로
@@ -1180,6 +1215,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   }
 
   let lastYear: number | null = null, lastLayers = '', lastView = '', lastSel: string | null | undefined = undefined;
+  let lastScene: string | null | undefined = undefined;   // 강조면(pack-area-*)은 장면이 지목할 때만
   let lastBoard: string | null | undefined = undefined, lastPhase: number | undefined = undefined;
   // 지도를 이 카메라로 만들었으니 첫 apply에서 같은 자리로 다시 날아가지 않게 미리 채워 둔다
   let lastCam = `${s0.center?.join(',') ?? ''}|${s0.zoom ?? ''}|${s0.pitch ?? ''}|${s0.bearing ?? ''}`;
@@ -1189,6 +1225,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       lastYear = s.year;
       loadTerritory(s.year);
       for (const [id, base] of timed) if (map.getLayer(id)) map.setFilter(id, filterFor(base, s.year));
+      // 이야기 장소는 해마다 다르다(R59). 원본 필터를 갈아 두면 아래 hideAnachronisticPlaces가 그 위에 제외를 얹어 setFilter한다.
+      for (const id of ['story-place', 'story-place-label']) if (map.getLayer(id)) BASE_FILTER.set(id, storyFilter(s.year));
       // 속국 사선은 해마다 다시 고른다. 폰토스가 기원전 48~47년에 빠지는 자리다(clientsAt).
       const cl = clientsAt(s.year);
       for (const id of ['client-hatch', 'client-edge']) if (map.getLayer(id))
@@ -1249,6 +1287,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       id => { const row = timed.find(t => t[0] === id); return { timed: !!row, base: row ? row[1] : null }; },
       filterFor);
     syncDetailMaps(s.scene);
+    if (s.scene !== lastScene) { lastScene = s.scene; syncPackAreas(s.scene); }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
@@ -1309,9 +1348,13 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       (map.getSource('movements') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: curveMovements(legs) } as any);
       bakeSeq(legs);
       rebuildTokenRoutes(allMoves);
-      // 이야기 장소 필터는 BASE_FILTER에 캐시돼 있다(hideAnachronisticPlaces). 원본을 같이 갈아야 다음 apply가 새 목록 위에 연도 조건을 얹는다.
-      for (const id of ['story-place', 'story-place-label']) if (map.getLayer(id)) { const f = storyFilter(); map.setFilter(id, f); BASE_FILTER.set(id, f); }
-      lastYear = null;
+      // 묶음이 준 면(`<묶음>-peoples.json`: 삼니움·라틴·에트루리아…)은 주변 민족 층에 합친다 — 같은 문법(점선 테·이름표·해 필터)이다.
+      const extra = Object.entries(PACK_EXTRA).filter(([k]) => k.endsWith('-peoples')).flatMap(([, v]) => ((v as { features?: unknown[] } | undefined)?.features ?? []));
+      if (extra.length) mergePeoples(extra);
+      const areas = packAreasFC();
+      (map.getSource('pack-areas') as maplibregl.GeoJSONSource | undefined)?.setData(areas as any);
+      (map.getSource('pack-areas-pt') as maplibregl.GeoJSONSource | undefined)?.setData(repPointsFC(areas.features as unknown[], () => true) as any);
+      lastYear = null; lastScene = undefined;   // 이야기 장소·후대 이름·전투 창·강조면을 그 해·그 장면으로 다시 얹는다
       apply(store.get());
     },
     // 좁은 화면에서는 줌을 깎는다 — 장면은 데스크톱 프레임으로 잡혀 있다(present.fitZoom).

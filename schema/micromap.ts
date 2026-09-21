@@ -55,6 +55,8 @@ export const Callout = z.object({
 export const Basemap = z.object({
   id: z.string(), file: z.string(), corners: z.object({ w: z.number(), e: z.number(), n: z.number(), s: z.number() }),
   opacity: z.number().min(0).max(1).default(0.5), min_zoom: z.number().optional(),
+  /** 이 해보다 앞에서는 도판을 안 깐다(R59). 로마 도판(Kiepert 1877)은 제정기 도시를 그리므로 BC 753 장면 밑에 깔면 없던 성벽·건물이 비친다. */
+  from_year: z.number().int().optional(),
   title: z.string().optional(), caveat: z.string().optional(), short_caveat: z.string().optional(), source: z.string().optional(), rms_m: z.number().optional(),
 }).passthrough();
 

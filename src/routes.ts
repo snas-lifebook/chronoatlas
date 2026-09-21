@@ -117,6 +117,11 @@ export const ROUTE_PHASES: RoutePhase[] = [
   { id: 'cleo-caesar', label: '클레오파트라 · 카이사르와 · BC 48–44', color: '#9C3D6E', route: 'cleopatra_antony', to: [-48, -44] },
   { id: 'cleo-antony', label: '클레오파트라 · 안토니우스와 · BC 41–32', color: '#A0527A', route: 'cleopatra_antony', to: [-43, -32] },
   { id: 'cleo-actium', label: '클레오파트라 · 악티움과 최후 · BC 31–30', color: '#5E3A6B', route: 'cleopatra_antony', to: [-31, -30] },
+  // 교보재 경로(포인트 01·02·05, data/overlays/p12-routes.json·p345-routes.json). 정본에 같은 route가 들어오면 그쪽이 이긴다.
+  { id: 'pyrrhus', label: '피로스의 이탈리아 · BC 280–275', color: '#4E7D3A', route: 'pyrrhus', to: [-280, -270] },
+  { id: 'regulus', label: '레굴루스의 아프리카 · BC 256–255', color: '#B8862B', route: 'regulus', to: [-256, -255] },
+  { id: 'hamilcar', label: '하밀카르 · 시칠리아 · BC 247–241', color: '#7D2E2E', route: 'hamilcar', to: [-247, -241] },
+  { id: 'spartacus', label: '스파르타쿠스 · BC 73–71', color: '#8B5E3C', route: 'spartacus', to: [-73, -71] },
   { id: 'other', label: '그 밖의 이동', color: '#8A8F98' },
 ];
 const PHASE_BY_ID = new Map(ROUTE_PHASES.map(p => [p.id, p]));

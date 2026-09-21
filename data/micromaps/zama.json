@@ -1,0 +1,213 @@
+{
+ "id": "zama",
+ "title": "자마 · BC 202",
+ "year": -202,
+ "teaching": true,
+ "source": "지도의 원점은 정본 place:자마(9.4492, 36.2989, kind: battlefield)다. 그러나 자마 전투가 실제로 벌어진 곳은 학계에서 오래 논쟁 중이다. 전통적으로 자마 레지아(현재 튀니지 실리아나 주 세바 비아르·자마 인근)를 통설로 보지만, 폴리비오스 자신이 스키피오의 진영을 나라가라(또는 마르가론) 근처로 적어(『역사』 15.5) 현재의 사키에트 시디 유세프(튀니지·알제리 국경 부근) 쪽을 전장으로 보는 소수설도 있다. 이 지도의 지형·말판 좌표는 모두 place:자마 좌표를 원점으로 한 상대 배치이며 실측이 아니다. 리비우스가 진영 이동 이유로 급수 문제를 적었는지 확인하지 못해 물길 피처는 넣지 않았다(못 찾은 것은 채우지 않는다는 원칙).",
+ "home": {
+  "at": [
+   9.4492,
+   36.2989
+  ],
+  "minZoom": 10,
+  "span": 0.35
+ },
+ "view": {
+  "center": [
+   9.4492,
+   36.2989
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements",
+  "people"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-zama",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-zama",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": "zama-202",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "zama:plain",
+    "name_ko": "자마 평원",
+    "name_la": "Zama",
+    "kind": "plain",
+    "grade": "논쟁",
+    "source": "정본 place:자마 중심점(9.4492, 36.2989)을 중심으로 한 반경 약 1.5 km 근사 폴리곤. 실제 전장이 이 지점이었는지 자체가 학계 논쟁 대상이며(최상위 source 참조), 이 면은 전장 경계가 아니라 말판 배치를 담는 그릇일 뿐이다.",
+    "note_ko": "한니발과 스키피오의 결전지로 통설상 지목되는 지점. 정확한 위치 비정은 학계에서 갈린다."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       9.4325,
+       36.2989
+      ],
+      [
+       9.4367,
+       36.309
+      ],
+      [
+       9.4492,
+       36.3124
+      ],
+      [
+       9.4617,
+       36.309
+      ],
+      [
+       9.4659,
+       36.2989
+      ],
+      [
+       9.4617,
+       36.2888
+      ],
+      [
+       9.4492,
+       36.2854
+      ],
+      [
+       9.4367,
+       36.2888
+      ],
+      [
+       9.4325,
+       36.2989
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "zama:oppidum",
+    "name_ko": "자마 정착지",
+    "name_la": "Zama",
+    "kind": "oppidum",
+    "grade": "근사",
+    "source": "정본 place:자마 점 좌표(9.4492, 36.2989)를 그대로 썼다. 실제 취락 범위·성벽 유무는 확인하지 못해 점만 두었다.",
+    "note_ko": "누미디아 왕실 소유지였던 자마 레지아로 추정되나, 이 취락이 전투가 벌어진 바로 그 자리인지는 논쟁 중이다(최상위 source)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.4492,
+     36.2989
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "zama:call-elephants",
+   "topic": "unit",
+   "anchor": {
+    "unit": "car-eleph"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "코끼리 돌격과 통로",
+   "body": "카르타고는 전투코끼리 80마리를 맨 앞에 세웠다. 로마군은 대형을 옆이 아니라 세로로 뚫리게 배치해 코끼리가 지나갈 통로를 냈다.",
+   "cite": "폴리비오스 『역사』 15.9~12",
+   "links": [
+    {
+     "label": "자마 전투",
+     "url": "https://ko.wikipedia.org/wiki/자마_전투"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "zama:call-triplex",
+   "topic": "unit",
+   "anchor": {
+    "unit": "rom-hastati"
+   },
+   "side": "right",
+   "num": 2,
+   "title": "세 줄이지만 통로가 있다",
+   "body": "하스타티·프린키페스·트리아리이를 평소처럼 세 줄로 세우되 마니풀루스를 나란히 정렬해 코끼리가 뚫고 지나갈 세로 통로를 만들었다.",
+   "cite": "폴리비오스 15.9; 리비우스 30.33",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "zama:call-cavalry",
+   "topic": "unit",
+   "anchor": {
+    "unit": "rom-cav-r"
+   },
+   "side": "left",
+   "num": 3,
+   "title": "양 날개의 기병",
+   "body": "우익은 마시니사의 누미디아 기병, 좌익은 라일리우스의 이탈리아 동맹 기병이 맡았다. 한니발 쪽 기병은 마시니사의 이탈로 크게 줄어 있었다.",
+   "cite": "폴리비오스 15.9; 리비우스 30.33",
+   "links": [
+    {
+     "label": "마시니사",
+     "url": "https://ko.wikipedia.org/wiki/마시니사"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "zama:call-site",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "zama:plain"
+   },
+   "side": "right",
+   "num": 4,
+   "title": "전장이 정확히 어디인가",
+   "body": "자마 레지아를 통설로 보지만, 폴리비오스 자신이 나라가라 근처를 언급해 현재의 사키에트 시디 유세프 부근을 보는 소수설도 있다. 위치는 확정되지 않았다.",
+   "cite": "폴리비오스 15.5",
+   "links": [
+    {
+     "label": "Battle of Zama",
+     "url": "https://en.wikipedia.org/wiki/Battle_of_Zama"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "zama:call-parley",
+   "topic": "event",
+   "anchor": {
+    "unit": "car-cmd"
+   },
+   "side": "left",
+   "num": 5,
+   "title": "전투 전날의 회담",
+   "body": "한니발과 스키피오는 전투 하루 전 직접 만나 강화를 논의했으나 조건이 맞지 않아 결렬됐다. 이튿날 아침 양군은 전장에 나섰다.",
+   "cite": "폴리비오스 15.6~8; 리비우스 30.30~31",
+   "links": [
+    {
+     "label": "한니발",
+     "url": "https://ko.wikipedia.org/wiki/한니발"
+    },
+    {
+     "label": "스키피오 아프리카누스",
+     "url": "https://ko.wikipedia.org/wiki/스키피오_아프리카누스"
+    }
+   ],
+   "image": null
+  }
+ ]
+}

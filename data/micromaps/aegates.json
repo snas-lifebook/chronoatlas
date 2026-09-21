@@ -1,0 +1,278 @@
+{
+ "id": "aegates",
+ "title": "아이가테스 해전 · BC 241",
+ "year": -241,
+ "teaching": true,
+ "source": "지형 피처는 정본 settlements.geojson(place:드레파나·place:마르살라만)과 landmarks.geojson Pleiades 점(Aegates 군도 3섬·에릭스 산)을 그대로 썼다. 섬 폴리곤은 정본 land.geojson·coast.geojson·NE 10m 캐시(minor_islands 포함) 어디에도 이 규모의 섬을 분리한 데이터가 없어(§NOTES) 전부 Point로 두었다. 교전 해역(aegates:battle-zone)은 말판 aegates-241의 유닛 좌표 범위를 감싼 근사 사각형이며 실측 경계가 아니다. 폴리비오스 『역사』 1.59~61이 유일한 당대 사료이고, 해저 고고학(Tusa & Royal 2012)이 전장을 레반초 북서 해역으로 좁혔다.",
+ "home": {
+  "at": [
+   12.3,
+   37.95
+  ],
+  "minZoom": 10,
+  "span": 0.4
+ },
+ "view": {
+  "center": [
+   12.3,
+   37.95
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements",
+  "people"
+ ],
+ "basemap": null,
+ "dem": null,
+ "landcover": null,
+ "board": "aegates-241",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:favignana",
+    "name_ko": "파비냐나",
+    "name_la": "Aegusa",
+    "kind": "island",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 462084 'Aigousa' (아이가테스 제도 중 가장 큰 섬, 고대명 Aegusa). NE/정본 land 캐시에 이 규모 섬을 별도 폴리곤으로 자른 데이터가 없어(§NOTES) Point로 둔다.",
+    "note_ko": "한노가 최종 항해 전 하밀카르의 정예 승조원을 태우려 했던 섬 중 하나(폴리비오스 1.60)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.3286,
+     37.9311
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:levanzo",
+    "name_ko": "레반초",
+    "name_la": "Phorbantia",
+    "kind": "island",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 462428 'Phorbantia'(아이가테스 최소 섬, 현대 레반초). 폴리곤 캐시 없어 Point.",
+    "note_ko": "2004년 이후 이 섬 북서 해역 해저에서 청동 충각(rostra)·투구 다수가 인양되어 전장 위치를 좁혔다(Tusa & Royal 2012)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.3391,
+     37.9872
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:marettimo",
+    "name_ko": "마레티모",
+    "name_la": "Hiera",
+    "kind": "island",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 462243 'Hiera/Maritima'(아이가테스 제도 중 시칠리아에서 가장 먼 섬, 고대명 히에라). 폴리곤 캐시 없어 Point.",
+    "note_ko": "한노가 짐을 부리고 예비 승조원을 태우려 했던 섬(폴리비오스 1.60). 패주한 카르타고 함대 잔여가 순풍을 타고 달아난 곳이기도 하다(1.61)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.0586,
+     37.9695
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:eryx",
+    "name_ko": "에릭스 산",
+    "name_la": "Eryx",
+    "kind": "hill",
+    "grade": "확정",
+    "source": "landmarks.geojson Pleiades pid 462202 'Eryx'(산, kind mountain). KINDS 28종에 mountain이 없어 가장 가까운 hill로 근사한다(문서 §2).",
+    "note_ko": "하밀카르 바르카의 카르타고군이 로마의 봉쇄를 받으며 웅거하던 거점. 이 해전은 그를 구원하려던 보급 함대를 막아선 싸움이다(폴리비오스 1.55~58)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.5921,
+     38.0353
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:drepana",
+    "name_ko": "드레파나",
+    "name_la": "Drepana",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 settlements.geojson place:드레파나(name_ancient Drepana, 현대 트라파니) 좌표를 그대로 썼다.",
+    "note_ko": "카르타고의 시칠리아 서안 해군 근거지. BC 249년 카르타고가 로마 함대를 격파한 곳이기도 하다(별개 해전)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.5125,
+     38.015
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:lilybaeum",
+    "name_ko": "릴리바이움",
+    "name_la": "Lilybaeum",
+    "kind": "building",
+    "grade": "확정",
+    "source": "정본 settlements.geojson place:마르살라만(name_ancient Lilybaeum, 현대 마르살라) 좌표를 그대로 썼다.",
+    "note_ko": "카툴루스의 로마 함대가 이 항에서 출항해 아이가테스로 요격에 나섰다(폴리비오스 1.60)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4342,
+     37.7981
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "aegates:battle-zone",
+    "name_ko": "교전 해역",
+    "name_la": null,
+    "kind": "plain",
+    "grade": "논쟁",
+    "source": "KINDS에 '해역'이 없어 plain으로 근사한다. 말판 aegates-241 전 페이즈 유닛 좌표 범위를 약 0.05도 여백으로 감싼 사각형이며, 실측 좌표가 아니라 배치 도식의 포괄 범위다.",
+    "note_ko": "구체적 교전 지점은 논쟁적이다 — 종래는 드레파나 근해로 추정했으나, 2005년 이후 해저 조사(레반초 북서 해역 청동 충각 분포)는 그보다 서쪽·북쪽 해역을 가리킨다(Tusa & Royal 2012)."
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       12.08,
+       37.855
+      ],
+      [
+       12.47,
+       37.855
+      ],
+      [
+       12.47,
+       38.005
+      ],
+      [
+       12.08,
+       38.005
+      ],
+      [
+       12.08,
+       37.855
+      ]
+     ]
+    ]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "aegates:call-ambush",
+   "topic": "event",
+   "anchor": {
+    "feature": "aegates:battle-zone"
+   },
+   "side": "left",
+   "num": 1,
+   "title": "짐을 실은 채 붙잡히다",
+   "body": "한노의 함대는 짐을 가득 실어 무겁고 노잡이도 미숙했다. 히에라에서 짐을 내리고 예비 승조원을 태운 뒤 싸울 셈이었지만, 카툴루스가 그 전에 나와 막았다.",
+   "cite": "폴리비오스 『역사』 1.60~61",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "aegates:call-toll",
+   "topic": "unit",
+   "anchor": {
+    "unit": "cart-hanno"
+   },
+   "side": "right",
+   "num": 2,
+   "title": "50척 격침, 70척 나포",
+   "body": "전투 결과 카르타고 함대 50척이 가라앉고 70척이 승조원째 나포됐다. 로마 쪽 손실은 크지 않았다고 전한다.",
+   "cite": "폴리비오스 『역사』 1.61.6~8",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "aegates:call-treasury",
+   "topic": "event",
+   "anchor": {
+    "feature": "aegates:lilybaeum"
+   },
+   "side": "left",
+   "num": 3,
+   "title": "국고가 아니라 시민의 배",
+   "body": "로마 국고가 바닥나자 부유한 시민들이 사비로 배를 지어 빌려주었고, 전쟁이 이기면 갚기로 했다. 이렇게 지은 200척이 이 함대다.",
+   "cite": "폴리비오스 『역사』 1.59",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "aegates:call-underwater",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "aegates:levanzo"
+   },
+   "side": "right",
+   "num": 4,
+   "title": "청동 충각이 말한다",
+   "body": "2004년부터 레반초 섬 북서 해역 해저에서 충각(rostra) 19개·투구·암포라 파편이 인양되며 전장의 위치가 학술적으로 좁혀졌다.",
+   "cite": "Tusa & Royal, \"The Landscape of the Naval Battle at the Egadi Islands\", Journal of Roman Archaeology 25 (2012)",
+   "links": [
+    {
+     "label": "Pleiades: Aegates Insulae",
+     "url": "https://pleiades.stoa.org/places/462075"
+    }
+   ],
+   "image": null
+  },
+  {
+   "id": "aegates:call-eryx",
+   "topic": "terrain",
+   "anchor": {
+    "feature": "aegates:eryx"
+   },
+   "side": "left",
+   "num": 5,
+   "title": "왜 이 해협이었나",
+   "body": "하밀카르는 에릭스 산에서 로마군에 포위되다시피 버티고 있었다. 이 함대는 그를 구원하려는 마지막 시도였다.",
+   "cite": "폴리비오스 『역사』 1.55~58",
+   "links": [],
+   "image": null
+  },
+  {
+   "id": "aegates:call-treaty",
+   "topic": "event",
+   "anchor": {
+    "feature": "aegates:drepana"
+   },
+   "side": "right",
+   "num": 6,
+   "title": "카르타고, 강화를 청하다",
+   "body": "패전 소식에 카르타고는 하밀카르에게 강화 협상 권한을 주었다. 이 조약으로 카르타고는 시칠리아를 내주고 제1차 포에니 전쟁이 끝났다.",
+   "cite": "폴리비오스 『역사』 1.62~63",
+   "links": [],
+   "image": null
+  }
+ ]
+}

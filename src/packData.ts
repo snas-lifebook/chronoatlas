@@ -9,8 +9,10 @@ const cast = Object.values(import.meta.glob('../data/overlays/pack-cast.json', {
   import('./people').TeachingCast | undefined;
 
 type HideRow = { id: string; valid_from: number; source: string };
+/** 정본 오류를 정정 전까지 가리는 행(R59). `layer`는 settlements(기본) 또는 battle. 예: place:본곶이 프랑스 좌표로 들어 있다. */
+type HideIdRow = { id: string; layer?: 'settlements' | 'battle'; source: string };
 const anachro = Object.values(import.meta.glob('../data/overlays/pack-anachronisms.json', { eager: true, import: 'default' }))[0] as
-  { teaching?: boolean; hide_before: HideRow[]; hide_admin_before?: HideRow[] } | undefined;
+  { teaching?: boolean; hide_before: HideRow[]; hide_admin_before?: HideRow[]; hide?: HideIdRow[] } | undefined;
 
 const regions = Object.values(import.meta.glob('../data/overlays/pack-regions.json', { eager: true, import: 'default' }))[0] as
   { show?: string[] } | undefined;
@@ -117,6 +119,14 @@ export function sceneBrief(id: string | null) {
 
 const HIDE_BEFORE: HideRow[] = anachro?.hide_before ?? [];         // 살아 있는 배열. loadPack이 합친다(R59)
 const HIDE_ADMIN: HideRow[] = anachro?.hide_admin_before ?? [];
+const HIDE_IDS: HideIdRow[] = anachro?.hide ?? [];
+
+/** 어느 해든 가릴 id(정본 오류 임시 가리기). 정본이 고쳐지면 행을 지운다. */
+export function hiddenIds(layer: 'settlements' | 'battle'): string[] {
+  // 'battles'(층 이름 복수)로 적힌 행도 받는다 — 교보재 초안이 그렇게 썼다.
+  const norm = (l?: string) => (l === 'battles' ? 'battle' : (l ?? 'settlements'));
+  return HIDE_IDS.filter(h => norm(h.layer) === layer).map(h => h.id);
+}
 
 /** 그 해에 아직 없는 이름의 정착지 id. 정착지 레이어에 연도 필드가 없어서 생기는 구멍이다
  *  — 어느 해를 띄워도 220개가 다 뜬다. 연도를 지어내지 않고, 확실히 후대인 이름만 가린다. */
@@ -131,13 +141,19 @@ export function hiddenAdmin(year: number): string[] {
   return HIDE_ADMIN.filter(h => year < h.valid_from).map(h => h.id);
 }
 
-// 발표 줌(4~6)에서 rank 3 도시가 안 떠서, 경로 정점만 이름표를 따로 켠다.
-// 살아 있는 배열이다 — 포인트 묶음의 `<묶음>-places.json`이 자기 이야기 장소를 더한다(R59).
-export const PACK_PLACES: string[] = [
-  'place:로마', 'place:알레시아', 'place:루비콘강', 'place:브린디시',
-  'place:일레르다', 'place:파르살루스', 'place:알렉산드리아', 'place:문다평원',
-  'place:라벤나',
+// 발표 줌(4~6)에서 rank 3 도시가 안 떠서, 이야기 장소만 이름표를 따로 켠다(story-place-label).
+// **해마다 다르다**(R59): 카이사르 팩의 알레시아·루비콘 강·브린디시가 기원전 321년 판에 굵게 뜨면 그 장의 이야기가 아니다.
+// 살아 있는 배열이다 — 포인트 묶음의 `<묶음>-places.json`이 자기 이야기 장소를 (그 묶음의 연도 창으로) 더한다.
+export type StoryPlace = { id: string; from?: number; to?: number };   // 반열림 [from, to)
+export const STORY_PLACES: StoryPlace[] = [
+  { id: 'place:로마' },
+  { id: 'place:알렉산드리아', from: -331 },
+  ...['place:알레시아', 'place:루비콘강', 'place:브린디시', 'place:일레르다', 'place:파르살루스', 'place:문다평원', 'place:라벤나']
+    .map(id => ({ id, from: -100, to: 0 })),
 ];
+export function storyPlacesAt(year: number): string[] {
+  return STORY_PLACES.filter(p => (p.from ?? -1e9) <= year && year < (p.to ?? 1e9)).map(p => p.id);
+}
 // 라리사를 뺐다. 파르살루스에서 30km라 지중해 축척에서 **화면 8px** 거리인데, 이름표
 // 자리다툼에서 먼저 놓이는 쪽(정착지)이 이겨서 **정작 그 장면의 제목인 「파르살루스」가
 // 사라졌다.** 둘 다 띄울 방법은 없고(8px다) 이야기가 쓰는 쪽은 전투다. 폼페이우스가
@@ -193,8 +209,15 @@ function mergePack(pack: string, kind: string, j: Record<string, unknown> | unde
   }
   else if (kind === 'battles') PACK_BATTLES.push(...arr<Feature>(j.features));
   else if (kind === 'routes') PACK_MOVEMENTS.push(...arr<Feature>(j.features));
-  else if (kind === 'places') { for (const id of arr<string>(j.places)) if (!PACK_PLACES.includes(id)) PACK_PLACES.push(id); }
-  else if (kind === 'anachronisms') { HIDE_BEFORE.push(...arr<HideRow>(j.hide_before)); HIDE_ADMIN.push(...arr<HideRow>(j.hide_admin_before)); }
+  else if (kind === 'places') {
+    // 문자열이면 그 묶음의 연도 창, 객체면 제 창. 같은 id라도 창이 다르면 둘 다 둔다.
+    const [lo, hi] = PACK_YEARS[pack] ?? [-1e9, 1e9];
+    for (const row of arr<string | StoryPlace>(j.places)) {
+      const p: StoryPlace = typeof row === 'string' ? { id: row, from: lo, to: hi } : { from: lo, to: hi, ...row };
+      if (!STORY_PLACES.some(q => q.id === p.id && q.from === p.from && q.to === p.to)) STORY_PLACES.push(p);
+    }
+  }
+  else if (kind === 'anachronisms') { HIDE_BEFORE.push(...arr<HideRow>(j.hide_before)); HIDE_ADMIN.push(...arr<HideRow>(j.hide_admin_before)); HIDE_IDS.push(...arr<HideIdRow>(j.hide)); }
   else if (kind === 'legions') { for (const [pid, rows] of Object.entries((j.by_person as Record<string, unknown>) ?? {})) (LEGIONS[pid] ??= []).push(...arr<LegionRow>(rows)); }
   else PACK_EXTRA[`${pack}-${kind}`] = j;
 }

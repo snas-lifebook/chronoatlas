@@ -464,31 +464,6 @@
   ]
  },
  {
-  "id": "sulla-88",
-  "title": "술라, 로마로 진군 · BC 88",
-  "year": -88,
-  "center": [
-   13.6,
-   41.5
-  ],
-  "zoom": 6,
-  "pitch": 0,
-  "bearing": 0,
-  "view": "2d",
-  "skin": "campaign",
-  "layers": [
-   "territory",
-   "admin_regions",
-   "settlements",
-   "people",
-   "relief",
-   "rivers",
-   "labels"
-  ],
-  "group": "선례",
-  "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
- },
- {
   "id": "carrhae-53",
   "title": "카르하이 · BC 53, 삼두정치가 깨진 곳",
   "year": -53,
@@ -515,6 +490,91 @@
   "note": "크라수스가 파르티아에게 죽는다. 세 사람의 균형이 둘의 대결이 된다. 루비콘은 여기서 시작한다."
  },
  {
+  "id": "p12-palatine-753",
+  "title": "일곱 언덕 · BC 753",
+  "year": -753,
+  "center": [
+   12.486,
+   41.889
+  ],
+  "zoom": 13.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "테베레 강가 언덕 일곱이 전부인 도시. 성벽도 광장도 아직 없다. 늑대와 형제 살해의 전설로 시작한 자리다.",
+  "micro": "roma"
+ },
+ {
+  "id": "p12-samnium-321",
+  "title": "삼니움 · 카우디움의 멍에 · BC 321",
+  "year": -321,
+  "center": [
+   14.3,
+   41.4
+  ],
+  "zoom": 6.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "산악 부족과 쉰 해. 협곡에서 멍에 밑을 지나는 굴욕을 겪고도 로마는 이탈리아 중부를 접수한다.",
+  "events": [
+   "event:삼니움전쟁",
+   "event:라틴동맹전쟁"
+  ]
+ },
+ {
+  "id": "p12-pyrrhus-275",
+  "title": "피로스 · 이탈리아 남부 · BC 280~275",
+  "year": -275,
+  "center": [
+   16.2,
+   40.4
+  ],
+  "zoom": 6.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "이겨도 남는 게 없는 승리. 에페이로스의 왕이 남이탈리아를 떠나고 반도는 로마의 것이 된다.",
+  "events": [
+   "event:베네벤토전투"
+  ]
+ },
+ {
   "id": "plains-empire",
   "title": "왜 제국인가: 평야 · BC 270",
   "year": -270,
@@ -536,7 +596,7 @@
    "labels",
    "plains"
   ],
-  "group": "로마의 확장",
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
   "note": "곡창 일곱과 척박 셋. 평야가 잉여를 만들고 잉여가 군단을 먹인다. 그리스 반도에는 이 색이 없다."
  },
  {
@@ -562,15 +622,105 @@
    "labels",
    "story_battles"
   ],
-  "group": "로마의 확장",
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
   "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다.",
   "events": [
    "event:베네벤토전투"
   ]
  },
  {
+  "id": "p12-messana-264",
+  "title": "메시나 해협 · 접점 · BC 264",
+  "year": -264,
+  "center": [
+   13.6,
+   37.7
+  ],
+  "zoom": 6.5,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "시칠리아 서쪽은 카르타고, 동쪽은 시라쿠사. 해협 건너 메시나에서 두 나라가 처음 맞붙는다.",
+  "events": [
+   "event:메시나전투",
+   "event:제1차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p12-mylae-260",
+  "title": "까마귀 · 밀라이 · BC 260",
+  "year": -260,
+  "center": [
+   13.6,
+   37.7
+  ],
+  "zoom": 6.5,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "배 위에서 육상전을 한다. 다리를 걸치는 까마귀 하나로 육지의 나라가 바다에서 첫 승리를 거둔다.",
+  "events": [
+   "event:밀라이해전"
+  ]
+ },
+ {
+  "id": "p12-regulus-255",
+  "title": "레굴루스의 아프리카 · BC 256~255",
+  "year": -255,
+  "center": [
+   12.2,
+   36.3
+  ],
+  "zoom": 5.7,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "내친김에 카르타고 앞마당까지. 상륙한 로마군이 투니스 평원에서 부서지고 집정관은 포로가 된다.",
+  "events": [
+   "event:에크노무스해전",
+   "event:본곶전투"
+  ]
+ },
+ {
   "id": "rome-sicily-241",
-  "title": "2단계 · 시칠리아 · BC 241",
+  "title": "첫 속주 · 섬 셋 · BC 241",
   "year": -241,
   "center": [
    9,
@@ -591,13 +741,165 @@
    "labels",
    "story_battles"
   ],
-  "group": "로마의 확장",
-  "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙어 한 덩어리가 된다 — 로마 밖에 생긴 첫 영토다.",
+  "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+  "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙고, 지중해 한가운데 섬 셋이 로마의 징검다리가 된다.",
   "events": [
    "event:제1차포에니전쟁",
    "event:메시나전투",
    "event:밀라이해전",
    "event:에크노무스해전"
+  ]
+ },
+ {
+  "id": "p345-alps-218",
+  "title": "알프스를 넘다 · BC 218",
+  "year": -218,
+  "center": [
+   5.5,
+   41.8
+  ],
+  "zoom": 5.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "바다가 아니라 산으로 왔다. 코끼리를 끌고 알프스를 넘은 군대가 그해 안에 로마군을 두 번 꺾는다.",
+  "events": [
+   "event:제2차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p345-cannae-216",
+  "title": "칸나이 · BC 216",
+  "year": -216,
+  "center": [
+   15.2,
+   40.8
+  ],
+  "zoom": 6.4,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "가운데를 물리고 양 날개로 감싼다. 하루 만에 로마 사상 최대의 군대가 사라지지만 로마는 항복하지 않는다.",
+  "events": [
+   "event:칸나이전투",
+   "event:제2차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p345-italy-212",
+  "title": "남이탈리아의 한니발 · BC 216~204",
+  "year": -212,
+  "center": [
+   15.0,
+   39.5
+  ],
+  "zoom": 6.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "이기고도 로마를 치지 못한다. 파비우스가 시간을 끌고, 시라쿠사가 떨어지며 시칠리아의 뒷문이 닫힌다.",
+  "events": [
+   "event:제2차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p345-zama-202",
+  "title": "자마 · BC 202",
+  "year": -202,
+  "center": [
+   10.5,
+   36.5
+  ],
+  "zoom": 6.2,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "전장을 아프리카로 옮긴다. 불려 돌아온 한니발이 카르타고의 앞마당에서 진다.",
+  "events": [
+   "event:자마전투",
+   "event:제2차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p345-carthage-146",
+  "title": "카르타고 · BC 149~146",
+  "year": -146,
+  "center": [
+   10.8,
+   36.6
+  ],
+  "zoom": 6.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles",
+   "plains"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "세 해를 버틴 도시가 불탄다. 사막이어서가 아니다, 배후의 곡창은 뒤에 로마를 먹인다.",
+  "events": [
+   "event:제3차포에니전쟁"
   ]
  },
  {
@@ -623,10 +925,122 @@
    "labels",
    "story_battles"
   ],
-  "group": "로마의 확장",
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
   "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다.",
   "events": [
    "event:제3차포에니전쟁"
+  ]
+ },
+ {
+  "id": "p345-cimbri-101",
+  "title": "킴브리·테우토네스 · BC 113~101",
+  "year": -101,
+  "center": [
+   6.0,
+   44.5
+  ],
+  "zoom": 5.4,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "북쪽에서 내려온 두 부족이 로마군을 전멸시키고, 마리우스가 군대를 다시 만든다. 충성이 나라에서 장군으로 옮겨 가는 시작이다."
+ },
+ {
+  "id": "sulla-88",
+  "title": "술라, 로마로 진군 · BC 88",
+  "year": -88,
+  "center": [
+   13.6,
+   41.5
+  ],
+  "zoom": 6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+ },
+ {
+  "id": "p345-spartacus-71",
+  "title": "스파르타쿠스 · BC 73~71",
+  "year": -71,
+  "center": [
+   14.8,
+   40.9
+  ],
+  "zoom": 6.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "검투사 일흔여덟이 베수비오에 오르고 수만이 된다. 두 해 뒤 실라루스 강가에서 끝나고 아피아 가도에 십자가가 선다.",
+  "events": [
+   "event:스파르타쿠스의반란"
+  ]
+ },
+ {
+  "id": "p345-pompey-east-63",
+  "title": "폼페이우스의 동방 · 카틸리나 · BC 67~63",
+  "year": -63,
+  "center": [
+   25.5,
+   38.5
+  ],
+  "zoom": 4.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "admin_regions",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "movements",
+   "story_battles"
+  ],
+  "group": "포인트 03·04·05 · 한니발에서 술라까지",
+  "note": "한 사람이 동방을 통째로 쥐고 돌아온다. 같은 해 로마에서는 카틸리나의 음모가 드러난다.",
+  "events": [
+   "event:카틸리나사건"
   ]
  }
 ]

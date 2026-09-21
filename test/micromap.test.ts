@@ -10,7 +10,8 @@ import { KIND_PAINT } from '../src/map/micro';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = join(ROOT, 'data', 'micromaps');
 const rd = (p: string) => JSON.parse(readFileSync(p, 'utf8'));
-const files = readdirSync(DIR).filter(f => f.endsWith('.json') && f !== 'index.json');
+// `_`로 시작하는 파일은 지도가 아니라 부품이다(`_roma-ad41.features.json`: 로마 시내에 합칠 AD 41 시기 피처 초안, R59). 말판 폴더의 `_alesia-strength.json`과 같은 관례.
+const files = readdirSync(DIR).filter(f => f.endsWith('.json') && f !== 'index.json' && !f.startsWith('_'));
 const boards = () => readdirSync(join(ROOT, 'data', 'boards')).filter(b => b.endsWith('.json') && !b.startsWith('_')).map(b => b.replace(/\.json$/, ''));
 
 const minimal = () => ({

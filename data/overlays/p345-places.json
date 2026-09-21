@@ -1,0 +1,16 @@
+{
+  "teaching": true,
+  "source": "정본 settlements.geojson id만 골랐다. 브리핑이 요청한 누만티아·마실리아는 둘 다 정본에 없어서 뺐다(P345-NOTES.md).",
+  "places": [
+    "place:카르타고",
+    "place:카르타헤나",
+    "place:사군툼",
+    "place:칸나이평원",
+    "place:트라시메노호수",
+    "place:카푸아",
+    "place:타란토",
+    "place:시라쿠사",
+    "place:자마",
+    "place:우티카"
+  ]
+}

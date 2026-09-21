@@ -29,18 +29,18 @@ async function load(): Promise<Dataset> {
 // 장면 프리셋·북마크는 **사람이 쓰는 파일**이다(`data/scenes/<ds>.json`). 어댑터를 태우지 않는다.
 // manifest는 정본 온톨로지에서 굽는 산출물이라, 북마크 한 줄 넣자고 정본 파이프라인을 돌릴 이유가 없다
 // (그 파이프라인은 지금 정본 마이그레이션 대기로 멈춰 있기도 하다 — docs/HANDOFF.md §1).
-// 빌드타임에 접어 넣는다: 파일 하나가 1KB 남짓이라 따로 받아 올 가치가 없다.
+// 2026-09-21(R59): 장면이 38장, 말판이 넷이 되면서 둘 다 초기 JS에서 뺐다(eager로 접으면 게이트 400 kB를 넘는다, 실측 403.6).
+// 부팅 때 데이터셋과 **나란히** 받으므로 첫 페인트 순서는 같고, 번들 게이트 밖의 별도 청크가 된다.
 // `manifest.scenes`는 이 파일이 없는 옛 데이터셋을 위한 폴백으로만 남긴다.
-const SCENE_FILES = import.meta.glob<Scene[]>('../data/scenes/*.json', { eager: true, import: 'default' });
-const scenesFor = (ds: string, manifest: { scenes?: Scene[] }): Scene[] =>
-  SCENE_FILES[`../data/scenes/${ds}.json`] ?? manifest.scenes ?? [];
+const SCENE_FILES = import.meta.glob<Scene[]>('../data/scenes/*.json', { import: 'default' });
+const scenesFor = async (ds: string, manifest: { scenes?: Scene[] }): Promise<Scene[]> =>
+  (await SCENE_FILES[`../data/scenes/${ds}.json`]?.()) ?? manifest.scenes ?? [];
 // 말판도 사람이 쓰는 파일. 어댑터·정본 밖이다(BACKLOG §G).
-const BOARD_FILES = import.meta.glob<BoardData>(['../data/boards/*.json', '!../data/boards/_*.json'], { eager: true, import: 'default' });   // _*.json은 생성기 입력(병력표)이지 말판이 아니다
-const boards = Object.values(BOARD_FILES);
+const BOARD_FILES = import.meta.glob<BoardData>(['../data/boards/*.json', '!../data/boards/_*.json'], { import: 'default' });   // _*.json은 생성기 입력(병력표)이지 말판이 아니다
 
-load().then(d => {
+Promise.all([load(), Promise.all(Object.values(BOARD_FILES).map(f => f()))]).then(async ([d, boards]) => {
   // 첫 진입 = 장면 프리셋(DESIGN §4). URL에 연도가 있으면 존중.
-  const scenes = scenesFor(DS, d.manifest);
+  const scenes = await scenesFor(DS, d.manifest);
   const q = new URLSearchParams(location.search);
   // 자료실 딥링크(?sel=, ?y=)나 말판 딥링크(?board=)가 있으면 장면을 덮어쓰지 않는다
   const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') || q.has('board') ? null : scenes[0]);

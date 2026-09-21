@@ -1,0 +1,301 @@
+{
+ "id": "philippi",
+ "title": "필리피 · BC 42",
+ "year": -42,
+ "teaching": true,
+ "source": "교보재용 재구성. 앵커는 정본 place:필리피 좌표 24.3387E/41.0251N(public/datasets/rome/layers/settlements.geojson)이며, 실제 유적 GPS 좌표(41.01306N/24.28639E, 위키백과 Philippi 항목)와 약 4~5km 차이가 있다 — 이 프로젝트의 기존 정본 데이터를 그대로 쓰고 고치지 않았다. 전투는 아피아노스 『내전기』 4.105~131, 플루타르코스 『브루투스』 38~52(Perseus text:2008.01.0011), 카시우스 디오 『로마사』 47.37~49에 근거한다(LacusCurtius 목차 기준 전투 서술은 47권 37장부터이며, 발주 메모의 '35장'은 근사치다). 도시 성벽·아고라·극장 유구는 확정(2016년 유네스코 세계유산 등재)이고 비아 에그나티아가 이 도시를 지난 것도 확정이나, 두 진영과 보루선의 정확한 지오메트리는 이 프로젝트가 측량한 것이 아니라 사료의 방향·거리 서술에 맞춘 교보재용 근사·복원이다. 진영 위치 자체가 학계에서 논쟁 중이다 — 통설은 도시 서쪽 약 3.5km 평지(브루투스 북쪽 언덕·카시우스 남쪽 언덕, 리비우스Livius.org)이나, 일부 연구는 도시에서 남동쪽 약 10km 카발라 방면 아미그달레오나스 부근으로 재비정한다(Society for Classical Studies, 'The Site of the Battle of Philippi'). 이 지도는 통설을 따른다. 습지는 실제로는 서쪽 스트리몬 강 유역까지 뻗은 훨씬 넓은 '필리피 늪'의 일부였고, 1920년대 그리스 전간기 난민 정착·간척 사업으로 대부분 농지가 됐다 — 이 지도의 습지 폴리곤은 전장 인근 부분만 도식화했다. 심볼론 산은 정본 Pleiades pid 501631 좌표(24.1915E/40.8379N)를 그대로 썼다. 말판은 만들지 않았다 — 아피아노스 4.108이 양측 군단 총수(각 19개 군단, 기병 카이사르파 1만3천·해방자파 2만)만 줄 뿐 개별 부대 좌표를 주지 않아, 말판을 만들면 사료에 없는 정밀도를 지어내게 된다.",
+ "home": {
+  "at": [
+   24.3387,
+   41.0251
+  ],
+  "minZoom": 10,
+  "span": 0.4
+ },
+ "view": {
+  "center": [
+   24.3387,
+   41.0251
+  ],
+  "zoom": 11,
+  "pitch": 0,
+  "bearing": 0
+ },
+ "hide": [
+  "movements",
+  "people"
+ ],
+ "basemap": null,
+ "dem": {
+  "dir": "terrain-philippi",
+  "minzoom": 8,
+  "maxzoom": 12
+ },
+ "landcover": {
+  "dir": "landcover-philippi",
+  "minzoom": 8,
+  "maxzoom": 12,
+  "opacity": 0.55
+ },
+ "board": null,
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:city",
+    "name_ko": "필리피 (성벽·아고라·극장)",
+    "name_la": "Philippi, Colonia Iulia Augusta Philippensis",
+    "kind": "wall",
+    "grade": "확정",
+    "note_ko": "필리포스 2세가 BC 356년경 트라키아인 취락 크레니데스를 넓혀 세운 도시. 로마 내전기 마케도니아 속주의 요지였고, 성벽·아고라·극장·아크로폴리스가 발굴돼 2016년 유네스코 세계유산으로 등재됐다.",
+    "source": "위키백과 Philippi(2016년 세계유산 등재, 실제 GPS 41.01306N/24.28639E). 이 폴리곤은 정본 place:필리피 좌표를 중심으로 한 단순화한 육각형이며 실제 성벽 트레이스가 아니다.",
+    "teaching": true,
+    "wiki": "https://en.wikipedia.org/wiki/Philippi"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [24.3447, 41.0251],
+      [24.3417, 41.0281],
+      [24.3357, 41.0281],
+      [24.3327, 41.0251],
+      [24.3357, 41.0221],
+      [24.3417, 41.0221],
+      [24.3447, 41.0251]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:via_egnatia",
+    "name_ko": "비아 에그나티아",
+    "name_la": "Via Egnatia",
+    "kind": "road",
+    "grade": "근사",
+    "note_ko": "암필리폴리스(서)와 네아폴리스·카발라(동)를 잇는 로마 간선도로로, 필리피 시내를 지났다. 브루투스·카시우스 진영과 삼두파 진영을 가르는 동서 축이었다.",
+    "source": "위키백과 Philippi('controlled the route between Amphipolis and Neapolis ... Via Egnatia'). 이 프로젝트에 도로 지오메트리 정본이 없어 방향(서→동)만 사료·역사지리에 맞추고 정점은 도식으로 그렸다 — 실측 노선이 아니다.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [24.2673, 41.0271],
+     [24.2970, 41.0251],
+     [24.3387, 41.0251],
+     [24.3530, 41.0221]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:camp:brutus",
+    "name_ko": "브루투스 진영 (북쪽 언덕)",
+    "name_la": "castra Bruti",
+    "kind": "camp",
+    "grade": "복원",
+    "note_ko": "도시에서 서쪽으로 약 3.5km, 비아 에그나티아 북쪽 언덕 기슭. 뒤로는 험한 산지를 등져 우회가 어려웠다. 1차 전투에서 옥타비아누스 진영을 깼다.",
+    "source": "Livius.org 'Philippi (42 BCE)'(남쪽 언덕 카시우스·북쪽 언덕 브루투스, 도시 서쪽 약 3.5km); 아피아노스 『내전기』 4.106·4.112~113. 좌표는 정본 도시 좌표에서 서쪽 3.5km 지점을 사료 방향에 맞춰 잡은 교보재용 추정이며 발굴로 확인된 지점이 아니다.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [24.2970, 41.0332]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:camp:cassius",
+    "name_ko": "카시우스 진영 (남쪽 언덕)",
+    "name_la": "castra Cassii",
+    "kind": "camp",
+    "grade": "복원",
+    "note_ko": "브루투스 진영 남쪽, 습지에 더 가까운 낮은 지대. 1차 전투에서 안토니우스가 이 진영을 돌파했고 카시우스는 오인·절망 끝에 자결했다.",
+    "source": "Livius.org 'Philippi (42 BCE)'; 아피아노스 『내전기』 4.113~114, 플루타르코스 『브루투스』 43. 좌표는 브루투스 진영과 같은 방식의 교보재용 추정.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [24.2970, 41.0170]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:camp:triumvirs",
+    "name_ko": "삼두파 진영 (안토니우스·옥타비아누스)",
+    "name_la": "castra triumvirorum",
+    "kind": "camp",
+    "grade": "복원",
+    "note_ko": "브루투스·카시우스 진영에서 서쪽으로 약 1.5km 떨어진 트인 평지. 안토니우스는 남쪽(카시우스 맞은편), 옥타비아누스는 북쪽(브루투스 맞은편)에 섰다. 암필리폴리스에서 약 65km 보급선을 끌어와야 해 지구전에 불리했다.",
+    "source": "Livius.org 'Philippi (42 BCE)'(진영 간 거리 약 1.5km, 암필리폴리스 65km 보급선). 좌표는 교보재용 추정.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [24.2792, 41.0251]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:rampart",
+    "name_ko": "보루선 (브루투스-카시우스 방벽)",
+    "name_la": "vallum inter castra",
+    "kind": "wall",
+    "grade": "복원",
+    "note_ko": "두 진영을 잇는 참호와 방벽으로 비아 에그나티아를 가로질렀다. 2002년 항공사진 판독에서 두 진영을 잇는 희미한 선형 흔적이 방벽으로 보고됐으나, 확정된 발굴 성과는 아니다.",
+    "source": "카시우스 디오 『로마사』 47.42; Georgoula·Kaimaris(2002) 항공사진 판독(Society for Classical Studies 소개). 기하는 두 진영 점을 잇는 직선 근사다 — 실측 참호선이 아니다.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [24.2970, 41.0332],
+     [24.2970, 41.0170]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:marsh",
+    "name_ko": "필리피 늪 (전장 인근)",
+    "name_la": "palus Philippensis",
+    "kind": "plain",
+    "grade": "논쟁",
+    "note_ko": "카시우스 진영 남쪽의 습지. 실제로는 서쪽 스트리몬 강 유역까지 뻗은 훨씬 넓은 '필리피 늪'의 일부였다. 1920년대 그리스 전간기 간척 사업으로 대부분 농지가 됐다 — 오늘날 이 자리는 습지가 아니다.",
+    "source": "Livius.org(습지가 스트리몬까지 뻗음); ResearchGate 'A Lost Macedonian Ecosystem: The Land Reclamation and Politicisation of the Philippi Marshes in Interwar Greece'. 폴리곤은 전장 인근 부분만 도식화했고, 늪의 옛 정확한 경계는 학계에서도 갈린다.",
+    "teaching": true,
+    "wiki": null
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [24.3250, 41.0050],
+      [24.3100, 41.0137],
+      [24.2800, 41.0137],
+      [24.2650, 41.0050],
+      [24.2800, 40.9963],
+      [24.3100, 40.9963],
+      [24.3250, 41.0050]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "philippi:hill:symbolon",
+    "name_ko": "심볼론 산",
+    "name_la": "Symbolon Mons",
+    "kind": "hill",
+    "grade": "근사",
+    "note_ko": "전장에서 남쪽으로 약 20km 떨어진 산으로, 네아폴리스(카발라)로 가는 길목에 있다. 학계는 아피아노스가 전장 지형을 서술하며 이 산의 존재를 제대로 반영하지 못했다고 본다.",
+    "source": "Pleiades pid 501631(24.1915E/40.8379N, 'Mt. Symvolon'). Society for Classical Studies, 'The Site of the Battle of Philippi (42 BCE)'.",
+    "teaching": true,
+    "wiki": "https://pleiades.stoa.org/places/501631"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [24.1915, 40.8379]
+   }
+  }
+ ],
+ "callouts": [
+  {
+   "id": "philippi:call-brutus",
+   "topic": "terrain",
+   "anchor": { "feature": "philippi:camp:brutus" },
+   "side": "left",
+   "num": 1,
+   "title": "브루투스, 언덕을 차지하다",
+   "body": "브루투스는 도시 쪽 높은 지대에, 카시우스는 남쪽 낮은 지대에 진을 쳤다. 두 진영은 비아 에그나티아를 가로질러 보루로 이어졌다.",
+   "cite": "아피아노스 『내전기』 4.106",
+   "links": [
+    { "label": "Livius: Philippi (42 BCE)", "url": "https://www.livius.org/articles/battle/philippi-42-bce/" }
+   ],
+   "image": null
+  },
+  {
+   "id": "philippi:call-cassius",
+   "topic": "terrain",
+   "anchor": { "feature": "philippi:camp:cassius" },
+   "side": "right",
+   "num": 2,
+   "title": "카시우스, 습지 쪽 낮은 진영",
+   "body": "카시우스의 진영은 남쪽 습지에 가까워 지반이 불리했다. 1차 전투에서 안토니우스가 이 진영을 뚫었고 카시우스는 자결했다.",
+   "cite": "아피아노스 『내전기』 4.113~114",
+   "links": [
+    { "label": "위키백과: 필리피 전투", "url": "https://ko.wikipedia.org/wiki/%ED%95%84%EB%A6%AC%ED%94%BC_%EC%A0%84%ED%88%AC" }
+   ],
+   "image": null
+  },
+  {
+   "id": "philippi:call-triumvirs",
+   "topic": "terrain",
+   "anchor": { "feature": "philippi:camp:triumvirs" },
+   "side": "left",
+   "num": 3,
+   "title": "삼두파, 평지의 약점",
+   "body": "안토니우스와 옥타비아누스는 서쪽 평지에 진을 쳤다. 암필리폴리스에서 65km를 끌어와야 하는 약한 보급선이 속전을 강요했다.",
+   "cite": "아피아노스 『내전기』 4.108",
+   "links": [
+    { "label": "Livius: Philippi (42 BCE)", "url": "https://www.livius.org/articles/battle/philippi-42-bce/" }
+   ],
+   "image": null
+  },
+  {
+   "id": "philippi:call-rampart",
+   "topic": "terrain",
+   "anchor": { "feature": "philippi:rampart" },
+   "side": "right",
+   "num": 4,
+   "title": "보루선 — 길을 가로지르다",
+   "body": "두 진영을 잇는 참호와 보루가 비아 에그나티아를 가로질러 방벽을 이뤘다. 항공사진에서 그 흔적으로 추정되는 선이 보고된 바 있다.",
+   "cite": "카시우스 디오 『로마사』 47.42",
+   "links": [
+    { "label": "Society for Classical Studies: The Site of the Battle of Philippi", "url": "https://classicalstudies.org/site-battle-philippi-42-bce" }
+   ],
+   "image": null
+  },
+  {
+   "id": "philippi:call-marsh",
+   "topic": "event",
+   "anchor": { "feature": "philippi:marsh" },
+   "side": "left",
+   "num": 5,
+   "title": "늪, 지금은 밀밭",
+   "body": "필리피 남쪽 늪지는 20세기 초 그리스의 간척 사업으로 대부분 사라졌다. 전장의 원래 지형은 오늘날 남아 있지 않다.",
+   "cite": "그리스 전간기 필리피 늪지 간척 사업(1920년대)",
+   "links": [
+    { "label": "ResearchGate: A Lost Macedonian Ecosystem", "url": "https://www.researchgate.net/publication/373121142_A_Lost_Macedonian_Ecosystem_The_Land_Reclamation_and_Politicisation_of_the_Philippi_Marshes_in_Interwar_Greece" }
+   ],
+   "image": null
+  },
+  {
+   "id": "philippi:call-symbolon",
+   "topic": "terrain",
+   "anchor": { "feature": "philippi:hill:symbolon" },
+   "side": "right",
+   "num": 6,
+   "title": "심볼론 산 — 지워진 지형",
+   "body": "학계는 아피아노스가 전장을 묘사하며 심볼론 산의 존재를 제대로 반영하지 못했다고 본다. 진영 위치 자체도 여전히 논쟁 중이다.",
+   "cite": "Society for Classical Studies, 'The Site of the Battle of Philippi (42 BCE)'",
+   "links": [
+    { "label": "Society for Classical Studies: The Site of the Battle of Philippi", "url": "https://classicalstudies.org/site-battle-philippi-42-bce" }
+   ],
+   "image": null
+  }
+ ]
+}

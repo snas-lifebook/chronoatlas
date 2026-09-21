@@ -1,0 +1,79 @@
+{
+  "type": "FeatureCollection",
+  "teaching": true,
+  "source": "spartacus는 번들 좌표로 세울 수 있는 세 정점(카푸아·베수비오·실라루스 강)으로 만들었고, 무티나로 북상했다가 되돌아오는 구간(플루타르코스 『크라수스』 9~10)은 무티나 좌표가 없어 뺐다 — 우회로를 지어내지 않는다는 규칙을 지키려면 이 구간을 통째로 비우는 것이 정직하다. cimbri는 처음엔 못 세웠다(노레이아·아라우시오·아쿠아이 섹스티아이·베르첼라이 전부 정본·번들 Pleiades에 좌표가 없었다). `POINTS-01-11.md` §1 규칙 1의 위키데이터 허용 지적(팀 리드, 2026-09-21)을 받고 노레이아만 뺀 채(위치 자체가 학계 논쟁 중이라 확정 좌표가 없다) 나머지 셋을 위키데이터 P625로 세웠다 — `p345-battles.json`의 같은 세 지점과 좌표·QID가 같다.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "spartacus@vesuvius",
+        "route": "spartacus",
+        "owner": "person:스파르타쿠스",
+        "actor": "반란세력",
+        "label": "베수비오",
+        "name_ko": "스파르타쿠스의 반란",
+        "from_year": -73,
+        "to_year": -73,
+        "valid_from": -73,
+        "valid_to": -43,
+        "teaching": true,
+        "source": "카푸아 검투사 양성소 탈주 뒤 베수비오 산에 진을 친 구간. 플루타르코스 『크라수스』 8~9, 아피아노스 『내전기』 1.116. 정점은 정본 place:카푸아와 번들 Pleiades pid 433189(베수비오)."
+      },
+      "geometry": { "type": "LineString", "coordinates": [[14.25, 41.086], [14.4262, 40.8214]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "spartacus@silarus",
+        "route": "spartacus",
+        "owner": "person:스파르타쿠스",
+        "actor": "반란세력",
+        "label": "실라루스 강",
+        "name_ko": "스파르타쿠스의 반란",
+        "from_year": -73,
+        "to_year": -71,
+        "valid_from": -71,
+        "valid_to": -41,
+        "teaching": true,
+        "source": "이 두 정점 사이 무티나 왕복(플루타르코스 『크라수스』 9~10)은 좌표가 없어 뺐다 — 화면은 베수비오에서 곧장 실라루스로 잇는 직선이지만 실제로는 2년에 걸쳐 이탈리아 반도를 오간 뒤의 최종 결전지다. 플루타르코스 『크라수스』 11, 아피아노스 『내전기』 1.120. 정점은 번들 Pleiades pid 433189·442795."
+      },
+      "geometry": { "type": "LineString", "coordinates": [[14.4262, 40.8214], [15.1355, 40.6195]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cimbri@aquae-sextiae",
+        "route": "cimbri",
+        "owner": "group:킴브리",
+        "actor": "게르만",
+        "label": "아쿠아이 섹스티아이",
+        "name_ko": "킴브리 전쟁",
+        "from_year": -105,
+        "to_year": -102,
+        "valid_from": -102,
+        "valid_to": -72,
+        "teaching": true,
+        "source": "정본에 킴브리 전쟁 로마 지휘관 이전의 위치 엣지가 없어 노레이아(-113, 최초 로마와의 충돌지)는 뺐다 — 위치 자체가 비정 논쟁 중이라 좌표가 없다. 경로는 아라우시오(로마군 궤멸)에서 아쿠아이 섹스티아이(테우토네스가 궤멸된 곳)로 잇는다. 실제로는 아쿠아이 섹스티아이에서 싸운 것은 테우토네스뿐이고 킴브리는 별동대였다(정본 group:테우토네스도 별도로 있다) — `owner`는 팀 브리핑 지시대로 group:킴브리로 통일했다. 플루타르코스 『마리우스』 11~21."
+      },
+      "geometry": { "type": "LineString", "coordinates": [[4.808889, 44.1375], [5.445556, 43.527778]] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cimbri@vercellae",
+        "route": "cimbri",
+        "owner": "group:킴브리",
+        "actor": "게르만",
+        "label": "베르첼라이",
+        "name_ko": "킴브리 전쟁",
+        "from_year": -102,
+        "to_year": -101,
+        "valid_from": -101,
+        "valid_to": -71,
+        "teaching": true,
+        "source": "아쿠아이 섹스티아이에서 베르첼라이로. 킴브리가 최종 궤멸한 곳이라 경로 종점을 여기로 뒀다. 플루타르코스 『마리우스』 23~27."
+      },
+      "geometry": { "type": "LineString", "coordinates": [[5.445556, 43.527778], [8.42341, 45.32615]] }
+    }
+  ]
+}

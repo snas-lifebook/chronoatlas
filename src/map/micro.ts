@@ -183,6 +183,9 @@ export function createMicro(map: maplibregl.Map, opts: {
       const base = BASE.get(id);
       map.setFilter(id, (base ? ['all', base, f] : f) as any);
     }
+    // 도판도 시기를 가진다(basemap.from_year). 그 해보다 앞이면 안 깐다 — 로마 도판은 제정기 도시라 BC 753 밑에 두면 없던 것이 비친다.
+    const bm = active?.basemap;
+    if (map.getLayer('micro-basemap')) map.setLayoutProperty('micro-basemap', 'visibility', bm?.from_year != null && year < bm.from_year ? 'none' : 'visible');
   }
   return {
     active: () => active,

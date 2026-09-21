@@ -1,0 +1,134 @@
+{
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "정본에 이미 있는 전투(악티움 제외: 발생지 제안 대기)는 다루지 않는다. victor 어휘는 정본 actors 9종(로마·카르타고·그리스계·이탈리아세력·누미디아·갈리아·게르만·반란세력·기타중립)만 쓴다. 좌표 출처는 항목마다 다르다: 정본 place가 있으면 그것, 없으면 번들 Pleiades(landmarks.geojson), 그마저 없으면 위키백과 좌표.",
+ "outside_canon": {
+  "place:페루시아": "정본에 place도 event도 없다. 좌표는 현 이탈리아 페루자 시가지(위키백과), 고대 도시와 같은 자리다.",
+  "place:나울로쿠스": "정본에 place가 없다. 좌표는 번들 Pleiades 462379 'Mylae'(landmarks.geojson)를 그대로 쓴다: 나울로쿠스와 밀라이는 시칠리아 북동 밀라초 반도의 같은 곶을 가리키는 별개 고대 지명이라, 정확한 나울로쿠스 좌표가 따로 없는 이상 가장 가까운 확정 좌표로 대신한다.",
+  "place:악티움": "proposals/20260911_place_actium.jsonl이 아직 병합되지 않았다. 좌표는 그 제안과 동일한 Pleiades 530772.",
+  "place:토이토부르크숲": "정본에 place가 없다. 좌표는 번들 Pleiades 99043 'Teutoburgiensis? Saltus'(landmarks.geojson): 토이토부르크 숲 전역을 가리키는 지형점이고, 실제 발굴로 확인된 칼크리제 전장(북위 52.40, 동경 8.15 부근)과는 다르다. 정확한 전장 좌표가 번들에 없어 숲 지형점으로 대신한다.",
+  "place:카물로두눔": "정본에 place가 없다(제안 대기, 아래 proposals 참고). 좌표는 위키백과(현 영국 콜체스터 시가지)."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:필리피",
+    "name_ko": "필리피 전투",
+    "year": -42,
+    "valid_from": -42,
+    "valid_to": -12,
+    "victor": "로마",
+    "teaching": true,
+    "source": "두 차례(BC 42년 10월 3일 1차: 카시우스 진영 패주, 10월 23일 2차: 브루투스 진영 궤멸)를 한 점으로 합쳤다. 아피아노스 『내전기』 4.105~131, 플루타르코스 『브루투스』 38~52. 정본 place:필리피 좌표를 그대로 쓴다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     24.3387,
+     41.0251
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:페루시아",
+    "name_ko": "페루시아 공방전",
+    "year": -40,
+    "valid_from": -40,
+    "valid_to": -10,
+    "victor": "로마",
+    "teaching": true,
+    "source": "옥타비아누스가 안토니우스의 동생 루키우스 안토니우스와 아내 풀비아를 페루시아에서 포위해 항복시킨다(BC 41년 겨울~40년 2월). 안토니우스 본인은 동방에 있어 이 전투에 없었다. 아피아노스 『내전기』 5.30~49."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.3908,
+     43.1107
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:나울로쿠스",
+    "name_ko": "나울로쿠스 해전",
+    "year": -36,
+    "valid_from": -36,
+    "valid_to": -6,
+    "victor": "로마",
+    "teaching": true,
+    "source": "아그리파가 지휘한 함대가 섹스투스 폼페이우스의 함대를 격파, 시칠리아 전쟁을 끝낸다. 아피아노스 『내전기』 5.118~121, 수에토니우스 『아우구스투스』 16."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     15.2404,
+     38.2194
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:악티움",
+    "name_ko": "악티움 해전",
+    "year": -31,
+    "valid_from": -31,
+    "valid_to": -1,
+    "victor": "로마",
+    "teaching": true,
+    "source": "이 점은 병합 전 교보재다. proposals/20260911_place_actium.jsonl이 병합되면 정본 event:악티움해전 occurred_at 링크로 battles.geojson에 자동으로 찍히니 이 점은 그때 걷어낸다. 플루타르코스 『안토니우스』 65~66, 디오 50.31~35."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     20.7498,
+     38.9236
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:토이토부르크숲",
+    "name_ko": "토이토부르크 숲 전투",
+    "year": 9,
+    "valid_from": 9,
+    "valid_to": 39,
+    "victor": "게르만",
+    "teaching": true,
+    "source": "아르미니우스가 이끄는 게르만 부족 연합이 바루스의 3개 군단을 전멸시킨다. 포인트 09~11 본문에는 없는 사건이지만, 대표님 9/13 발언(\"라인 강 넘어가지마... 내부를 지켜\")이 인용한 아우구스투스 유언(타키투스 『연대기』 1.11)의 배경이라 넣었다: 이 패전이 라인강을 국경으로 굳힌 계기다(수에토니우스 『아우구스투스』 23, 디오 56.18~24). note: 본문 밖, 유언의 배경."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     7.7869,
+     52.2219
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:카물로두눔",
+    "name_ko": "카물로두눔 함락",
+    "year": 43,
+    "valid_from": 43,
+    "valid_to": 73,
+    "victor": "로마",
+    "teaching": true,
+    "source": "클라우디우스가 직접 건너가 항복을 받은 브리타니아 정복의 매듭. 카시우스 디오 60.21, 수에토니우스 『클라우디우스』 17. 포인트 11 본문 \"43년에 클라우디우스는 브리타니아... 정토에 나섰다\"."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     0.9027,
+     51.8959
+    ]
+   }
+  }
+ ]
+}

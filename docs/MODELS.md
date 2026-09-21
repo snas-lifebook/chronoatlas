@@ -220,6 +220,7 @@ classDiagram
     +BasemapCorners corners
     +number opacity?
     +number min_zoom?
+    +number from_year?
     +string title?
     +string caveat?
     +string short_caveat?

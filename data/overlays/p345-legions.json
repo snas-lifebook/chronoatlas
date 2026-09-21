@@ -1,0 +1,83 @@
+{
+  "teaching": true,
+  "doc": "docs/P345-NOTES.md",
+  "source": "고대 사료 직접 인용 우선(폴리비오스·리비우스·플루타르코스·아피아노스). 사료가 총수를 적지 않은 해는 legions·men을 null로 둔다. 로마 지휘관이 아닌 인물(한니발·스파르타쿠스)은 legions가 애초에 없는 개념이라 항상 null이다. pack-legions.json의 reading_rules(정원×군단수 계산 금지, null≠0)를 그대로 따른다.",
+  "reading_rules": {
+    "missing_year_means": "해당 연도에 항목이 없으면 그 인물이 그해 대표 장면의 지휘관이 아니다.",
+    "legions_null_means": "로마 군단 개념이 없는 지휘관(비로마)이거나, 지휘권은 있었으나 군단 수를 적은 사료가 없다는 뜻.",
+    "men_null_means": "그 해 병력 규모를 믿을 만하게 전하는 사료가 없다. 0이 아니다."
+  },
+  "by_person": {
+    "person:한니발": [
+      {
+        "year": -218,
+        "legions": null,
+        "men_low": 59000,
+        "men_high": 59000,
+        "note_ko": "카르타헤나 출발 시점(보병 5만, 기병 9천, 코끼리 37마리는 별도라 이 필드에 안 넣었다. 폴리비오스 3.35). **같은 해 알프스를 넘은 직후에는 보병 2만·기병 6천(2만6천)으로 줄었다**(폴리비오스 3.56) — 같은 해라 행이 하나뿐이라(이 파일은 연 단위) 두 수치를 한 note에 같이 적는다. 알프스 횡단 중 이탈·동사·전사로 병력 절반 이상을 잃었다.",
+        "source": "Polybius, Histories 3.35, 3.56",
+        "confidence": "high"
+      },
+      {
+        "year": -216,
+        "legions": null,
+        "men_low": 50000,
+        "men_high": 50000,
+        "note_ko": "칸나이. 보병 4만, 기병 1만. 점 본문은 「오래된 정군 2만+갈리아 1만5천=3만5천, 기병 1만」으로 조금 낮게 적지만 같은 사료 계열이다.",
+        "source": "Polybius, Histories 3.113~114",
+        "confidence": "high"
+      }
+    ],
+    "person:스키피오아프리카누스": [
+      {
+        "year": -204,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "아프리카(우티카) 상륙 병력. 리비우스는 세 가지 서로 다른 수치를 전하며 어느 것도 확정하지 않는다 — 이 팩도 하나를 고르지 않는다.",
+        "source": "Livy, Ab Urbe Condita 29.25",
+        "confidence": "low"
+      },
+      {
+        "year": -202,
+        "legions": null,
+        "men_low": 29000,
+        "men_high": 34000,
+        "note_ko": "자마. 폴리비오스는 로마·이탈리아 보병과 기병, 마시니사의 누미디아 기병 배치를 항목별로 적을 뿐 깔끔한 총계를 주지 않는다 — 이 범위는 현대 재구성의 폭이고 폴리비오스 원문의 단일 숫자가 아니다.",
+        "source": "Polybius, Histories 15.9~14",
+        "confidence": "low"
+      }
+    ],
+    "person:가이우스마리우스": [
+      {
+        "year": -101,
+        "legions": null,
+        "men_low": null,
+        "men_high": null,
+        "note_ko": "아쿠아이 섹스티아이(-102)·베르첼라이(-101) 원정군 규모. 플루타르코스는 전투 경과를 상세히 적지만 로마군 총수는 주지 않는다. 좌표가 없어 이 인물은 `p345-cast.json`에도 -87 로마로만 서 있다 — 이 두 해의 군세는 지도에 안 뜬다.",
+        "source": "Plutarch, Marius 11~27",
+        "confidence": "low"
+      }
+    ],
+    "person:스파르타쿠스": [
+      {
+        "year": -73,
+        "legions": null,
+        "men_low": 78,
+        "men_high": 78,
+        "note_ko": "카푸아 탈주 시점. 검투사 78명. 점 본문과 일치.",
+        "source": "Appian, Bellum Civile 1.116",
+        "confidence": "high"
+      },
+      {
+        "year": -71,
+        "legions": null,
+        "men_low": 70000,
+        "men_high": 70000,
+        "note_ko": "최성기 반란군 규모. 아피아노스는 7만으로 적는다(점 본문과 일치) — 플루타르코스는 「엄청나게 불어났다」고만 적고 구체적 총수를 주지 않는다.",
+        "source": "Appian, Bellum Civile 1.117",
+        "confidence": "medium"
+      }
+    ]
+  }
+}
