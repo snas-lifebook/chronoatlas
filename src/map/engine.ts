@@ -586,7 +586,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
 
   function addTerrain(before?: string) {
     const t = terrainMeta; if (!t) return;
-    if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 8 });
+    // bounds = 데이터셋 bbox. 대륙 DEM은 그 범위만 구웠으므로(bake-dem.py continental) 밖의 타일은 없다. 안 주면 낮은 줌에서 북극·대서양 타일을 청해 404가 장면마다 여섯 난다(2026-09-21 라이브 스모크).
+    if (!map.getSource('dem')) map.addSource('dem', { type: 'raster-dem', tiles: [`${root}datasets/${ds}/terrain/{z}/{x}/{y}.png`], encoding: t.encoding ?? 'terrarium', tileSize: 256, minzoom: t.minzoom ?? 0, maxzoom: t.maxzoom ?? 8, ...(d.manifest.bbox ? { bounds: d.manifest.bbox } : {}) });
     // 베이크된 relief.jpg(NE Gray Earth 1.85km/px)와 겹치면 그림자가 두 벌이라 능선이 뭉갠다 — DEM 음영이 해상도·광원 모두 낫다.
     if (map.getLayer('relief')) map.removeLayer('relief');
     const act = micro.active();

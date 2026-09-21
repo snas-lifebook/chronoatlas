@@ -138,7 +138,7 @@ id 접두 `p12-`·`p345-`·`p911-`. 그룹 이름은 「포인트 …」로 시�
   - **주변 민족 면이 전부 0**(카이사르 팩 게르마니아·다키아·사르마티아까지). `mergePeoples`가 소스 데이터를 `{features}`로만 세워 `type: 'FeatureCollection'`이 빠졌고, MapLibre(geojson-vt)는 오류 없이 빈 소스로 읽는다. 어느 계측도 이 층을 안 세고 있었다 → `look.py`에 `주변민족` 개수 추가.
   - **묶음 peoples(삼니움·라틴·에트루리아·헤르니키·에페이로스)가 URL로 바로 연 장면에서 영영 안 합쳐짐.** `refreshPack`의 `if (!loaded) return` 뒤에 병합이 있어 묶음이 addData보다 먼저 오면 버려졌다 → 병합을 early return 앞으로. 재측정: BC 321 면 5·이름표 3, BC 275 면 3·이름표 2, 갈리아 BC 58 면 10·이름표 5.
   - 함께 고침: 에페이로스 `valid_to` -275 → **-274**(반열림이라 BC 275 장면에 안 떴다) · 산봉우리 이름표의 ▲(U+25B2) 글리프 범위 9472~9727이 두 폰트 다 없어 404였다(슬라이스 전부터) → pbf 둘 내려받고 `fetch-external.ts` 문자 목록에 ▲ 등록 · `App.tsx`의 `people-dot` 조회를 층 존재 검사로 감쌈(스킨 전환 순간 console.error).
-  - 남은 콘솔 잡음은 초상 없는 말의 webp 404뿐(§8, River 몫).
+  - 재배포 뒤 남은 404 둘: 대륙 DEM이 bbox 밖 타일(북극·대서양, 낮은 줌)을 청하던 것(슬라이스 전부터) → `dem` 소스에 `bounds: manifest.bbox` · 초상 없는 말의 webp 404(§8, River 몫, 폴백은 세력색 판).
 
 ## 7. 정본 제안 검토표 (River 승인 → 병합·adapt 한 번)
 
