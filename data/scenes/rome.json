@@ -90,7 +90,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -118,7 +117,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -148,7 +146,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -179,7 +176,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -208,7 +204,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -235,7 +230,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -261,7 +255,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -289,7 +282,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -315,7 +307,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -343,7 +334,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -374,7 +364,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -400,7 +389,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -431,7 +419,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -457,7 +444,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -482,7 +468,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -510,7 +495,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -537,7 +521,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -564,7 +547,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -591,7 +573,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -619,7 +600,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -647,7 +627,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -673,7 +652,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -699,7 +677,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -728,7 +705,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -758,7 +734,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "relief",
    "rivers",
@@ -783,7 +758,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -812,7 +786,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -842,7 +815,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -871,7 +843,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -902,7 +873,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -934,7 +904,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -964,7 +933,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -995,7 +963,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1025,7 +992,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1056,7 +1022,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1086,7 +1051,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1115,7 +1079,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1142,7 +1105,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1167,7 +1129,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1197,7 +1158,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1227,7 +1187,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1254,7 +1213,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1279,7 +1237,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1305,7 +1262,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1335,7 +1291,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1361,7 +1316,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1386,7 +1340,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1412,7 +1365,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",
@@ -1441,7 +1393,6 @@
   "skin": "campaign",
   "layers": [
    "territory",
-   "admin_regions",
    "settlements",
    "people",
    "relief",

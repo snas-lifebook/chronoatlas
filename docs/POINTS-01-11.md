@@ -18,7 +18,7 @@
 
 1. **지어내지 않는다.** 좌표는 정본 place `lonlat`(`public/datasets/rome/layers/settlements.geojson`의 `id`) 또는 번들 안 Pleiades(`layers/landmarks.geojson`, `pid`) 또는 위키데이터 P625·위키백과 좌표 필드에서만. 연도·병력은 사료 수치만, 없으면 `null`. 모든 교보재는 `teaching: true` + `source` 문장. 말이 왜 그 해 거기 서는지 항목마다 `note`. 정본 `ontology/_routes/*_area.geojson`의 손그림 면은 정본으로 친다(그대로 복사, 새로 그리지 않는다). 말판 유닛(`schema/board.ts Unit`)엔 `source` 필드가 없다: 유닛 좌표의 근거는 페이즈 `note`와 `docs/<판>.md`가 진다(2026-09-21 L-R2 검토가 이 예외를 잡았다).
 2. **정본(볼트 `ontology/*.jsonl`)에 직접 쓰지 않는다.** 구멍은 `proposals/YYYYMMDD_<주제>.jsonl`(`add_entity`·`add_link`, 형식은 `proposals/20260911_place_actium.jsonl`). 병합·adapt는 라운드 끝 River 승인 한 번.
-3. **층 집합은 통일.** 발표 장면 = `territory·admin_regions·settlements·people·relief·rivers·labels`, 자취가 주인공인 장면만 `movements`·`story_battles`를 더한다. `skin: campaign`, `view: 2d`, 묶음 안에서 카메라를 공유하고(기본 `[14, 40] z4.2`) 필요한 장만 당긴다.
+3. **층 집합은 통일.** 발표 장면 = `territory·settlements·people·relief·rivers·labels`, 자취가 주인공인 장면만 `movements`·`story_battles`를 더한다. **`admin_regions`(「책의 지역」 216개, 176개는 연도 없음, 보라 점선)는 장면에 넣지 않는다**: z5.5부터 그려져 카이사르 팩(z4.2)에선 안 보였지만 이 슬라이스의 z6~7 장면과 세부 지도에서 바다를 가로지르는 상자 선으로 전부 드러났다(2026-09-21 배포 뒤 River 「국경인지 뭔가 이어진 선들이 너무 노골적으로 많이 보여」). 탐색 모드의 「속주」 토글로만 켠다. 묶음 사선(`pack-hatch-admin`)은 같은 소스를 쓰지만 `territory` 그룹이라 영향 없다. `skin: campaign`, `view: 2d`, 묶음 안에서 카메라를 공유하고(기본 `[14, 40] z4.2`) 필요한 장만 당긴다.
 4. **연도는 그룹 안에서 단조 증가**(`test/present.test.ts`). 같은 카메라·같은 해·같은 층의 장면 둘을 두지 않는다.
 5. **반열림 구간 `[from, to)`.** 「48~47년」은 `to: -46`. 렌더는 에러를 안 낸다.
 6. **이름표는 도시 > 인물 > 나머지**(`engine.orderLabels`). 새 층을 얹으면 `qa-sweep.py`의 `namesDropped`가 0인지 다시 잰다.

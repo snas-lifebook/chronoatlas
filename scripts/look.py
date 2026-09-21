@@ -78,6 +78,8 @@ def main() -> int:
         ctx = browser.contexts[0]
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         cdp = ctx.new_cdp_session(page)
+        # 캐시를 끈다. 재빌드 뒤에도 Chrome이 index.html을 붙들어 옛 번들을 찍는다(2026-09-21, admin-line을 뺀 빌드가 안 빠진 것처럼 보였다).
+        cdp.send("Network.enable"); cdp.send("Network.setCacheDisabled", {"cacheDisabled": True})
         cdp.send("Emulation.setDeviceMetricsOverride",
                  {"width": VIEW_W, "height": VIEW_H, "deviceScaleFactor": 2, "mobile": False})
         url = f"{BASE}?present=1&scene={a.scene}&skin={a.skin}"

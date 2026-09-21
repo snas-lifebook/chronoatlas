@@ -903,6 +903,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       filter: ['>', ['get', 'area'], ['case', ['==', ['get', 'actor'], '기타중립'], ['step', ['zoom'], 900000, 5, 300000, 7, 80000], ['step', ['zoom'], 80000, 7, 20000]]] as any }, before);
     map.addSource('admin_regions', { type: 'geojson', data: d.admin_regions as any });
     // 216개 「책의 지역」 점선이 대륙 축척(z4)을 뒤덮는다(2026-09-17 캡처). z5.5부터만 그린다.
+    // 그래도 z6~7 장면·세부 지도에선 바다를 가로지르는 상자 선 176개(연도 없음)가 국경처럼 읽힌다(2026-09-21 River). 장면 `layers`에서 뺐고 「속주」 토글로만 켠다.
     map.addLayer({ id: 'admin-line', type: 'line', source: 'admin_regions', minzoom: 5.5, paint: { 'line-color': '#4b3f8c', 'line-width': 1.5, 'line-dasharray': [3, 2], 'line-opacity': ['case', ['==', ['get', 'confidence'], 'low'], 0.45, 0.9] as any } }, before);
     // 묶음 사선(R59, `<묶음>-hatch`): 삼두 분할·알렉산드리아의 기증·황제/원로원 속주. 속주(admin_regions)와 폴리티(territory) 두 소스에
     // 같은 규칙으로 얹는다. 기하를 새로 만들지 않고 이름만 가리키는 것은 client-hatch와 같다. 채움 무늬·필터는 apply()의 syncPackHatch가 해마다.
