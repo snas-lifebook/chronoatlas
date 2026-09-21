@@ -183,3 +183,14 @@ River가 말한 셋 중 **어노테이션**과 **콜아웃**은 위로 구현됐
 | 벡터 레이어 | `src/map/engine.ts` (`LAYER_GROUPS.alesia` · `.roma` · `.alexandria`) |
 | 데이터 | `data/overlays/pack-{alesia,roma-urbs,alexandria,callouts}.json` |
 | 근거 문서 | `docs/ALESIA.md` · `docs/ROMA-URBS.md` · `docs/ALEXANDRIA.md` |
+
+2026-09-21(R59) 갱신. 위 표의 `pack-{alesia,…}.json`·`LAYER_GROUPS.alesia` 줄은 낡았다(2026-09-17 레지스트리로 갔다). 지금은:
+
+| 무엇 | 어디 |
+|---|---|
+| 지도 한 장 | `data/micromaps/<id>.json` + `index.json` 한 줄(home·title). 열둘: alesia·roma·alexandria·cannae·rubicon·athens·pharsalus·**zama·aegates·actium·philippi·capri** |
+| 시기 | 피처 `built_year`/`gone_year`(그 해 앞·뒤에서 숨김), 콜아웃 `from_year`/`to_year`, 도판 `basemap.from_year`. 로마 한 장이 BC 753·BC 44·AD 41을 맡는다 |
+| 렌더 | `src/map/micro.ts`(KIND_PAINT 28종, applyYear) · 층 이름 `MICRO_LAYERS`. **장면 layers 토글이 이 층을 만지면 안 된다**(engine apply의 `group === 'micro'` continue) |
+| 말판 | `data/boards/<id>-<year>.json`, arm에 `fleet`(해전) |
+| 근거 문서 | `ZAMA`·`AEGATES`·`ACTIUM`·`PHILIPPI`·`CAPRI.md`(+ `ROMA-URBS.md`는 AD 41 절이 `CAPRI.md`에 있다) |
+| 계측 | `scripts/look-micro.py <scene…>` 층별 렌더 개수·핀 수. 개수가 전부 0이면 층이 꺼진 것이다 |

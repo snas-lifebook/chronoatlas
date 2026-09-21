@@ -16,7 +16,8 @@
 - `src/map/style.ts` — 베이스맵 스타일(순수 함수). `src/map/engine.ts` — MapLibre + 데이터 레이어 + 인터랙션 + 1홉 그래프.
 - `src/app/App.tsx` — 떠 있는 카드(astryx). `Inspector.tsx` 객체 패널, `Search.tsx` ⌘K.
 - `src/graph/data.ts` — graph.json 인덱스·이웃. `mcp/tools.ts`가 **같은 파일**을 읽는다.
-- `data/scenes/rome.json` 장면 프리셋, `data/eras/rome.json` 시대 띠 — 사람이 쓰는 파일.
+- `data/scenes/rome.json` 장면 프리셋, `data/eras/rome.json` 시대 띠 — 사람이 쓰는 파일. 발표 그룹은 「포인트 …」로 시작하는 group(`present.isPresentGroup`), 정본은 `docs/POINTS-01-11.md`.
+- `data/overlays/p12-*|p345-*|p911-*.json` 포인트 묶음 교보재(cast·battles·routes·places·peoples·islands·anachronisms·legions·hatch·rivers). **지연 로드**: `packData.loadPack`이 그 해·그 장면에서 받아 살아 있는 배열에 합치고 `engine.refreshPack`이 다시 싣는다. 새 종류는 `mergePack`·`refreshPack` 둘 다 손본다. `pack-*.json`은 카이사르 팩(eager).
 
 ## MCP (읽기 전용 4툴)
 `npm run mcp` (stdio). Claude Desktop: `{"mcpServers":{"chronoatlas":{"command":"node","args":["--experimental-strip-types","<repo>/mcp/server.ts"]}}}`

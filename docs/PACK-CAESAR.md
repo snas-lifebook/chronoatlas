@@ -208,6 +208,8 @@ python3 scripts/shoot-pack.py         # 납품 여덟 장 재렌더(볼트에 �
 
 정본 온톨로지에는 `_routes/caesar.geojson`(11정점) · `pompey.geojson`이 있다. 어댑터 산출 `public/datasets/rome/layers/movements.geojson`은 카이사르만, 첫 세그먼트 `from_year=-52`인데 `valid_from=-49`. 전투 GeoJSON은 이 구간에 `카이사르암살` 하나.
 
+> **정정(2026-09-21).** 위 문단은 2026-09-13 시점이다. 2026-09-17 adapt 뒤 산출물에는 정본 경로 16종(폼페이우스 6구간 BC 67~48 포함)이 들어 있고, 엔진은 정본에 같은 route가 있으면 교보재 `pack-pompey.json`을 싣지 않는다. 폼페이우스 동방 원정은 `routes.ts`의 `pompey-east` 국면이다(R59).
+
 그래서 교보재(`teaching: true`)로 정본 **정점 좌표를 복사**해 올렸다. 좌표를 지어내지 않았다. adapt가 살아나면 교보재는 걷어내고 산출물을 쓰면 된다.
 
 크라수스는 온톨로지가 로마 통치를 -71~-49로 줘서, 전사(-53 카르하이) 뒤인 BC52에도 로마에 선다. 죽은 해를 지어내 지우지 않았다.

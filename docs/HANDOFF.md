@@ -11,6 +11,8 @@
 
 ## 1. 지금 상태
 
+> **2026-09-21 갱신(R59 포인트 01~11).** 발표 그룹이 넷이다(카이사르 팩 8 + 포인트 01·02 9 + 03·04·05 10 + 09·10·11 9), 세부 지도 열둘, 장면 53, vitest **275**, 초기 JS **388.8 kB**. 묶음 교보재 `data/overlays/p12-*|p345-*|p911-*.json`은 `packData.loadPack`이 그 해·그 장면에서 지연 로드하고 `engine.refreshPack`이 다시 싣는다. 정본 제안 57 op(`proposals/20260921_*.jsonl`)은 **병합 대기**(River, `POINTS-01-11.md` §7). 커밋 셋 **미푸시**. 정본 결함 목록은 같은 문서 §6 끝. **미시지도 층이 2026-09-17부터 안 그려지고 있었다**(`LAYER_GROUPS.micro` 가시성) → 고쳤고, `look-micro.py`의 층별 개수가 0이면 그 병이다.
+>
 > **2026-09-17 밤 갱신(슬라이스 III·IV).** 스킨 여섯(위성 추가, `rasters/satellite*.{jpg,png}` 4 MB), 영토 버킷에 `span_from`·`span_to`·`color`(재베이크 `npm run fetch-external` → `npm run finish`), 정착지 rank 5단(`npm run adapt`), 장면 `events`. 새 계측: `scripts/lod-count.py`(줌별 이름표 수) · `scripts/bake-satellite.py`. vitest 267+. **2026-09-18 새벽 라이브 배포됨**(Actions 1분 12초, 위성 래스터·DEM·글리프 전부 200).
 >
 > **2026-09-17 갱신(슬라이스 I).** 아래 수치 여럿이 낡았다: vitest **263**, 초기 JS **396.7 kB(gzip -9, 게이트 400)**, `terrain/meta.json` 404는 **더 이상 나지 않는다**(DEM 179 MB가 레포에 있다, `AGENTS.md` 「기하 3D 지형」). 미시지도는 `data/micromaps/` 일곱 장, 말판은 v2(전투 재생). 상태의 정본은 `BACKLOG.md` R번호와 `plans/2026-09-17-overhaul-I-*.md` 실행 기록이다. 커밋 넷+는 **미푸시**.
