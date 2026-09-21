@@ -594,13 +594,15 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     if (!act) { activeInset = null; syncInset(); }   // setStyle이 소스를 지웠으면 인셋을 다시 붙인다
   }
 
-  let peoplesFc: { features: unknown[] } | null = null;
-  /** 주변 민족 면을 합친다(id 중복 제거). 자산 URL(pack-peoples)과 묶음 교보재(`<묶음>-peoples`, refreshPack) 어느 쪽이 먼저 와도 같다. */
+  let peoplesFc: { type: 'FeatureCollection'; features: unknown[] } | null = null;
+  /** 주변 민족 면을 합친다(id 중복 제거). 자산 URL(pack-peoples)과 묶음 교보재(`<묶음>-peoples`, refreshPack) 어느 쪽이 먼저 와도 같다.
+   *  `type: 'FeatureCollection'`을 빼먹으면 MapLibre(geojson-vt)가 통째로 피처 하나로 읽어 **면이 하나도 안 그려진다**. 오류도 없다.
+   *  2026-09-21 R59 첫 배포가 그 상태였다(카이사르 팩 게르마니아·다키아까지 사라졌다). 라이브 스모크가 층별 개수로 잡았다. */
   function mergePeoples(features: unknown[]) {
     const have = new Set((peoplesFc?.features ?? []).map(f => (f as { properties?: { id?: string } }).properties?.id));
     const add = features.filter(f => !have.has((f as { properties?: { id?: string } }).properties?.id));
     if (!add.length) return;
-    peoplesFc = { features: [...(peoplesFc?.features ?? []), ...add] };
+    peoplesFc = { type: 'FeatureCollection', features: [...(peoplesFc?.features ?? []), ...add] };
     if (map.getSource('peoples')) {
       (map.getSource('peoples') as maplibregl.GeoJSONSource).setData(peoplesFc as any);
       (map.getSource('peoples-pt') as maplibregl.GeoJSONSource | undefined)?.setData(peoplesPoints(peoplesFc) as any);
@@ -1380,15 +1382,17 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     /** 포인트 묶음 교보재(p12·p345·p911)가 늦게 왔다(R59). 전투점·경로·순번·말 경로·이야기 장소를 다시 싣고 그 해를 다시 적용한다.
      *  addData가 아직이면 아무것도 안 한다, addData가 그때 살아 있는 배열을 그대로 읽는다. */
     refreshPack() {
+      // 묶음이 준 면(`<묶음>-peoples.json`: 삼니움·라틴·에트루리아…)은 주변 민족 층에 합친다, 같은 문법(점선 테·이름표·해 필터)이다.
+      // **early return 앞에 둔다.** 살아 있는 배열(PACK_BATTLES…)은 addData가 나중에 그대로 읽지만 peoplesFc는 여기서만 쌓인다.
+      // 뒤에 두면 URL로 바로 연 장면(발표 첫 장)에서 묶음이 addData보다 먼저 와 영영 안 합쳐진다(2026-09-21 라이브 스모크, BC 321 면 0).
+      const extra = Object.entries(PACK_EXTRA).filter(([k]) => k.endsWith('-peoples')).flatMap(([, v]) => ((v as { features?: unknown[] } | undefined)?.features ?? []));
+      if (extra.length) mergePeoples(extra);
       if (!loaded) return;
       (map.getSource('pack-battles') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: PACK_BATTLES } as any);
       const { allMoves, legs } = movesData();
       (map.getSource('movements') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: curveMovements(legs) } as any);
       bakeSeq(legs);
       rebuildTokenRoutes(allMoves);
-      // 묶음이 준 면(`<묶음>-peoples.json`: 삼니움·라틴·에트루리아…)은 주변 민족 층에 합친다, 같은 문법(점선 테·이름표·해 필터)이다.
-      const extra = Object.entries(PACK_EXTRA).filter(([k]) => k.endsWith('-peoples')).flatMap(([, v]) => ((v as { features?: unknown[] } | undefined)?.features ?? []));
-      if (extra.length) mergePeoples(extra);
       const areas = packAreasFC();
       (map.getSource('pack-areas') as maplibregl.GeoJSONSource | undefined)?.setData(areas as any);
       (map.getSource('pack-areas-pt') as maplibregl.GeoJSONSource | undefined)?.setData(repPointsFC(areas.features as unknown[], () => true) as any);

@@ -123,6 +123,8 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
       const r = el.getBoundingClientRect(); const W = map.getCanvas().clientWidth;
       // 말의 실제 자리는 그려진 people-dot(같은 칸의 말을 벌린 좌표)이다. people[].at은 벌리기 전 자리라 알레시아의 둘이 같은 점에 있다
       let dots: { x: number; y: number }[] = [];
+      // 스킨 전환으로 스타일이 다시 서는 순간엔 층이 없다. 없는 층을 조회하면 MapLibre가 throw 대신 console.error를 낸다(try/catch로 못 막는다, 2026-09-21 라이브 스모크)
+      if (!map.getLayer('people-dot')) return;
       try { dots = map.queryRenderedFeatures({ layers: ['people-dot'] }).map(f => map.project((f.geometry as { coordinates: [number, number] }).coordinates)); } catch { return; }
       const pts = dots.filter(p => p.y >= r.top - 40 && p.y <= r.bottom + 40);
       const inL = pts.filter(p => p.x <= r.width + 24 + 40).length, inR = pts.filter(p => p.x >= W - r.width - 24 - 40).length;

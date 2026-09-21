@@ -413,7 +413,7 @@ for (const f of readdirSync(join(OUT, 'layers')).filter(f => f.endsWith('.geojso
   const g = JSON.parse(readFileSync(join(OUT, 'layers', f), 'utf8'));
   for (const ft of g.features ?? []) for (const [k, v] of Object.entries(ft.properties ?? {})) if (/name/.test(k) && typeof v === 'string') for (const ch of v) chars.add(ch.codePointAt(0)!);
 }
-for (const ch of ' 0123456789BCAD기원전서년·—-–,.()\'') chars.add(ch.codePointAt(0)!);
+for (const ch of ' 0123456789BCAD기원전서년·—-–,.()\'▲') chars.add(ch.codePointAt(0)!);   // ▲는 style.ts 산봉우리 이름표(9472 범위). 데이터 스캔엔 안 잡힌다
 const ranges = [...new Set([...chars].map(c => Math.floor(c / 256) * 256))].sort((a, b) => a - b);
 for (const font of FONTS) {
   const dir = join(ROOT, 'public', 'glyphs', font); mkdirSync(dir, { recursive: true });

@@ -41,6 +41,8 @@ COUNT = """
     경로: vis('movement') ? n('movements') : 0,
     화살표: vis('movement-arrow') ? 1 : 0,
     전투: (vis('battle') ? n('battles') : 0) + (vis('pack-battle') ? n('pack-battles') : 0),
+    // 주변 민족 면(pack-peoples + 묶음 peoples). 2026-09-21 배포본에서 0이었는데(FeatureCollection type 누락) 어느 계측도 이 층을 안 세고 있었다.
+    주변민족: vis('peoples-fill') ? m.queryRenderedFeatures({ layers: ['peoples-fill'] }).length : 0,
     갈리아자유: vis('gallia-free') ? 1 : 0, 갈리아로마: vis('gallia-roman') ? 1 : 0,
     말: people, 줌: +m.getZoom().toFixed(2),
     안전영역밖: people.filter(p => p.y < 18 || p.y > 62 || p.x < 20 || p.x > 80).map(p => `${p['이름']}(${p.x},${p.y})`),
