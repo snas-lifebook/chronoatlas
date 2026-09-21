@@ -70,7 +70,7 @@ export function representativePoint(g: { type: string; coordinates: unknown } | 
 
 export interface ResolvedCallout extends CalloutDef { at: [number, number] }
 /** 앵커를 좌표로 푼다. 못 푼 것은 버리고 콘솔에 남긴다(test/micromap.test.ts가 같은 것을 CI에서 막는다).
- *  `year`를 주면 시기 밖 콜아웃(`[from_year, to_year)`)은 뺀다 — 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59). */
+ *  `year`를 주면 시기 밖 콜아웃(`[from_year, to_year)`)은 뺀다, 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59). */
 export function resolveCallouts(def: MicroMapDef, unitAt?: (unitId: string) => [number, number] | null, year?: number | null): ResolvedCallout[] {
   return def.callouts.flatMap(c => {
     if (year != null && ((c.from_year != null && year < c.from_year) || (c.to_year != null && year >= c.to_year))) return [];
@@ -183,7 +183,7 @@ export function createMicro(map: maplibregl.Map, opts: {
       const base = BASE.get(id);
       map.setFilter(id, (base ? ['all', base, f] : f) as any);
     }
-    // 도판도 시기를 가진다(basemap.from_year). 그 해보다 앞이면 안 깐다 — 로마 도판은 제정기 도시라 BC 753 밑에 두면 없던 것이 비친다.
+    // 도판도 시기를 가진다(basemap.from_year). 그 해보다 앞이면 안 깐다, 로마 도판은 제정기 도시라 BC 753 밑에 두면 없던 것이 비친다.
     const bm = active?.basemap;
     if (map.getLayer('micro-basemap')) map.setLayoutProperty('micro-basemap', 'visibility', bm?.from_year != null && year < bm.from_year ? 'none' : 'visible');
   }

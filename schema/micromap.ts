@@ -27,7 +27,7 @@ export const MicroFeature = z.object({
     source: z.string().min(1),          // 사료·근거 문장. 알레시아는 BG 절 번호, 로마는 태그+설명. 자유 텍스트
     note_ko: z.string().nullable().optional(),
     wiki: z.string().url().nullable().optional(),
-    /** 시기 피처(2026-09-21, R59). 지도 한 장이 여러 해를 맡을 때 — 로마 시내가 BC 44와 AD 41을 같이 싣는다.
+    /** 시기 피처(2026-09-21, R59). 지도 한 장이 여러 해를 맡을 때, 로마 시내가 BC 44와 AD 41을 같이 싣는다.
      *  `built_year`: 그 해보다 앞이면 숨긴다(카스트라 프라이토리아 AD 23). `gone_year`: 그 해부터 숨긴다. 둘 다 없으면 늘 보인다. */
     built_year: z.number().int().optional(),
     gone_year: z.number().int().optional(),

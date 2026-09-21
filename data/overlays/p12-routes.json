@@ -17,7 +17,7 @@
     "valid_from": -280,
     "valid_to": -278,
     "teaching": true,
-    "note": "기원전 280년 봄 에페이로스에서 출발해 타란토 도착, 로마군에 첫 승리 — 플루타르코스 『피로스』 15-16."
+    "note": "기원전 280년 봄 에페이로스에서 출발해 타란토 도착, 로마군에 첫 승리(플루타르코스 『피로스』 15-16)."
    },
    "geometry": {
     "type": "LineString",
@@ -47,7 +47,7 @@
     "valid_from": -280,
     "valid_to": -278,
     "teaching": true,
-    "note": "헤라클레아 전투 — 플루타르코스 『피로스』 16-17. 좌표는 p12-battles.json의 같은 점."
+    "note": "헤라클레아 전투(플루타르코스 『피로스』 16-17). 좌표는 p12-battles.json의 같은 점(폴리코로, Pleiades 452333)."
    },
    "geometry": {
     "type": "LineString",
@@ -77,7 +77,7 @@
     "valid_from": -279,
     "valid_to": -277,
     "teaching": true,
-    "note": "아우스쿨룸 전투 — 플루타르코스 『피로스』 21."
+    "note": "아우스쿨룸 전투(플루타르코스 『피로스』 21). 좌표는 p12-battles.json의 같은 점(아스콜리 사트리아노, 위키백과 41.216N 15.558E)."
    },
    "geometry": {
     "type": "LineString",
@@ -107,7 +107,7 @@
     "valid_from": -278,
     "valid_to": -276,
     "teaching": true,
-    "note": "에페이로스→타란토→헤라클레아→아우스쿨룸→시라쿠사 4구간(에페이로스는 첫 구간의 출발점일 뿐 별도 정점을 두지 않았다). 시라쿠사 도착(-278)에서 경로를 끝맺는다 — 다음 해(-275)는 정본 `피로스 participated_in event:베네벤토전투`가 이미 occurred_at place:베네벤토로 올바르게 이어져 있어(POINTS-01-11.md '베네벤토 전투점 ✔'), 경로가 그 해까지 넘어가면 오히려 겹친다. src/schema.ts positionByRoute는 마지막 구간의 to_year가 지나면 null을 반환해 정본 자리로 자동 인계된다(마지막 구간 to_year=-278로 맞춤). 그래서 베네벤토→에페이로스 귀환 구간은 넣지 않았다 — 안 넣은 것이지 못 찾은 게 아니다."
+    "note": "에페이로스→타란토→헤라클레아→아우스쿨룸→시라쿠사 4구간(에페이로스는 첫 구간의 출발점일 뿐 별도 정점을 두지 않았다). 시라쿠사 도착(-278)에서 경로를 끝맺는다, 다음 해(-275)는 정본 `피로스 participated_in event:베네벤토전투`가 이미 occurred_at place:베네벤토로 올바르게 이어져 있어(POINTS-01-11.md '베네벤토 전투점 ✔'), 경로가 그 해까지 넘어가면 오히려 겹친다. src/schema.ts positionByRoute는 마지막 구간의 to_year가 지나면 null을 반환해 정본 자리로 자동 인계된다(마지막 구간 to_year=-278로 맞춤). 그래서 베네벤토→에페이로스 귀환 구간은 넣지 않았다, 안 넣은 것이지 못 찾은 게 아니다."
    },
    "geometry": {
     "type": "LineString",
@@ -137,7 +137,7 @@
     "valid_from": -256,
     "valid_to": -254,
     "teaching": true,
-    "note": "함선 330척·병력 15만으로 로마를 떠나(폴리비오스 『역사』 1.25, 함대 규모) 에크노무스 해전 승리. 이 지점은 p12-battles.json 'place:에크노무스곶'과 좌표가 같다."
+    "note": "함선 330척·병력 15만으로 로마를 떠나(폴리비오스 『역사』 1.25, 함대 규모) 에크노무스 해전 승리. 이 지점은 p12-battles.json 'place:에크노무스곶'과 좌표가 같다(Pleiades 462191)."
    },
    "geometry": {
     "type": "LineString",
@@ -167,7 +167,7 @@
     "valid_from": -256,
     "valid_to": -254,
     "teaching": true,
-    "note": "북아프리카 본 곶(카르타고 반도 동단) 상륙 — 폴리비오스 1.29. **정본 place:본곶의 좌표가 [1.57, 50.72](프랑스 불로뉴쉬르메르)로 잘못돼 있어**(P12-NOTES.md 전제 오류 참조) 그 place를 쓰지 않고 Pleiades 315036 'Hermaia Akra/Mercurii Pr.'(카르타고 반도 동쪽 곶, precise) 좌표를 직접 넣었다."
+    "note": "북아프리카 본 곶(카르타고 반도 동단) 상륙(폴리비오스 1.29). **정본 place:본곶의 좌표가 [1.57, 50.72](프랑스 불로뉴쉬르메르)로 잘못돼 있어**(P12-NOTES.md 전제 오류 참조) 그 place를 쓰지 않고 Pleiades 315036 'Hermaia Akra/Mercurii Pr.'(카르타고 반도 동쪽 곶, precise) 좌표를 직접 넣었다."
    },
    "geometry": {
     "type": "LineString",
@@ -197,7 +197,7 @@
     "valid_from": -255,
     "valid_to": -253,
     "teaching": true,
-    "note": "카르타고 시로 접근, 강화 요청을 레굴루스가 거절 — 폴리비오스 1.31-32."
+    "note": "카르타고 시로 접근, 강화 요청을 레굴루스가 거절(폴리비오스 1.31-32)."
    },
    "geometry": {
     "type": "LineString",
@@ -227,7 +227,7 @@
     "valid_from": -255,
     "valid_to": -253,
     "teaching": true,
-    "note": "크산티포스에게 패해 본 곶까지 추격당함, 레굴루스 포로 — 폴리비오스 1.34. **이 구간이 반드시 -255년을 덮어야 한다**: 정본 `레굴루스 participated_in event:본곶전투`(from_year -255, to_year null)가 정확히 -255년에만 활성화되는데(src/year.ts edgeActive) 그 occurred_at 좌표가 프랑스로 잘못돼 있다. 이 경로가 그 해를 덮지 않으면 레굴루스가 프랑스에 선다 — src/people.ts의 우선순위(경로 > 관계)로 이 구간이 이긴다."
+    "note": "크산티포스에게 패해 본 곶까지 추격당함, 레굴루스 포로(폴리비오스 1.34). **이 구간이 반드시 -255년을 덮어야 한다**: 정본 `레굴루스 participated_in event:본곶전투`(from_year -255, to_year null)가 정확히 -255년에만 활성화되는데(src/year.ts edgeActive) 그 occurred_at 좌표가 프랑스로 잘못돼 있다. 이 경로가 그 해를 덮지 않으면 레굴루스가 프랑스에 선다(src/people.ts의 우선순위(경로 > 관계)로 이 구간이 이긴다)."
    },
    "geometry": {
     "type": "LineString",
@@ -257,7 +257,7 @@
     "valid_from": -247,
     "valid_to": -245,
     "teaching": true,
-    "note": "카르타고군 지휘를 맡아 시칠리아로 건너감 — 폴리비오스 1.56. 이 뒤로는 p12-cast.json의 -247..-241 에릭스 배치가 이어받는다(같은 좌표). 헤이르크테(-247~244 첫 거점)는 위치가 확정되지 않아 정점에서 뺐다 — 카르타고에서 에릭스로 바로 건넌 것으로 단순화했다."
+    "note": "카르타고군 지휘를 맡아 시칠리아로 건너감(폴리비오스 1.56). 이 뒤로는 p12-cast.json의 -247..-241 에릭스 배치가 이어받는다(같은 좌표). 헤이르크테(-247~244 첫 거점)는 위치가 확정되지 않아 정점에서 뺐다, 카르타고에서 에릭스로 바로 건넌 것으로 단순화했다."
    },
    "geometry": {
     "type": "LineString",

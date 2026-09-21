@@ -42,7 +42,7 @@ export function Callouts({ map, engine, root, ds, narrow = false, year = null, o
   }, [engine]);
   // 주제 칩: 지형·부대·사건. River 「콜아웃 인포메이션으로 보거나 숨기거나」.
   const [topics, setTopics] = useState<Set<'terrain' | 'unit' | 'event'>>(() => new Set(['terrain', 'unit', 'event']));
-  // year: 시기 콜아웃(`[from_year, to_year)`)은 그 해에만 뜬다 — 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59).
+  // year: 시기 콜아웃(`[from_year, to_year)`)은 그 해에만 뜬다, 로마 시내 한 장이 BC 44와 AD 41을 같이 싣는다(R59).
   const resolved = useMemo<Callout[]>(() => def
     ? resolveCallouts(def, id => engine?.battle()?.unitAt(id) ?? null, year).filter(c => topics.has(c.topic)).map(c => ({ ...c, thumb: THUMBS[c.id] ?? null }))
     : [], [def, engine, tick, topics, year]);

@@ -612,7 +612,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     return { type: 'FeatureCollection', features: (fc.features as any[]).map(f => {
       const g = f.geometry;
       const rings: number[][][] = g.type === 'MultiPolygon' ? (g.coordinates as number[][][][]).map(poly => poly[0]) : [(g.coordinates as number[][][])[0]];
-      // 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다 — 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
+      // 면적 가중이 아니라 「제일 큰 덩어리의 가운데」다, 두 조각이 멀리 떨어져 있을 때 전체 평균은 바다에 떨어진다.
       const big = rings.reduce((a, b) => (b.length > a.length ? b : a), rings[0]);
       const c = big.reduce((a, p) => [a[0] + p[0], a[1] + p[1]], [0, 0]).map(v => v / big.length);
       return { type: 'Feature', properties: f.properties, geometry: { type: 'Point', coordinates: c } };
@@ -642,7 +642,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
   /** 이야기 장소 필터. 해마다 다르고(카이사르 팩 장소는 기원전 1세기에만) 목록은 살아 있는 배열이라 부를 때마다 새로 만든다.
    *  apply()가 해가 바뀔 때 BASE_FILTER에 넣고, hideAnachronisticPlaces가 그 위에 제외를 얹는다. */
   const storyFilter = (year: number): any => ['in', ['get', 'id'], ['literal', storyPlacesAt(year)]];
-  /** 정본 경로 + 교보재 경로. 교보재는 **정본에 같은 route가 없을 때만** 싣는다 — 2026-09-17 adapt 뒤 정본이
+  /** 정본 경로 + 교보재 경로. 교보재는 **정본에 같은 route가 없을 때만** 싣는다, 2026-09-17 adapt 뒤 정본이
    *  폼페이우스 6구간을 주므로 교보재 4구간을 겹쳐 그리면 선이 두 겹이 된다. 정본이 이긴다. */
   function movesData() {
     const routesInData = new Set(d.movements.features.map(f => f.properties.route));
@@ -762,7 +762,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
         paint: { 'text-color': ['case', isKind('granary'), '#6B5310', '#6B6353'] as any,
           'text-halo-color': halo(), 'text-halo-width': 2 } }, before);
     }
-    // 묶음 교보재 강조면(packAreasFC 주석). 영토 위에 얹는다 — 「섬 셋」은 로마색 위에서 읽혀야 한다.
+    // 묶음 교보재 강조면(packAreasFC 주석). 영토 위에 얹는다, 「섬 셋」은 로마색 위에서 읽혀야 한다.
     if (!map.getSource('pack-areas')) {
       const fc = packAreasFC(); const scene0 = store.get().scene;
       map.addSource('pack-areas', { type: 'geojson', data: fc as any });
@@ -1378,7 +1378,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     },
     onData(fn: () => void) { onData = fn; },
     /** 포인트 묶음 교보재(p12·p345·p911)가 늦게 왔다(R59). 전투점·경로·순번·말 경로·이야기 장소를 다시 싣고 그 해를 다시 적용한다.
-     *  addData가 아직이면 아무것도 안 한다 — addData가 그때 살아 있는 배열을 그대로 읽는다. */
+     *  addData가 아직이면 아무것도 안 한다, addData가 그때 살아 있는 배열을 그대로 읽는다. */
     refreshPack() {
       if (!loaded) return;
       (map.getSource('pack-battles') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: PACK_BATTLES } as any);
@@ -1386,7 +1386,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       (map.getSource('movements') as maplibregl.GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: curveMovements(legs) } as any);
       bakeSeq(legs);
       rebuildTokenRoutes(allMoves);
-      // 묶음이 준 면(`<묶음>-peoples.json`: 삼니움·라틴·에트루리아…)은 주변 민족 층에 합친다 — 같은 문법(점선 테·이름표·해 필터)이다.
+      // 묶음이 준 면(`<묶음>-peoples.json`: 삼니움·라틴·에트루리아…)은 주변 민족 층에 합친다, 같은 문법(점선 테·이름표·해 필터)이다.
       const extra = Object.entries(PACK_EXTRA).filter(([k]) => k.endsWith('-peoples')).flatMap(([, v]) => ((v as { features?: unknown[] } | undefined)?.features ?? []));
       if (extra.length) mergePeoples(extra);
       const areas = packAreasFC();

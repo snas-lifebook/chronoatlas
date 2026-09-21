@@ -21,7 +21,7 @@
 import { z } from 'zod';
 
 /** 병종. 목각 피규어(R39)의 모양을 가르는 최소 구분이다. 늘릴 때는 렌더도 같이 늘린다.
- *  `fleet`(함대)은 2026-09-21(R59) 해전 말판 둘(아이가테스 BC 241 · 악티움 BC 31)을 위해 더했다 — 블록은 길고 얕다(src/board.ts SIZE_M). */
+ *  `fleet`(함대)은 2026-09-21(R59) 해전 말판 둘(아이가테스 BC 241 · 악티움 BC 31)을 위해 더했다, 블록은 길고 얕다(src/board.ts SIZE_M). */
 export const ARMS = ['infantry', 'cavalry', 'light', 'elephant', 'command', 'fleet'] as const;
 export const ARM_KO: Record<(typeof ARMS)[number], string> = {
   infantry: '중보병', cavalry: '기병', light: '경보병', elephant: '전투코끼리', command: '지휘', fleet: '함대',

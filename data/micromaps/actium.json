@@ -3,7 +3,7 @@
  "title": "악티움 해전 · BC 31",
  "year": -31,
  "teaching": true,
- "source": "지형 피처는 landmarks.geojson Pleiades 점(Actium pid 530772·Ambracius Sinus pid 530795·Leucas pid 530975)과 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, Nicopolis pid 531013 — 정본 settlements.geojson의 place:니코폴리스는 다른 도시라 쓰지 않았다, §전제 오류)를 썼다. 안토니우스 진영·교전 해역은 사료 서술과 말판 actium-31 유닛 범위에서 역산한 복원이다. 사료: 플루타르코스 『안토니우스』 65~68, 카시우스 디오 50.31~35, 벨레이우스 파테르쿨루스 2.84~85. 함선 수는 사료마다 크게 갈려 docs/ACTIUM.md에 표로 남긴다.",
+ "source": "지형 피처는 landmarks.geojson Pleiades 점(Actium pid 530772·Ambracius Sinus pid 530795·Leucas pid 530975)과 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, Nicopolis pid 531013, 정본 settlements.geojson의 place:니코폴리스는 다른 도시라 쓰지 않았다, §전제 오류)를 썼다. 안토니우스 진영·교전 해역은 사료 서술과 말판 actium-31 유닛 범위에서 역산한 복원이다. 사료: 플루타르코스 『안토니우스』 65~68, 카시우스 디오 50.31~35, 벨레이우스 파테르쿨루스 2.84~85. 함선 수는 사료마다 크게 갈려 docs/ACTIUM.md에 표로 남긴다.",
  "home": {
   "at": [
    20.75,
@@ -76,7 +76,7 @@
     "name_la": "Nicopolis",
     "kind": "building",
     "grade": "확정",
-    "source": "정본 settlements.geojson의 place:니코폴리스는 이 도시가 아니다(모이시아 도나우 강변 니코폴리스 아드 이스트룸, name_modern '터누, 루마니아') — 좌표를 잘못 쓸 뻔한 지점이다(문서 §전제 오류). 이 지도의 니코폴리스는 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, pid 531013 'Nicopolis' [20.7360035, 39.0157])에서 직접 가져왔다. 같은 CSV의 pid 391966942('City wall, Nicopolis')·pid 82145424('Roman theater at Nicopolis')가 유구 확정을 뒷받침한다.",
+    "source": "정본 settlements.geojson의 place:니코폴리스는 이 도시가 아니다(모이시아 도나우 강변 니코폴리스 아드 이스트룸, name_modern '터누, 루마니아'), 좌표를 잘못 쓸 뻔한 지점이다(문서 §전제 오류). 이 지도의 니코폴리스는 볼트에 번들된 원본 Pleiades CSV(data/external/pleiades/places.csv, pid 531013 'Nicopolis' [20.7360035, 39.0157])에서 직접 가져왔다. 같은 CSV의 pid 391966942('City wall, Nicopolis')·pid 82145424('Roman theater at Nicopolis')가 유구 확정을 뒷받침한다.",
     "note_ko": "아우구스투스가 자신의 진영 자리에 세운 '승리의 도시'. 카시우스 디오 51.1에 창건이 기록된다."
    },
    "geometry": {
@@ -250,7 +250,7 @@
    "side": "right",
    "num": 6,
    "title": "로마가 로마와 싸우다",
-   "body": "이 전투는 로마 내전의 마지막 국면이다. 양쪽 다 로마 군단·로마 함선이라 이 지도의 세력색은 두 편 모두 '로마'로 같다 — 라벨로만 구분한다.",
+   "body": "이 전투는 로마 내전의 마지막 국면이다. 양쪽 다 로마 군단·로마 함선이라 이 지도의 세력색은 두 편 모두 '로마'로 같다, 라벨로만 구분한다.",
    "cite": "카시우스 디오 50.6",
    "links": [],
    "image": null

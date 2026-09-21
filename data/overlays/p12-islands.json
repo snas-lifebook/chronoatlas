@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "teaching": true,
- "source": "Natural Earth 10m land (Public Domain, nvkelso/natural-earth-vector), 이미 레포에 캐시돼 있다(data/external/ne_10m_land.geojson, feature index 6). 정점은 실측 해안선 그대로 복사했고(홀 없는 단일 외곽 링 확인됨: 시칠리아 357점·사르데냐 581점·코르시카 401점), 새로 그린 선이 없다. 대표님 8/16 강의 발췌: '사르데냐 코르시카 시칠리아 섬이 지중해로 보면 딱 바다 큰 어족에 딱 한 가운데 섬이 세개 있어요' — rome-sicily-241 장면(첫 속주, 섬 셋)에서 강조용으로 쓴다.",
+ "source": "Natural Earth 10m land (Public Domain, nvkelso/natural-earth-vector), 이미 레포에 캐시돼 있다(data/external/ne_10m_land.geojson, feature index 6). 정점은 실측 해안선 그대로 복사했고(홀 없는 단일 외곽 링 확인됨: 시칠리아 357점·사르데냐 581점·코르시카 401점), 새로 그린 선이 없다. 대표님 8/16 강의 발췌: '사르데냐 코르시카 시칠리아 섬이 지중해로 보면 딱 바다 큰 어족에 딱 한 가운데 섬이 세개 있어요', rome-sicily-241 장면(첫 속주, 섬 셋)에서 강조용으로 쓴다.",
  "features": [
   {
    "type": "Feature",

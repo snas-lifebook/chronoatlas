@@ -82,7 +82,7 @@ export const PACK_EMBLEMS = new Set<string>(emblems?.actors ?? []);
 type LegionRow = { year: number; legions: number | null; men_low: number | null; men_high: number | null; confidence?: string };
 const LEGIONS: Record<string, LegionRow[]> = {};   // 살아 있는 표. loadLegions(카이사르 팩)·loadPack(묶음)이 채운다(R59)
 let legionsReady: Promise<void> | null = null;
-/** 카이사르 팩 군단 표(pack-legions.json, 5.6 kB gz)는 첫 페인트에 필요 없다 — 말의 병력 줄에만 쓴다. 자산 URL로 받는다(R46).
+/** 카이사르 팩 군단 표(pack-legions.json, 5.6 kB gz)는 첫 페인트에 필요 없다, 말의 병력 줄에만 쓴다. 자산 URL로 받는다(R46).
  *  2026-09-21에 eager에서 뺐다: 포인트 묶음 기반을 얹자 초기 JS가 400.1 kB로 게이트를 넘었다. 받으면 App이 dataTick을 올려 말을 다시 세운다. */
 export function loadLegions(): Promise<void> {
   if (!legionsReady) legionsReady = fetch(new URL('../data/overlays/pack-legions.json', import.meta.url).href)
@@ -123,7 +123,7 @@ const HIDE_IDS: HideIdRow[] = anachro?.hide ?? [];
 
 /** 어느 해든 가릴 id(정본 오류 임시 가리기). 정본이 고쳐지면 행을 지운다. */
 export function hiddenIds(layer: 'settlements' | 'battle'): string[] {
-  // 'battles'(층 이름 복수)로 적힌 행도 받는다 — 교보재 초안이 그렇게 썼다.
+  // 'battles'(층 이름 복수)로 적힌 행도 받는다, 교보재 초안이 그렇게 썼다.
   const norm = (l?: string) => (l === 'battles' ? 'battle' : (l ?? 'settlements'));
   return HIDE_IDS.filter(h => norm(h.layer) === layer).map(h => h.id);
 }
@@ -143,7 +143,7 @@ export function hiddenAdmin(year: number): string[] {
 
 // 발표 줌(4~6)에서 rank 3 도시가 안 떠서, 이야기 장소만 이름표를 따로 켠다(story-place-label).
 // **해마다 다르다**(R59): 카이사르 팩의 알레시아·루비콘 강·브린디시가 기원전 321년 판에 굵게 뜨면 그 장의 이야기가 아니다.
-// 살아 있는 배열이다 — 포인트 묶음의 `<묶음>-places.json`이 자기 이야기 장소를 (그 묶음의 연도 창으로) 더한다.
+// 살아 있는 배열이다, 포인트 묶음의 `<묶음>-places.json`이 자기 이야기 장소를 (그 묶음의 연도 창으로) 더한다.
 export type StoryPlace = { id: string; from?: number; to?: number };   // 반열림 [from, to)
 export const STORY_PLACES: StoryPlace[] = [
   { id: 'place:로마' },
@@ -160,7 +160,7 @@ export function storyPlacesAt(year: number): string[] {
 // 패주해 들른 곳이지만 아홉 장 어디도 라리사를 말하지 않는다.
 
 // ── 포인트 묶음 교보재 (2026-09-21, R59) ────────────────────────────────────
-// p12(포인트 01·02) · p345(03·04·05) · p911(09·10·11). 파일은 `data/overlays/<묶음>-<종류>.json`이고 **지연 로드**다 —
+// p12(포인트 01·02) · p345(03·04·05) · p911(09·10·11). 파일은 `data/overlays/<묶음>-<종류>.json`이고 **지연 로드**다,
 // eager로 실으면 초기 번들 400 kB 게이트를 넘는다(R46). 그 해(PACK_YEARS, 반열림)나 그 묶음의 장면(`p12-…`)에
 // 들어설 때 받아 위의 살아 있는 배열에 합친다. 합친 뒤에는 엔진 refreshPack()이 소스를 다시 싣는다.
 //
@@ -177,7 +177,7 @@ const PACK_LOADERS: Record<string, Record<string, () => Promise<unknown>>> = {
 export const PACK_EXTRA: Record<string, unknown> = {};
 const packDone = new Map<string, Promise<boolean>>();
 
-/** 이 해·이 장면이 필요로 하는 묶음 id. 장면 id 접두(`p345-`)가 연도 창보다 우선 — 창 경계의 장면도 제 교보재를 받는다. */
+/** 이 해·이 장면이 필요로 하는 묶음 id. 장면 id 접두(`p345-`)가 연도 창보다 우선, 창 경계의 장면도 제 교보재를 받는다. */
 export function packsFor(year: number, scene: string | null): string[] {
   const out = Object.entries(PACK_YEARS).filter(([, [lo, hi]]) => lo <= year && year < hi).map(([k]) => k);
   const m = scene?.match(/^(p12|p345|p911)-/);
@@ -185,7 +185,7 @@ export function packsFor(year: number, scene: string | null): string[] {
   return out;
 }
 
-/** 한 묶음을 받아 합친다. **처음 받은 때만 true** — 그때만 엔진 refreshPack과 다시 그리기가 필요하다. */
+/** 한 묶음을 받아 합친다. **처음 받은 때만 true**, 그때만 엔진 refreshPack과 다시 그리기가 필요하다. */
 export function loadPack(id: string): Promise<boolean> {
   const done = packDone.get(id);
   if (done) return done.then(() => false);
@@ -225,7 +225,7 @@ type TeachingCast = import('./people').TeachingCast;
 
 // ── 묶음 사선·강 강조 (R59, p911) ────────────────────────────────────────────
 export type HatchRow = { name: string; actor: string; from: number; to: number; source?: string };
-/** 그 해에 칠할 사선(모든 묶음의 `-hatch` 세트). 같은 이름에 둘이면 **늦게 시작한 행**이 이긴다 — 기증(BC 34)이 삼두 분할(BC 42) 위에 얹힌다. 반열림 [from, to). */
+/** 그 해에 칠할 사선(모든 묶음의 `-hatch` 세트). 같은 이름에 둘이면 **늦게 시작한 행**이 이긴다, 기증(BC 34)이 삼두 분할(BC 42) 위에 얹힌다. 반열림 [from, to). */
 export function packHatchAt(year: number): { rows: HatchRow[]; colors: Record<string, string> } {
   const rows = new Map<string, HatchRow>(); const colors: Record<string, string> = {};
   for (const [k, v] of Object.entries(PACK_EXTRA)) {

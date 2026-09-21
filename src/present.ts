@@ -69,7 +69,7 @@ export function presentGroupOf(scenes: Scene[], currentId: string | null): strin
 
 /** 발표 그룹인가. 카이사르 팩 하나뿐이던 것이 2026-09-21(R59)부터 포인트 묶음 그룹
  *  (「포인트 01·02 · …」·「포인트 03·04·05 · …」·「포인트 09·10·11 · …」)으로 늘었다.
- *  세부 지도·말판·내 북마크는 발표 흐름이 아니다 — 「↩ 발표」가 돌아갈 자리를 고를 때 쓴다. */
+ *  세부 지도·말판·내 북마크는 발표 흐름이 아니다, 「↩ 발표」가 돌아갈 자리를 고를 때 쓴다. */
 export function isPresentGroup(group: string): boolean {
   return group === PRESENT_GROUP || group.startsWith('포인트 ');
 }
