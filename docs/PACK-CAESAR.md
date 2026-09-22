@@ -40,7 +40,7 @@
 | `pack-scene-text.json` · `pack-captions.json` | 장면 해설·이미지에 굽는 캡션 | — | — |
 | `pack-cast.json` | 말(인물) 배치. `at`·`override` 지원 | 정본 place, 없으면 `at` | — |
 | `pack-legions.json` | 연도별 군단 수·병력 | — | — |
-| `pack-battles.json` | 전투점 14 → **13**(2026-09-22 아이가테스 제도가 정본으로 승격, POINTS-01-11 §7) | 확정 좌표만 | — |
+| `pack-battles.json` | 전투점 14(아이가테스 제도는 2026-09-22 정본에도 들어갔지만 점은 여기 남는다, 장면은 정본 battle 층을 안 켠다. POINTS-01-11 §7) | 확정 좌표만 | — |
 | `pack-pompey.json` | 폼페이우스 경로 4구간 | 정본 정점 | — |
 | `pack-clients.json` | 로마의 속국·동맹 연표 11폴리티 18행 | **기하 없음**(이름+연도) | — |
 | `pack-polity-colors.json` | 폴리티별 색 14 | **색만** | — |
