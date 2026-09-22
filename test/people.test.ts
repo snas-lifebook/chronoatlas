@@ -33,20 +33,23 @@ describe('인물 위치 (R38)', () => {
 
   it('BC 52: 카이사르는 알레시아 출발점(경로 from_year). 문다 이후(-44)는 경로가 끝난다', () => {
     const c = at(-52).find(p => p.id === 'person:카이사르');
-    expect(c).toMatchObject({ via: 'movement', at: [4.5006, 47.5392] });
+    // 2026-09-22 정본에 알레시아포위전 occurred_at이 들어와 베르킹게토릭스가 같은 점에 rel로 서고, 이 호출엔 주역 지정이 없어 둘 다 고리로 벌어진다.
+    // 장면에서는 카이사르가 주역이라 제자리다(unstack). 여기서는 '그 근처'만 본다.
+    expect(c).toMatchObject({ via: 'movement' });
+    expect(Math.hypot(c!.at[0] - 4.5006, c!.at[1] - 47.5392)).toBeLessThan(0.5);
     expect(at(-44).find(p => p.id === 'person:카이사르')?.via).not.toBe('movement');
   });
 
-  it('교보재: 베르킹게토릭스는 알레시아 포위전 해에만, 정본 좌표', () => {
+  it('정본: 베르킹게토릭스는 알레시아 포위전 해에만, 정본 좌표(2026-09-22 occurred_at 병합 전엔 교보재가 잇던 칸)', () => {
     const cast = JSON.parse(readFileSync(join(ROOT, 'data/overlays/pack-cast.json'), 'utf8'));
     const withCast = (y: number) => peopleAtYear(y, { graph, movements, teaching: cast });
-    const v = withCast(-52).find(p => p.id === 'person:베르킹게토릭스');
+    const v = at(-52).find(p => p.id === 'person:베르킹게토릭스');
     // 좌표는 정본 알레시아에서 오지만 **그 자리에 카이사르도 서 있어** 고리로 벌어진다.
     // 그래서 정확히 같은 점이 아니라 '그 근처'를 본다(unstack 기본 반지름 0.32도).
-    expect(v).toMatchObject({ via: 'teaching', place: 'place:알레시아' });
+    expect(v).toMatchObject({ via: 'rel', place: 'place:알레시아' });
     expect(Math.hypot(v!.at[0] - 4.5006, v!.at[1] - 47.5392)).toBeLessThan(0.5);
+    expect(at(-51).some(p => p.id === 'person:베르킹게토릭스')).toBe(false);
     expect(withCast(-51).some(p => p.id === 'person:베르킹게토릭스')).toBe(false);
-    expect(at(-52).some(p => p.id === 'person:베르킹게토릭스')).toBe(false);
   });
 
   it('교보재 gone: 크라수스는 BC 53까지만 — ruled 로마 -71..-49가 죽은 사람을 세워 두었다', () => {

@@ -1,66 +1,49 @@
 {
-  "teaching": true,
-  "source": "정본 그래프(graph.json)를 먼저 확인해 위치 엣지가 이미 있는 인물은 넣지 않았다. 한니발(ruled 카르타고·located_in 알프스·participated_in 칸나이전투)과 스키피오 아프리카누스(정본 route `scipio_africanus` 3구간, -209~-202 전 구간 커버)와 파비우스 막시무스(ruled 로마 -217..-209, 독재관 -217..-216)와 마시니사(ruled 누미디아 -210..-148)와 술라(기존 `pack-cast.json`에 -88 로마로 이미 있음, 중복 금지)와 폼페이우스(정본 route `pompey`가 -67..-48 전 구간, 킬리키아·예루살렘 포함 이미 커버)와 스파르타쿠스(이 묶음의 `p345-routes.json` spartacus 경로가 -73..-71을 세운다)는 여기 없다. 좌표는 전부 정본 place(`layers/settlements.geojson`) 아니면 번들 Pleiades(`layers/landmarks.geojson`, pid) 좌표다.",
-  "people": [
-    {
-      "id": "person:가이우스마리우스",
-      "place": "place:로마",
-      "from_year": -87,
-      "to_year": -86,
-      "note": "정본에 이 인물의 위치 엣지가 전혀 없다(있는 것은 `opposed group:킴브리 -112` 하나뿐이고 PACK-CAESAR §13이 이미 `year_basis: inferred`로 의심 표시를 해 뒀다). 술라의 1차 로마 진군(-88) 뒤 아프리카로 망명했다가 이듬해 킨나와 함께 로마를 되찾고 일곱 번째 집정관 취임 직후 죽는다: 아피아노스 『내전기』 1권, 플루타르코스 『마리우스』 41~46."
-    },
-    {
-      "id": "person:가이우스마리우스",
-      "place": "place:아쿠아이섹스티아이",
-      "at": [5.445556, 43.527778],
-      "from_year": -102,
-      "to_year": -102,
-      "source": "위키데이터 Q47465(Aix-en-Provence) P625. `p345-battles.json`·`p345-routes.json`의 같은 지점과 좌표가 같다.",
-      "note": "테우토네스를 궤멸시킨 전투. 정본에 이 해의 위치 엣지가 없어(위 -87 항목 참고) 처음엔 좌표가 없어 뺐다가, 팀 리드가 지적한 위키데이터 P625 허용(POINTS-01-11.md §1)을 받아 세운다. 플루타르코스 『마리우스』 18~21."
-    },
-    {
-      "id": "person:가이우스마리우스",
-      "place": "place:베르첼라이",
-      "at": [8.42341, 45.32615],
-      "from_year": -101,
-      "to_year": -101,
-      "source": "위키데이터 Q5990(Vercelli) P625. `p345-battles.json`·`p345-routes.json`의 같은 지점과 좌표가 같다.",
-      "note": "킴브리를 궤멸시켜 전쟁을 끝낸 전투. 플루타르코스 『마리우스』 23~27."
-    },
-    {
-      "id": "person:카틸리나",
-      "place": "place:로마",
-      "from_year": -63,
-      "to_year": -63,
-      "note": "정본에 위치 엣지가 없다(participated_in event:카틸리나사건 -63뿐이고 그 사건도 occurred_at이 없다). 음모의 무대인 로마에 세운다: 살루스티우스 『카틸리나 전쟁』, 키케로 『카틸리나 탄핵』. **최후의 피스토리아(로마 도주 후 전멸지)는 여기 없다**, 정본 place에도 번들 Pleiades에도 좌표가 없다(proposals에 별도 제안, 좌표는 위키데이터에서 확인했지만 이 파일은 번들 좌표만 쓴다는 규칙을 따라 싣지 않았다)."
-    },
-    {
-      "id": "person:대카토",
-      "place": "place:로마",
-      "from_year": -150,
-      "to_year": -150,
-      "note": "정본에 위치 엣지가 없다(participated_in event:제3차포에니전쟁뿐, 그 엣지도 연도가 없다). 「카르타고를 쳐부수어야 한다」는 감찰관 시절 원로원 연설이 무대라 로마에 세운다: 플루타르코스 『대 카토』 26~27, 포인트 04 본문."
-    },
-    {
-      "id": "person:크라수스",
-      "place": "place:실라루스강",
-      "at": [
-        15.1355,
-        40.6195
-      ],
-      "from_year": -71,
-      "to_year": -71,
-      "override": true,
-      "source": "플루타르코스 『크라수스』 8~11. 좌표는 번들 Pleiades pid 442795(Silarus, 캄파니아)이고 `p345-battles.json`의 같은 지점과 값이 같다.",
-      "note": "**`override`가 필요한 이유**: 정본에 `크라수스 ruled place:로마 -71..-49`가 한 덩어리로 있어 이 해에도 그를 로마에 세운다, pack-cast.json(카이사르 팩)이 -53 카르라이에 쓴 것과 같은 함정이다. 스파르타쿠스 반란 진압군을 이끌고 최후 결전이 벌어진 실라루스 강가에 세우는 것이 이 장면(-71)의 요점이라 그 한 해만 덮는다."
-    },
-    {
-      "id": "person:한니발",
-      "place": "place:타란토",
-      "from_year": -212,
-      "to_year": -212,
-      "override": true,
-      "note": "정본 route `hannibal`의 타란토 구간(-216→-212)은 4년짜리라 엔진이 「행군」이 아니라 「체류」로 보고(schema.ts MARCH_MAX_YEARS 3) 그 해 위치를 안 준다, 그래서 기원전 212년 장면에서 한니발이 `ruled 카르타고`로 카르타고에 섰다. 기원전 212년 그는 타렌툼을 손에 넣고 남이탈리아에 있었다(폴리비오스 8.24~34, 리비우스 25.7~11). 이 한 해만 타란토에 덮는다. 정본 좌표(place:타란토)."
-    }
-  ]
+ "teaching": true,
+ "source": "정본 그래프(graph.json)를 먼저 확인해 위치 엣지가 이미 있는 인물은 넣지 않았다. 한니발(ruled 카르타고·located_in 알프스·participated_in 칸나이전투)과 스키피오 아프리카누스(정본 route `scipio_africanus` 3구간, -209~-202 전 구간 커버)와 파비우스 막시무스(ruled 로마 -217..-209, 독재관 -217..-216)와 마시니사(ruled 누미디아 -210..-148)와 술라(기존 `pack-cast.json`에 -88 로마로 이미 있음, 중복 금지)와 폼페이우스(정본 route `pompey`가 -67..-48 전 구간, 킬리키아·예루살렘 포함 이미 커버)와 스파르타쿠스(이 묶음의 `p345-routes.json` spartacus 경로가 -73..-71을 세운다)는 여기 없다. 좌표는 전부 정본 place(`layers/settlements.geojson`) 아니면 번들 Pleiades(`layers/landmarks.geojson`, pid) 좌표다. 2026-09-22 정본 병합 뒤 정본 링크(마리우스 participated_in 아쿠아이섹스티아이·베르첼라이, 카틸리나 participated_in 카틸리나사건)가 세우게 된 말은 걷어냈다.",
+ "people": [
+  {
+   "id": "person:스키피오아프리카누스",
+   "place": "place:티키누스강",
+   "from_year": -218,
+   "to_year": -218,
+   "override": true,
+   "note": "2026-09-22 정본 병합으로 `participated_in 제2차포에니전쟁 -218~-201`이 생기자 -218년엔 그 사건의 첫 occurred_at(로마)에 섰고, 알프스 장면(p345-alps-218)에서 발표 카드 밑에 들어갔다(qa-sweep tokensUnderHud). 그해 그는 열일곱으로 아버지와 티키누스에 있었다(폴리비오스 10.3.3~7, 리비우스 21.46.7, 아버지를 구한 일화). 정본 경로(scipio_africanus, -209부터)가 시작되기 전 이 한 해만 잇는다. 좌표는 정본 place:티키누스강."
+  },
+  {
+   "id": "person:가이우스마리우스",
+   "place": "place:로마",
+   "from_year": -87,
+   "to_year": -86,
+   "note": "정본에 이 인물의 위치 엣지가 전혀 없다(있는 것은 `opposed group:킴브리 -112` 하나뿐이고 PACK-CAESAR §13이 이미 `year_basis: inferred`로 의심 표시를 해 뒀다). 술라의 1차 로마 진군(-88) 뒤 아프리카로 망명했다가 이듬해 킨나와 함께 로마를 되찾고 일곱 번째 집정관 취임 직후 죽는다: 아피아노스 『내전기』 1권, 플루타르코스 『마리우스』 41~46."
+  },
+  {
+   "id": "person:대카토",
+   "place": "place:로마",
+   "from_year": -150,
+   "to_year": -150,
+   "note": "정본에 위치 엣지가 없다(participated_in event:제3차포에니전쟁뿐, 그 엣지도 연도가 없다). 「카르타고를 쳐부수어야 한다」는 감찰관 시절 원로원 연설이 무대라 로마에 세운다: 플루타르코스 『대 카토』 26~27, 포인트 04 본문."
+  },
+  {
+   "id": "person:크라수스",
+   "place": "place:실라루스강",
+   "at": [
+    15.1355,
+    40.6195
+   ],
+   "from_year": -71,
+   "to_year": -71,
+   "override": true,
+   "source": "플루타르코스 『크라수스』 8~11. 좌표는 번들 Pleiades pid 442795(Silarus, 캄파니아)이고 `p345-battles.json`의 같은 지점과 값이 같다.",
+   "note": "**`override`가 필요한 이유**: 정본에 `크라수스 ruled place:로마 -71..-49`가 한 덩어리로 있어 이 해에도 그를 로마에 세운다, pack-cast.json(카이사르 팩)이 -53 카르라이에 쓴 것과 같은 함정이다. 스파르타쿠스 반란 진압군을 이끌고 최후 결전이 벌어진 실라루스 강가에 세우는 것이 이 장면(-71)의 요점이라 그 한 해만 덮는다."
+  },
+  {
+   "id": "person:한니발",
+   "place": "place:타란토",
+   "from_year": -212,
+   "to_year": -212,
+   "override": true,
+   "note": "정본 route `hannibal`의 타란토 구간(-216→-212)은 4년짜리라 엔진이 「행군」이 아니라 「체류」로 보고(schema.ts MARCH_MAX_YEARS 3) 그 해 위치를 안 준다, 그래서 기원전 212년 장면에서 한니발이 `ruled 카르타고`로 카르타고에 섰다. 기원전 212년 그는 타렌툼을 손에 넣고 남이탈리아에 있었다(폴리비오스 8.24~34, 리비우스 25.7~11). 이 한 해만 타란토에 덮는다. 정본 좌표(place:타란토)."
+  }
+ ]
 }

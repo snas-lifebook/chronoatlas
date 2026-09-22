@@ -1,204 +1,267 @@
 {
-  "type": "FeatureCollection",
-  "teaching": true,
-  "source": "여덟 점은 정본 ontology/_routes/caesar.geojson 정점이고(id·좌표가 정본 place와 같다), 카르라이 한 점만 정본 밖이다. 좌표·연도를 지어내지 않았다. 어댑터 battles.geojson에 이 구간 전투가 암살 하나뿐이라 교보재로 얹는다.",
-  "outside_canon": {
-    "place:카르라이": "정본에 place도 event도 없다(place:하란도 없다). 그래서 이 한 점만 좌표가 정본 place lonlat이 아니고 하란 유적 좌표다. 클릭하면 인스펙터가 정본 노드를 못 찾아 이름만 있는 빈 카드를 띄운다: 다른 여덟 점은 정본 노드가 있어 이 경로를 타지 않는다.",
-    "victor": "파르티아는 정본 actors 9개(로마·카르타고·그리스계·이탈리아세력·누미디아·갈리아·게르만·반란세력·기타중립)에 없다. 정본 territory에서 파르티아 제국의 actor가 `기타중립`이라 그 어휘를 따랐고, 그래서 점이 회색(#8A8F98)으로 찍힌다. pack-polity-colors가 준 파르티아 보라(#7D5BA6)는 territory-fill에만 닿고 전투 circle에는 안 닿는다."
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "여덟 점은 정본 ontology/_routes/caesar.geojson 정점이고(id·좌표가 정본 place와 같다), 카르라이 한 점만 정본 밖이다. 좌표·연도를 지어내지 않았다. 어댑터 battles.geojson에 이 구간 전투가 암살 하나뿐이라 교보재로 얹는다. 2026-09-22 정본 병합(scripts/apply-proposals.py)으로 정본이 찍게 된 점은 걷어냈다.",
+ "outside_canon": {
+  "place:카르라이": "정본에 place도 event도 없다(place:하란도 없다). 그래서 이 한 점만 좌표가 정본 place lonlat이 아니고 하란 유적 좌표다. 클릭하면 인스펙터가 정본 노드를 못 찾아 이름만 있는 빈 카드를 띄운다: 다른 여덟 점은 정본 노드가 있어 이 경로를 타지 않는다.",
+  "victor": "파르티아는 정본 actors 9개(로마·카르타고·그리스계·이탈리아세력·누미디아·갈리아·게르만·반란세력·기타중립)에 없다. 정본 territory에서 파르티아 제국의 actor가 `기타중립`이라 그 어휘를 따랐고, 그래서 점이 회색(#8A8F98)으로 찍힌다. pack-polity-colors가 준 파르티아 보라(#7D5BA6)는 territory-fill에만 닿고 전투 circle에는 안 닿는다."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:카르라이",
+    "name_ko": "카르라이",
+    "year": -53,
+    "valid_from": -53,
+    "valid_to": -23,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "플루타르코스 『크라수스』 23~31(행군·회전·크라수스의 죽음), 카시우스 디오 40.12~27. 좌표는 하란 유적(터키 샨르우르파 주)이고 회전이 벌어진 자리가 아니다: 사료는 하란 성 밖 평원이라고만 하고 정확한 위치를 짚어 주지 않는다(플루타르코스 23은 발리소스 강을 건넌 뒤라고 적는다). 그래서 점은 「크라수스가 죽은 곳」이 아니라 「그 전투가 붙은 도시」다. 병력·전사자 수는 이 파일에 필드가 없어 넣지 않았다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     39.031,
+     36.865
+    ]
+   }
   },
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:카르라이",
-        "name_ko": "카르라이",
-        "year": -53,
-        "valid_from": -53,
-        "valid_to": -23,
-        "victor": "기타중립",
-        "teaching": true,
-        "source": "플루타르코스 『크라수스』 23~31(행군·회전·크라수스의 죽음), 카시우스 디오 40.12~27. 좌표는 하란 유적(터키 샨르우르파 주)이고 회전이 벌어진 자리가 아니다: 사료는 하란 성 밖 평원이라고만 하고 정확한 위치를 짚어 주지 않는다(플루타르코스 23은 발리소스 강을 건넌 뒤라고 적는다). 그래서 점은 「크라수스가 죽은 곳」이 아니라 「그 전투가 붙은 도시」다. 병력·전사자 수는 이 파일에 필드가 없어 넣지 않았다."
-      },
-      "geometry": { "type": "Point", "coordinates": [39.031, 36.865] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "event:알레시아포위전",
-        "name_ko": "알레시아 포위전",
-        "year": -52,
-        "valid_from": -52,
-        "valid_to": -22,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [4.5006, 47.5392] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:일레르다",
-        "name_ko": "일레르다",
-        "year": -49,
-        "valid_from": -49,
-        "valid_to": -19,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [-1.0, 41.3667] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:디르하키움",
-        "name_ko": "디르하키움",
-        "year": -48,
-        "valid_from": -48,
-        "valid_to": -18,
-        "victor": null,
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [19.45, 41.32] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:파르살루스",
-        "name_ko": "파르살루스",
-        "year": -48,
-        "valid_from": -48,
-        "valid_to": -18,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [22.3833, 39.3] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:알렉산드리아",
-        "name_ko": "알렉산드리아",
-        "year": -47,
-        "valid_from": -47,
-        "valid_to": -17,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [29.9079, 31.1982] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:젤라",
-        "name_ko": "젤라",
-        "year": -47,
-        "valid_from": -47,
-        "valid_to": -17,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [35.883, 40.3] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:타프수스",
-        "name_ko": "타프수스",
-        "year": -46,
-        "valid_from": -46,
-        "valid_to": -16,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [11.0417, 35.6208] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:문다평원",
-        "name_ko": "문다 평원",
-        "year": -45,
-        "valid_from": -45,
-        "valid_to": -15,
-        "victor": "로마",
-        "teaching": true
-      },
-      "geometry": { "type": "Point", "coordinates": [-5.2167, 37.35] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:베네벤툼",
-        "name_ko": "베네벤툼",
-        "year": -275,
-        "valid_from": -275,
-        "valid_to": -245,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "low",
-        "source": "피로스가 이탈리아에서 치른 마지막 회전 — 플루타르코스 『피로스』 25. 좌표는 베네벤툼(현 이탈리아 베네벤토) 시가지이고 **회전이 벌어진 자리가 아니다**: 사료는 베네벤툼 근처라고만 하고 아루시니 평원이라는 전승도 특정 지점을 짚어 주지 않는다. 그래서 이 점은 「전투가 붙은 도시」다. 병력 수는 이 파일에 필드가 없어 넣지 않았다. 정본에 place도 event도 없어 클릭하면 이름만 있는 빈 카드가 뜬다(place:카르라이와 같은 경로)."
-      },
-      "geometry": { "type": "Point", "coordinates": [14.7761, 41.1298] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:타렌툼",
-        "name_ko": "타렌툼",
-        "year": -272,
-        "valid_from": -272,
-        "valid_to": -242,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "high",
-        "source": "마그나 그라이키아의 맏도시가 로마에 항복한 해 — 리비우스 『로마사』 요약(Periochae) 14. 리비우스 11~20권은 없어져 요약만 남는다. 좌표는 현 이탈리아 타란토 시가지(고대 타렌툼과 같은 자리)다. 전투가 아니라 **항복**이라 victor를 로마로 적었다: 이 파일의 place:일레르다·알렉산드리아도 회전이 아닌 점이다. 정본 settlements에 place:타렌툼이 없어 이 교보재가 그 이름을 처음 띄운다."
-      },
-      "geometry": { "type": "Point", "coordinates": [17.2298, 40.4762] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:아이가테스제도",
-        "name_ko": "아이가테스 제도",
-        "year": -241,
-        "valid_from": -241,
-        "valid_to": -211,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "low",
-        "source": "제1차 포에니 전쟁을 끝낸 해전 — 폴리비오스 『역사』 1.60~61(루타티우스 카툴루스 대 한노), 강화는 1.62~63. **좌표는 해상 교전 지점이 아니다**: 폴리비오스는 한노가 히에라(현 마레티모)에 들렀고 카툴루스가 아이구사(현 파비냐나)에 진을 쳤다고만 적어, 어느 한 점으로 못 좁힌다. 그래서 점은 카툴루스가 있던 아이구사 섬이고 이름은 제도 전체(아이가테스)로 적었다. 정본에 place도 event도 없다."
-      },
-      "geometry": { "type": "Point", "coordinates": [12.33, 37.93] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "event:카르타고함락",
-        "name_ko": "카르타고 함락",
-        "year": -146,
-        "valid_from": -146,
-        "valid_to": -116,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "high",
-        "source": "제3차 포에니 전쟁의 끝 — 아피아노스 『포에니 전쟁기』가 엿새의 시가전과 도시의 파괴를 적고, 폴리비오스 『역사』 38권 단편이 불타는 도시를 본 스키피오를 적는다(폴리비오스는 그 자리에 있었다). 좌표는 정본 place:카르타고의 lonlat 그대로(비르사 언덕)여서 정착지 이름표와 같은 점에 얹힌다 — 이름표는 둘 중 하나만 찍힌다(pack-battle-label이 text-optional이라 정착지 쪽이 이긴다). 점을 보태는 이유는 이름이 아니라 **그 해에 표시가 있어야** 하기 때문이다."
-      },
-      "geometry": { "type": "Point", "coordinates": [10.3233, 36.8528] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "event:코린토스함락",
-        "name_ko": "코린토스 함락",
-        "year": -146,
-        "valid_from": -146,
-        "valid_to": -116,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "high",
-        "source": "카르타고와 **같은 해**에 무미우스가 코린토스를 부순다 — 폴리비오스 『역사』 39권 단편, 파우사니아스 『그리스 이야기』 7.16. 이 점을 넣는 이유는 3단계 장면(rome-africa-144)에서 그리스가 로마 색으로 넘어와 있는 것이 보이기 때문이다: 아프리카만 말하면 화면에 보이는 절반을 빼놓게 된다. 좌표는 고대 코린토스 유적(현 아르하이아 코린토스)이고 정본 settlements에 place:코린토스가 없다."
-      },
-      "geometry": { "type": "Point", "coordinates": [22.8791, 37.9061] }
-    }
-  ]
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:알레시아포위전",
+    "name_ko": "알레시아 포위전",
+    "year": -52,
+    "valid_from": -52,
+    "valid_to": -22,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.5006,
+     47.5392
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:일레르다",
+    "name_ko": "일레르다",
+    "year": -49,
+    "valid_from": -49,
+    "valid_to": -19,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -1.0,
+     41.3667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:디르하키움",
+    "name_ko": "디르하키움",
+    "year": -48,
+    "valid_from": -48,
+    "valid_to": -18,
+    "victor": null,
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     19.45,
+     41.32
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:파르살루스",
+    "name_ko": "파르살루스",
+    "year": -48,
+    "valid_from": -48,
+    "valid_to": -18,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.3833,
+     39.3
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:알렉산드리아",
+    "name_ko": "알렉산드리아",
+    "year": -47,
+    "valid_from": -47,
+    "valid_to": -17,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.9079,
+     31.1982
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:젤라",
+    "name_ko": "젤라",
+    "year": -47,
+    "valid_from": -47,
+    "valid_to": -17,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.883,
+     40.3
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:타프수스",
+    "name_ko": "타프수스",
+    "year": -46,
+    "valid_from": -46,
+    "valid_to": -16,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     11.0417,
+     35.6208
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:문다평원",
+    "name_ko": "문다 평원",
+    "year": -45,
+    "valid_from": -45,
+    "valid_to": -15,
+    "victor": "로마",
+    "teaching": true
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -5.2167,
+     37.35
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:베네벤툼",
+    "name_ko": "베네벤툼",
+    "year": -275,
+    "valid_from": -275,
+    "valid_to": -245,
+    "victor": "로마",
+    "teaching": true,
+    "confidence": "low",
+    "source": "피로스가 이탈리아에서 치른 마지막 회전 — 플루타르코스 『피로스』 25. 좌표는 베네벤툼(현 이탈리아 베네벤토) 시가지이고 **회전이 벌어진 자리가 아니다**: 사료는 베네벤툼 근처라고만 하고 아루시니 평원이라는 전승도 특정 지점을 짚어 주지 않는다. 그래서 이 점은 「전투가 붙은 도시」다. 병력 수는 이 파일에 필드가 없어 넣지 않았다. 정본에 place도 event도 없어 클릭하면 이름만 있는 빈 카드가 뜬다(place:카르라이와 같은 경로)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.7761,
+     41.1298
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:타렌툼",
+    "name_ko": "타렌툼",
+    "year": -272,
+    "valid_from": -272,
+    "valid_to": -242,
+    "victor": "로마",
+    "teaching": true,
+    "confidence": "high",
+    "source": "마그나 그라이키아의 맏도시가 로마에 항복한 해 — 리비우스 『로마사』 요약(Periochae) 14. 리비우스 11~20권은 없어져 요약만 남는다. 좌표는 현 이탈리아 타란토 시가지(고대 타렌툼과 같은 자리)다. 전투가 아니라 **항복**이라 victor를 로마로 적었다: 이 파일의 place:일레르다·알렉산드리아도 회전이 아닌 점이다. 정본 settlements에 place:타렌툼이 없어 이 교보재가 그 이름을 처음 띄운다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     17.2298,
+     40.4762
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:카르타고함락",
+    "name_ko": "카르타고 함락",
+    "year": -146,
+    "valid_from": -146,
+    "valid_to": -116,
+    "victor": "로마",
+    "teaching": true,
+    "confidence": "high",
+    "source": "제3차 포에니 전쟁의 끝 — 아피아노스 『포에니 전쟁기』가 엿새의 시가전과 도시의 파괴를 적고, 폴리비오스 『역사』 38권 단편이 불타는 도시를 본 스키피오를 적는다(폴리비오스는 그 자리에 있었다). 좌표는 정본 place:카르타고의 lonlat 그대로(비르사 언덕)여서 정착지 이름표와 같은 점에 얹힌다 — 이름표는 둘 중 하나만 찍힌다(pack-battle-label이 text-optional이라 정착지 쪽이 이긴다). 점을 보태는 이유는 이름이 아니라 **그 해에 표시가 있어야** 하기 때문이다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.3233,
+     36.8528
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:코린토스함락",
+    "name_ko": "코린토스 함락",
+    "year": -146,
+    "valid_from": -146,
+    "valid_to": -116,
+    "victor": "로마",
+    "teaching": true,
+    "confidence": "high",
+    "source": "카르타고와 **같은 해**에 무미우스가 코린토스를 부순다 — 폴리비오스 『역사』 39권 단편, 파우사니아스 『그리스 이야기』 7.16. 이 점을 넣는 이유는 3단계 장면(rome-africa-144)에서 그리스가 로마 색으로 넘어와 있는 것이 보이기 때문이다: 아프리카만 말하면 화면에 보이는 절반을 빼놓게 된다. 좌표는 고대 코린토스 유적(현 아르하이아 코린토스)이고 정본 settlements에 place:코린토스가 없다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     22.8791,
+     37.9061
+    ]
+   }
+  }
+ ]
 }

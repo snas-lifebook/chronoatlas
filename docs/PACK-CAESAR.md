@@ -40,7 +40,7 @@
 | `pack-scene-text.json` · `pack-captions.json` | 장면 해설·이미지에 굽는 캡션 | — | — |
 | `pack-cast.json` | 말(인물) 배치. `at`·`override` 지원 | 정본 place, 없으면 `at` | — |
 | `pack-legions.json` | 연도별 군단 수·병력 | — | — |
-| `pack-battles.json` | 전투점 14 | 확정 좌표만 | — |
+| `pack-battles.json` | 전투점 14 → **13**(2026-09-22 아이가테스 제도가 정본으로 승격, POINTS-01-11 §7) | 확정 좌표만 | — |
 | `pack-pompey.json` | 폼페이우스 경로 4구간 | 정본 정점 | — |
 | `pack-clients.json` | 로마의 속국·동맹 연표 11폴리티 18행 | **기하 없음**(이름+연도) | — |
 | `pack-polity-colors.json` | 폴리티별 색 14 | **색만** | — |
@@ -169,7 +169,7 @@ python3 scripts/shoot-pack.py         # 납품 여덟 장 재렌더(볼트에 �
 | `data/overlays/gallia-free.json` | 자유 갈리아 3속주. `pack-extent-60`만 |
 | `data/overlays/pack-pompey.json` | 폼페이우스 경로 교보재. 정본 `_routes/pompey.geojson` 정점, **BC49부터만**(그 전을 넣으면 BC60에 예루살렘에 선다) |
 | `data/overlays/pack-battles.json` | 전투점 교보재. 정본 `_routes/caesar.geojson` 정점 |
-| `data/overlays/pack-cast.json` | 베르킹게토릭스 → 알레시아 -52. 사건 `occurred_at`이 없어 교보재로 잇는다 |
+| `data/overlays/pack-cast.json` | ~~베르킹게토릭스 → 알레시아 -52. 사건 `occurred_at`이 없어 교보재로 잇는다~~ 2026-09-22 정본에 `알레시아포위전 occurred_at 알레시아`가 들어와 그 행은 걷어냈다(정본 rel이 같은 자리에 세운다). 남은 것은 주역 지정과 `gone` |
 | `src/packData.ts` | 위 셋 + `PACK_PLACES` glob |
 | `src/present.ts` | 그룹 순환 · 갈리아 게이트 |
 | `src/people.ts` | 위치 규칙 7개(파일 머리). located_in > 경로 > 교보재 > ruled/participated_in+occurred_at. `unstack` |

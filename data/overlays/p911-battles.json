@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "teaching": true,
- "source": "정본에 이미 있는 전투(악티움 제외: 발생지 제안 대기)는 다루지 않는다. victor 어휘는 정본 actors 9종(로마·카르타고·그리스계·이탈리아세력·누미디아·갈리아·게르만·반란세력·기타중립)만 쓴다. 좌표 출처는 항목마다 다르다: 정본 place가 있으면 그것, 없으면 번들 Pleiades(landmarks.geojson), 그마저 없으면 위키백과 좌표.",
+ "source": "정본에 이미 있는 전투(악티움 제외: 발생지 제안 대기)는 다루지 않는다. victor 어휘는 정본 actors 9종(로마·카르타고·그리스계·이탈리아세력·누미디아·갈리아·게르만·반란세력·기타중립)만 쓴다. 좌표 출처는 항목마다 다르다: 정본 place가 있으면 그것, 없으면 번들 Pleiades(landmarks.geojson), 그마저 없으면 위키백과 좌표. 2026-09-22 정본 병합(scripts/apply-proposals.py)으로 정본이 찍게 된 점은 걷어냈다.",
  "outside_canon": {
   "place:페루시아": "정본에 place도 event도 없다. 좌표는 현 이탈리아 페루자 시가지(위키백과), 고대 도시와 같은 자리다.",
   "place:나울로쿠스": "정본에 place가 없다. 좌표는 번들 Pleiades 462379 'Mylae'(landmarks.geojson)를 그대로 쓴다: 나울로쿠스와 밀라이는 시칠리아 북동 밀라초 반도의 같은 곶을 가리키는 별개 고대 지명이라, 정확한 나울로쿠스 좌표가 따로 없는 이상 가장 가까운 확정 좌표로 대신한다.",
@@ -10,26 +10,6 @@
   "place:카물로두눔": "정본에 place가 없다(제안 대기, 아래 proposals 참고). 좌표는 위키백과(현 영국 콜체스터 시가지)."
  },
  "features": [
-  {
-   "type": "Feature",
-   "properties": {
-    "id": "place:필리피",
-    "name_ko": "필리피 전투",
-    "year": -42,
-    "valid_from": -42,
-    "valid_to": -12,
-    "victor": "로마",
-    "teaching": true,
-    "source": "두 차례(BC 42년 10월 3일 1차: 카시우스 진영 패주, 10월 23일 2차: 브루투스 진영 궤멸)를 한 점으로 합쳤다. 아피아노스 『내전기』 4.105~131, 플루타르코스 『브루투스』 38~52. 정본 place:필리피 좌표를 그대로 쓴다."
-   },
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     24.3387,
-     41.0251
-    ]
-   }
-  },
   {
    "type": "Feature",
    "properties": {
@@ -73,26 +53,6 @@
   {
    "type": "Feature",
    "properties": {
-    "id": "place:악티움",
-    "name_ko": "악티움 해전",
-    "year": -31,
-    "valid_from": -31,
-    "valid_to": -1,
-    "victor": "로마",
-    "teaching": true,
-    "source": "이 점은 병합 전 교보재다. proposals/20260911_place_actium.jsonl이 병합되면 정본 event:악티움해전 occurred_at 링크로 battles.geojson에 자동으로 찍히니 이 점은 그때 걷어낸다. 플루타르코스 『안토니우스』 65~66, 디오 50.31~35."
-   },
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     20.7498,
-     38.9236
-    ]
-   }
-  },
-  {
-   "type": "Feature",
-   "properties": {
     "id": "place:토이토부르크숲",
     "name_ko": "토이토부르크 숲 전투",
     "year": 9,
@@ -107,26 +67,6 @@
     "coordinates": [
      7.7869,
      52.2219
-    ]
-   }
-  },
-  {
-   "type": "Feature",
-   "properties": {
-    "id": "place:카물로두눔",
-    "name_ko": "카물로두눔 함락",
-    "year": 43,
-    "valid_from": 43,
-    "valid_to": 73,
-    "victor": "로마",
-    "teaching": true,
-    "source": "클라우디우스가 직접 건너가 항복을 받은 브리타니아 정복의 매듭. 카시우스 디오 60.21, 수에토니우스 『클라우디우스』 17. 포인트 11 본문 \"43년에 클라우디우스는 브리타니아... 정토에 나섰다\"."
-   },
-   "geometry": {
-    "type": "Point",
-    "coordinates": [
-     0.9027,
-     51.8959
     ]
    }
   }

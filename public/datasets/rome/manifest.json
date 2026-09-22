@@ -99,7 +99,12 @@
    "bearing": -12,
    "note": "SPEC 첫 장면 P06~08. BC60 삼두정 → BC49 루비콘 → BC44 3월 15일",
    "to": -44,
-   "group": "첫 장면 · 카이사르"
+   "group": "첫 장면 · 카이사르",
+   "events": [
+    "event:제1차삼두정치",
+    "event:갈리아정복",
+    "event:카이사르암살"
+   ]
   },
   {
    "id": "rubicon",
@@ -129,7 +134,10 @@
    "pitch": 55,
    "bearing": 0,
    "to": -42,
-   "group": "첫 장면 · 카이사르"
+   "group": "첫 장면 · 카이사르",
+   "events": [
+    "event:카이사르암살"
+   ]
   },
   {
    "id": "cannae-board",
@@ -145,9 +153,13 @@
    "bearing": 0,
    "board": "cannae-216",
    "phase": 0,
-   "group": "말판",
+   "group": "세부 지도",
+   "skin": "campaign",
    "note": "교보재. 폴리비오스 3.113~117 통설 재구성. 측량값이 아니다.",
-   "micro": "cannae"
+   "micro": "cannae",
+   "events": [
+    "event:칸나이전투"
+   ]
   },
   {
    "id": "pack-intro-med",
@@ -164,7 +176,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -172,7 +183,10 @@
     "labels"
    ],
    "group": "2회차 발표 · 카이사르 팩",
-   "note": "지중해를 두른 땅은 이미 로마. 초록으로 덮인 갈리아만 아직 로마 밖이다."
+   "note": "지중해를 두른 땅은 이미 로마. 초록으로 덮인 갈리아만 아직 로마 밖이다.",
+   "events": [
+    "event:제1차삼두정치"
+   ]
   },
   {
    "id": "pack-gaul-52",
@@ -189,7 +203,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -199,7 +212,10 @@
     "story_battles"
    ],
    "group": "2회차 발표 · 카이사르 팩",
-   "note": "여덟 해의 원정이 알레시아 한 성 앞에서 끝난다."
+   "note": "여덟 해의 원정이 알레시아 한 성 앞에서 끝난다.",
+   "events": [
+    "event:갈리아정복"
+   ]
   },
   {
    "id": "pack-alesia-52",
@@ -216,7 +232,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -227,7 +242,10 @@
    "note": "포위선이 두 겹이다. 안쪽은 성을 막고, 바깥쪽은 구원군을 막는다. 갈리아 원정 장면에서 알레시아로 줌하면 이 선들이 켜진다.",
    "micro": "alesia",
    "board": "alesia-52",
-   "phase": 0
+   "phase": 0,
+   "events": [
+    "event:알레시아포위전"
+   ]
   },
   {
    "id": "pack-roma-urbs",
@@ -244,7 +262,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -253,7 +270,10 @@
    ],
    "group": "세부 지도",
    "note": "포메리움이 이 지도의 요점이다 — 무장한 장군이 넘을 수 없던 선. 3월 15일의 자리는 원로원 의사당이 아니라 폼페이우스 회의장이었다.",
-   "micro": "roma"
+   "micro": "roma",
+   "events": [
+    "event:카이사르암살"
+   ]
   },
   {
    "id": "pack-alexandria-47",
@@ -270,7 +290,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -297,7 +316,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -323,7 +341,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -351,7 +368,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -360,6 +376,168 @@
    ],
    "group": "세부 지도",
    "note": "8개 군단 대 11개 군단. 하루 만에 로마 제일의 장군이 도망자가 된다."
+  },
+  {
+   "id": "aegates-241",
+   "title": "아이가테스 해전 · BC 241",
+   "year": -241,
+   "micro": "aegates",
+   "center": [
+    12.3,
+    37.95
+   ],
+   "zoom": 11,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "짐을 실은 채 붙잡힌 카르타고 보급 함대. 스물네 해 전쟁이 이 앞바다에서 끝난다.",
+   "board": "aegates-241",
+   "phase": 0
+  },
+  {
+   "id": "zama-202",
+   "title": "자마 · BC 202",
+   "year": -202,
+   "micro": "zama",
+   "center": [
+    9.4492,
+    36.2989
+   ],
+   "zoom": 11,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "코끼리가 통로로 빠지고, 양쪽 기병이 전장을 떠났다가 돌아와 뒤를 닫는다. 전장의 자리 자체가 논쟁이다.",
+   "board": "zama-202",
+   "phase": 0,
+   "events": [
+    "event:자마전투"
+   ]
+  },
+  {
+   "id": "philippi-42",
+   "title": "필리피 · BC 42",
+   "year": -42,
+   "micro": "philippi",
+   "center": [
+    24.3387,
+    41.0251
+   ],
+   "zoom": 11,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "비아 에그나티아를 가로지른 두 진영. 첫 전투에서 카시우스가, 스무 날 뒤 브루투스가 진다."
+  },
+  {
+   "id": "actium-31",
+   "title": "악티움 · BC 31",
+   "year": -31,
+   "micro": "actium",
+   "center": [
+    20.75,
+    38.93
+   ],
+   "zoom": 11,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "만 입구에서 나온 함대와 그것을 기다린 함대. 클레오파트라의 예순 척이 돌파해 남쪽으로 빠진다.",
+   "board": "actium-31",
+   "phase": 0,
+   "events": [
+    "event:악티움해전"
+   ]
+  },
+  {
+   "id": "capri-27",
+   "title": "카프리 · AD 27~37",
+   "year": 27,
+   "micro": "capri",
+   "center": [
+    14.262628,
+    40.55823
+   ],
+   "zoom": 13,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "황제가 열 해를 머문 섬. 빌라 요비스는 유구가 남아 있고, 절벽 이야기는 전승이다."
+  },
+  {
+   "id": "roma-41",
+   "title": "로마 시내 · AD 41",
+   "year": 41,
+   "micro": "roma",
+   "center": [
+    12.497,
+    41.897
+   ],
+   "zoom": 13.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "세부 지도",
+   "note": "친위대 병영이 도시 북동쪽 성벽 밖에 섰다. 팔라티움에서 황제가 죽고, 그 병영에서 다음 황제가 뽑힌다."
   },
   {
    "id": "pack-extent-51",
@@ -376,7 +554,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -384,7 +561,10 @@
     "labels"
    ],
    "group": "2회차 발표 · 카이사르 팩",
-   "note": "같은 땅, 다른 색: 첫 장과 같은 카메라다 — 초록이던 자리가 분홍이 됐다."
+   "note": "같은 땅, 다른 색: 첫 장과 같은 카메라다 — 초록이던 자리가 분홍이 됐다.",
+   "events": [
+    "event:갈리아정복"
+   ]
   },
   {
    "id": "pack-rubicon",
@@ -401,7 +581,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -428,7 +607,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -455,7 +633,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -482,7 +659,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -490,7 +666,10 @@
     "labels"
    ],
    "group": "2회차 발표 · 카이사르 팩",
-   "note": "바다를 한 바퀴 두른 이 판을 쥔 사람이, 이 해 3월 15일에 죽는다."
+   "note": "바다를 한 바퀴 두른 이 판을 쥔 사람이, 이 해 3월 15일에 죽는다.",
+   "events": [
+    "event:카이사르암살"
+   ]
   },
   {
    "id": "pack-augustan-27",
@@ -507,7 +686,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -515,32 +693,10 @@
     "labels"
    ],
    "group": "2회차 발표 · 카이사르 팩",
-   "note": "공화국이라는 이름만 남기고, 로마는 한 사람의 나라가 된다."
-  },
-  {
-   "id": "sulla-88",
-   "title": "술라, 로마로 진군 · BC 88",
-   "year": -88,
-   "center": [
-    13.6,
-    41.5
-   ],
-   "zoom": 6,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "admin_regions",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels"
-   ],
-   "group": "선례",
-   "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+   "note": "공화국이라는 이름만 남기고, 로마는 한 사람의 나라가 된다.",
+   "events": [
+    "event:악티움해전"
+   ]
   },
   {
    "id": "carrhae-53",
@@ -557,7 +713,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -567,6 +722,88 @@
    ],
    "group": "선례",
    "note": "크라수스가 파르티아에게 죽는다. 세 사람의 균형이 둘의 대결이 된다. 루비콘은 여기서 시작한다."
+  },
+  {
+   "id": "p12-palatine-753",
+   "title": "팔라티노 언덕 · BC 753",
+   "year": -753,
+   "center": [
+    12.486,
+    41.889
+   ],
+   "zoom": 13,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "테베레 강가 언덕 일곱이 전부인 도시. 성벽도 광장도 아직 없다. 늑대와 형제 살해의 전설로 시작한 자리다.",
+   "micro": "roma"
+  },
+  {
+   "id": "p12-samnium-321",
+   "title": "삼니움 · 카우디움의 멍에 · BC 321",
+   "year": -321,
+   "center": [
+    14.3,
+    41.4
+   ],
+   "zoom": 6.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "산악 부족과 쉰 해. 협곡에서 멍에 밑을 지나는 굴욕을 겪고도 로마는 이탈리아 중부를 접수한다.",
+   "events": [
+    "event:삼니움전쟁",
+    "event:라틴동맹전쟁"
+   ]
+  },
+  {
+   "id": "p12-pyrrhus-275",
+   "title": "피로스 · 이탈리아 남부 · BC 280~275",
+   "year": -275,
+   "center": [
+    16.2,
+    40.4
+   ],
+   "zoom": 6.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "이겨도 남는 게 없는 승리. 에페이로스의 왕이 남이탈리아를 떠나고 반도는 로마의 것이 된다.",
+   "events": [
+    "event:베네벤토전투"
+   ]
   },
   {
    "id": "plains-empire",
@@ -583,14 +820,13 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "relief",
     "rivers",
     "labels",
     "plains"
    ],
-   "group": "로마의 확장",
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
    "note": "곡창 일곱과 척박 셋. 평야가 잉여를 만들고 잉여가 군단을 먹인다. 그리스 반도에는 이 색이 없다."
   },
   {
@@ -608,7 +844,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -616,12 +851,102 @@
     "labels",
     "story_battles"
    ],
-   "group": "로마의 확장",
-   "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다."
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "로마는 아직 이탈리아 하나다. 바다 건너 카르타고가 두 배 넓다. 세 장이 카메라를 공유하니 달라지는 것은 모양뿐이다.",
+   "events": [
+    "event:베네벤토전투"
+   ]
+  },
+  {
+   "id": "p12-messana-264",
+   "title": "메시나 해협 · 접점 · BC 264",
+   "year": -264,
+   "center": [
+    13.6,
+    37.7
+   ],
+   "zoom": 6.5,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "시칠리아 서쪽은 카르타고, 동쪽은 시라쿠사. 해협 건너 메시나에서 두 나라가 처음 맞붙는다.",
+   "events": [
+    "event:메시나전투",
+    "event:제1차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p12-mylae-260",
+   "title": "까마귀 · 밀라이 · BC 260",
+   "year": -260,
+   "center": [
+    13.6,
+    37.7
+   ],
+   "zoom": 6.5,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "배 위에서 육상전을 한다. 다리를 걸치는 까마귀 하나로 육지의 나라가 바다에서 첫 승리를 거둔다.",
+   "events": [
+    "event:밀라이해전"
+   ]
+  },
+  {
+   "id": "p12-regulus-255",
+   "title": "레굴루스의 아프리카 · BC 256~255",
+   "year": -255,
+   "center": [
+    12.2,
+    36.3
+   ],
+   "zoom": 5.7,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "내친김에 카르타고 앞마당까지. 상륙한 로마군이 투니스 평원에서 부서지고 집정관은 포로가 된다.",
+   "events": [
+    "event:에크노무스해전",
+    "event:본곶전투"
+   ]
   },
   {
    "id": "rome-sicily-241",
-   "title": "2단계 · 시칠리아 · BC 241",
+   "title": "첫 속주 시칠리아 · 섬 셋 · BC 241",
    "year": -241,
    "center": [
     9,
@@ -634,7 +959,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -642,8 +966,161 @@
     "labels",
     "story_battles"
    ],
-   "group": "로마의 확장",
-   "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙어 한 덩어리가 된다 — 로마 밖에 생긴 첫 영토다."
+   "group": "포인트 01·02 · 일곱 언덕에서 시칠리아까지",
+   "note": "바다를 처음 건넌 해. 시칠리아가 이탈리아에 붙고, 지중해 한가운데 섬 셋이 로마의 징검다리가 된다.",
+   "events": [
+    "event:제1차포에니전쟁",
+    "event:메시나전투",
+    "event:밀라이해전",
+    "event:에크노무스해전"
+   ]
+  },
+  {
+   "id": "p345-alps-218",
+   "title": "알프스를 넘다 · BC 218",
+   "year": -218,
+   "center": [
+    5.5,
+    41.8
+   ],
+   "zoom": 5.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "바다가 아니라 산으로 왔다. 코끼리를 끌고 알프스를 넘은 군대가 그해 안에 로마군을 두 번 꺾는다.",
+   "events": [
+    "event:제2차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p345-cannae-216",
+   "title": "칸나이 · BC 216",
+   "year": -216,
+   "center": [
+    15.2,
+    40.8
+   ],
+   "zoom": 6.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "가운데를 물리고 양 날개로 감싼다. 하루 만에 로마 사상 최대의 군대가 사라지지만 로마는 항복하지 않는다.",
+   "events": [
+    "event:칸나이전투",
+    "event:제2차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p345-italy-212",
+   "title": "남이탈리아의 한니발 · BC 216~204",
+   "year": -212,
+   "center": [
+    15,
+    39.5
+   ],
+   "zoom": 6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "이기고도 로마를 치지 못한다. 파비우스가 시간을 끌고, 시라쿠사가 떨어지며 시칠리아의 뒷문이 닫힌다.",
+   "events": [
+    "event:제2차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p345-zama-202",
+   "title": "자마 · BC 202",
+   "year": -202,
+   "center": [
+    10.5,
+    36.5
+   ],
+   "zoom": 6.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "전장을 아프리카로 옮긴다. 불려 돌아온 한니발이 카르타고의 앞마당에서 진다.",
+   "events": [
+    "event:자마전투",
+    "event:제2차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p345-carthage-146",
+   "title": "카르타고 · BC 149~146",
+   "year": -146,
+   "center": [
+    10.8,
+    36.6
+   ],
+   "zoom": 6.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles",
+    "plains"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "세 해를 버틴 도시가 불탄다. 사막이어서가 아니다, 배후의 곡창은 뒤에 로마를 먹인다.",
+   "events": [
+    "event:제3차포에니전쟁"
+   ]
   },
   {
    "id": "rome-africa-144",
@@ -660,7 +1137,6 @@
    "skin": "campaign",
    "layers": [
     "territory",
-    "admin_regions",
     "settlements",
     "people",
     "relief",
@@ -668,17 +1144,358 @@
     "labels",
     "story_battles"
    ],
-   "group": "로마의 확장",
-   "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다."
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "첫 장에서 이탈리아 하나였던 색이 에스파냐부터 그리스까지 이어지고, 바다 건너 아프리카에도 한 덩어리가 생긴다.",
+   "events": [
+    "event:제3차포에니전쟁"
+   ]
+  },
+  {
+   "id": "p345-cimbri-101",
+   "title": "킴브리·테우토네스 · BC 113~101",
+   "year": -101,
+   "center": [
+    6,
+    44.5
+   ],
+   "zoom": 5.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "북쪽에서 내려온 두 부족이 로마군을 전멸시키고, 마리우스가 군대를 다시 만든다. 충성이 나라에서 장군으로 옮겨 가는 시작이다."
+  },
+  {
+   "id": "sulla-88",
+   "title": "술라, 로마로 진군 · BC 88",
+   "year": -88,
+   "center": [
+    13.6,
+    41.5
+   ],
+   "zoom": 6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "루비콘은 처음이 아니다. 서른아홉 해 앞서, 로마의 집정관이 자기 군단을 이끌고 로마로 들어왔다."
+  },
+  {
+   "id": "p345-spartacus-71",
+   "title": "스파르타쿠스 · BC 73~71",
+   "year": -71,
+   "center": [
+    14.8,
+    40.9
+   ],
+   "zoom": 6.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "검투사 일흔여덟이 베수비오에 오르고 수만이 된다. 두 해 뒤 실라루스 강가에서 끝나고 아피아 가도에 십자가가 선다.",
+   "events": [
+    "event:스파르타쿠스의반란"
+   ]
+  },
+  {
+   "id": "p345-pompey-east-63",
+   "title": "폼페이우스의 동방 · 카틸리나 · BC 67~63",
+   "year": -63,
+   "center": [
+    25.5,
+    38.5
+   ],
+   "zoom": 4.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 03·04·05 · 한니발에서 술라까지",
+   "note": "한 사람이 동방을 통째로 쥐고 돌아온다. 같은 해 로마에서는 카틸리나의 음모가 드러난다.",
+   "events": [
+    "event:카틸리나사건"
+   ]
+  },
+  {
+   "id": "p911-philippi-42",
+   "title": "필리피 · BC 42",
+   "year": -42,
+   "center": [
+    21.5,
+    40
+   ],
+   "zoom": 5.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "암살자들과 카이사르의 후계자들이 마케도니아에서 맞붙는다. 두 번의 전투로 공화정의 마지막 군대가 사라진다."
+  },
+  {
+   "id": "p911-partition-40",
+   "title": "셋으로 나눈 제국 · BC 40",
+   "year": -40,
+   "center": [
+    14,
+    40
+   ],
+   "zoom": 4.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "브룬디시움에서 세 사람이 지중해를 나눈다. 서쪽은 옥타비아누스, 동쪽은 안토니우스, 아프리카는 레피두스."
+  },
+  {
+   "id": "p911-donations-34",
+   "title": "알렉산드리아의 기증 · BC 34",
+   "year": -34,
+   "center": [
+    29,
+    34.5
+   ],
+   "zoom": 4.8,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "안토니우스가 동방의 땅을 클레오파트라와 그 아이들에게 나눠 준다. 로마 시민의 눈에는 로마 땅을 이집트 여왕에게 준 것이다."
+  },
+  {
+   "id": "p911-actium-31",
+   "title": "악티움 · BC 31",
+   "year": -31,
+   "center": [
+    19,
+    38.5
+   ],
+   "zoom": 5.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "movements",
+    "story_battles"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "그리스 서쪽 만 입구에서 두 함대가 맞선다. 하루 만에 지중해의 주인이 정해진다.",
+   "events": [
+    "event:악티움해전"
+   ]
+  },
+  {
+   "id": "p911-augustus-14",
+   "title": "아우구스투스의 제국 · AD 14",
+   "year": 14,
+   "center": [
+    14,
+    40
+   ],
+   "zoom": 4.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "라인·다뉴브·유프라테스 안에 머물라. 마흔 해를 다스린 사람이 남긴 유언이 제국의 테두리가 된다."
+  },
+  {
+   "id": "p911-capri-27",
+   "title": "카프리 · AD 27~37",
+   "year": 27,
+   "center": [
+    13.5,
+    41
+   ],
+   "zoom": 7.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "황제는 섬으로 물러나고 로마는 친위대장의 손에 들어간다. 세야누스가 로마에, 티베리우스가 카프리에."
+  },
+  {
+   "id": "p911-caligula-41",
+   "title": "팔라티움의 칼 · AD 41",
+   "year": 41,
+   "center": [
+    12.497,
+    41.897
+   ],
+   "zoom": 12.8,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "황제를 지키라고 만든 부대가 황제를 죽이고 다음 황제를 고른다. 팔라티움에서 병영까지 걸어서 반 시간 거리다(직선 2 km 남짓).",
+   "micro": "roma"
+  },
+  {
+   "id": "p911-claudius-43",
+   "title": "브리타니아 · 푸키누스 · AD 43~52",
+   "year": 43,
+   "center": [
+    7,
+    47
+   ],
+   "zoom": 4.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "뽑힌 황제가 바다 건너 브리타니아를 정복하고, 호수를 비우는 공사로 모의 해전을 벌인다.",
+   "events": [
+    "event:모의해전"
+   ]
+  },
+  {
+   "id": "p911-nero-54",
+   "title": "아그리피나의 아들 · AD 54",
+   "year": 54,
+   "center": [
+    14,
+    40
+   ],
+   "zoom": 4.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 09·10·11 · 필리피에서 네로까지",
+   "note": "클라우디우스가 죽고 아그리피나의 아들이 황제가 된다. 율리우스 클라우디우스 왕조의 마지막 사람이다."
   }
  ],
  "library": "https://roma-library.pages.dev",
  "source": "정본 entities.jsonl/links.jsonl → scripts/adapt.ts",
- "generated": "2026-09-17",
+ "generated": "2026-09-22",
  "counts": {
-  "entities": 650,
-  "links": 698,
-  "settlements": 220,
-  "battles": 21
+  "entities": 672,
+  "links": 730,
+  "settlements": 232,
+  "battles": 40
  }
 }

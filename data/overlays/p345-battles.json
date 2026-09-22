@@ -1,144 +1,57 @@
 {
-  "type": "FeatureCollection",
-  "teaching": true,
-  "source": "정본 battles.geojson에 이 구간 점은 -218 티키누스·트레비아, -216 칸나이, -149 카르타고뿐이다(팀 브리핑 §5 확인). 좌표는 정본 place(`layers/settlements.geojson`) 아니면 번들 Pleiades(`layers/landmarks.geojson`, pid)에서 가져왔다. **아라우시오·아쿠아이 섹스티아이·베르첼라이·피스토리아 넷은 예외**, 이 넷은 정본 place에도 번들 Pleiades에도 없어 처음엔 뺐었는데, `POINTS-01-11.md` §1 규칙 1이 위키데이터 P625도 허용한다는 지적을 받고(팀 리드, 2026-09-21) 살아 있는 위키데이터 API에서 각 QID의 P625를 직접 조회해(User-Agent 자동 첨부, 한 번에 하나씩) 추가했다. 네 좌표 모두 앞서 조회해 둔 번들 밖 Pleiades 좌표와 소수점 셋째 자리까지 일치해 교차 검증됐다.",
-  "outside_canon": {
-    "place:콜리나문": "정본에 place도 event도 없다. 좌표는 place:로마의 lonlat 그대로다, 술라가 삼니움·마리우스파 잔당과 붙은 회전은 로마 성벽 콜리나 문 바로 밖이라 도시와 같은 점으로 근사했다(카르라이 점의 관행과 같다: 회전이 벌어진 정확한 지점이 아니라 「그 도시」).",
-    "place:베수비오": "정본 settlements에 없고 번들 landmarks.geojson의 Pleiades pid 433189(Vesuvius, mountain, precise)다. 정착지가 아니라 산이라 place: 네임스페이스를 빌렸을 뿐 정본 노드가 아니다.",
-    "place:실라루스강": "정본 settlements에 없고 번들 landmarks.geojson의 Pleiades pid 442795(Silarus, river, precise, 캄파니아)다. landmarks에 이름이 같은 강이 북부(볼로냐 인근, pid 393495)에도 있는데 그것과는 다른 강이다, 위도로 구분했다(스파르타쿠스 최후 격전지는 캄파니아).",
-    "place:아라우시오": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q187796(Orange, Vaucluse) P625. `victor`를 킴브리·테우토네스 연합군이라 「게르만」으로 적었다, 정본 actor 9개 어휘에 「킴브리」가 없어 가장 가까운 어휘(게르만)로 옮겼다(카르라이 점이 파르티아를 「기타중립」으로 옮긴 것과 같은 관행).",
-    "place:아쿠아이섹스티아이": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q47465(Aix-en-Provence) P625.",
-    "place:베르첼라이": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q5990(Vercelli) P625. **팀 리드가 처음 준 QID Q6234는 틀렸다**, 실제로는 독일 노르트라인베스트팔렌 주 헤르포르트 군(Herford District)이다. 조회해서 바로잡았다.",
-    "place:피스토리아": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q13376(Pistoia) P625. **팀 리드가 처음 준 QID Q13381도 틀렸다**, 실제로는 트리에스테의 축구 클럽(US Triestina Calcio 1918)이고 P625 자체가 없다. 조회해서 바로잡았다."
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "정본 battles.geojson에 이 구간 점은 -218 티키누스·트레비아, -216 칸나이, -149 카르타고뿐이다(팀 브리핑 §5 확인). 좌표는 정본 place(`layers/settlements.geojson`) 아니면 번들 Pleiades(`layers/landmarks.geojson`, pid)에서 가져왔다. **아라우시오·아쿠아이 섹스티아이·베르첼라이·피스토리아 넷은 예외**, 이 넷은 정본 place에도 번들 Pleiades에도 없어 처음엔 뺐었는데, `POINTS-01-11.md` §1 규칙 1이 위키데이터 P625도 허용한다는 지적을 받고(팀 리드, 2026-09-21) 살아 있는 위키데이터 API에서 각 QID의 P625를 직접 조회해(User-Agent 자동 첨부, 한 번에 하나씩) 추가했다. 네 좌표 모두 앞서 조회해 둔 번들 밖 Pleiades 좌표와 소수점 셋째 자리까지 일치해 교차 검증됐다. 2026-09-22 정본 병합(scripts/apply-proposals.py)으로 정본이 찍게 된 점은 걷어냈다.",
+ "outside_canon": {
+  "place:콜리나문": "정본에 place도 event도 없다. 좌표는 place:로마의 lonlat 그대로다, 술라가 삼니움·마리우스파 잔당과 붙은 회전은 로마 성벽 콜리나 문 바로 밖이라 도시와 같은 점으로 근사했다(카르라이 점의 관행과 같다: 회전이 벌어진 정확한 지점이 아니라 「그 도시」).",
+  "place:베수비오": "정본 settlements에 없고 번들 landmarks.geojson의 Pleiades pid 433189(Vesuvius, mountain, precise)다. 정착지가 아니라 산이라 place: 네임스페이스를 빌렸을 뿐 정본 노드가 아니다.",
+  "place:실라루스강": "정본 settlements에 없고 번들 landmarks.geojson의 Pleiades pid 442795(Silarus, river, precise, 캄파니아)다. landmarks에 이름이 같은 강이 북부(볼로냐 인근, pid 393495)에도 있는데 그것과는 다른 강이다, 위도로 구분했다(스파르타쿠스 최후 격전지는 캄파니아).",
+  "place:아라우시오": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q187796(Orange, Vaucluse) P625. `victor`를 킴브리·테우토네스 연합군이라 「게르만」으로 적었다, 정본 actor 9개 어휘에 「킴브리」가 없어 가장 가까운 어휘(게르만)로 옮겼다(카르라이 점이 파르티아를 「기타중립」으로 옮긴 것과 같은 관행).",
+  "place:아쿠아이섹스티아이": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q47465(Aix-en-Provence) P625.",
+  "place:베르첼라이": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q5990(Vercelli) P625. **팀 리드가 처음 준 QID Q6234는 틀렸다**, 실제로는 독일 노르트라인베스트팔렌 주 헤르포르트 군(Herford District)이다. 조회해서 바로잡았다.",
+  "place:피스토리아": "정본·번들 둘 다 없다. 좌표는 위키데이터 Q13376(Pistoia) P625. **팀 리드가 처음 준 QID Q13381도 틀렸다**, 실제로는 트리에스테의 축구 클럽(US Triestina Calcio 1918)이고 P625 자체가 없다. 조회해서 바로잡았다."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:콜리나문",
+    "name_ko": "콜리나 문",
+    "year": -82,
+    "valid_from": -82,
+    "valid_to": -52,
+    "victor": "로마",
+    "teaching": true,
+    "confidence": "medium",
+    "source": "술라의 2차 로마 진군을 끝낸 회전(삼니움군·마리우스파 잔당 대 술라)(아피아노스 『내전기』 1.93, 플루타르코스 『술라』 29~30). 좌표는 place:로마 lonlat 그대로(§0 콜리나문 항목 참고, 회전이 벌어진 정확한 지점이 아니라 도시 근사)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4862,
+     41.8917
+    ]
+   }
   },
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:트라시메노호수",
-        "name_ko": "트라시메노 호수",
-        "year": -217,
-        "valid_from": -217,
-        "valid_to": -187,
-        "victor": "카르타고",
-        "teaching": true,
-        "source": "한니발이 플라미니우스를 매복으로 전멸시킨 전투(폴리비오스 『역사』 3.83~84, 리비우스 『로마사』 22.4~6). 좌표는 정본 place:트라시메노호수(이미 battlefield로 등록돼 있다)의 lonlat 그대로. 정본에 event:트라시메노전투 자체가 없다(proposals에 신설 제안)."
-      },
-      "geometry": { "type": "Point", "coordinates": [12.1, 43.14] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:자마",
-        "name_ko": "자마",
-        "year": -202,
-        "valid_from": -202,
-        "valid_to": -172,
-        "victor": "로마",
-        "teaching": true,
-        "source": "제2차 포에니 전쟁을 끝낸 결전(폴리비오스 『역사』 15.9~14, 리비우스 『로마사』 30.32~35). 좌표는 정본 place:자마의 lonlat. 정본에 event:자마전투 노드는 있으나 occurred_at 링크와 연도가 없다(연도는 이미 proposals/20260911_event_year_3.jsonl에 제안돼 있어 중복하지 않았고, occurred_at만 이번 제안에 더한다)."
-      },
-      "geometry": { "type": "Point", "coordinates": [9.4492, 36.2989] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:콜리나문",
-        "name_ko": "콜리나 문",
-        "year": -82,
-        "valid_from": -82,
-        "valid_to": -52,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "medium",
-        "source": "술라의 2차 로마 진군을 끝낸 회전(삼니움군·마리우스파 잔당 대 술라)(아피아노스 『내전기』 1.93, 플루타르코스 『술라』 29~30). 좌표는 place:로마 lonlat 그대로(§0 콜리나문 항목 참고, 회전이 벌어진 정확한 지점이 아니라 도시 근사)."
-      },
-      "geometry": { "type": "Point", "coordinates": [12.4862, 41.8917] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:베수비오",
-        "name_ko": "베수비오",
-        "year": -73,
-        "valid_from": -73,
-        "valid_to": -43,
-        "victor": "반란세력",
-        "teaching": true,
-        "source": "탈주한 검투사들이 베수비오 산에 진을 치고 클로디우스 글라베르의 진압군을 역으로 격파한 첫 승리(플루타르코스 『크라수스』 9, 아피아노스 『내전기』 1.116). 좌표는 번들 Pleiades pid 433189."
-      },
-      "geometry": { "type": "Point", "coordinates": [14.4262, 40.8214] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:실라루스강",
-        "name_ko": "실라루스 강",
-        "year": -71,
-        "valid_from": -71,
-        "valid_to": -41,
-        "victor": "로마",
-        "teaching": true,
-        "source": "크라수스가 스파르타쿠스를 죽이고 반란을 끝낸 최후 결전(플루타르코스 『크라수스』 11, 아피아노스 『내전기』 1.120). 좌표는 번들 Pleiades pid 442795(캄파니아 실라루스, 북부 동명 하천과 다르다)."
-      },
-      "geometry": { "type": "Point", "coordinates": [15.1355, 40.6195] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:아라우시오",
-        "name_ko": "아라우시오",
-        "year": -105,
-        "valid_from": -105,
-        "valid_to": -75,
-        "victor": "게르만",
-        "teaching": true,
-        "source": "킴브리·테우토네스가 로마군 8만 명 이상을 전멸시킨 킴브리 전쟁 최악의 패전(리비우스 『로마사』 요약 67). 좌표는 위키데이터 Q187796(Orange, Vaucluse) P625."
-      },
-      "geometry": { "type": "Point", "coordinates": [4.808889, 44.1375] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:아쿠아이섹스티아이",
-        "name_ko": "아쿠아이 섹스티아이",
-        "year": -102,
-        "valid_from": -102,
-        "valid_to": -72,
-        "victor": "로마",
-        "teaching": true,
-        "source": "마리우스가 테우토네스를 궤멸시킨 전투(플루타르코스 『마리우스』 18~21). 좌표는 위키데이터 Q47465(Aix-en-Provence) P625."
-      },
-      "geometry": { "type": "Point", "coordinates": [5.445556, 43.527778] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:베르첼라이",
-        "name_ko": "베르첼라이",
-        "year": -101,
-        "valid_from": -101,
-        "valid_to": -71,
-        "victor": "로마",
-        "teaching": true,
-        "confidence": "medium",
-        "source": "마리우스·카툴루스가 킴브리를 궤멸시켜 전쟁을 끝낸 전투(플루타르코스 『마리우스』 23~27). 좌표는 위키데이터 Q5990(Vercelli) P625. 실제 전장(라우디네 평원)의 정확한 위치는 논쟁이 있어 도시 좌표로 근사했다."
-      },
-      "geometry": { "type": "Point", "coordinates": [8.42341, 45.32615] }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "place:피스토리아",
-        "name_ko": "피스토리아",
-        "year": -62,
-        "valid_from": -62,
-        "valid_to": -32,
-        "victor": "로마",
-        "teaching": true,
-        "source": "카틸리나가 원로원군에 포위돼 전사한 반란 최후의 전투, 살루스티우스 『카틸리나 전쟁』 60~61. 좌표는 위키데이터 Q13376(Pistoia) P625."
-      },
-      "geometry": { "type": "Point", "coordinates": [10.916667, 43.933333] }
-    }
-  ]
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:베수비오",
+    "name_ko": "베수비오",
+    "year": -73,
+    "valid_from": -73,
+    "valid_to": -43,
+    "victor": "반란세력",
+    "teaching": true,
+    "source": "탈주한 검투사들이 베수비오 산에 진을 치고 클로디우스 글라베르의 진압군을 역으로 격파한 첫 승리(플루타르코스 『크라수스』 9, 아피아노스 『내전기』 1.116). 좌표는 번들 Pleiades pid 433189."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.4262,
+     40.8214
+    ]
+   }
+  }
+ ]
 }

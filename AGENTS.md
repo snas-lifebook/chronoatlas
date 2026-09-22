@@ -24,7 +24,7 @@
 툴: `get_schema` · `find_entity(q,type?)` · `neighbors(id,from_year?,to_year?,rels?)` · `path(a,b,max_hops?)`. 연도는 정수, BC는 음수.
 
 ## 하지 말 것
-- 정본(볼트 `ontology/*.jsonl`)에 직접 쓰지 않는다. 제안은 `proposals/*.jsonl`로(CONSTITUTION 0-3).
+- 정본(볼트 `ontology/*.jsonl`)에 직접 쓰지 않는다. 제안은 `proposals/*.jsonl`로(CONSTITUTION 0-3). River가 승인한 제안만 `python3 scripts/apply-proposals.py --apply <파일…>`로 넣는다(드라이런이 기본, 백업 `.bak_YYYYMMDD`, 멱등, 장부 `proposals/APPLIED.md`). 그 뒤 `npm run adapt`.
 - `public/datasets/`를 손으로 고치지 않는다 — 어댑터 산출물이다.
 - 런타임 외부 호출 0. 새 데이터는 빌드타임에 `data/external/`로 굽는다. 카피레프트(ODbL) 데이터는 재배포하지 않는다.
 - 웹 UI에 astryx 밖의 색·간격을 넣지 않는다(DESIGN P1). 지도 위 유채색은 데이터 색뿐(P2). 클릭 안 되는 지도 요소를 만들지 않는다(P5).

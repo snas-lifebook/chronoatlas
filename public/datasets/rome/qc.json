@@ -3,7 +3,6 @@
   "event:기독교박해",
   "event:르네상스운동",
   "event:십자가형",
-  "event:자마전투",
   "group:갈리아제국",
   "group:게르만민족",
   "group:드루이드",
@@ -133,7 +132,6 @@
   "place:아풀리아",
   "place:아프라시아브",
   "place:안티움",
-  "place:알레시아",
   "place:알리칸테",
   "place:에게해",
   "place:에메사",
@@ -160,7 +158,6 @@
   "place:카스피해",
   "place:카파도키아",
   "place:카푸트바다",
-  "place:카프리섬",
   "place:칼케돈",
   "place:코르도바",
   "place:콘센티아",
@@ -184,7 +181,6 @@
   "place:톨레도",
   "place:투르키스탄",
   "place:툴루즈",
-  "place:트라시메노호수",
   "place:트란실바니아",
   "place:트리어",
   "place:티볼리",
@@ -199,7 +195,6 @@
   "place:폴렌티아",
   "place:폼페이",
   "place:프로코네소스",
-  "place:필리피",
   "place:하이모이시아속주",
   "place:헤라트",
   "place:헬레스폰투스",
@@ -215,7 +210,9 @@
   "institution:재무관",
   "place:콜론네곶",
   "place:투리이",
-  "place:지브롤터해협"
+  "place:지브롤터해협",
+  "place:알바롱가",
+  "person:가이우스두일리우스"
  ],
  "undated": [
   "event:검투시합",
@@ -225,7 +222,6 @@
   "event:라틴동맹전쟁",
   "event:르네상스운동",
   "event:마그네시아전투",
-  "event:모의해전",
   "event:삼니움전쟁",
   "event:아르메니아정복",
   "event:알레시아포위전",
@@ -503,14 +499,14 @@
   "person:볼테르",
   "person:애덤스미스",
   "person:마고",
-  "person:한니발기스코"
+  "person:한니발기스코",
+  "person:가이우스두일리우스"
  ],
  "nocoord": [
   "place:콜론네곶",
   "place:투리이",
   "place:지브롤터해협",
-  "place:스파르타",
-  "place:에크노무스곶"
+  "place:스파르타"
  ],
  "homonym": [
   {

@@ -3,7 +3,7 @@ import { openDataset, tools } from '../mcp/tools';
 
 const d = openDataset(process.cwd());
 describe('MCP 툴 (TASKS 3.4) — 패널과 같은 graph.json', () => {
-  it('get_schema', () => { const s = tools.get_schema(d); expect(s.entity_types).toContain('faction'); expect(s.dataset.counts.entities).toBe(650); });
+  it('get_schema', () => { const s = tools.get_schema(d); expect(s.entity_types).toContain('faction'); expect(s.dataset.counts.entities).toBe(672); });   // 2026-09-22 정본 병합(proposals/APPLIED.md) 650 → 672
   it('find_entity 초성', () => expect(tools.find_entity(d, 'ㅋㅇㅅㄹ')[0].id).toBe('person:카이사르'));
   it('neighbors(카이사르, -60, -44) = 패널 목록과 같은 from_year 필터', () => {
     const r: any = tools.neighbors(d, 'person:카이사르', -60, -44);

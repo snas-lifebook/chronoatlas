@@ -6,8 +6,8 @@ const raw = JSON.parse(readFileSync('public/datasets/rome/graph.json', 'utf8'));
 const g = indexGraph(raw);
 
 describe('graph data (TASKS 2.2)', () => {
-  it('노드 650, 카이사르 이웃이 있다', () => {
-    expect(g.nodes.size).toBe(650);
+  it('노드 672, 카이사르 이웃이 있다', () => {
+    expect(g.nodes.size).toBe(672);   // 2026-09-22 정본 병합(proposals/APPLIED.md) 650 → 672
     const n = neighborsOf(g, 'person:카이사르');
     expect(n.length).toBeGreaterThan(5);
     for (const x of n) { expect(x.node).toBeTruthy(); expect(x.rel).toBeTruthy(); }
