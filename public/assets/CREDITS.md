@@ -59,3 +59,7 @@ AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다. 굽는 절
 |---|---|---|
 | `public/glyphs/Cinzel Regular/` · `public/fonts/Cinzel.ttf` | Cinzel (Natanael Gama), google/fonts `ofl/cinzel` | SIL OFL 1.1 (`public/fonts/OFL-Cinzel.txt`). 글리프는 `scripts/build-glyphs.mjs`(fontnik) |
 | `public/assets/emblems/*.png` | 볼트 `Works/관계분석_방법론/components/01_세력/`(River 자산, AI 생성 문장) | 프로젝트 자체 자산. `scripts/build-emblems.py`가 128px로 |
+
+## 세부 지도 설명 카드 사진 (29장, 2026-09-27 기준)
+
+`public/datasets/rome/callouts/*.jpg`. 전부 위키미디어 커먼즈의 퍼블릭 도메인·CC0·CC BY이고, 파일마다 작자·라이선스·원본 주소는 `data/overlays/pack-callout-thumbs.json`에 있다. 카드의 사진을 누르면 커먼즈 파일 페이지로 간다. CC BY-SA 등 카피레프트 사진은 굽지 않고 링크로만 둔다.

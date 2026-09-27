@@ -26,8 +26,8 @@
    "baked": true,
    "file": "roma_call-serviuswall.jpg",
    "size": [
-    314,
-    420
+    420,
+    314
    ],
    "bytes": 35174
   },
@@ -39,8 +39,8 @@
    "baked": true,
    "file": "roma_call-curiapompei.jpg",
    "size": [
-    420,
-    270
+    270,
+    420
    ],
    "bytes": 24014
   },
@@ -52,8 +52,8 @@
    "baked": true,
    "file": "roma_call-campusmartius.jpg",
    "size": [
-    420,
-    217
+    217,
+    420
    ],
    "bytes": 34068
   },
@@ -81,8 +81,8 @@
    "baked": true,
    "file": "alexandria_call-pharos.jpg",
    "size": [
-    420,
-    323
+    323,
+    420
    ],
    "bytes": 44267
   },
@@ -102,8 +102,8 @@
    "baked": true,
    "file": "alexandria_call-mouseion.jpg",
    "size": [
-    413,
-    420
+    420,
+    413
    ],
    "bytes": 71166
   },
@@ -114,6 +114,366 @@
    "url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Pompey%27s_Pillar_%28column%29.jpg",
    "baked": false,
    "why": "카피레프트(CC BY-SA) — AGENTS.md 「카피레프트 데이터는 재배포하지 않는다」. 링크만 둔다"
+  },
+  "actium:call-ships": {
+   "license": "Public domain",
+   "credit": "Laureys a Castro, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:The_Battle_of_Actium,_2_September_31BC_RMG_BHC0251.tiff",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/The_Battle_of_Actium%2C_2_September_31BC_RMG_BHC0251.tiff?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "actium_call-ships.jpg",
+   "size": [
+    295,
+    420
+   ],
+   "bytes": 49249,
+   "alt": "함선 수는 사료마다 다르다 - 플루타르코스는 안토니우스가 애초 500척을 모았으나 노잡이가 모자라 일부를 불태우고 실제로는 그보다 적게 싸웠다고 적었다. 디오·벨레이우스의 수치도 서로 다르다. docs/ACTI",
+   "fit": "ship"
+  },
+  "actium:call-cleopatra": {
+   "license": "CC0",
+   "credit": "Unknown authorUnknown author, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Musea_Brugge,_HUB,_2014_GRO0019_292_III.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Musea_Brugge%2C_HUB%2C_2014_GRO0019_292_III.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "actium_call-cleopatra.jpg",
+   "size": [
+    408,
+    420
+   ],
+   "bytes": 64985,
+   "alt": "예비 함대, 예정된 퇴로였나 - 클레오파트라의 60척은 전열 뒤에 물러나 있다가 싸움 중 돛을 올리고 빠져나갔다. 미리 짠 퇴로였는지 전황이 기울어 달아난 것인지는 고대부터 갈린다.",
+   "fit": "Cleopatra"
+  },
+  "actium:call-nicopolis": {
+   "license": "CC BY 4.0",
+   "credit": "T.L.Donaldson, CC BY 4.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:IAN_0294_Donaldson_1835_Nicopolis_(West_Gate_and_Nymphaea).tiff",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/7/77/IAN_0294_Donaldson_1835_Nicopolis_%28West_Gate_and_Nymphaea%29.tiff?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "actium_call-nicopolis.jpg",
+   "size": [
+    215,
+    420
+   ],
+   "bytes": 26807,
+   "alt": "승리를 새긴 도시 - 아우구스투스는 자신이 진을 쳤던 이 자리에 '승리의 도시' 니코폴리스를 세웠다. 성벽과 극장 유구가 남아 있다.",
+   "fit": "Nicopolis"
+  },
+  "actium:call-agrippa": {
+   "license": "Public domain",
+   "credit": "Didier Descouens, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:(Toulouse)_Buste_de_Marcus_Vipsanius_Agrippa_Musée_Saint-Raymond,_Ra_336.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/%28Toulouse%29_Buste_de_Marcus_Vipsanius_Agrippa_Mus%C3%A9e_Saint-Raymond%2C_Ra_336.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "actium_call-agrippa.jpg",
+   "size": [
+    420,
+    280
+   ],
+   "bytes": 27048,
+   "alt": "실전 지휘는 아그리파 - 옥타비아누스가 명목상 총사령관이었지만 해전의 실제 전술은 아그리파가 짰다. 좁은 만 안으로 들어가지 않고 바깥에서 안토니우스를 끌어내는 전략이었다.",
+   "fit": "Agrippa"
+  },
+  "alexandria:call-greatharbor": {
+   "license": "CC0",
+   "credit": "Charles Andrew Dyce, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Charles_Andrew_Dyce_-_The_Harbor,_Alexandria_-_B1975.3.446_-_Yale_Center_for_British_Art.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Charles_Andrew_Dyce_-_The_Harbor%2C_Alexandria_-_B1975.3.446_-_Yale_Center_for_British_Art.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "alexandria_call-greatharbor.jpg",
+   "size": [
+    294,
+    420
+   ],
+   "bytes": 39834,
+   "alt": "대항구 — 카이사르가 자기 배를 태우다 - 카이사르는 함대가 적 손에 넘어가는 것을 막으려 정박한 배에 불을 질렀는데, 불이 부두 창고로 번졌다. 이 불이 도서관까지 태웠는지는 무세이온 항목의 논쟁으로 이어진다.",
+   "fit": "관련"
+  },
+  "athens:call-theatre": {
+   "license": "CC0",
+   "credit": "Jebulon, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Statue_Menander_Dionysus_Theatre_Athens_Greece.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Statue_Menander_Dionysus_Theatre_Athens_Greece.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "athens_call-theatre.jpg",
+   "size": [
+    420,
+    279
+   ],
+   "bytes": 33565,
+   "alt": "디오니소스 극장: 비극의 출생지 - 디오니소스 축제 경연에서 비극과 희극이라는 형식 자체가 태어났다. 관객은 시민 전체였다.",
+   "fit": "관련"
+  },
+  "athens:call-parthenon": {
+   "license": "Public domain",
+   "credit": "User:Mountain, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Parthenon_from_west.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/Parthenon_from_west.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "athens_call-parthenon.jpg",
+   "size": [
+    315,
+    420
+   ],
+   "bytes": 59247,
+   "alt": "파르테논: 동맹의 금고로 지은 신전 - 델로스 동맹의 공동 자금을 아테네가 끌어와 지었다는 것이 페리클레스 건축 사업의 정치적 논쟁거리였다.",
+   "fit": "관련"
+  },
+  "athens:call-agora": {
+   "license": "CC BY 4.0",
+   "credit": "Jakub Hałun, CC BY 4.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:View_of_Hephaisteion_and_the_Agora,_Athens,_Greece,_20240531_1216_9593.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/View_of_Hephaisteion_and_the_Agora%2C_Athens%2C_Greece%2C_20240531_1216_9593.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "athens_call-agora.jpg",
+   "size": [
+    280,
+    420
+   ],
+   "bytes": 65043,
+   "alt": "아고라: 불레와 법정 - 500인 평의회(불레)가 안건을 준비하고 시민 배심 법정(헬리아이아)이 재판했다. 이 광장이 그 실무 공간이었다.",
+   "fit": "관련"
+  },
+  "athens:call-areopagus": {
+   "license": "CC BY 4.0",
+   "credit": "Jakub Hałun, CC BY 4.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:View_of_the_Areopagus_from_the_Acropolis_in_Athens,_20240531_1329_9684.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/92/View_of_the_Areopagus_from_the_Acropolis_in_Athens%2C_20240531_1329_9684.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "athens_call-areopagus.jpg",
+   "size": [
+    280,
+    420
+   ],
+   "bytes": 62687,
+   "alt": "아레오파고스: 권한을 잃은 원로 회의 - 본래 정치 감독권을 쥔 귀족 회의였으나 기원전 462년 에피알테스 개혁으로 대부분을 민회·법정에 넘겼다.",
+   "fit": "관련"
+  },
+  "capri:call-villajovis": {
+   "license": "CC0",
+   "credit": "DimiTalen, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Ancient_lighthouse,_Villa_Jovis,_Capri,_2010.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Ancient_lighthouse%2C_Villa_Jovis%2C_Capri%2C_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "capri_call-villajovis.jpg",
+   "size": [
+    279,
+    420
+   ],
+   "bytes": 38204,
+   "alt": "빌라 요비스, 통치의 자리 - 티베리우스는 서기 27년부터 37년 죽을 때까지 카프리를 떠나지 않고 이 별장에서 로마를 통치했다. 원로원에 서한을 보내 정무를 처리했고 로마 방문은 없었다.",
+   "fit": "관련"
+  },
+  "capri:call-twelvevillas": {
+   "license": "CC BY 2.0",
+   "credit": "https://www.flickr.com/photos/avalowery/, CC BY 2.0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Tiberius'_Villa_in_Capri_2.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Tiberius%27_Villa_in_Capri_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "capri_call-twelvevillas.jpg",
+   "size": [
+    420,
+    315
+   ],
+   "bytes": 59082,
+   "alt": "열두 채의 별장, 확인된 것은 하나 - 타키투스는 티베리우스가 올림포스 열두 신의 이름을 딴 별장 열두 채를 섬에 지었다고 전한다. 발굴로 자리가 확정된 것은 빌라 요비스 하나뿐이다.",
+   "fit": "관련"
+  },
+  "capri:call-whyleft": {
+   "license": "Public domain",
+   "credit": "Didier Descouens, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:(Venice)_Tiberius_Portrait_of_the_'Imperium_Maius'_type_in_Museo_Archeologico_Nazionale.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/%28Venice%29_Tiberius_Portrait_of_the_%27Imperium_Maius%27_type_in_Museo_Archeologico_Nazionale.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "capri_call-whyleft.jpg",
+   "size": [
+    420,
+    326
+   ],
+   "bytes": 36564,
+   "alt": "왜 로마를 떠났는가 - 타키투스는 티베리우스가 서기 26년 캄파니아로 떠난 뒤 이듬해 카프리에 정착해 다시는 로마로 돌아오지 않았다고 기록한다.",
+   "fit": "관련"
+  },
+  "pharsalus:call-strength": {
+   "license": "CC0",
+   "credit": "Justus van Egmont, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:1944.14_-_Caesar_Defeats_the_Troops_of_Pompey_from_The_Story.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/8/88/1944.14_-_Caesar_Defeats_the_Troops_of_Pompey_from_The_Story.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "pharsalus_call-strength.jpg",
+   "size": [
+    243,
+    420
+   ],
+   "bytes": 59334,
+   "alt": "병력: 당사자의 숫자 - 카이사르는 폼페이우스가 보병 45,000·기병 7,000, 자신은 보병 22,000·기병 1,000이라 적었다. 패자를 부풀리고 자신을 줄였다는 것이 통설이다.",
+   "fit": "관련"
+  },
+  "pharsalus:call-oneday": {
+   "license": "Public domain",
+   "credit": "Didier Descouens, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:(Venice)_Pompey_the_Great,_Museo_Archeologico_Nazionale.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/%28Venice%29_Pompey_the_Great%2C_Museo_Archeologico_Nazionale.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "pharsalus_call-oneday.jpg",
+   "size": [
+    420,
+    277
+   ],
+   "bytes": 37692,
+   "alt": "하루 만에 도망자 - 전투가 시작된 바로 그날, 지중해 최고의 장군이 진영을 버리고 달아났다. 로마 최고 부자 중 한 명이 하루 만에 도망자가 됐다.",
+   "fit": "관련"
+  },
+  "philippi:call-brutus": {
+   "license": "Public domain",
+   "credit": "Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Portrait_Brutus_Massimo.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Portrait_Brutus_Massimo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "philippi_call-brutus.jpg",
+   "size": [
+    420,
+    295
+   ],
+   "bytes": 28219,
+   "alt": "브루투스, 언덕을 차지하다 - 브루투스는 도시 쪽 높은 지대에, 카시우스는 남쪽 낮은 지대에 진을 쳤다. 두 진영은 비아 에그나티아를 가로질러 보루로 이어졌다.",
+   "fit": "관련"
+  },
+  "philippi:call-cassius": {
+   "license": "Public domain",
+   "credit": "Vincenzo Camuccini, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Gaius_Cassius_Longinus.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Gaius_Cassius_Longinus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "philippi_call-cassius.jpg",
+   "size": [
+    420,
+    353
+   ],
+   "bytes": 57648,
+   "alt": "카시우스, 습지 쪽 낮은 진영 - 카시우스의 진영은 남쪽 습지에 가까워 지반이 불리했다. 1차 전투에서 안토니우스가 이 진영을 뚫었고 카시우스는 자결했다.",
+   "fit": "관련"
+  },
+  "philippi:call-triumvirs": {
+   "license": "Public domain",
+   "credit": "Antoine Caron, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Antoine_Caron_-_The_Massacres_of_the_Triumvirate_-_WGA4279.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Antoine_Caron_-_The_Massacres_of_the_Triumvirate_-_WGA4279.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "philippi_call-triumvirs.jpg",
+   "size": [
+    243,
+    420
+   ],
+   "bytes": 54827,
+   "alt": "삼두파, 평지의 약점 - 안토니우스와 옥타비아누스는 서쪽 평지에 진을 쳤다. 암필리폴리스에서 65km를 끌어와야 하는 약한 보급선이 속전을 강요했다.",
+   "fit": "관련"
+  },
+  "roma:call-pomerium": {
+   "license": "Public domain",
+   "credit": "Unknown authorUnknown author, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Roma_quadrata_-_Palatina,_Vierregionenstadt_und_Servianische_Stadt.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Roma_quadrata_-_Palatina%2C_Vierregionenstadt_und_Servianische_Stadt.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "roma_call-pomerium.jpg",
+   "size": [
+    420,
+    386
+   ],
+   "bytes": 57757,
+   "alt": "포메리움 — 장군이 못 넘는 선 - 무장한 장군이 넘을 수 없던 신성 경계다. 속주 총독은 이 선을 넘는 순간 명령권(임페리움)을 잃었다. 루비콘 도하가 반역이 된 것도, 카이사르가 개선식 전까지 시내에 못 들어온 ",
+   "fit": "관련"
+  },
+  "roma:call-castrapraetoria": {
+   "license": "Public domain",
+   "credit": "Heinrich Leutemann, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Heinrich_Leutemann_-_Insurrection_by_the_Praetorian_Guard_in_Rome_in_193.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Heinrich_Leutemann_-_Insurrection_by_the_Praetorian_Guard_in_Rome_in_193.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "roma_call-castrapraetoria.jpg",
+   "size": [
+    420,
+    260
+   ],
+   "bytes": 57091,
+   "alt": "카스트라 프라이토리아, 근위대를 한곳에 - 세야누스가 서기 21~23년 아홉 근위대 코호르스를 도심 밖 한 병영에 집결시켰다. 흩어져 주둔하던 근위대가 이 순간부터 로마 정치의 상수가 된다.",
+   "fit": "관련"
+  },
+  "roma:call-caligula-assassination": {
+   "license": "CC0",
+   "credit": "J. Paul Getty Museum, CC0 (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Portrait_Head_of_Caligula_-_Getty_Museum_(72.AA.155).jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Portrait_Head_of_Caligula_-_Getty_Museum_%2872.AA.155%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "roma_call-caligula-assassination.jpg",
+   "size": [
+    420,
+    324
+   ],
+   "bytes": 30650,
+   "alt": "칼리굴라, 팔라티움 통로에서 - 서기 41년 1월 24일, 칼리굴라는 팔라티움에서 연극 공연을 보고 나오던 지하 통로에서 근위대 장교들에게 살해됐다.",
+   "fit": "관련"
+  },
+  "rubicon:call-boundary": {
+   "license": "Public domain",
+   "credit": "Jacob Abbott, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Crossing_the_Rubicon.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Crossing_the_Rubicon.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "rubicon_call-boundary.jpg",
+   "size": [
+    420,
+    321
+   ],
+   "bytes": 60230,
+   "alt": "무장한 채 넘으면 반란 - 속주 총독은 임페리움(군사지휘권)을 이 경계 안으로 가져올 수 없었다. 무장한 채 건너는 순간 사병을 이끈 반역자가 된다.",
+   "fit": "관련"
+  },
+  "rubicon:call-sulla": {
+   "license": "Public domain",
+   "credit": "Unknown, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Sulla_Glyptothek_Munich_309.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Sulla_Glyptothek_Munich_309.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "rubicon_call-sulla.jpg",
+   "size": [
+    420,
+    275
+   ],
+   "bytes": 24075,
+   "alt": "처음이 아니다: 술라의 선례 - 군대를 이끌고 로마로 진군한 장군은 카이사르가 처음이 아니다. 기원전 88년 술라가 이미 그렇게 했다.",
+   "fit": "관련"
+  },
+  "zama:call-elephants": {
+   "license": "Public domain",
+   "credit": "Cort, Cornelis, 1533?-1578., Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:The_battle_of_Zama_LCCN2012645609.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/The_battle_of_Zama_LCCN2012645609.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "zama_call-elephants.jpg",
+   "size": [
+    332,
+    420
+   ],
+   "bytes": 59588,
+   "alt": "코끼리 돌격과 통로 - 카르타고는 전투코끼리 80마리를 맨 앞에 세웠다. 로마군은 대형을 옆이 아니라 세로로 뚫리게 배치해 코끼리가 지나갈 통로를 냈다.",
+   "fit": "관련"
+  },
+  "zama:call-parley": {
+   "license": "Public domain",
+   "credit": "Bernardino Cesari, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Hannibal_and_Scipio_Africanus.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Hannibal_and_Scipio_Africanus.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "zama_call-parley.jpg",
+   "size": [
+    310,
+    420
+   ],
+   "bytes": 55166,
+   "alt": "전투 전날의 회담 - 한니발과 스키피오는 전투 하루 전 직접 만나 강화를 논의했으나 조건이 맞지 않아 결렬됐다. 이튿날 아침 양군은 전장에 나섰다.",
+   "fit": "관련"
   }
  }
 }
