@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바뀐 것 · 크로노아틀라스</title>
+<meta name="description" content="크로노아틀라스가 언제 무엇이 좋아졌는지.">
+<style>
+  @font-face { font-family: Pretendard; src: url('fonts/Pretendard-Regular.subset.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --ink: #16120f; --paper: #f5efe4; --muted: #6b6259; --line: #e4dccd; --acc: #b8651f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.7 Pretendard, -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 48px 24px 80px; }
+  .eyebrow { color: var(--acc); font-weight: 700; letter-spacing: .08em; font-size: 14px; }
+  h1 { font-size: 40px; line-height: 1.25; margin: 8px 0 12px; letter-spacing: -.02em; }
+  h2 { font-size: 22px; margin: 48px 0 12px; }
+  p.lead { font-size: 19px; color: #3a332c; margin: 0 0 28px; }
+  video { width: 100%; aspect-ratio: 16/9; border-radius: 12px; background: #000; display: block; box-shadow: 0 20px 60px rgba(40,25,10,.18); }
+  .cap { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  ul { padding-left: 1.2em; } li { margin: 6px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .tile { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: #fffaf2; }
+  .tile b { display: block; font-size: 18px; margin-bottom: 4px; }
+  a { color: var(--acc); }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 8px; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 10px; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 600; }
+  .btn.alt { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+  .sib { display: grid; grid-template-columns: 220px 1fr; gap: 18px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fffaf2; text-decoration: none; color: inherit; }
+  .sib img { width: 100%; border-radius: 8px; display: block; }
+  @media (max-width: 560px) { .sib { grid-template-columns: 1fr; } h1 { font-size: 30px; } }
+  footer { margin-top: 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .log { display: grid; grid-template-columns: 120px 1fr; gap: 6px 24px; margin-top: 32px; }
+  .log time { color: var(--muted); font-size: 15px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .log div { padding: 16px 0 10px; border-top: 1px solid var(--line); }
+  .log b { display: block; font-size: 18px; margin-bottom: 2px; }
+  @media (max-width: 560px) { .log { grid-template-columns: 1fr; } .log div { border-top: 0; padding-top: 0; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">산스 인생책 · 크로노아틀라스</div>
+  <h1>바뀐 것</h1>
+  <p class="lead">지도가 언제 무엇이 좋아졌는지입니다. 화면에서 달라진 것만 적고, 전체 기록은 <a href="https://github.com/snas-lifebook/chronoatlas/commits/main">커밋 목록</a>에 있습니다.</p>
+  <div class="btns"><a class="btn" href="./">지도 열기</a><a class="btn alt" href="about.html">소개</a></div>
+  <!-- 새 변화는 이 목록 맨 위에 time·div 한 쌍을 더한다. 화면에서 사람이 겪는 변화만. 제목은 평서, 본문은 해요체 -->
+  <section class="log">
+    <time datetime="2026-09-27">2026-09-27</time><div><b>1분 소개 영상과 소개 페이지</b>처음 오시면 지도가 무엇인지 1분 영상으로 보여 드려요. 발표 주소로 들어오면 띄우지 않아요. 도구 막대의 「소개」에서 언제든 다시 볼 수 있어요.</div>
+    <time datetime="2026-09-27">2026-09-27</time><div><b>첫 화면은 지도부터</b>주소만 치고 들어오면 인물 선택과 왼쪽 목록 없이 지도가 먼저 보여요. 목록은 「탐색」 단추로 열어요.</div>
+    <time datetime="2026-09-27">2026-09-27</time><div><b>설명 카드 사진 32장, 글자 크게</b>세부 지도 설명 카드에 옛 지도·판화·유적 사진을 붙였어요(퍼블릭 도메인과 CC BY만, 작자 표기 포함). 카드 글자도 한 단계 키웠어요.</div>
+    <time datetime="2026-09-22">2026-09-22</time><div><b>자료 672개, 관계 730개</b>인물·지명·사건이 늘었어요. 악티움처럼 자리가 비어 있던 전투도 정본 자료로 지도에 서요.</div>
+    <time datetime="2026-09-21">2026-09-21</time><div><b>포인트 01~11 발표 장면</b>일곱 언덕에서 네로까지, 포인트 묶음 셋에 발표 장면을 짰어요. 자마·아이가테스 해전·악티움·필리피·카프리·AD 41 로마 시내 세부 지도가 새로 생겼어요.</div>
+    <time datetime="2026-09-18">2026-09-18</time><div><b>위성 스킨, 아테네 고지도</b>위성 사진 느낌의 바탕을 골라 쓸 수 있어요. 아테네 세부 지도에 옛 지도를 깔았고, 자료실로 가는 링크를 놓았어요.</div>
+    <time datetime="2026-09-17">2026-09-17</time><div><b>지형과 전투 재생</b>모든 바탕에 높낮이 색을 입혔어요. 파르살루스·칸나이·알레시아 전투를 부대가 움직이는 재생으로 볼 수 있고, 루비콘·아크로폴리스 세부 지도가 생겼어요.</div>
+    <time datetime="2026-09-17">2026-09-17</time><div><b>북마크</b>지금 보는 화면을 북마크로 남기고 발표 중에도 불러와요. 폭이 좁은 화면에서는 읽기 모드로 바뀌어요.</div>
+    <time datetime="2026-09-13">2026-09-13</time><div><b>카이사르 팩 발표 모드</b>포인트 06·07·08 발표 장면 아홉을 넘기며 설명해요. 인물은 초상 얹은 장기말로, 설명 카드는 사료 구절과 함께 떠요.</div>
+    <time datetime="2026-09-11">2026-09-11</time><div><b>그 해의 모습, 주소로 공유</b>연도를 옮기면 그 해의 인물·나라·사건이 함께 바뀌어요. 연도·위치·바탕이 주소에 실려서 링크 하나로 같은 화면을 보여 줄 수 있어요.</div>
+    <time datetime="2026-09-09">2026-09-09</time><div><b>진짜 영토</b>Cliopatria 자료로 연도마다 나라의 영토를 그려요. 산 이름과 높이도 지도에 떠요.</div>
+    <time datetime="2026-09-08">2026-09-08</time><div><b>첫 공개</b>연도 막대, 인물을 누르면 나오는 관계, 초성 검색(ㅋㅇㅅㄹ → 카이사르), PNG·영상 내보내기를 갖춘 첫 판이에요.</div>
+  </section>
+  <footer>산스 인생책 편데 · <a href="about.html">크로노아틀라스 소개</a> · <a href="https://roma-library.pages.dev/changelog">자료실에서 바뀐 것</a></footer>
+</main>
+</body>
+</html>

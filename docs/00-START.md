@@ -114,6 +114,7 @@ flowchart LR
 - 요구 항목별 상태와 증거: [`BACKLOG.md`](BACKLOG.md) R번호 표(R44~R57이 슬라이스 I) · 계획별 실행 기록: `plans/2026-09-17-overhaul-I-*.md` 머리의 인용 블록
 - 환경 함정과 지금 집을 수 있는 것: [`HANDOFF.md`](HANDOFF.md) §1·§5·§6
 - 2회차 발표 팩 슬라이스: [`PACK-CAESAR.md`](PACK-CAESAR.md) §0
+- 사용자에게 보이는 변화: `public/updates.html`(화면 「바뀐 것」) 맨 위에 한 줄 더한다. 그 변화를 배포하는 커밋에 같이 넣는다. 소개는 `public/about.html`
 
 ## 절대 하지 말 것
 
