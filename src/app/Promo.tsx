@@ -1,5 +1,6 @@
 // 홍보 영상 팝업. 영상은 public/promo/atlas.mp4(scripts/record-promo.py가 만든다). 한 번 뜨면 promo-seen-v1을 남긴다.
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, Text, Button } from '@astryxdesign/core';
 import { PROMO_KEY } from '../promo';
 
@@ -9,7 +10,8 @@ export function Promo({ root, onClose }: { root: string; onClose: () => void }) 
     const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     addEventListener('keydown', k); return () => removeEventListener('keydown', k);
   }, []);
-  return (
+  // body로 포털: 셸 안에 두면 부모의 쌓임 맥락에 갇혀 탐색 목록·인물 패널·도구 막대 아래에 깔린다(2026-09-27 라이브에서 확인)
+  return createPortal(
     <div className="promo-backdrop" onMouseDown={onClose} role="dialog" aria-modal="true" aria-label="크로노아틀라스 소개 영상">
       <Card padding={3} elevation="high" className="promo-card" onMouseDown={e => e.stopPropagation()}>
         <video src={`${root}promo/atlas.mp4`} poster={`${root}promo/atlas-poster.jpg`} controls autoPlay muted playsInline preload="metadata" />
@@ -21,6 +23,7 @@ export function Promo({ root, onClose }: { root: string; onClose: () => void }) 
           </span>
         </div>
       </Card>
-    </div>
+    </div>,
+    document.body,
   );
 }
