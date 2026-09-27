@@ -8,6 +8,8 @@
 
 **라이브: <https://snas-lifebook.github.io/chronoatlas/>**
 
+소개: [about.html](https://snas-lifebook.github.io/chronoatlas/about.html) · 바뀐 것: [updates.html](https://snas-lifebook.github.io/chronoatlas/updates.html) · 1분 소개 영상: <https://youtu.be/aZ5N3bqi4Tw> · 함께 쓰는 자료실: <https://roma-library.pages.dev/>
+
 ## 빠른 시작
 
 ```
@@ -16,7 +18,7 @@ ONTOLOGY_DIR=<볼트 Books/로마제국쇠망사/ontology> npm run adapt   # 정
 npm run dev                                                     # http://localhost:5173/?ds=rome
 ```
 
-첫 화면은 장면 프리셋(BC 60 카이사르). `/` 또는 ⌘K 검색, `←→` 연도, `Space` 재생, `V` 평면/입체, `1~9` 레이어, `Esc` 해제.
+주소만으로 들어오면 BC 60 지도가 선택 없이, 탐색 목록을 접은 채 열린다(처음 오면 1분 소개 영상 팝업, `?promo=0`으로 끔). `/` 또는 ⌘K 검색, `←→` 연도, `Space` 재생, `V` 평면/입체, `1~9` 레이어, `Esc` 해제.
 
 ## 무엇이 있나
 

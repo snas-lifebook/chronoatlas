@@ -11,6 +11,8 @@
 
 ## 1. 지금 상태
 
+> **2026-09-28 갱신(홍보·사이트 개선).** 홍보 영상 2판(`promo/README.md`, 블렌더 3D 덱·합성 음악) · 첫 방문 팝업(`src/promo.ts` 규칙: `promo-seen-v1`, 발표·장면·선택 주소에선 안 띄움, `?promo=1|0`) · 소개 `public/about.html` · 바뀐 것 `public/updates.html`(화면이 바뀌는 커밋에 맨 위 한 줄) · 맨 주소 첫 화면은 선택 없음·탐색 접힘(`main.tsx LANDING`) · 설명 카드 사진 32장·글자 키움(좁은 칸은 출처 한 줄·본문 4줄). vitest **280**, 초기 JS **389.2 kB**, qa-sweep 53장면 문제 0. 유튜브 업로드됨(아틀라스 `aZ5N3bqi4Tw`). 남은 것: 사진 없는 설명 카드 38(위키미디어 한 장씩) · 맨 주소 새로고침 시 `scene=caesar`가 주소에 남아 카이사르가 다시 선택됨(사소) · 초상 10(River).
+>
 > **2026-09-21 갱신(R59 포인트 01~11).** 발표 그룹이 넷이다(카이사르 팩 8 + 포인트 01·02 9 + 03·04·05 10 + 09·10·11 9), 세부 지도 열둘, 장면 53, vitest **275**, 초기 JS **388.8 kB**. 묶음 교보재 `data/overlays/p12-*|p345-*|p911-*.json`은 `packData.loadPack`이 그 해·그 장면에서 지연 로드하고 `engine.refreshPack`이 다시 싣는다. 정본 제안 57 op(`proposals/20260921_*.jsonl`)은 **2026-09-22 병합됨**(River 「go」, `scripts/apply-proposals.py`, 장부 `proposals/APPLIED.md`, `POINTS-01-11.md` §7). settlements 232 · battles 40. 교보재 전투점은 story 선택이라 그대로 두고(장면은 정본 battle 층을 안 켠다) 말 12만 걷었다. **2026-09-21 오후 라이브 배포됨**(세 번: `97ffc8e` → 라이브 스모크가 주변 민족 면 0 회귀 둘을 잡아 `5c30dcb` → 대륙 DEM bbox 밖 타일 404를 잡아 `6244f07`, `POINTS-01-11.md` §6 「배포와 라이브 스모크」. 마지막 라이브 재측정: 페이지 오류 0, 초상 webp 말고 404 0). 정본 결함 목록은 같은 문서 §6 끝. 초상 없는 말 열(§8)은 River가 Flow에서. **미시지도 층이 2026-09-17부터 안 그려지고 있었다**(`LAYER_GROUPS.micro` 가시성) → 고쳤고, `look-micro.py`의 층별 개수가 0이면 그 병이다.
 >
 > **2026-09-17 밤 갱신(슬라이스 III·IV).** 스킨 여섯(위성 추가, `rasters/satellite*.{jpg,png}` 4 MB), 영토 버킷에 `span_from`·`span_to`·`color`(재베이크 `npm run fetch-external` → `npm run finish`), 정착지 rank 5단(`npm run adapt`), 장면 `events`. 새 계측: `scripts/lod-count.py`(줌별 이름표 수) · `scripts/bake-satellite.py`. vitest 267+. **2026-09-18 새벽 라이브 배포됨**(Actions 1분 12초, 위성 래스터·DEM·글리프 전부 200).
