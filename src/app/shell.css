@@ -495,3 +495,10 @@ html[data-skin="satellite"] .shell-year, html[data-skin="satellite"] .shell-pres
 /* 자료실 링크(각주 줄). 크롬 색을 따르고 밑줄만 */
 .lib-link { color: inherit; text-decoration: underline dotted; text-underline-offset: 2px; }
 .lib-link:hover { text-decoration-style: solid; }
+
+/* 홍보 영상 팝업(첫 방문, src/promo.ts). 배경막은 검색창과 같은 규칙 */
+.promo-backdrop { position: absolute; inset: 0; z-index: 20; background: color-mix(in srgb, var(--color-background-surface) 55%, transparent); display: flex; justify-content: center; align-items: center; }
+.promo-card { width: min(960px, calc(100% - 48px)); display: grid; gap: 10px; }
+.promo-card video { width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 8px; background: #000; }
+.promo-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.promo-actions { display: flex; gap: 8px; }

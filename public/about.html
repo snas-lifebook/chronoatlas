@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>크로노아틀라스 소개 · 로마제국쇠망사 역사 지도</title>
+<meta name="description" content="『로마제국쇠망사』의 사람·장소·사건을 연도에 따라 지도 위에 세우는 무료 웹 지도. 산스 인생책 편데.">
+<style>
+  @font-face { font-family: Pretendard; src: url('fonts/Pretendard-Regular.subset.woff2') format('woff2'); font-weight: 100 900; }
+  :root { --ink: #16120f; --paper: #f5efe4; --muted: #6b6259; --line: #e4dccd; --acc: #b8651f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.7 Pretendard, -apple-system, 'Apple SD Gothic Neo', system-ui, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 48px 24px 80px; }
+  .eyebrow { color: var(--acc); font-weight: 700; letter-spacing: .08em; font-size: 14px; }
+  h1 { font-size: 40px; line-height: 1.25; margin: 8px 0 12px; letter-spacing: -.02em; }
+  h2 { font-size: 22px; margin: 48px 0 12px; }
+  p.lead { font-size: 19px; color: #3a332c; margin: 0 0 28px; }
+  video { width: 100%; aspect-ratio: 16/9; border-radius: 12px; background: #000; display: block; box-shadow: 0 20px 60px rgba(40,25,10,.18); }
+  .cap { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  ul { padding-left: 1.2em; } li { margin: 6px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .tile { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: #fffaf2; }
+  .tile b { display: block; font-size: 18px; margin-bottom: 4px; }
+  a { color: var(--acc); }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0 8px; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 10px; background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 600; }
+  .btn.alt { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+  .sib { display: grid; grid-template-columns: 220px 1fr; gap: 18px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fffaf2; text-decoration: none; color: inherit; }
+  .sib img { width: 100%; border-radius: 8px; display: block; }
+  @media (max-width: 560px) { .sib { grid-template-columns: 1fr; } h1 { font-size: 30px; } }
+  footer { margin-top: 56px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">산스 인생책 · 로마제국쇠망사</div>
+  <h1>크로노아틀라스</h1>
+  <p class="lead">책 속 사람·장소·사건이 그 해 그 자리에 서는 역사 지도입니다. 가입도 설치도 없이 브라우저에서 엽니다.</p>
+  <video src="promo/atlas.mp4" poster="promo/atlas-poster.jpg" controls playsinline preload="metadata"></video>
+  <div class="cap">1분 소개 영상 · 음악은 영상용으로 새로 합성했습니다</div>
+  <div class="btns"><a class="btn" href="./">지도 열기</a><a class="btn alt" href="./?present=1&scene=p345-alps-218">발표 모드로 열기</a></div>
+
+  <h2>무엇을 할 수 있나</h2>
+  <div class="grid">
+    <div class="tile"><b>연도를 끈다</b>아래 연도 막대를 끌면 로마의 판도와 그 해의 인물이 바뀝니다.</div>
+    <div class="tile"><b>발표 장면을 넘긴다</b>포인트별 발표 장면이 짜여 있습니다. 주소 하나로 열고 [ ] 키로 넘깁니다.</div>
+    <div class="tile"><b>전투를 부대 단위로 본다</b>세부 지도 13장. 설명 카드마다 사료 구절과 사진이 붙어 있습니다.</div>
+    <div class="tile"><b>초성으로 찾는다</b>⌘K 또는 /. ㅋㅇㅅㄹ만 쳐도 카이사르가 나오고, 누구와 어떤 사이였는지 보입니다.</div>
+  </div>
+
+  <h2>이렇게 씁니다</h2>
+  <ul>
+    <li><b>발표자</b>: 맡은 회차의 장면을 열고 넘기면 됩니다. 장면마다 낭독 문장과 근거가 있습니다.</li>
+    <li><b>책 읽는 회원</b>: 모르는 이름이 나오면 찾아보고, 그 사람이 그 해 어디 있었는지 봅니다.</li>
+    <li><b>처음 보는 분</b>: 연도 막대 하나만 끌어 보셔도 로마가 커졌다 줄어드는 것이 보입니다.</li>
+  </ul>
+
+  <h2>함께 쓰는 자료실</h2>
+  <a class="sib" href="https://roma-library.pages.dev/about">
+    <img src="promo/library-poster.jpg" alt="로마쇠망사 자료실 소개 영상 첫 화면">
+    <span><b>로마쇠망사 자료실</b><br>30포인트 본문을 읽고, 인물·장소를 찾아보고, 발표용 표를 가져가는 곳입니다. 자료실의 「지도에서 보기」를 누르면 이 지도에서 같은 객체가 열립니다. 두 곳은 같은 자료 한 벌을 씁니다.</span>
+  </a>
+
+  <footer>산스 인생책 편데 · 자료 출처와 라이선스는 <a href="assets/CREDITS.md">크레딧</a>에 있습니다. 지도 데이터는 Natural Earth(PD), Pleiades(CC BY), 영토는 Cliopatria(CC BY).</footer>
+</main>
+</body>
+</html>

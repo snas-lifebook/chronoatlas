@@ -8,6 +8,7 @@ import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
 // 검색·내보내기·콜아웃·그래프·QC·인스펙터·재생 바는 첫 화면에 필요 없다. 동적 청크로 뗀다(OVERHAUL §3.4 P0, R46).
 const Search = lazy(() => import('./Search').then(m => ({ default: m.Search })));
+const Promo = lazy(() => import('./Promo').then(m => ({ default: m.Promo })));
 const Inspector = lazy(() => import('./Inspector').then(m => ({ default: m.Inspector })));
 const BattleBar = lazy(() => import('./BattleBar').then(m => ({ default: m.BattleBar })));
 import { loadGraph, neighborsOf, type Graph } from '../graph/data';
@@ -19,6 +20,7 @@ import { scenesInGroup, stepScene, presentGroupOf, isPresentGroup, PRESENT_GROUP
 import { legPhase, ROUTE_PHASES } from '../routes';
 import { createBookmarks, BOOKMARK_GROUP } from '../bookmarks';
 import { LIBRARY, libraryObject } from '../links';
+import { shouldShowPromo, PROMO_KEY } from '../promo';
 import { useNarrow } from './useNarrow';
 import type { ResolvedCallout } from '../map/micro';
 const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callouts })));
@@ -100,6 +102,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   // 관계 그래프(2.1) + 「그 해」(R36): graph.json 지연 로드. 첫 페인트는 안 막는다(main.tsx의 Promise.all 밖이다).
   // 선택 없이도 받는다 — 「그 해의 인물·일」이 연도만 바뀌어도 필요하기 때문이다.
   // 어차피 첫 진입 장면이 카이사르를 고르고 있어 예전에도 늘 받아 왔다.
+  const [promo, setPromo] = useState(() => { try { return shouldShowPromo(location.search, localStorage.getItem(PROMO_KEY)); } catch { return false; } });
   useEffect(() => { loadGraph(`${root}datasets/${ds}`).then(setGraph).catch(() => {}); }, []);
   // 자료실에서 ?sel=로 들어온 첫 진입(장면 없음): 그래프가 오면 그 객체로 카메라
   const centeredOnce = useRef(false);
@@ -341,6 +344,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         onPick={id => { const c = microCallouts.find(x => x.id === id); if (c) engRef.current?.map.easeTo({ center: c.at, duration: 400 }); }}
         selNode={s.sel ? <Suspense fallback={null}><Inspector d={d} store={store} sel={s.sel} year={s.year} base={`${root}datasets/${ds}`} root={root} dark={isDark(theme)} boards={boards} scenesOf={scenesOf} onScene={goScene} onHoverNeighbor={() => {}} onLocate={locate} /></Suspense> : null} /></Suspense>}
 
+      {promo && <Suspense fallback={null}><Promo root={root} onClose={() => setPromo(false)} /></Suspense>}
       {searching && <Suspense fallback={null}><Search base={`${root}datasets/${ds}`} placeholder={searching === 'path' ? '어디까지? 이름 · 이명 · 초성' : undefined} onPick={id => { if (searching === 'path') setPathTo(id); else locate(id); setSearching(false); }} onClose={() => setSearching(false)} /></Suspense>}
 
       {/* 「그 해에 누가·어디가·무엇이」(R36). 규칙은 src/year.ts 머리에 적어 놨다 — 중요도를 지어내지 않는다.
@@ -608,6 +612,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
         }}>▣</Tool>
         <Tool label="전체 화면" sub="fullscreen" onClick={() => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()}>⛶</Tool>
         {/* 자료실로(River 2026-09-18 「크로노아틀라스에서도 로마쇠망사 자료실로 갈 수 있어야」): 객체가 골라져 있으면 그 객체 화면, 아니면 첫 화면. 새 탭 */}
+        <Tool label="소개" sub="about" onClick={() => open(`${root}about.html`, '_blank', 'noopener')}>?</Tool>
         <Tool label="자료실" sub="library" onClick={() => { const n = s.sel ? graph?.nodes.get(s.sel) : null; open(n ? libraryObject(s.sel!, n.name) : LIBRARY, '_blank', 'noopener'); }}>▤</Tool>
       </nav>
 

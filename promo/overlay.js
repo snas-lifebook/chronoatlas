@@ -4,7 +4,7 @@
   if (window.pm) return;
   const E = 'cubic-bezier(.2,.8,.2,1)';
   const css = `
-  #pm{position:fixed;inset:0;z-index:2147483000;pointer-events:none;font-family:'Apple SD Gothic Neo',Pretendard,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+  #pm{--acc:#f0a45c;--acc2:#2f5dab;position:fixed;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:2147483000;pointer-events:none;font-family:'Apple SD Gothic Neo',Pretendard,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
   #pm .card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;opacity:0;transition:opacity .6s ${E};
     background:radial-gradient(120% 90% at 20% 10%,#3a1f14 0%,#16100d 45%,#0b0a09 100%)}
   #pm .card::after{content:'';position:absolute;inset:0;opacity:.09;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -17,23 +17,23 @@
   #pm .on .eyebrow{opacity:1;transform:none}
   #pm .sub{font-size:30px;color:#d9cfc6;font-weight:500;opacity:0;transition:opacity .8s ${E} .9s;text-align:center;max-width:70vw;line-height:1.5}
   #pm .on .sub{opacity:1}
-  #pm .accent{color:#f0a45c}
+  #pm .accent{color:var(--acc)}
   #pm .stats{display:flex;gap:90px}
   #pm .stat{text-align:center;opacity:0;transform:translateY(24px);transition:all .8s ${E}}
   #pm .on .stat{opacity:1;transform:none}
-  #pm .stat b{display:block;font-size:150px;font-weight:800;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff,#f0a45c);-webkit-background-clip:text;color:transparent}
+  #pm .stat b{display:block;font-size:150px;font-weight:800;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff,var(--acc));-webkit-background-clip:text;color:transparent}
   #pm .stat span{font-size:28px;color:#cbbfb4;font-weight:600}
   #pm .lt{position:absolute;left:64px;bottom:250px;display:flex;align-items:center;gap:18px;padding:18px 30px 18px 22px;border-radius:18px;
     background:rgba(16,12,10,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35);
     opacity:0;transform:translateX(-30px);transition:all .6s ${E};max-width:62vw}
   #pm .lt.on{opacity:1;transform:none}
-  #pm .lt i{width:6px;align-self:stretch;border-radius:3px;background:#f0a45c}
+  #pm .lt i{width:6px;align-self:stretch;border-radius:3px;background:var(--acc)}
   #pm .lt .t{font-size:40px;font-weight:800;letter-spacing:-.02em}
   #pm .lt .s{font-size:24px;color:#d6cbc1;margin-top:6px;font-weight:500}
   #pm .chip{position:absolute;right:64px;top:56px;padding:10px 20px;border-radius:999px;background:rgba(240,164,92,.95);color:#1b120c;font-weight:800;font-size:22px;
     opacity:0;transform:scale(.9);transition:all .5s ${E}}
   #pm .chip.on{opacity:1;transform:none}
-  #pm .ring{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:4px solid #f0a45c;box-shadow:0 0 0 9999px rgba(0,0,0,0);
+  #pm .ring{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:4px solid var(--acc);box-shadow:0 0 0 9999px rgba(0,0,0,0);
     opacity:0;transition:left .9s ${E},top .9s ${E},opacity .3s,transform .3s,box-shadow .6s}
   #pm .ring.on{opacity:1}
   #pm .ring.spot{box-shadow:0 0 0 9999px rgba(0,0,0,.45)}
@@ -44,10 +44,10 @@
   #pm .on .tile{opacity:1;transform:none}
   #pm .tile b{font-size:36px;font-weight:800;letter-spacing:-.02em}
   #pm .tile span{font-size:22px;color:#cbbfb4;margin-top:8px;line-height:1.4}
-  #pm .tile em{font-style:normal;font-size:20px;color:#f0a45c;font-weight:700;margin-bottom:auto}
+  #pm .tile em{font-style:normal;font-size:20px;color:var(--acc);font-weight:700;margin-bottom:auto}
   #pm .url{font-size:34px;font-weight:700;color:#fff;background:rgba(255,255,255,.08);padding:14px 28px;border-radius:14px;opacity:0;transition:opacity .8s ${E} 1s}
   #pm .on .url{opacity:1}
-  #pm .progress{position:absolute;left:0;bottom:0;height:5px;background:#f0a45c;width:0;transition:width .4s linear}
+  #pm .progress{position:absolute;left:0;bottom:0;height:5px;background:var(--acc);width:0;transition:width .4s linear}
   [class^='tour-'],[class*=' tour-']{display:none!important}
   @media (orientation: portrait){
     #pm .stats{flex-direction:column;gap:40px} #pm .stat b{font-size:170px}
@@ -56,7 +56,7 @@
     #pm .kt{max-width:88vw}
   }
   html.pm-tilt body{background:radial-gradient(120% 90% at 20% 10%,#3a1f14 0%,#16100d 45%,#0b0a09 100%)!important}
-  .pm-root{transition:transform 1.1s ${E},border-radius 1.1s ${E},box-shadow 1.1s ${E};transform-origin:50% 45%}
+  .pm-root{transition:transform 1.3s ${E},border-radius 1.1s ${E},box-shadow 1.1s ${E};transform-origin:50% 45%}
   html.pm-tilt .pm-root{transform:perspective(2200px) rotateX(7deg) rotateY(-5deg) scale(.84);border-radius:22px;overflow:hidden;box-shadow:0 60px 140px rgba(0,0,0,.6)}
   `;
   const words = (t, size) => `<div class="kt" style="font-size:${size}px">` + t.split('|').map((ln, j) => ln.trim().split(/\s+/).map((w, i) =>
@@ -67,7 +67,10 @@
     const d = document.createElement('div'); d.id = 'pm';
     d.innerHTML = '<div class="card" id="pm-card"></div><div class="ring" id="pm-ring"></div><div class="lt" id="pm-lt"><i></i><div><div class="t"></div><div class="s"></div></div></div><div class="chip" id="pm-chip"></div><div class="progress" id="pm-prog"></div>';
     document.body.appendChild(d);
-    const root = document.getElementById('app') || document.body.firstElementChild; if (root) root.classList.add('pm-root');
+    const S = innerWidth / (innerWidth > innerHeight ? 1920 : 1080); window.__pmS = S;
+    if (innerWidth < innerHeight) { d.style.width = '1080px'; d.style.height = (innerHeight / S) + 'px'; } else d.style.height = (innerHeight / S) + 'px';
+    d.style.transform = `scale(${S})`;
+    const root = document.getElementById('app') || [...document.body.children].filter(e => e.id !== 'pm' && !/SCRIPT|STYLE|NOSCRIPT/.test(e.tagName)).sort((a, b) => b.offsetHeight - a.offsetHeight)[0]; if (root) root.classList.add('pm-root');
   };
   const $ = id => document.getElementById(id);
   const on = (el, v) => el.classList.toggle('on', v);
@@ -93,10 +96,14 @@
     lower(t, s, pos) { mount(); const l = $('pm-lt'); l.style.left = pos === 'right' ? 'auto' : ''; l.style.right = pos === 'right' ? '64px' : ''; l.style.bottom = pos === 'right' ? '140px' : ''; l.querySelector('.t').textContent = t; l.querySelector('.s').textContent = s || ''; on(l, true); },
     lowerOff() { on($('pm-lt'), false); },
     chip(t) { mount(); const c = $('pm-chip'); c.textContent = t; on(c, !!t); },
-    ring(x, y, spot) { mount(); const r = $('pm-ring'); r.style.left = x + 'px'; r.style.top = y + 'px'; on(r, true); r.classList.toggle('spot', !!spot); },
+    ring(x, y, spot) { mount(); const S = window.__pmS || 1, r = $('pm-ring'); r.style.left = (x / S) + 'px'; r.style.top = (y / S) + 'px'; on(r, true); r.classList.toggle('spot', !!spot); },
     tap() { const r = $('pm-ring'); r.classList.add('tap'); setTimeout(() => r.classList.remove('tap'), 220); },
     ringOff() { const r = $('pm-ring'); on(r, false); r.classList.remove('spot'); },
     tilt(v) { mount(); document.documentElement.classList.toggle('pm-tilt', v); },
+    zoom(x, y, k) { mount(); const r = document.querySelector('.pm-root'); if (!r) return;
+      if (!k || k === 1) { r.style.transform = ''; return; }
+      r.style.transformOrigin = `${x}px ${y}px`; r.style.transform = `scale(${k})`; },
+    accent(c, c2) { mount(); const d = $('pm') || document.getElementById('pm'); d.style.setProperty('--acc', c); if (c2) d.style.setProperty('--acc2', c2); },
     progress(p) { mount(); $('pm-prog').style.width = (p * 100) + '%'; },
   };
   if (document.readyState !== 'loading') mount(); else document.addEventListener('DOMContentLoaded', mount);
