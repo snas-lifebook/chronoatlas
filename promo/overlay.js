@@ -84,7 +84,7 @@
       requestAnimationFrame(() => document.querySelector('#pm .kt')?.classList.add('on'));
     },
     end(text, urls) { this.card(`${words(text, 120)}${urls.map(u => `<div class="url">${u}</div>`).join('')}`); },
-    lower(t, s) { mount(); const l = $('pm-lt'); l.querySelector('.t').textContent = t; l.querySelector('.s').textContent = s || ''; on(l, true); },
+    lower(t, s, pos) { mount(); const l = $('pm-lt'); l.style.left = pos === 'right' ? 'auto' : ''; l.style.right = pos === 'right' ? '64px' : ''; l.style.bottom = pos === 'right' ? '140px' : ''; l.querySelector('.t').textContent = t; l.querySelector('.s').textContent = s || ''; on(l, true); },
     lowerOff() { on($('pm-lt'), false); },
     chip(t) { mount(); const c = $('pm-chip'); c.textContent = t; on(c, !!t); },
     ring(x, y, spot) { mount(); const r = $('pm-ring'); r.style.left = x + 'px'; r.style.top = y + 'px'; on(r, true); r.classList.toggle('spot', !!spot); },

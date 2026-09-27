@@ -86,7 +86,7 @@ def seg_board(page):
     js(page, "pm.title('세부 지도 13장', '전투는 부대 단위로', '사료 구절과 함께. 자마 · 칸나이 · 알레시아 · 악티움 …', 104)"); wait_map(page, 5)
     yield 'ready'
     time.sleep(3.4); js(page, "pm.cardOff()"); time.sleep(.6)
-    js(page, "pm.lower('자마 전투 · BC 202', '막대를 끌면 국면이 움직이고, 설명 카드는 폴리비오스·리비우스 구절을 답니다')")
+    js(page, "pm.lower('자마 전투 · BC 202', '막대를 끌면 국면이 움직이고, 설명 카드는 폴리비오스·리비우스 구절과 사진을 답니다', 'right')")
     if page.locator('.bd-slider').count():
         bb = page.locator('.bd-slider').first
         lo, hi = float(bb.get_attribute('min') or 0), float(bb.get_attribute('max') or 100)
