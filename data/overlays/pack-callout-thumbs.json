@@ -474,6 +474,51 @@
    "bytes": 55166,
    "alt": "전투 전날의 회담 - 한니발과 스키피오는 전투 하루 전 직접 만나 강화를 논의했으나 조건이 맞지 않아 결렬됐다. 이튿날 아침 양군은 전장에 나섰다.",
    "fit": "관련"
+  },
+  "pharsalus:call-fourthline": {
+   "license": "Public domain",
+   "credit": "The Department of History, United States Military Academy, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Battle_of_Pharsalus,_48_BC.png",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Battle_of_Pharsalus%2C_48_BC.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "pharsalus_call-fourthline.jpg",
+   "size": [
+    243,
+    420
+   ],
+   "bytes": 27129,
+   "alt": "Battle of Pharsalus, 48 BC",
+   "fit": "관련"
+  },
+  "alesia:call-hillrivers": {
+   "license": "Public domain",
+   "credit": "Theodore Ayrault Dodge, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Battle_of_Alesia_(Caesarː_A_History_Of_The_Art_Of_War_Among_The_Romans_Down_To_The_End,_vol._I,_1892).jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Battle_of_Alesia_%28Caesar%CB%90_A_History_Of_The_Art_Of_War_Among_The_Romans_Down_To_The_End%2C_vol._I%2C_1892%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "alesia_call-hillrivers.jpg",
+   "size": [
+    327,
+    420
+   ],
+   "bytes": 80477,
+   "alt": "Battle of Alesia (Caesarː A History Of The Art Of War Among The Romans Down To The End, vol. I, 1892)",
+   "fit": "관련"
+  },
+  "zama:call-triplex": {
+   "license": "Public domain",
+   "credit": "Cornelis Cort, Public domain (Wikimedia Commons)",
+   "page": "https://commons.wikimedia.org/wiki/File:Slaget_ved_Zama_-_Cornelis_Cort,_1567.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Slaget_ved_Zama_-_Cornelis_Cort%2C_1567.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+   "baked": true,
+   "file": "zama_call-triplex.jpg",
+   "size": [
+    324,
+    420
+   ],
+   "bytes": 82164,
+   "alt": "<a href=\"https://en.wikipedia.org/wiki/Battle_of_Zama\" class=\"extiw\" title=\"en:Battle of Zama\">Battle of Zama</a>, 202 B.C. Painted by <a href=\"https:",
+   "fit": "관련"
   }
  }
 }
