@@ -35,6 +35,7 @@ data/external/dem/
 data/external/landcover/
 data/external/fonts/
 data/ontology-dir.txt
+data/mirror-dir.txt
 
 # 발표 정지 이미지 원본 — scripts/shoot-pack.py로 재생성한다(장당 4~6MB).
 # 납품본은 볼트 assets/지도/*.jpeg와 Drive에 있다. 증거는 _contact/_shot.json만 커밋.
@@ -49,3 +50,4 @@ data/external/satellite/
 
 # 미시지도 도판 원본(커먼즈 스캔, 수십 MB). 산출물 rasters/basemap-*.jpg 은 커밋한다(bake-basemap.py)
 data/external/basemaps/
+promo/out/

@@ -1491,7 +1491,7 @@
  ],
  "library": "https://roma-library.pages.dev",
  "source": "정본 entities.jsonl/links.jsonl → scripts/adapt.ts",
- "generated": "2026-09-22",
+ "generated": "2026-09-27",
  "counts": {
   "entities": 672,
   "links": 730,

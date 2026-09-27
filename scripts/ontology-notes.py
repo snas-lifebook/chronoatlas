@@ -129,15 +129,15 @@ def main() -> int:
         if not d.exists():
             print('폴더 없음', d); continue
         have = {nfc(p.stem) for p in d.glob('*.md')}
-        name = nfc(e['name'])
+        name = nfc(e.get('note') or e['name'])   # 파일명은 note 필드(불변식 「객체 하나에 노트 하나」가 note로 찾는다)
         if name in have or any(h.startswith(name + ' (') for h in have):
             continue
         if e['type'] == 'place' and not (geo.get(name) or e.get('location')):
             print('좌표 없어 건너뜀', e['id']); continue
         target = d / f'{name}.md'
-        print(('WRITE ' if a.apply else 'would ') + str(target.relative_to(V)))
+        print(('WRITE ' if a.apply else 'would ') + str(target.relative_to(V)))  # geo는 name으로 찾는다
         if a.apply:
-            target.write_text(note_for(e, links, names, geo.get(name)), encoding='utf-8'); made += 1
+            target.write_text(note_for(e, links, names, geo.get(nfc(e['name']))), encoding='utf-8'); made += 1
     print(f'{"썼다" if a.apply else "드라이런"} {made}')
     return 0
 

@@ -40,6 +40,8 @@ ENTITY_KEYS = {'id', 'type', 'name', 'aliases', 'attrs', 'points', 'chapters', '
 SRC = {'point', 'gibbon', 'wikidata', 'dprr', 'manual'}
 CONFIDENCE = {'high', 'medium', 'low'}
 SOURCE = {'book', 'web', 'book+web'}
+# 자료실(roma-library) 스키마·CSS가 아는 값만. 어휘 밖 값은 자료실 빌드를 깨뜨린다(2026-09-27, manual·town이 그랬다)
+PLACE_KINDS = {'city', 'region', 'river', 'building', 'sea', 'island', 'battlefield', 'mountain', 'cape', 'lake', 'strait'}
 
 # 제안에 points가 없을 때 채우는 「책의 포인트」. 제안 파일(p12=01·02, p345=03·04·05, p911=09·10·11)과 본문 위치로 정했다.
 POINTS_OF = {
@@ -115,6 +117,8 @@ def normalize_entity(id_: str, s: dict) -> dict:
             e[k] = v
     if s:
         raise SystemExit(f'{id_}: 스키마에 없는 키 {sorted(s)}')
+    if e['type'] == 'place' and e.get('attrs', {}).get('place_kind') not in (None, *PLACE_KINDS):
+        raise SystemExit(f"place_kind 어휘 밖: {e['id']} {e['attrs']['place_kind']}")
     if e['src'] not in SRC or (e.get('source') and e['source'] not in SOURCE) or (e.get('confidence') and e['confidence'] not in CONFIDENCE):
         raise SystemExit(f'{id_}: 어휘 밖 값 src={e["src"]} source={e.get("source")} confidence={e.get("confidence")}')
     if not points:
@@ -170,14 +174,14 @@ def main() -> int:
                         if l.get(k) is None and s.get(k) is not None:
                             l[k] = s[k]; filled.append(k)
                     if filled:
-                        l['year_basis'] = 'manual'; n_fill += 1
+                        l['year_basis'] = 'text'; n_fill += 1
                         report.append(f'FILL  {tag} link {fr} -{rel}-> {to} {filled} <- {s.get("from_year")}..{s.get("to_year")}')
                     else:
                         report.append(f'skip  {tag} add_link {fr} -{rel}-> {to} 이미 있음')
                     continue
                 pts = by_id[fr].get('points') or by_id[to].get('points') or []
                 l = {'from': fr, 'to': to, 'rel': rel, 'point': pts[0] if pts else None,
-                     'from_year': s.get('from_year'), 'to_year': s.get('to_year'), 'year_basis': 'manual' if s.get('from_year') is not None else None,
+                     'from_year': s.get('from_year'), 'to_year': s.get('to_year'), 'year_basis': 'text' if s.get('from_year') is not None else None,
                      'src': s.get('src', 'manual') or 'manual'}
                 if l['point'] is None:
                     del l['point']
