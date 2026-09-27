@@ -49,12 +49,18 @@
   #pm .on .url{opacity:1}
   #pm .progress{position:absolute;left:0;bottom:0;height:5px;background:#f0a45c;width:0;transition:width .4s linear}
   [class^='tour-'],[class*=' tour-']{display:none!important}
+  @media (orientation: portrait){
+    #pm .stats{flex-direction:column;gap:40px} #pm .stat b{font-size:170px}
+    #pm .bento{grid-template-columns:repeat(2,440px);grid-auto-rows:190px}
+    #pm .lt{left:48px;right:48px;bottom:300px;max-width:none} #pm .lt .t{font-size:48px} #pm .lt .s{font-size:28px}
+    #pm .kt{max-width:88vw}
+  }
   html.pm-tilt body{background:radial-gradient(120% 90% at 20% 10%,#3a1f14 0%,#16100d 45%,#0b0a09 100%)!important}
   .pm-root{transition:transform 1.1s ${E},border-radius 1.1s ${E},box-shadow 1.1s ${E};transform-origin:50% 45%}
   html.pm-tilt .pm-root{transform:perspective(2200px) rotateX(7deg) rotateY(-5deg) scale(.84);border-radius:22px;overflow:hidden;box-shadow:0 60px 140px rgba(0,0,0,.6)}
   `;
-  const words = (t, size) => `<div class="kt" style="font-size:${size}px">` + t.split(/\s+/).map((w, i) =>
-    `<span class="w"><span style="transition-delay:${(i * 0.09).toFixed(2)}s">${w}</span></span>`).join('') + '</div>';
+  const words = (t, size) => `<div class="kt" style="font-size:${size}px">` + t.split('|').map((ln, j) => ln.trim().split(/\s+/).map((w, i) =>
+    `<span class="w"><span style="transition-delay:${((j * 4 + i) * 0.09).toFixed(2)}s">${w}</span></span>`).join('')).join('<span style="flex-basis:100%;height:0"></span>') + '</div>';
   const mount = () => {
     if (document.getElementById('pm')) return;
     const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);

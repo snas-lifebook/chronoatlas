@@ -12,10 +12,11 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / 'promo' / 'out'; RAW = OUT / 'raw'
+OUT = ROOT / 'promo' / 'out'; RAW = OUT / ('raw-v' if os.environ.get('VERTICAL') == '1' else 'raw')
 ATLAS = os.environ.get('ATLAS', 'https://snas-lifebook.github.io/chronoatlas/')
 LIB = os.environ.get('LIB', 'https://roma-library.pages.dev/')
-W, H = 1920, 1080
+VERT = os.environ.get('VERTICAL') == '1'   # 세로 9:16 30초 컷(릴스·쇼츠)
+W, H = (1080, 1920) if VERT else (1920, 1080)
 OVERLAY = (ROOT / 'promo' / 'overlay.js').read_text(encoding='utf-8')
 
 
@@ -145,7 +146,46 @@ def seg_outro(page):
     js(page, "pm.end('지금 열어 보세요', ['snas-lifebook.github.io/chronoatlas', 'roma-library.pages.dev'])"); time.sleep(5.5)
 
 
-SEGS = [seg_open, seg_present, seg_board, seg_search, seg_library, seg_jump, seg_outro]
+def v_open(page):
+    page.goto(ATLAS + '?y=-270&c=13,37,4.3&layers=territory,settlements,people,relief,rivers,labels&skin=campaign')
+    js(page, "pm.title('', '', '')"); wait_map(page, 4); clean(page)
+    yield 'ready'
+    js(page, "pm.title('로마제국쇠망사', '로마 천 년,|지도 한 장 위에서', '', 116)"); time.sleep(2.8)
+    js(page, "pm.cardOff()"); time.sleep(.6); js(page, "pm.lower('연도를 끌면 판도가 바뀝니다', 'BC 270 → AD 117')")
+    slide(page, '.shell-slider', -270, 117, 4.8); time.sleep(.9); js(page, "pm.ringOff(); pm.lowerOff()")
+
+
+def v_board(page):
+    page.goto(ATLAS + '?present=1&scene=zama-202')
+    js(page, "pm.title('', '', '')"); wait_map(page, 5)
+    yield 'ready'
+    js(page, "pm.title('', '전투는|부대 단위로', '사료 구절과 사진이 붙은 설명 카드', 116)"); time.sleep(2.0)
+    js(page, "pm.cardOff()"); time.sleep(.4); js(page, "pm.lower('자마 전투 · BC 202', '')")
+    if page.locator('.bd-slider').count():
+        el = page.locator('.bd-slider').first
+        slide(page, '.bd-slider', float(el.get_attribute('min') or 0), float(el.get_attribute('max') or 100), 4.0)
+    time.sleep(.8); js(page, "pm.ringOff(); pm.lowerOff()")
+
+
+def v_search(page):
+    page.goto(ATLAS + '?y=-44&c=12,41,4.2')
+    js(page, "pm.title('', '', '')"); wait_map(page, 4); clean(page)
+    yield 'ready'
+    js(page, "pm.title('', '초성만 쳐도|찾습니다', '', 116)"); time.sleep(1.6); js(page, "pm.cardOff()"); time.sleep(.4)
+    page.keyboard.press('Meta+k'); time.sleep(.5)
+    for ch in 'ㅋㅇㅅㄹ':
+        page.keyboard.insert_text(ch); time.sleep(.35)
+    time.sleep(.8); page.keyboard.press('Enter'); js(page, "pm.lower('카이사르', '관계 · 등장 포인트 · 그 해의 자리')"); time.sleep(2.6)
+
+
+def v_end(page):
+    page.set_content('<html><head></head><body style="margin:0;background:#0b0a09"></body></html>')
+    js(page, "pm.mount(); pm.card('<div></div>')"); time.sleep(.4)
+    yield 'ready'
+    js(page, "pm.end('지금|열어 보세요', ['snas-lifebook.github.io/chronoatlas', 'roma-library.pages.dev'])"); time.sleep(3.6)
+
+
+SEGS = [v_open, v_board, v_search, v_end] if VERT else [seg_open, seg_present, seg_board, seg_search, seg_library, seg_jump, seg_outro]
 
 
 def main() -> int:
@@ -155,7 +195,7 @@ def main() -> int:
     with sync_playwright() as p:
         b = p.chromium.launch(channel='chrome', headless=False, args=['--ignore-gpu-blocklist', '--enable-gpu-rasterization', f'--window-size={W},{H + 90}'])
         for seg in SEGS:
-            name = seg.__name__[4:]
+            name = seg.__name__.split('_', 1)[1]
             if only and name not in only: continue
             ctx = b.new_context(viewport={'width': W, 'height': H}, record_video_dir=str(RAW / name), record_video_size={'width': W, 'height': H}, locale='ko-KR')
             ctx.add_init_script(OVERLAY)
@@ -170,11 +210,11 @@ def main() -> int:
     # 잇기: 로딩 구간을 잘라 mp4로, 그다음 concat
     parts = []
     for seg in SEGS:
-        name = seg.__name__[4:]; src = RAW / f'{name}.webm'; dst = RAW / f'{name}.mp4'
+        name = seg.__name__.split('_', 1)[1]; src = RAW / f'{name}.webm'; dst = RAW / f'{name}.mp4'
         subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(cuts[name]), '-i', str(src), '-r', '30', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-an', str(dst)], check=True)
         parts.append(dst)
     lst = RAW / 'list.txt'; lst.write_text(''.join(f"file '{p}'\n" for p in parts))
-    final = OUT / 'chronoatlas-promo.mp4'
+    final = OUT / ('chronoatlas-promo-vertical.mp4' if VERT else 'chronoatlas-promo.mp4')
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', str(lst), '-c', 'copy', '-movflags', '+faststart', str(final)], check=True)
     print('OUT', final)
     return 0
