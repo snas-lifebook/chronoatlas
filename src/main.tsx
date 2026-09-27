@@ -38,13 +38,16 @@ const scenesFor = async (ds: string, manifest: { scenes?: Scene[] }): Promise<Sc
 // 말판도 사람이 쓰는 파일. 어댑터·정본 밖이다(BACKLOG §G).
 const BOARD_FILES = import.meta.glob<BoardData>(['../data/boards/*.json', '!../data/boards/_*.json'], { import: 'default' });   // _*.json은 생성기 입력(병력표)이지 말판이 아니다
 
+// 맨 주소로 온 사람(대개 처음 온 사람). 앱이 주소를 다시 쓰기 전에 잰다(2026-09-27 River 「사이트 개선 go」, 첫 화면 정리)
+const LANDING = !location.search;
 Promise.all([load(), Promise.all(Object.values(BOARD_FILES).map(f => f()))]).then(async ([d, boards]) => {
   // 첫 진입 = 장면 프리셋(DESIGN §4). URL에 연도가 있으면 존중.
   const scenes = await scenesFor(DS, d.manifest);
   const q = new URLSearchParams(location.search);
   // 자료실 딥링크(?sel=, ?y=)나 말판 딥링크(?board=)가 있으면 장면을 덮어쓰지 않는다
   const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') || q.has('board') ? null : scenes[0]);
-  if (wanted) applyScene(store, wanted, location.search); else if (!q.has('y') && !q.has('sel') && !q.has('board')) store.set({ year: d.manifest.time.to });
+  // 맨 주소면 첫 장면의 연도·카메라만 쓰고 인물은 고르지 않는다(패널이 지도를 가리지 않게)
+  if (wanted) applyScene(store, LANDING ? { ...wanted, sel: undefined } : wanted, location.search); else if (!q.has('y') && !q.has('sel') && !q.has('board')) store.set({ year: d.manifest.time.to });
   const b = boards.find(x => x.id === store.get().board);
   if (b && q.has('board') && !wanted) {
     store.set({
@@ -57,5 +60,5 @@ Promise.all([load(), Promise.all(Object.values(BOARD_FILES).map(f => f()))]).the
   }
   bindUrl(store);
   document.title = `${d.manifest.title} — 크로노아틀라스`;
-  createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} scenes={scenes} boards={boards} />);
+  createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} scenes={scenes} boards={boards} landing={LANDING} />);
 }).catch(err => { document.body.innerHTML = `<pre style="padding:20px">로드 실패: ${err.message}</pre>`; });

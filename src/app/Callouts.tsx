@@ -64,6 +64,8 @@ export function Callouts({ map, engine, root, ds, narrow = false, year = null, o
   const cardRef = useRef<Record<string, HTMLElement | null>>({});
   const hostRef = useRef<HTMLDivElement | null>(null);
   const squeezeRef = useRef(false);
+  // 사진은 늦게(lazy) 붙어 카드를 늘린다. 그때 넘침 검사를 다시 돌리려고 렌더를 한 번 부른다(2026-09-27 QA: 로마 AD 41 카드 하나가 화면 밖)
+  const [, bump] = useState(0);
 
   useEffect(() => {
     if (!map) return;
@@ -240,7 +242,7 @@ export function Callouts({ map, engine, root, ds, narrow = false, year = null, o
                    target="_blank" rel="noreferrer noopener"
                    title={`${p.c.image?.alt ?? ''} — ${p.c.image?.credit ?? ''}`}>
                   <img src={`${root}datasets/${ds}/callouts/${p.c.thumb.file}`}
-                       alt={p.c.image?.alt ?? p.c.title} loading="lazy" />
+                       alt={p.c.image?.alt ?? p.c.title} loading="lazy" onLoad={() => bump(n => n + 1)} />
                   <span>{p.c.thumb.license}</span>
                 </a>
               )}

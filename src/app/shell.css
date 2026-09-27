@@ -257,13 +257,13 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
   border: 1px solid var(--color-border); border-radius: 6px;
   padding: 9px 11px 10px; box-shadow: 0 2px 10px rgb(0 0 0 / 0.10);
 }
-.ca-card h4 { margin: 0 0 5px; font-size: 14px; line-height: 1.3; font-weight: 700; color: var(--color-text-primary); }
+.ca-card h4 { margin: 0 0 5px; font-size: 15px; line-height: 1.3; font-weight: 700; color: var(--color-text-primary); }
 .ca-card-num {
   display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 6px;
   border-radius: 50%; background: #B8860B; color: #fff; font-size: 11px; font-weight: 700; vertical-align: 1px;
 }
-.ca-card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary); }
-.ca-cite { margin-top: 5px; font-size: 11px; line-height: 1.4; color: var(--color-text-tertiary); }
+.ca-card p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--color-text-secondary); }
+.ca-cite { margin-top: 5px; font-size: 12px; line-height: 1.4; color: var(--color-text-tertiary); }
 .ca-links { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 5px; }
 .ca-links a {
   font-size: 11px; padding: 2px 7px; border-radius: 999px; text-decoration: none;
@@ -490,6 +490,9 @@ html[data-skin="satellite"] .shell-year, html[data-skin="satellite"] .shell-pres
 .ca-callout-col.is-compact .ca-card p { font-size: 12px; line-height: 1.4; margin: 2px 0; }
 .ca-callout-col.is-compact .ca-cite { font-size: 10.5px; }
 .ca-callout-col.is-tight .ca-thumb, .ca-callout-col.is-tight .ca-links { display: none; }
+/* 셋째 칸: 접어도 넘치면(로마 AD 41 왼쪽 다섯, 2026-09-27 QA) 본문을 다섯 줄로 자른다 */
+.ca-callout-col.is-tight .ca-cite { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ca-callout-col.is-tight .ca-card p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 
 
 /* 자료실 링크(각주 줄). 크롬 색을 따르고 밑줄만 */

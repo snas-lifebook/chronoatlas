@@ -48,7 +48,7 @@ type Theme = 'system' | 'light' | 'dark';
 const readTheme = (): Theme => { try { return (localStorage.getItem('theme') as Theme) || 'system'; } catch { return 'system'; } };
 const isDark = (t: Theme) => t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
 
-export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store: Store; root: string; ds: string; scenes: Scene[]; boards: BoardData[] }) {
+export function App({ d, store, root, ds, scenes, boards, landing = false }: { d: Dataset; store: Store; root: string; ds: string; scenes: Scene[]; boards: BoardData[]; landing?: boolean }) {
   const s = useSyncExternalStore(store.subscribe, store.get);
   const mapRef = useRef<HTMLDivElement>(null);
   const engRef = useRef<Engine | null>(null);
@@ -69,7 +69,7 @@ export function App({ d, store, root, ds, scenes, boards }: { d: Dataset; store:
   useEffect(() => { loadLegions().then(() => setDataTick(t => t + 1)); }, []);     // 군단 표가 오면 말의 병력 줄을 다시 세운다(자산 URL, R46)
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [tab, setTab] = useState('objects');
-  const [explorerOpen, setExplorerOpen] = useState(() => matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b)
+  const [explorerOpen, setExplorerOpen] = useState(() => !landing && matchMedia('(min-width: 1024px)').matches); // 좁은 화면은 접힌 채 시작(P14b). 맨 주소로 온 사람도 접힌 채(지도가 먼저)
   // 발표 설명창. **지도를 가린다는 지적**(River)에 세 단계와 좌우 전환을 붙였다.
   // slim에서도 연도와 말 이름은 남는다 — 「가려도 년도나 핵심 인물 정도는 뜨게」.
   // 좁은 화면에서는 **간략으로 시작한다.** 전체 설명창은 실측 620px이라 390px 폰에서
