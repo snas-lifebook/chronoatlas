@@ -16,6 +16,7 @@
 // 아홉 장에 안 들어가고 「들어가면 보이는」 대화형이라 그게 맞다. 미시 지도를 이미지로
 // 뽑아야 할 날이 오면 shoot-pack의 caption()처럼 PIL로 같은 JSON에서 합성하면 된다.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { scenePrefs } from '../scenePrefs';
 import type * as maplibregl from 'maplibre-gl';
 import { THUMBS } from '../callouts';
 import { resolveCallouts, type ResolvedCallout } from '../map/micro';
@@ -52,7 +53,8 @@ export function Callouts({ map, engine, root, ds, narrow = false, year = null, o
   const which = def?.id ?? null;
   const [pins, setPins] = useState<Pin[]>([]);
   const [size, setSize] = useState<[number, number]>([0, 0]);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(() => scenePrefs.callouts);
+  useEffect(() => { const on = () => setOpen(scenePrefs.callouts); addEventListener('ca-scene-prefs', on); return () => removeEventListener('ca-scene-prefs', on); }, []);
   const [hudBox, setHud] = useState<{ side: 'left' | 'right'; bottom: number }>({ side: 'left', bottom: 0 });
   // 일반 모드에서 왼쪽·오른쪽에 앱 패널이 서 있다. 그 폭만큼 칸을 밀어 넣는다 —
   // River의 알레시아 화면에서 왼쪽 카드 넷이 탐색 패널 **밑에 깔려** 아예 안 보였다.

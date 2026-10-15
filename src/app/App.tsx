@@ -520,6 +520,7 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
             <div className="skin-block"><Text size="sm" color="secondary">장면</Text></div>
             <div className="row"><Switch label="장면 전환 애니메이션" value={prefs.motion} onChange={() => { setScenePref('motion', !prefs.motion); setPrefs({ ...scenePrefs }); }} size="sm" /></div>
             <div className="row"><Switch label="장면 강조 (주인공·강조면)" value={prefs.focus} onChange={() => { const v = !prefs.focus; setScenePref('focus', v); setPrefs({ ...scenePrefs }); if (!v) store.set({ sel: null }); engRef.current?.rescene(); }} size="sm" /></div>
+            <div className="row"><Switch label="세부 지도 설명 카드" value={prefs.callouts} onChange={() => { setScenePref('callouts', !prefs.callouts); setPrefs({ ...scenePrefs }); }} size="sm" /></div>
             <div className="row"><Switch label="선 (국경·성벽·도로·화살표)" value={s.lines} onChange={() => store.set({ lines: !s.lines })} size="sm" /><Kbd keys="l" /></div>
             <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>
