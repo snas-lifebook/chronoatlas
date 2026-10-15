@@ -1489,6 +1489,81 @@
    "note": "클라우디우스가 죽고 아그리피나의 아들이 황제가 된다. 율리우스 클라우디우스 왕조의 마지막 사람이다."
   },
   {
+   "id": "p1214-gracchus-123",
+   "title": "빵의 시작 · BC 123",
+   "year": -123,
+   "center": [
+    12.8,
+    42
+   ],
+   "zoom": 6.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "호민관 가이우스 그라쿠스가 밀을 싸게 나누는 법을 만든다. 철폐와 부활을 되풀이하다 카이사르와 아우구스투스 때 무료 배급으로 굳는다."
+  },
+  {
+   "id": "p1214-judaea-30",
+   "title": "갈릴리에서 골고다로 · AD 30",
+   "year": 30,
+   "center": [
+    35.3,
+    31.95
+   ],
+   "zoom": 7.3,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "속주가 된 유대에서 한 설교자가 갈릴리를 돌다 예루살렘에서 십자가에 못 박힌다. 처형 연도는 30년과 33년 두 설이 있다."
+  },
+  {
+   "id": "p1214-fucinus-52",
+   "title": "푸키누스 호수 모의 해전 · AD 52",
+   "year": 52,
+   "center": [
+    13.1,
+    41.95
+   ],
+   "zoom": 8.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "클라우디우스가 호수 물을 빼는 공사를 마치며 사형수들에게 함대를 주어 싸우게 한다. 구경꾼이 호숫가를 메운다."
+  },
+  {
    "id": "p1214-agrippina-59",
    "title": "어머니를 지운 바다 · AD 59",
    "year": 59,
@@ -1510,7 +1585,7 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 12 · 네로의 공포 정치",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "황제가 된 아들이 섭정하던 어머니를 나폴리만의 별장 앞바다에서 지운다. 배를 가라앉혀도 살아 돌아오자 자객을 보낸다."
   },
   {
@@ -1535,59 +1610,9 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 12 · 네로의 공포 정치",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "원형 대경기장 언저리에서 난 불이 엿새를 탄다. 소문이 황제를 향하자 네로는 기독교인을 방화범으로 몬다.",
    "micro": "roma"
-  },
-  {
-   "id": "p1214-end-68",
-   "title": "세 총독과 네로의 끝 · AD 68",
-   "year": 68,
-   "center": [
-    3.5,
-    43.3
-   ],
-   "zoom": 4.8,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 12 · 네로의 공포 정치",
-   "note": "갈리아의 빈덱스가 들고일어나고 에스파냐의 갈바가 호응한다. 원로원이 갈바를 황제로 세우자 네로는 로마 근교에서 스스로 목숨을 끊는다."
-  },
-  {
-   "id": "p1214-judaea-30",
-   "title": "갈릴리에서 골고다로 · AD 30",
-   "year": 30,
-   "center": [
-    35.4,
-    32.2
-   ],
-   "zoom": 7.6,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 13 · 십자가에서 공인까지",
-   "note": "속주가 된 유대에서 한 설교자가 갈릴리를 돌다 예루살렘에서 십자가에 못 박힌다. 처형 연도는 30년과 33년 두 설이 있다."
   },
   {
    "id": "p1214-martyrs-64",
@@ -1611,8 +1636,84 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "대화재의 누명을 쓴 기독교인이 로마에서 처형된다. 베드로와 바울로도 이 무렵 로마에서 죽는다(전승)."
+  },
+  {
+   "id": "p1214-grain-66",
+   "title": "빵의 길 · AD 66",
+   "year": 66,
+   "center": [
+    19,
+    37.5
+   ],
+   "zoom": 4.4,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "로마 시민이 먹는 밀은 바다를 건너온다. 이집트가 넉 달 치, 아프리카가 여덟 달 치를 댄다(요세푸스). 배는 티베리스 하구의 새 항구로 들어온다."
+  },
+  {
+   "id": "p1214-end-68",
+   "title": "세 총독과 네로의 끝 · AD 68",
+   "year": 68,
+   "center": [
+    4,
+    42
+   ],
+   "zoom": 4.6,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "갈리아의 빈덱스가 들고일어나고 에스파냐의 갈바가 호응한다. 원로원이 갈바를 황제로 세우자 네로는 로마 근교에서 스스로 목숨을 끊는다."
+  },
+  {
+   "id": "p1214-colosseum-80",
+   "title": "콜로세움 · AD 80",
+   "year": 80,
+   "center": [
+    12.4895,
+    41.889
+   ],
+   "zoom": 14,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels",
+    "story_battles"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "네로의 궁 연못을 메운 자리에 원형 경기장이 선다. 티투스가 80년에 개관 경기를 백 일 동안 연다.",
+   "micro": "roma"
   },
   {
    "id": "p1214-tetrarchy-303",
@@ -1620,9 +1721,9 @@
    "year": 303,
    "center": [
     18,
-    45
+    44.2
    ],
-   "zoom": 4.5,
+   "zoom": 4.4,
    "pitch": 0,
    "bearing": 0,
    "view": "2d",
@@ -1636,7 +1737,7 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "디오클레티아누스가 제국을 넷으로 나누어 다스리고, 니코메디아에서 가장 큰 박해를 시작한다. 십 년을 눌러도 신자는 줄지 않는다."
   },
   {
@@ -1644,10 +1745,10 @@
    "title": "밀비우스 다리 · AD 312",
    "year": 312,
    "center": [
-    12.6,
-    42.6
+    12.5,
+    42.05
    ],
-   "zoom": 7.4,
+   "zoom": 8,
    "pitch": 0,
    "bearing": 0,
    "view": "2d",
@@ -1661,7 +1762,7 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "갈리아에서 내려온 콘스탄티누스가 로마 북쪽 티베리스 강 다리에서 막센티우스를 꺾는다."
   },
   {
@@ -1686,7 +1787,7 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "콘스탄티누스와 리키니우스가 밀라노에서 만나 모든 종교의 신앙 자유를 인정하기로 한다. 그해 6월 리키니우스가 니코메디아에서 이를 게시한다."
   },
   {
@@ -1711,7 +1812,7 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "리키니우스를 꺾고 홀로 남은 황제가 주교들을 니케아에 모은다. 아리우스는 이단이 된다."
   },
   {
@@ -1736,109 +1837,8 @@
     "labels",
     "story_battles"
    ],
-   "group": "포인트 13 · 십자가에서 공인까지",
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
    "note": "보스포루스의 비잔티움이 콘스탄티노플이 된다. 337년 황제는 니코메디아 근교에서 아리우스파 주교에게 세례를 받고 죽는다."
-  },
-  {
-   "id": "p1214-gracchus-123",
-   "title": "빵의 시작 · BC 123",
-   "year": -123,
-   "center": [
-    12.8,
-    42
-   ],
-   "zoom": 6.4,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 14 · 빵과 서커스",
-   "note": "호민관 가이우스 그라쿠스가 밀을 싸게 나누는 법을 만든다. 철폐와 부활을 되풀이하다 카이사르와 아우구스투스 때 무료 배급으로 굳는다."
-  },
-  {
-   "id": "p1214-fucinus-52",
-   "title": "푸키누스 호수 모의 해전 · AD 52",
-   "year": 52,
-   "center": [
-    13.1,
-    41.95
-   ],
-   "zoom": 8.6,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 14 · 빵과 서커스",
-   "note": "클라우디우스가 호수 물을 빼는 공사를 마치며 사형수들에게 함대를 주어 싸우게 한다. 구경꾼이 호숫가를 메운다."
-  },
-  {
-   "id": "p1214-grain-66",
-   "title": "빵의 길 · AD 66",
-   "year": 66,
-   "center": [
-    19,
-    37.5
-   ],
-   "zoom": 4.4,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 14 · 빵과 서커스",
-   "note": "로마 시민이 먹는 밀은 바다를 건너온다. 이집트가 넉 달 치, 아프리카가 여덟 달 치를 댄다(요세푸스). 배는 티베리스 하구의 새 항구로 들어온다."
-  },
-  {
-   "id": "p1214-colosseum-80",
-   "title": "콜로세움 · AD 80",
-   "year": 80,
-   "center": [
-    12.4895,
-    41.889
-   ],
-   "zoom": 14,
-   "pitch": 0,
-   "bearing": 0,
-   "view": "2d",
-   "skin": "campaign",
-   "layers": [
-    "territory",
-    "settlements",
-    "people",
-    "relief",
-    "rivers",
-    "labels",
-    "story_battles"
-   ],
-   "group": "포인트 14 · 빵과 서커스",
-   "note": "네로의 궁 연못을 메운 자리에 원형 경기장이 선다. 티투스가 80년에 개관 경기를 백 일 동안 연다.",
-   "micro": "roma"
   }
  ],
  "library": "https://roma-library.pages.dev",
