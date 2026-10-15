@@ -6,6 +6,7 @@ import '@astryxdesign/theme-neutral';
 import { createRoot } from 'react-dom/client';
 import type { Dataset } from './schema';
 import { createStore, parseState, bindUrl, applyScene, DEFAULTS, type Scene } from './state';
+import { scenePrefs } from './scenePrefs';
 import type { BoardData } from './board';
 import { App } from './app/App';
 
@@ -47,7 +48,7 @@ Promise.all([load(), Promise.all(Object.values(BOARD_FILES).map(f => f()))]).the
   // 자료실 딥링크(?sel=, ?y=)나 말판 딥링크(?board=)가 있으면 장면을 덮어쓰지 않는다
   const wanted = scenes.find(sc => sc.id === store.get().scene) ?? (q.has('y') || q.has('sel') || q.has('board') ? null : scenes[0]);
   // 맨 주소면 첫 장면의 연도·카메라만 쓰고 인물은 고르지 않는다(패널이 지도를 가리지 않게)
-  if (wanted) applyScene(store, LANDING ? { ...wanted, sel: undefined } : wanted, location.search); else if (!q.has('y') && !q.has('sel') && !q.has('board')) store.set({ year: d.manifest.time.to });
+  if (wanted) applyScene(store, LANDING || !scenePrefs.focus ? { ...wanted, sel: undefined } : wanted, location.search); else if (!q.has('y') && !q.has('sel') && !q.has('board')) store.set({ year: d.manifest.time.to });
   const b = boards.find(x => x.id === store.get().board);
   if (b && q.has('board') && !wanted) {
     store.set({

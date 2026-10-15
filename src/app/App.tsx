@@ -3,6 +3,7 @@ import { useEffect, useRef, useSyncExternalStore, useState, useMemo, useCallback
 import { Card, SegmentedControl, SegmentedControlItem, Switch, Text, Badge, Button, IconButton, Tooltip, Kbd } from '@astryxdesign/core';
 import type { Dataset } from '../schema';
 import { type Store, type Scene, applyScene, bookmarkOf } from '../state';
+import { scenePrefs, setScenePref } from '../scenePrefs';
 import { createEngine, allLayers, GROUP_COLOR, type Engine } from '../map/engine';
 import { SKINS, chromeTone, type Skin } from '../map/style';
 import { GROUP_LABEL } from '../graph/data';
@@ -55,6 +56,7 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
   // 즉석 북마크(R44): localStorage의 장면이 「내 북마크」 그룹으로 파일 장면에 합쳐진다. 엔진(syncDetailMaps)에는 파일 장면만 준다(micro는 파일 장면에만 있다).
   const bm = useMemo(() => createBookmarks(ds), [ds]);
   const [marks, setMarks] = useState<Scene[]>(() => bm.list());
+  const [prefs, setPrefs] = useState(() => ({ ...scenePrefs }));
   const allScenes = useMemo(() => [...scenes, ...marks], [scenes, marks]);
   const allRef = useRef(allScenes); allRef.current = allScenes;   // 키 핸들러는 한 번만 붙는다. 최신 목록은 ref로
   const [newTitle, setNewTitle] = useState(''); const [newGroup, setNewGroup] = useState(''); const [importNote, setImportNote] = useState('');
@@ -200,7 +202,7 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
     }
     const cur = new Set(st.layers ?? allLayers(d)); cur.has(id) ? cur.delete(id) : cur.add(id); store.set({ layers: [...cur] });
   };
-  const goScene = (sc: Scene) => { applyScene(store, sc); engRef.current?.flyTo(sc); };
+  const goScene = (sc: Scene) => { applyScene(store, scenePrefs.focus ? sc : { ...sc, sel: undefined }); engRef.current?.flyTo(sc); };
   // 세부 지도에서 「↩ 발표」가 돌아갈 그룹. 발표 그룹이 하나(카이사르 팩)일 때는 상수였는데 포인트 묶음이 생겨 **왔던 그룹**을 기억한다(R59).
   const lastPresentRef = useRef(PRESENT_GROUP);
   useEffect(() => { const g = presentGroupOf(allScenes, s.scene); if (isPresentGroup(g)) lastPresentRef.current = g; }, [s.scene, allScenes]);
@@ -514,6 +516,10 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
               </div>
             ))}
             {/* 선 토글(River 2026-09-18): 국경 테·성벽·도로·전투 화살표·평야 점선. 강·경로·속주·그래프는 위의 제 토글 */}
+            {/* 장면 설정(River 2026-10-15): 발표 때 슬라이드처럼 넘기기, 장면 강조 끄기. 이 기기에 남는다 */}
+            <div className="skin-block"><Text size="sm" color="secondary">장면</Text></div>
+            <div className="row"><Switch label="장면 전환 애니메이션" value={prefs.motion} onChange={() => { setScenePref('motion', !prefs.motion); setPrefs({ ...scenePrefs }); }} size="sm" /></div>
+            <div className="row"><Switch label="장면 강조 (주인공·강조면)" value={prefs.focus} onChange={() => { const v = !prefs.focus; setScenePref('focus', v); setPrefs({ ...scenePrefs }); if (!v) store.set({ sel: null }); engRef.current?.rescene(); }} size="sm" /></div>
             <div className="row"><Switch label="선 (국경·성벽·도로·화살표)" value={s.lines} onChange={() => store.set({ lines: !s.lines })} size="sm" /><Kbd keys="l" /></div>
             <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
           </div>

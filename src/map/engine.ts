@@ -15,6 +15,7 @@ import { loadMicro, microMapAt } from '../micromaps';
 import type { MicroMapDef } from '../../schema/micromap';
 import { annotateLegs, curveMovements, ROUTE_PHASES } from '../routes';
 import { PACK_EMBLEMS, PACK_BATTLES, PACK_CLIENTS, PACK_PLAINS, PACK_MOVEMENTS, PACK_EXTRA, PACK_POLITY_COLORS, PACK_REGIONS, clientsAt, hiddenAdmin, hiddenIds, hiddenPlaces, packHatchAt, packRiversFor, storyPlacesAt } from '../packData';
+import { scenePrefs } from '../scenePrefs';
 
 const GALLIA_FREE = Object.values(import.meta.glob('../../data/overlays/gallia-free.json', { eager: true, import: 'default' }))[0] as { type: string; features: object[] } | undefined;
 
@@ -255,7 +256,7 @@ export const GROUP_COLOR: Record<string, string> = { hostile: '#B4433E', ally: '
 export function createEngine(container: HTMLElement, d: Dataset, store: Store, root: string, ds: string, dark = false, boards: BoardData[] = [], scenes: Scene[] = []) {
   const s0 = store.get();
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches; // DESIGN §4: 즉시 전환
-  const dur = (ms: number) => (reduced ? 0 : ms);
+  const dur = (ms: number) => (reduced || !scenePrefs.motion ? 0 : ms);   // 장면 설정 「전환 애니메이션」을 끄면 슬라이드처럼
   let isDark = dark;
   // 부팅 스킨은 스타일에 바로 넣는다. 나중에 setSkin으로 갈아끼우면 setStyle이 소스·레이어를 통째로
   // 다시 얹으므로(아래 setSkin 참고) 북마크로 들어온 스킨 때문에 스타일을 두 번 빌드하게 된다.
@@ -1329,7 +1330,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       id => { const row = timed.find(t => t[0] === id); return { timed: !!row, base: row ? row[1] : null }; },
       filterFor);
     syncDetailMaps(s.scene);
-    if (s.scene !== lastScene) { lastScene = s.scene; syncPackAreas(s.scene); syncPackRivers(s.scene); }
+    const sceneKey = scenePrefs.focus ? s.scene : null;   // 장면 설정 「장면 강조」를 끄면 강조면·강 강조를 안 얹는다
+    if (sceneKey !== lastScene) { lastScene = sceneKey; syncPackAreas(sceneKey); syncPackRivers(sceneKey); }
     if (s.sel !== lastSel) { lastSel = s.sel; applySel(s.sel); }
     // 상태 → 카메라. 북마크·뒤로가기·장면으로 들어온 값만 지도를 움직인다.
     // 지도가 스스로 움직여 moveend로 되돌아온 값(echo)에는 반응하지 않는다.
@@ -1402,6 +1404,8 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
       apply(store.get());
     },
     // 좁은 화면에서는 줌을 깎는다 — 장면은 데스크톱 프레임으로 잡혀 있다(present.fitZoom).
+    /** 장면 설정이 바뀌었다. 강조면·강 강조를 지금 설정으로 다시 얹는다. */
+    rescene() { lastScene = undefined; apply(store.get()); },
     flyTo(sc: Scene) { if (sc.center) map.flyTo({ center: sc.center, zoom: sc.zoom != null ? fitZoom(sc.zoom, container.clientWidth) : undefined, pitch: store.get().view === '2d' ? 0 : (sc.pitch ?? pitch3d), bearing: store.get().view === '2d' ? 0 : (sc.bearing ?? bearing3d), duration: dur(1400), essential: true }); },
     // 패널 관계 행 hover → 지도 위 상대 객체 펄스(feature-state hover). id 없으면 해제.
     pulse(id: string | null) {
