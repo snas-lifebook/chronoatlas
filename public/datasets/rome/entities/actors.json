@@ -57,6 +57,27 @@
    "confidence": "high"
   },
   {
+   "id": "이집트",
+   "label": "이집트",
+   "color": "#3E5C8A",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "유대",
+   "label": "유대",
+   "color": "#B5651D",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
+   "id": "기독교",
+   "label": "기독교",
+   "color": "#6B7D2E",
+   "source": "book",
+   "confidence": "high"
+  },
+  {
    "id": "기타중립",
    "label": "기타중립",
    "color": "#8A8F98",

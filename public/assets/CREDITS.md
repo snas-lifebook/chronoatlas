@@ -63,3 +63,4 @@ AWS Terrain Tiles(라이선스 혼합)는 2026-09-17에 걷어냈다. 굽는 절
 ## 세부 지도 설명 카드 사진 (32장, 2026-09-27 기준)
 
 `public/datasets/rome/callouts/*.jpg`. 전부 위키미디어 커먼즈의 퍼블릭 도메인·CC0·CC BY이고, 파일마다 작자·라이선스·원본 주소는 `data/overlays/pack-callout-thumbs.json`에 있다. 카드의 사진을 누르면 커먼즈 파일 페이지로 간다. CC BY-SA 등 카피레프트 사진은 굽지 않고 링크로만 둔다.
+- 2026-10-15: 포인트 12·13·14 인물 초상 60장(관계분석 components 원본 PNG, Google Flow 생성)을 256px WebP로 줄여 추가. 출처·생성 방식은 다른 초상과 같다.

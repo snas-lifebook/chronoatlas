@@ -160,7 +160,7 @@ export function storyPlacesAt(year: number): string[] {
 // 패주해 들른 곳이지만 아홉 장 어디도 라리사를 말하지 않는다.
 
 // ── 포인트 묶음 교보재 (2026-09-21, R59) ────────────────────────────────────
-// p12(포인트 01·02) · p345(03·04·05) · p911(09·10·11). 파일은 `data/overlays/<묶음>-<종류>.json`이고 **지연 로드**다,
+// p12(포인트 01·02) · p345(03·04·05) · p911(09·10·11) · p1214(12·13·14, 2026-10-15). 파일은 `data/overlays/<묶음>-<종류>.json`이고 **지연 로드**다,
 // eager로 실으면 초기 번들 400 kB 게이트를 넘는다(R46). 그 해(PACK_YEARS, 반열림)나 그 묶음의 장면(`p12-…`)에
 // 들어설 때 받아 위의 살아 있는 배열에 합친다. 합친 뒤에는 엔진 refreshPack()이 소스를 다시 싣는다.
 //
@@ -168,11 +168,12 @@ export function storyPlacesAt(year: number): string[] {
 //   cast → PACK_CAST.people(+principals.ids) · battles → PACK_BATTLES · routes → PACK_MOVEMENTS(정본에 같은 route가 있으면 엔진이 뺀다)
 //   places → PACK_PLACES · anachronisms → hide_before/hide_admin_before · legions → by_person
 //   그 밖(hatch·islands·rivers…) → PACK_EXTRA['<묶음>-<종류>'] 에 원문 그대로. 엔진이 이름으로 집는다.
-export const PACK_YEARS: Record<string, [number, number]> = { p12: [-800, -230], p345: [-230, -60], p911: [-45, 70] };
+export const PACK_YEARS: Record<string, [number, number]> = { p12: [-800, -230], p345: [-230, -60], p911: [-45, 70], p1214: [54, 340] };
 const PACK_LOADERS: Record<string, Record<string, () => Promise<unknown>>> = {
   p12: import.meta.glob('../data/overlays/p12-*.json', { import: 'default' }),
   p345: import.meta.glob('../data/overlays/p345-*.json', { import: 'default' }),
   p911: import.meta.glob('../data/overlays/p911-*.json', { import: 'default' }),
+  p1214: import.meta.glob('../data/overlays/p1214-*.json', { import: 'default' }),
 };
 export const PACK_EXTRA: Record<string, unknown> = {};
 const packDone = new Map<string, Promise<boolean>>();
@@ -180,7 +181,7 @@ const packDone = new Map<string, Promise<boolean>>();
 /** 이 해·이 장면이 필요로 하는 묶음 id. 장면 id 접두(`p345-`)가 연도 창보다 우선, 창 경계의 장면도 제 교보재를 받는다. */
 export function packsFor(year: number, scene: string | null): string[] {
   const out = Object.entries(PACK_YEARS).filter(([, [lo, hi]]) => lo <= year && year < hi).map(([k]) => k);
-  const m = scene?.match(/^(p12|p345|p911)-/);
+  const m = scene?.match(/^(p12|p345|p911|p1214)-/);
   if (m && !out.includes(m[1])) out.push(m[1]);
   return out;
 }

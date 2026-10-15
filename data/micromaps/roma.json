@@ -1435,6 +1435,51 @@
      41.908798668980765
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "roma:colosseum",
+    "name_ko": "콜로세움",
+    "name_la": "Amphitheatrum Flavium",
+    "kind": "building",
+    "teaching": true,
+    "source": "확정. 41.8903, 12.4922(Wikipedia Colosseum). 네로 도무스 아우레아의 인공 연못(stagnum) 자리에 세웠다(Martial, Spect. 2).",
+    "grade": "확정",
+    "built_year": 80,
+    "built_source": "착공 72경(Suetonius, Vesp. 9.1), 개관 80(Suetonius Titus 7.3, Dio 66.25)",
+    "note_ko": "베스파시아누스가 연못을 메워 시민에게 돌려준 자리에, 아들 티투스가 80년 개관 경기를 100일 열었다."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4922,
+     41.8903
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "roma:domus-aurea",
+    "name_ko": "도무스 아우레아",
+    "name_la": "Domus Aurea",
+    "kind": "building",
+    "teaching": true,
+    "source": "확정(근방). 41.8914, 12.4953(Wikipedia Domus Aurea, 오피우스 언덕 유구). 궁 전체는 팔라티누스에서 에스퀼리누스까지 퍼졌고 점은 오피우스 쪽 유구다.",
+    "grade": "확정",
+    "built_year": 64,
+    "built_source": "64년 대화재 뒤 착공(Tacitus, Ann. 15.42; Suetonius, Nero 31). 68 네로 사후 해체, 연못은 72경 메움",
+    "note_ko": "64년 대화재 뒤 네로가 지은 궁. 68년 그가 죽은 뒤 연못 자리에 콜로세움이 들어서고, 104년경 트라야누스 목욕장이 오피우스 쪽 궁을 덮는다(통설).",
+    "gone_year": 104
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4953,
+     41.8914
+    ]
+   }
   }
  ],
  "callouts": [

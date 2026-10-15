@@ -1,0 +1,574 @@
+{
+ "teaching": true,
+ "source": "포인트 12·13·14 교보재(2026-10-15). 정본에 위치가 비어 있는 이 시대 인물을 사료 근거로 그 해 그 자리에 세운다. 좌표는 정본 place lonlat, 없으면 at(위키백과·Pleiades, 항목 note에 출처). 구간은 반열림. 근거 보고서: 레인 p12·p13·p14 초안(볼트 회차 폴더 기록). 정본 오류 넷을 피해 갔다: person:아그리피나는 대 아그리피나, place:카이사레아는 카파도키아, 헤로데 안티파스 ruled 갈릴리 from_year 부호, person:에우세비오스는 두 사람이 한 노드. 구간은 엔진 규칙대로 양끝 포함 [from_year, to_year](people.ts: year > to_year면 제외).",
+ "people": [
+  {
+   "id": "person:네로",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 58,
+   "override": true,
+   "note": "즉위 54년 10월. 타키투스 『연대기』 12.69, 13.1 이하 수도 통치"
+  },
+  {
+   "id": "person:네로",
+   "place": "place:바울리",
+   "from_year": 59,
+   "to_year": 59,
+   "override": true,
+   "note": "59년 3월 퀸콰트리아 축제 때 바이아이 만 체류, 어머니 살해 현장 지휘. 『연대기』 14.4~8",
+   "at": [
+    14.0833,
+    40.8
+   ]
+  },
+  {
+   "id": "person:네로",
+   "place": "place:로마",
+   "from_year": 60,
+   "to_year": 68,
+   "override": true,
+   "note": "64년 화재 때는 안티움에 있다가 귀환(『연대기』 15.39), 66~67년 그리스 순행은 반영 안 함. 해 단위라 로마로 통일 68년 6월 로마 근교 파온의 별장에서 자결(수에토니우스 『네로』 48~49). 별장 좌표가 사료에 없어 로마에 세운다."
+  },
+  {
+   "id": "person:아그리피나클라우디우스의아내",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 58,
+   "override": true,
+   "note": "[주의] 정본 person:아그리피나 desc는 소 아그리피나가 아니라 게르마니쿠스의 미망인(대 아그리피나)으로 쓰여 있음. 소 아그리피나는 person:아그리피나클라우디우스의아내(포인트 11). 『연대기』 12.7, 13.2~ (2026-10-15 통합: 정본 person:아그리피나는 대 아그리피나라 소 아그리피나 ID로 바꿨다.)"
+  },
+  {
+   "id": "person:아그리피나클라우디우스의아내",
+   "place": "place:바울리",
+   "from_year": 59,
+   "to_year": 59,
+   "override": true,
+   "note": "59년 3월 바울리(바이아이와 미세눔곶 사이) 별장에서 살해. 『연대기』 14.4~8 (2026-10-15 통합: 정본 person:아그리피나는 대 아그리피나라 소 아그리피나 ID로 바꿨다.)",
+   "at": [
+    14.0833,
+    40.8
+   ]
+  },
+  {
+   "id": "person:세네카",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 61,
+   "override": true,
+   "note": "네로의 스승, 섭정. 『연대기』 13.2~. 62년 은퇴 청원(14.53~56)"
+  },
+  {
+   "id": "person:세네카",
+   "place": "place:캄파니아",
+   "from_year": 62,
+   "to_year": 64,
+   "override": true,
+   "note": "62년 은퇴 후 영지 생활, 65년 캄파니아에서 돌아옴. 『연대기』 14.56, 15.60"
+  },
+  {
+   "id": "person:세네카",
+   "place": "place:로마",
+   "from_year": 65,
+   "to_year": 65,
+   "override": true,
+   "note": "65년 로마 4번째 이정표 별장에서 사형 명령을 받고 자결. 『연대기』 15.60~64. 별장 위치는 정본 장소 없음이라 로마 점 사용"
+  },
+  {
+   "id": "person:부루스",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 61,
+   "override": true,
+   "note": "친위대장, 62년 초 사망. 『연대기』 12.42, 14.51"
+  },
+  {
+   "id": "person:브리탄니쿠스",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 55,
+   "override": true,
+   "note": "55년 2월 네로 연회에서 독살. 『연대기』 13.15~17"
+  },
+  {
+   "id": "person:옥타비아",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 61,
+   "override": true,
+   "note": "네로의 아내(53년 혼인). 『연대기』 12.58, 14.60"
+  },
+  {
+   "id": "person:옥타비아",
+   "place": "place:판다테리아",
+   "from_year": 62,
+   "to_year": 62,
+   "override": true,
+   "note": "62년 이혼 후 판다테리아 섬에 유폐, 같은 해 살해. 『연대기』 14.60~64. 좌표: 벤토테네 섬 위키백과",
+   "at": [
+    13.43,
+    40.7975
+   ]
+  },
+  {
+   "id": "person:포파이아",
+   "place": "place:로마",
+   "from_year": 58,
+   "to_year": 65,
+   "override": true,
+   "note": "58년경 오토의 아내로 네로 눈에 듦, 62년 황후, 65년 사망. 『연대기』 13.45~46, 14.60, 16.6"
+  },
+  {
+   "id": "person:오토",
+   "place": "place:메리다",
+   "from_year": 58,
+   "to_year": 68,
+   "override": true,
+   "note": "58년 루시타니아 총독(수도 에메리타 아우구스타), 68년 갈바에 합류. 수에토니우스 『오토』 3, 타키투스 『역사』 1.13"
+  },
+  {
+   "id": "person:갈바",
+   "place": "place:타라코",
+   "from_year": 60,
+   "to_year": 68,
+   "override": true,
+   "note": "히스파니아 타라코넨시스 총독 8년, 68년 봉기. 수에토니우스 『갈바』 8~9. 68년 안의 이동(봉기 선언 장소 문제)은 비워 둠 68년 4월 타라코에서 봉기를 선언하고 가을에야 로마에 들어온다(플루타르코스 『갈바』 5~11)라 68년도 타라코에 세운다.",
+   "at": [
+    1.2528,
+    41.1175
+   ]
+  },
+  {
+   "id": "person:갈바",
+   "place": "place:로마",
+   "from_year": 69,
+   "to_year": 69,
+   "override": true,
+   "note": "68년 가을 로마 입성, 69년 1월 15일 살해. 『역사』 1.6, 1.41"
+  },
+  {
+   "id": "person:빈덱스",
+   "place": "place:루그두눔",
+   "from_year": 68,
+   "to_year": 68,
+   "override": true,
+   "note": "갈리아 루그두넨시스 총독, 68년 3월경 봉기. 디온 63.22, 플루타르코스 『갈바』 4. 좌표: 리옹 위키백과",
+   "at": [
+    4.835,
+    45.7675
+   ]
+  },
+  {
+   "id": "person:티겔리누스",
+   "place": "place:로마",
+   "from_year": 62,
+   "to_year": 68,
+   "override": true,
+   "note": "부루스 사후 친위대장. 『연대기』 14.51"
+  },
+  {
+   "id": "person:가이우스페트로니우스",
+   "place": "place:쿠마이",
+   "from_year": 66,
+   "to_year": 66,
+   "override": true,
+   "note": "66년 쿠마이에서 자결. 『연대기』 16.18~19. 이전 거처는 연도 근거 없음",
+   "at": [
+    14.0536,
+    40.8486
+   ]
+  },
+  {
+   "id": "person:루카누스",
+   "place": "place:로마",
+   "from_year": 54,
+   "to_year": 65,
+   "override": true,
+   "note": "코르두바 출생, 유아기에 로마로 옴, 65년 피소 음모로 자결. 『연대기』 15.49, 15.56, 15.70. 54년 시작은 근사치"
+  },
+  {
+   "id": "person:예수그리스도",
+   "place": "place:요르단강",
+   "from_year": 26,
+   "to_year": 26,
+   "override": true,
+   "note": "세례. 책 본문 26년(누가 3:1은 티베리우스 15년=28/29년이라 통설 범위 26~29). 정본 place 좌표."
+  },
+  {
+   "id": "person:예수그리스도",
+   "place": "place:갈릴리",
+   "from_year": 27,
+   "to_year": 29,
+   "override": true,
+   "note": "갈릴리 활동(공생애). 복음서(마가 1:14 이하)와 책 본문. 연도는 통설 범위(27~30)."
+  },
+  {
+   "id": "person:예수그리스도",
+   "place": "place:예루살렘",
+   "from_year": 30,
+   "to_year": 30,
+   "override": true,
+   "note": "처형 연도는 통설(30년 4월 7일 또는 33년 4월 3일, 30년설이 우세). 타키투스 『연대기』 15.44: 티베리우스 치세 총독 필라투스에게 처형. 책 본문도 30년."
+  },
+  {
+   "id": "person:세례자요한",
+   "place": "place:요르단강",
+   "from_year": 26,
+   "to_year": 27,
+   "override": true,
+   "note": "요르단 강 세례 사역. 마가 1:4~5, 요세푸스 『유대 고대사』 18.116~119. 연도는 책 본문(26년)과 누가 3:1(28/29) 사이, 통설 범위."
+  },
+  {
+   "id": "person:세례자요한",
+   "place": "place:마카이루스",
+   "from_year": 28,
+   "to_year": 28,
+   "override": true,
+   "note": "마카이루스 요새에서 안티파스에게 처형. 요세푸스 『유대 고대사』 18.119(장소 명시). 처형 연도는 통설 범위(28~30)이고 정확한 해는 불확정, 28은 범위 하한 대리값. 좌표 https://en.wikipedia.org/wiki/Machaerus.",
+   "at": [
+    35.6242,
+    31.5672
+   ]
+  },
+  {
+   "id": "person:헤로데안티파스",
+   "place": "place:티베리아스",
+   "from_year": 20,
+   "to_year": 39,
+   "override": true,
+   "note": "갈릴리·페레아 분봉왕 BC 4~AD 39. 수도 티베리아스(AD 18~20경 건설, 요세푸스 『고대사』 18.36~38), 39년 칼리굴라에게 추방(18.252). 20년 이전은 세포리스(18.27). 좌표 https://en.wikipedia.org/wiki/Tiberias.",
+   "at": [
+    35.5333,
+    32.7944
+   ]
+  },
+  {
+   "id": "person:헤로데대왕",
+   "place": "place:예루살렘",
+   "from_year": -37,
+   "to_year": -4,
+   "override": true,
+   "note": "BC 37 예루살렘 함락(요세푸스 『고대사』 14.487), BC 4 여리고에서 사망(17.191 이하, 서거 직후 예루살렘 안치). 구간 -37~-4년 포함."
+  },
+  {
+   "id": "person:필라테",
+   "place": "place:카이사레아마리티마",
+   "from_year": 26,
+   "to_year": 29,
+   "override": true,
+   "note": "유대 총독 26~36, 주재지 카이사레아 마리티마(요세푸스 『고대사』 18.55 이하, 현지 출토 필라투스 비문). 정본 place:카이사레아는 카파도키아라 쓸 수 없어 별도 at. 좌표 https://en.wikipedia.org/wiki/Caesarea_Maritima.",
+   "at": [
+    34.8917,
+    32.5
+   ]
+  },
+  {
+   "id": "person:필라테",
+   "place": "place:예루살렘",
+   "from_year": 30,
+   "to_year": 30,
+   "override": true,
+   "note": "예수 재판·처형 때 예루살렘 체류(총독은 유월절에 예루살렘 순시). 타키투스 『연대기』 15.44, 복음서."
+  },
+  {
+   "id": "person:필라테",
+   "place": "place:카이사레아마리티마",
+   "from_year": 31,
+   "to_year": 36,
+   "override": true,
+   "note": "총독 임기 36까지, 36/37년 소환(요세푸스 『고대사』 18.89). 좌표 상동.",
+   "at": [
+    34.8917,
+    32.5
+   ]
+  },
+  {
+   "id": "person:유다",
+   "place": "place:예루살렘",
+   "from_year": 30,
+   "to_year": 30,
+   "override": true,
+   "note": "예수 밀고와 체포 때 예루살렘(마가 14:10~11, 책 본문). 정본 person:유다 lonlat은 유다 지방 좌표라 override."
+  },
+  {
+   "id": "person:베드로",
+   "place": "place:로마",
+   "from_year": 64,
+   "to_year": 67,
+   "override": true,
+   "note": "로마에서 순교, 64~67년 통설 범위(1클레멘스 5, 책 본문은 64년 대화재 때). 정본에 located_in 로마 링크가 연도 없이 있음."
+  },
+  {
+   "id": "person:바울로",
+   "place": "place:로마",
+   "from_year": 62,
+   "to_year": 67,
+   "override": true,
+   "note": "로마 체류와 순교, 64~67년 통설(1클레멘스 5, 사도행전 28 말미 로마 연금은 60년대 초). 책 본문: 베드로와 같은 날 처형. 62 시작은 통설 하한."
+  },
+  {
+   "id": "person:트라야누스",
+   "place": "place:로마",
+   "from_year": 98,
+   "to_year": 116,
+   "override": true,
+   "note": "재위 98~117, 117년 8월 킬리키아 셀리누스에서 사망(정본 place 없음)이라 로마 구간은 116까지. 플리니우스 『서간』 10.96~97(기독교 처리 문답)."
+  },
+  {
+   "id": "person:아우렐리아누스",
+   "place": "place:로마",
+   "from_year": 270,
+   "to_year": 274,
+   "override": true,
+   "note": "재위 270~275. 274년 로마에 태양신전 봉헌(『아우렐리아누스 전』 25.6, 35.3 이하, 조시모스 1.61). 275년 트라키아에서 피살(조시모스 1.62)이나 정본 place 없음."
+  },
+  {
+   "id": "person:디오클레티아누스",
+   "place": "place:니코메디아",
+   "from_year": 284,
+   "to_year": 305,
+   "override": true,
+   "note": "즉위 284 니코메디아 인근, 수도 니코메디아(락탄티우스 『박해자들의 죽음』 7.8~10). 305.5.1 퇴위도 니코메디아(19). 책 본문 정본 created 니코메디아."
+  },
+  {
+   "id": "person:막시미아누스",
+   "place": "place:밀라노",
+   "from_year": 286,
+   "to_year": 304,
+   "override": true,
+   "note": "서방 정제 286~305, 수도 밀라노. 4분할 수도 넷의 하나로 2차 출처(https://en.wikipedia.org/wiki/Tetrarchy). 사료 직접 인용 약함."
+  },
+  {
+   "id": "person:갈레리우스",
+   "place": "place:시르미움",
+   "from_year": 293,
+   "to_year": 310,
+   "override": true,
+   "note": "동방 부제(293~305) 수도 시르미움, 이후도 다뉴브 쪽 거점. https://en.wikipedia.org/wiki/Tetrarchy: Sirmium was the capital of Galerius. 좌표 https://en.wikipedia.org/wiki/Sirmium.",
+   "at": [
+    19.6106,
+    44.9661
+   ]
+  },
+  {
+   "id": "person:갈레리우스",
+   "place": "place:세르디카",
+   "from_year": 311,
+   "to_year": 311,
+   "override": true,
+   "note": "311.4.30 관용령 공포와 그해 5월 초 사망이 세르디카 일대(락탄티우스 『박해자들의 죽음』 33~35, 에우세비오스 『교회사』 8.17). 좌표 https://en.wikipedia.org/wiki/Serdica.",
+   "at": [
+    23.3231,
+    42.6978
+   ]
+  },
+  {
+   "id": "person:콘스탄티우스1세",
+   "place": "place:트리어",
+   "from_year": 293,
+   "to_year": 304,
+   "override": true,
+   "note": "서방 부제 수도 트리어(https://en.wikipedia.org/wiki/Tetrarchy, 라틴 송덕문 8(4)번이 트리어에서 낭독). 정본에는 갈리아 ruled만 있음."
+  },
+  {
+   "id": "person:콘스탄티우스1세",
+   "place": "place:요크",
+   "from_year": 305,
+   "to_year": 306,
+   "override": true,
+   "note": "305 정제 즉위 뒤 브리타니아 원정, 306.7.25 에보라쿰에서 사망(에우세비오스 『콘스탄티누스 전』 1.21, 락탄티우스 24)."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:요크",
+   "from_year": 306,
+   "to_year": 306,
+   "override": true,
+   "note": "306.7 에보라쿰에서 군대가 즉위 추대(에우세비오스 『콘스탄티누스 전』 1.22, 락탄티우스 『박해자들의 죽음』 24)."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:트리어",
+   "from_year": 307,
+   "to_year": 311,
+   "override": true,
+   "note": "트리어를 거점으로 갈리아·라인 방어. 라틴 송덕문 7(6)번(310)과 6(7)번(310) 모두 트리어 낭독."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:로마",
+   "from_year": 312,
+   "to_year": 312,
+   "override": true,
+   "note": "312.10.28 밀비우스 다리 승리 후 로마 입성(에우세비오스 『교회사』 9.9, 락탄티우스 44). 정본 ruled 로마 306~337 링크 있음."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:밀라노",
+   "from_year": 313,
+   "to_year": 313,
+   "override": true,
+   "note": "313 초 밀라노에서 리키니우스와 회견, 누이 콘스탄티아 혼인(락탄티우스 45.1, 에우세비오스 『교회사』 10.5)."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:니케아",
+   "from_year": 325,
+   "to_year": 325,
+   "override": true,
+   "note": "325년 5~8월 니케아 공의회 주재(에우세비오스 『콘스탄티누스 전』 3.6~14). 좌표 https://en.wikipedia.org/wiki/%C4%B0znik.",
+   "at": [
+    29.7211,
+    40.4292
+   ]
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:콘스탄티노플",
+   "from_year": 330,
+   "to_year": 336,
+   "override": true,
+   "note": "330.5.11 봉헌(Chronicon Paschale 통설). 정본 ruled 콘스탄티노플 330~337 링크 있음."
+  },
+  {
+   "id": "person:콘스탄티누스",
+   "place": "place:니코메디아",
+   "from_year": 337,
+   "to_year": 337,
+   "override": true,
+   "note": "337.5.22 성령강림 대축일 니코메디아 근교(아키론 교외)에서 사망, 세례를 받음(에우세비오스 『콘스탄티누스 전』 4.61~64)."
+  },
+  {
+   "id": "person:막센티우스",
+   "place": "place:로마",
+   "from_year": 306,
+   "to_year": 312,
+   "override": true,
+   "note": "306.10 로마 근위대에 추대, 312.10.28 밀비우스 다리에서 사망(락탄티우스 26, 44, 에우세비오스 『교회사』 9.9)."
+  },
+  {
+   "id": "person:리키니우스",
+   "place": "place:밀라노",
+   "from_year": 313,
+   "to_year": 313,
+   "override": true,
+   "note": "313 초 밀라노 회견(락탄티우스 『박해자들의 죽음』 45.1). 313.6.13 니코메디아에서 밀라노 합의 문서 게시(48)."
+  },
+  {
+   "id": "person:리키니우스",
+   "place": "place:니코메디아",
+   "from_year": 324,
+   "to_year": 324,
+   "override": true,
+   "note": "324.9 크리소폴리스 패배 뒤 니코메디아에서 항복(에우세비오스 『콘스탄티누스 전』 2.18, 조시모스 2.28). 정본에는 located_in 비잔티움 313~323이 연도와 함께 있어 그 사이는 비워 둠."
+  },
+  {
+   "id": "person:에우세비오스",
+   "place": "place:니코메디아",
+   "from_year": 337,
+   "to_year": 337,
+   "override": true,
+   "note": "니코메디아 주교 에우세비오스가 337년 콘스탄티누스에게 세례(소크라테스 『교회사』 1.39, 히에로니무스 『연대기』). 주의: 정본 person:에우세비오스가 카이사레아의 에우세비오스(저자)와 합쳐 있음."
+  },
+  {
+   "id": "person:아리우스",
+   "place": "place:알렉산드리아",
+   "from_year": 318,
+   "to_year": 324,
+   "override": true,
+   "note": "알렉산드리아 바우칼리스 교회 사제로 논쟁 시작(소크라테스 『교회사』 1.5~6). 318년은 통설 범위(318~319)."
+  },
+  {
+   "id": "person:아리우스",
+   "place": "place:니케아",
+   "from_year": 325,
+   "to_year": 325,
+   "override": true,
+   "note": "325 니케아 공의회에 회부, 일리리쿰 추방(소크라테스 1.8). 좌표 상동.",
+   "at": [
+    29.7211,
+    40.4292
+   ]
+  },
+  {
+   "id": "person:아리우스",
+   "place": "place:콘스탄티노플",
+   "from_year": 336,
+   "to_year": 336,
+   "override": true,
+   "note": "336년 콘스탄티노플에서 사망(소크라테스 『교회사』 1.37~38). 복권은 335 예루살렘 시노드(책 본문)."
+  },
+  {
+   "id": "person:가이우스그라쿠스",
+   "place": "place:로마",
+   "from_year": -123,
+   "to_year": -123,
+   "override": true,
+   "note": "책 14: 「기원전 123년에 호민관 가이우스 그라쿠스가 만든 소맥법」. 고대 전거 Plutarch, C. Gracchus 5."
+  },
+  {
+   "id": "person:술라",
+   "place": "place:로마",
+   "from_year": -82,
+   "to_year": -79,
+   "override": true,
+   "note": "책 14: 「술라가 독재관에 취임하여 소맥법을 철폐」. 독재관 BC 82~79는 통설(책은 연도 없이 「40년 뒤」). 구간은 통설 근사."
+  },
+  {
+   "id": "person:아우렐리우스코타",
+   "place": "place:로마",
+   "from_year": -75,
+   "to_year": -75,
+   "override": true,
+   "note": "책 14: 「기원전 75년에 수혜자 4만 명 이하 조건으로 소맥법 부활」(75년 집정관). 역사적 사실성은 보고서 전제 오류 참조."
+  },
+  {
+   "id": "person:카이사르",
+   "place": "place:로마",
+   "from_year": -46,
+   "to_year": -46,
+   "override": true,
+   "note": "책 14: 「카이사르가 무료 배부 대상을 15만 명으로 시작」. 수령자 삭감은 BC 46 개선식 직후(Suetonius, Iul. 41.3, 32만에서 15만). 연도는 Suetonius 근거 통설."
+  },
+  {
+   "id": "person:아우구스투스",
+   "place": "place:로마",
+   "from_year": -2,
+   "to_year": -2,
+   "override": true,
+   "note": "책 14: 「아우구스투스가 20만 명으로 늘였다」. Res Gestae 15는 BC 2에 약 32만 명 분배를 적어 책 수치와 다르다(보고서 참조). 연도는 RG 15 근거."
+  },
+  {
+   "id": "person:클라우디우스",
+   "place": "place:푸키누스호수",
+   "from_year": 52,
+   "to_year": 52,
+   "override": true,
+   "note": "책 14: 「푸키누스 호수 간척사업을 계기로 모의 해전」. Tacitus, Ann. 12.56, Suetonius, Claud. 21. 정본 event:모의해전 year 52, occurred_at 푸키누스호수 52와 일치. 정본 ruled 로마 41~54보다 앞서 override 필요."
+  },
+  {
+   "id": "person:베스파시아누스",
+   "place": "place:콜로세움",
+   "from_year": 72,
+   "to_year": 79,
+   "override": true,
+   "note": "책 14: 「72년에 네로의 인공 연못을 메운 후 그 자리에 건설」. Suetonius, Vesp. 9.1(원형경기장 건설). 정본 created 콜로세움 72~80과 같은 구간이라 override 불필요할 수 있음. 69~79 재위, 79 사망이라 80에 서면 연대 모순이나 정본 edge를 그대로 따름."
+  },
+  {
+   "id": "person:티투스",
+   "place": "place:콜로세움",
+   "from_year": 80,
+   "to_year": 80,
+   "override": true,
+   "note": "책 14: 「티투스 치세 80년에 완성」. Suetonius, Titus 7.3, Cassius Dio 66.25(개관 경기 100일)."
+  },
+  {
+   "id": "person:타르퀴니우스프리스쿠스",
+   "place": "place:원형대경기장",
+   "from_year": -615,
+   "to_year": -579,
+   "override": true,
+   "note": "책 14: 「기원전 6세기 제5대 왕이 전승기념으로 만든 것이 원형 대경기장의 원형」. Livy 1.35.8. 재위는 정본 attrs -615~-579(전승 연대)."
+  }
+ ]
+}

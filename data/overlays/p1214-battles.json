@@ -1,0 +1,467 @@
+{
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "포인트 12·13·14 사건 점(2026-10-15). 항목마다 source에 사료와 좌표 출처. 정본에 없는 event·place ID는 교보재 전용이다.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:원형대경기장",
+    "name_ko": "로마 대화재",
+    "year": 64,
+    "valid_from": 64,
+    "valid_to": 65,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "타키투스 『연대기』 15.38~41: 7월 18~19일 밤 팔라티누스·카일리우스 언덕에 닿은 대경기장 쪽 상점에서 발화, 엿새 반 번짐. 좌표는 정본 place:원형대경기장(발화점 인근 근사)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4857,
+     41.8859
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:아그리피나살해",
+    "name_ko": "아그리피나 살해",
+    "year": 59,
+    "valid_from": 59,
+    "valid_to": 60,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "타키투스 『연대기』 14.4~8: 59년 3월 바이아이 만에서 배 사고 시도 실패 후 바울리 별장에서 살해. 좌표: 바콜리(옛 바울리) 위키백과."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     14.0833,
+     40.8
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:빈덱스봉기",
+    "name_ko": "빈덱스 봉기",
+    "year": 68,
+    "valid_from": 68,
+    "valid_to": 69,
+    "victor": "반란세력",
+    "teaching": true,
+    "source": "수에토니우스 『네로』 40, 디온 63.22: 갈리아 루그두넨시스 총독 빈덱스가 68년 3월경 봉기. 좌표: 리옹 위키백과(로마 루그두눔은 푸르비에르 언덕)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.835,
+     45.7675
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:베손티오",
+    "name_ko": "베손티오 전투",
+    "year": 68,
+    "valid_from": 68,
+    "valid_to": 69,
+    "victor": "로마",
+    "teaching": true,
+    "source": "디온 63.24, 플루타르코스 『갈바』 6: 68년 5월경 베르기니우스 루푸스 군단이 빈덱스 군을 격파, 빈덱스 자결. 좌표: 브장송 위키백과."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     6.02,
+     47.24
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:피소음모",
+    "name_ko": "피소 음모 발각",
+    "year": 65,
+    "valid_from": 65,
+    "valid_to": 66,
+    "victor": "로마",
+    "teaching": true,
+    "source": "타키투스 『연대기』 15.48~74: 65년 봄 칼푸르니우스 피소 중심 음모가 발각, 세네카·루카누스 등 숙청. 좌표는 정본 place:로마."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4862,
+     41.8917
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:십자가형",
+    "name_ko": "예수 처형(골고다)",
+    "year": 30,
+    "valid_from": 30,
+    "valid_to": 31,
+    "victor": "로마",
+    "teaching": true,
+    "source": "통설 30년(33년설 병존). 타키투스 『연대기』 15.44, 복음서. 좌표: 정본 place:골고다 lonlat."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.2294,
+     31.7786
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:세례자요한처형",
+    "name_ko": "세례자 요한 처형(마카이루스)",
+    "year": 28,
+    "valid_from": 28,
+    "valid_to": 29,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "요세푸스 『유대 고대사』 18.116~119. 연도는 통설 범위 28~30, 28은 하한 대리값. 좌표: 위키백과 Machaerus."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     35.6242,
+     31.5672
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:기독교박해",
+    "name_ko": "네로의 기독교 박해(로마)",
+    "year": 64,
+    "valid_from": 64,
+    "valid_to": 65,
+    "victor": "로마",
+    "teaching": true,
+    "source": "타키투스 『연대기』 15.44(대화재 64.7 뒤, 네로 정원과 경기장 처형). 정본 event:기독교박해에 연도가 없어 64년을 얹는 항목. 좌표: Pleiades 463398874 Vaticanus Mons(landmarks.geojson), 정확한 처형 장소는 불명."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4499,
+     41.9028
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:태양신전봉헌",
+    "name_ko": "아우렐리아누스 태양신전 봉헌(로마)",
+    "year": 274,
+    "valid_from": 274,
+    "valid_to": 275,
+    "victor": "로마",
+    "teaching": true,
+    "source": "『아우렐리아누스 전』 25.6, 35.3 이하, 조시모스 1.61. 연도 274는 통설. 좌표: 정본 place:마르스광장(신전 정확 위치는 마르스 광장 북부 추정)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4772,
+     41.8978
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:대박해개시",
+    "name_ko": "디오클레티아누스 대박해 개시(니코메디아)",
+    "year": 303,
+    "valid_from": 303,
+    "valid_to": 304,
+    "victor": "로마",
+    "teaching": true,
+    "source": "락탄티우스 『박해자들의 죽음』 12~13: 303.2.23 니코메디아 교회 파괴, 이어 칙령 공포. 좌표: 정본 place:니코메디아."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.9167,
+     40.7667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:갈레리우스관용령",
+    "name_ko": "갈레리우스 관용령(세르디카)",
+    "year": 311,
+    "valid_from": 311,
+    "valid_to": 312,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "락탄티우스 34, 에우세비오스 『교회사』 8.17: 311.4.30. 책 본문 311년. 좌표: 위키백과 Serdica."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     23.3231,
+     42.6978
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:밀비아누스다리전투",
+    "name_ko": "밀비우스 다리 전투(로마 북쪽)",
+    "year": 312,
+    "valid_from": 312,
+    "valid_to": 313,
+    "victor": "로마",
+    "teaching": true,
+    "source": "312.10.28 콘스탄티누스가 막센티우스를 격파(락탄티우스 44, 에우세비오스 『교회사』 9.9). 양측 모두 로마군이라 victor는 로마. 정본 event:밀비아누스다리전투를 가리킴. 좌표: 위키백과 Ponte Milvio."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4669,
+     41.9356
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:밀라노칙령",
+    "name_ko": "밀라노 합의(칙령)",
+    "year": 313,
+    "valid_from": 313,
+    "valid_to": 314,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "313 초 밀라노 회견(락탄티우스 45.1), 합의문은 313.6.13 니코메디아에서 게시(48, 에우세비오스 『교회사』 10.5). 정본 event:밀라노칙령. 좌표: 정본 place:밀라노."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     9.1895,
+     45.4643
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:크리소폴리스전투",
+    "name_ko": "크리소폴리스 전투",
+    "year": 324,
+    "valid_from": 324,
+    "valid_to": 325,
+    "victor": "로마",
+    "teaching": true,
+    "source": "324.9.18 콘스탄티누스가 리키니우스를 격파(조시모스 2.26~28, 『콘스탄티누스 기원』 5.23~27). 양측 로마군이라 victor는 로마. 좌표: 위키백과 Üsküdar(고대 크리소폴리스)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.0164,
+     41.0239
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:니케아공의회",
+    "name_ko": "니케아 공의회",
+    "year": 325,
+    "valid_from": 325,
+    "valid_to": 326,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "에우세비오스 『콘스탄티누스 전』 3.6~14: 325 5~8월. 좌표: 위키백과 İznik."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.7211,
+     40.4292
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:콘스탄티노플봉헌",
+    "name_ko": "콘스탄티노플 봉헌",
+    "year": 330,
+    "valid_from": 330,
+    "valid_to": 331,
+    "victor": "로마",
+    "teaching": true,
+    "source": "330.5.11 통설(Chronicon Paschale). 좌표: 정본 place:콘스탄티노플."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     28.9498,
+     41.0198
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:콘스탄티누스서거",
+    "name_ko": "콘스탄티누스 임종·세례(니코메디아 근교)",
+    "year": 337,
+    "valid_from": 337,
+    "valid_to": 338,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "에우세비오스 『콘스탄티누스 전』 4.61~64: 337.5.22. 아키론 교외라 정확 지점 불명, 좌표는 정본 place:니코메디아."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.9167,
+     40.7667
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:콘스탄티누스추대",
+    "name_ko": "콘스탄티누스 에보라쿰 추대",
+    "year": 306,
+    "valid_from": 306,
+    "valid_to": 307,
+    "victor": "로마",
+    "teaching": true,
+    "source": "에우세비오스 『콘스탄티누스 전』 1.22, 락탄티우스 24: 306.7. 좌표: 정본 place:요크."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -1.08,
+     53.96
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:콜로세움",
+    "name_ko": "콜로세움 완공",
+    "year": 80,
+    "valid_from": 80,
+    "valid_to": 81,
+    "victor": "로마",
+    "teaching": true,
+    "source": "책 14: 72년 착공, 티투스 때 80년 완성. Suetonius Titus 7.3, Dio 66.25. 좌표는 정본 place:콜로세움 lonlat(Wikipedia 41.8903,12.4922와 일치)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4922,
+     41.8903
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:원형대경기장",
+    "name_ko": "원형 대경기장(키르쿠스 막시무스) 창건 전승",
+    "year": -600,
+    "valid_from": -616,
+    "valid_to": -578,
+    "victor": "로마",
+    "teaching": true,
+    "source": "책 14: 기원전 6세기 타르퀴니우스 프리스쿠스. Livy 1.35.8. year -600은 정본 roma.json built_year와 같은 대략치(전승). 좌표는 정본 place:원형대경기장 lonlat."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.4857,
+     41.8859
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:포르투스",
+    "name_ko": "클라우디우스 항구(포르투스) 건설",
+    "year": 42,
+    "valid_from": 42,
+    "valid_to": 65,
+    "victor": "로마",
+    "teaching": true,
+    "source": "Suetonius, Claud. 20, Cassius Dio 60.11: 클라우디우스가 티베리스 하구에 신항 착공(42), 네로 때 완공(64년 헌정은 통설). 책 14 본문에는 없음(제안). 좌표는 Wikipedia Portus 41.779N 12.259E. 정본에 place 없음: at 필요."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     12.259,
+     41.779
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:알렉산드리아",
+    "name_ko": "빵의 길: 이집트 곡물",
+    "year": 66,
+    "valid_from": 66,
+    "valid_to": 67,
+    "victor": "로마",
+    "teaching": true,
+    "source": "Josephus, BJ 2.386(아그리파 연설, AD 66): 이집트가 로마에 4개월분 곡물을 댄다. 책 14에는 없음(제안). 좌표는 정본 place:알렉산드리아."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     29.9079,
+     31.1982
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:카르타고",
+    "name_ko": "빵의 길: 아프리카 곡물",
+    "year": 66,
+    "valid_from": 66,
+    "valid_to": 67,
+    "victor": "로마",
+    "teaching": true,
+    "source": "Josephus, BJ 2.383~386: 아프리카가 로마에 8개월분을 댄다. 책 14에는 없음(제안). 좌표는 정본 place:카르타고."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     10.3233,
+     36.8528
+    ]
+   }
+  }
+ ]
+}
