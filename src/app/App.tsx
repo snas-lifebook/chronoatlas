@@ -460,9 +460,14 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
         return (
           <nav className="shell-scene-nav" aria-label="장면 넘기기">
             <button onClick={() => go(-1)} title="앞 장면 ([)" aria-label="앞 장면">◀</button>
-            <span className="sn-n">{i + 1} / {list.length}</span>
+            <span className="sn-n">{(() => { const core = list.filter(sc => sc.core); const k = core.findIndex(sc => sc.id === s.scene);
+              return core.length ? (k >= 0 ? `${k + 1} / ${core.length}` : `· / ${core.length}`) : `${i + 1} / ${list.length}`; })()}</span>
             <button onClick={() => go(1)} title="다음 장면 (])" aria-label="다음 장면">▶</button>
-            <span className="sn-t">{list[i]?.title ?? ''}</span>
+            {/* 장면 고르기: 핵심(●)이 아닌 장도 화살표 없이 바로 간다(2026-10-25 River) */}
+            <select className="sn-t sn-pick" aria-label="장면 고르기" value={list[i]?.id ?? ''}
+                    onChange={e => { const n = list.find(sc => sc.id === e.target.value); if (n) goScene(n); }}>
+              {list.map(sc => <option key={sc.id} value={sc.id}>{list.some(x => x.core) ? (sc.core ? '● ' : '· ') : ''}{sc.title}</option>)}
+            </select>
             {otherList.length > 0 && (
               <button className="sn-jump" onClick={() => goScene(otherList[0])}
                       title={inDetail ? '발표 장면으로 돌아간다' : `세부 지도 ${otherList.length}장`}>

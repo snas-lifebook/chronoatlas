@@ -58,8 +58,13 @@ export function scenesInGroup(scenes: Scene[], group: string): Scene[] {
 export function stepScene(scenes: Scene[], currentId: string | null, dir: -1 | 1): Scene | null {
   if (!scenes.length) return null;
   const i = Math.max(0, scenes.findIndex(s => s.id === currentId));
-  const next = scenes[(i + dir + scenes.length) % scenes.length];
-  return next ?? null;
+  // 핵심 장이 지정된 그룹이면 ◀▶가 핵심만 밟는다. 핵심 아닌 장에 있어도 그 방향의 다음 핵심으로 간다.
+  const hasCore = scenes.some(s => s.core);
+  for (let k = 1; k <= scenes.length; k++) {
+    const next = scenes[(i + dir * k + scenes.length * k) % scenes.length];
+    if (!hasCore || next.core) return next;
+  }
+  return null;
 }
 
 export function presentGroupOf(scenes: Scene[], currentId: string | null): string {

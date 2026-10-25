@@ -32,6 +32,7 @@ export interface Scene {
   board?: string; phase?: number;  // 말판 북마크 (R37)
   micro?: string;                  // 미시지도 id. 있으면 줌 문턱과 무관하게 그 지도가 켜진다 (OVERHAUL §3.2, R47)
   lines?: boolean;                 // 선 감춘 채 저장한 북마크(2026-09-18)
+  core?: boolean;                 // 발표 핵심 장. 그룹에 하나라도 있으면 ◀▶가 핵심만 밟는다, 나머지는 장면 고르기로 바로 간다(2026-10-25 River)
   events?: string[];               // 장면 의미체계(R53, OVERHAUL-IV): 이 장면이 다루는 정본 사건 id. 인스펙터가 사건 → 장면, HUD가 장면 → 사건으로 잇는다. 시대는 연도로 계산한다
 }
 

@@ -19,6 +19,10 @@ describe('발표 장면 넘김', () => {
     expect(stepScene(g, 'a', 1)?.id).toBe('b');
     expect(stepScene(g, 'c', 1)?.id).toBe('a');
     expect(stepScene(g, 'a', -1)?.id).toBe('c');
+    const h = [{ id: 'a', core: true }, { id: 'b' }, { id: 'c', core: true }, { id: 'd' }] as any;
+    expect(stepScene(h, 'a', 1)?.id).toBe('c');   // 핵심만 밟는다
+    expect(stepScene(h, 'b', 1)?.id).toBe('c');   // 핵심 아닌 장에서도 다음 핵심으로
+    expect(stepScene(h, 'a', -1)?.id).toBe('c');  // 되감기도 핵심만
   });
 });
 
