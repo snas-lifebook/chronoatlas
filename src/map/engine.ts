@@ -910,7 +910,7 @@ export function createEngine(container: HTMLElement, d: Dataset, store: Store, r
     // 같은 규칙으로 얹는다. 기하를 새로 만들지 않고 이름만 가리키는 것은 client-hatch와 같다. 채움 무늬·필터는 apply()의 syncPackHatch가 해마다.
     for (const [id, src] of [['pack-hatch-admin', 'admin_regions'], ['pack-hatch-terr', 'territory']] as const) {
       map.addLayer({ id, type: 'fill', source: src, filter: ['in', ['get', 'name'], ['literal', []]] as any,
-        paint: { 'fill-pattern': 'hatch-client', 'fill-opacity': 0.6 } } as any, before);
+        paint: { 'fill-pattern': 'hatch-client', 'fill-opacity': 0.95 } } as any, before);
       map.addLayer({ id: `${id}-edge`, type: 'line', source: src, filter: ['in', ['get', 'name'], ['literal', []]] as any,
         paint: { 'line-color': '#333', 'line-width': 1.4, 'line-opacity': 0.8 } as any }, before);
     }

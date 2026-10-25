@@ -1741,6 +1741,30 @@
    "note": "디오클레티아누스가 제국을 넷으로 나누어 다스리고, 니코메디아에서 가장 큰 박해를 시작한다. 십 년을 눌러도 신자는 줄지 않는다."
   },
   {
+   "id": "p1214-sixemperors-310",
+   "title": "여섯 황제 · AD 310",
+   "year": 310,
+   "center": [
+    17,
+    43.5
+   ],
+   "zoom": 4.2,
+   "pitch": 0,
+   "bearing": 0,
+   "view": "2d",
+   "skin": "campaign",
+   "layers": [
+    "territory",
+    "settlements",
+    "people",
+    "relief",
+    "rivers",
+    "labels"
+   ],
+   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
+   "note": "두 정제가 물러난 뒤 사분통치가 무너진다. 콘스탄티누스(갈리아), 막센티우스(이탈리아·아프리카), 갈레리우스와 리키니우스(발칸), 막시미누스(동방)가 동시에 황제를 칭한다."
+  },
+  {
    "id": "p1214-milvian-312",
    "title": "밀비우스 다리 · AD 312",
    "year": 312,
@@ -1843,7 +1867,7 @@
  ],
  "library": "https://roma-library.pages.dev",
  "source": "정본 entities.jsonl/links.jsonl → scripts/adapt.ts",
- "generated": "2026-10-15",
+ "generated": "2026-10-25",
  "counts": {
   "entities": 672,
   "links": 730,
