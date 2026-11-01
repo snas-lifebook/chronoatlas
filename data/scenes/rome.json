@@ -1786,5 +1786,135 @@
   "group": "포인트 12·13·14 · 네로에서 콘스탄티누스까지",
   "note": "보스포루스의 비잔티움이 콘스탄티노플이 된다. 337년 황제는 니코메디아 근교에서 아리우스파 주교에게 세례를 받고 죽는다.",
   "core": true
+ },
+ {
+  "id": "p1820-crisis-253",
+  "title": "3세기의 위기 · AD 253",
+  "year": 253,
+  "center": [
+   27,
+   42
+  ],
+  "zoom": 3.7,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 18·19·20 · 발레리아누스에서 디오클레티아누스까지",
+  "note": "1년 사이에 갈루스, 아이밀리아누스, 발레리아누스가 차례로 황제가 된다. 북쪽에는 고트족이, 동쪽에는 사산조 페르시아가 있다.",
+  "core": true
+ },
+ {
+  "id": "p1820-edessa-260",
+  "title": "에데사 · AD 260",
+  "year": 260,
+  "center": [
+   40,
+   36
+  ],
+  "zoom": 5.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 18·19·20 · 발레리아누스에서 디오클레티아누스까지",
+  "note": "발레리아누스가 에데사 근처에서 사산조의 샤푸르 1세에게 사로잡힌다.",
+  "core": true
+ },
+ {
+  "id": "p1820-split-260",
+  "title": "셋으로 갈린 제국 · AD 260~274",
+  "year": 266,
+  "center": [
+   10,
+   46
+  ],
+  "zoom": 4.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 18·19·20 · 발레리아누스에서 디오클레티아누스까지",
+  "note": "황제가 사로잡힌 뒤 제국은 셋으로 갈린다. 서쪽은 갈리아 제국, 동쪽은 팔미라, 가운데는 갈리에누스의 로마가 남는다.",
+  "core": true
+ },
+ {
+  "id": "p1820-reunion-274",
+  "title": "다시 하나로 · AD 272~274",
+  "year": 274,
+  "center": [
+   7,
+   43
+  ],
+  "zoom": 3.6,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 18·19·20 · 발레리아누스에서 디오클레티아누스까지",
+  "note": "아우렐리아누스가 272년 팔미라를 함락하고 274년 샬롱에서 테트리쿠스의 항복을 받는다. 갈라졌던 제국이 다시 하나가 된다.",
+  "core": true
+ },
+ {
+  "id": "p1820-dyarchy-286",
+  "title": "디오클레티아누스 · AD 286~293",
+  "year": 288,
+  "center": [
+   10,
+   46
+  ],
+  "zoom": 4.0,
+  "pitch": 0,
+  "bearing": 0,
+  "view": "2d",
+  "skin": "campaign",
+  "layers": [
+   "territory",
+   "settlements",
+   "people",
+   "relief",
+   "rivers",
+   "labels",
+   "story_battles"
+  ],
+  "group": "포인트 18·19·20 · 발레리아누스에서 디오클레티아누스까지",
+  "note": "284년 즉위한 디오클레티아누스가 286년 막시미아누스를 서방 정제로 세운다. 같은 해 카라우시우스가 브리타니아를 떼어 낸다.",
+  "core": true
  }
 ]

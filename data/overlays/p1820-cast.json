@@ -1,0 +1,102 @@
+{
+ "teaching": true,
+ "source": "포인트 18·19·20 인물 토큰(2026-11-01). 정본 ontology에 없는 포스투무스·카라우시우스·클라우디우스 2세·알렉투스는 person 노드가 없어 토큰을 세우지 못한다(사선과 장면 문구로만 나온다). 구간은 양끝 포함.",
+ "people": [
+  {
+   "id": "person:발레리아누스",
+   "place": "place:에데사",
+   "from_year": 253,
+   "to_year": 259,
+   "override": true,
+   "note": "253 즉위. 동방 전선 대표 자리(에데사 근처에서 260 사로잡힘)"
+  },
+  {
+   "id": "person:발레리아누스",
+   "place": "place:에데사근교",
+   "from_year": 260,
+   "to_year": 260,
+   "override": true,
+   "note": "260 에데사 근처에서 샤푸르 1세에게 사로잡힘. 전투 점을 가리지 않게 비켜 둠",
+   "at": [
+    37.7,
+    36.35
+   ]
+  },
+  {
+   "id": "person:샤푸르",
+   "place": "place:크테시폰",
+   "from_year": 253,
+   "to_year": 260,
+   "override": true,
+   "note": "사산조 수도 크테시폰"
+  },
+  {
+   "id": "person:갈리에누스",
+   "place": "place:로마",
+   "from_year": 253,
+   "to_year": 268,
+   "override": true,
+   "note": "로마의 황제. 중앙 로마 260~268"
+  },
+  {
+   "id": "person:오다이나투스",
+   "place": "place:팔미라",
+   "from_year": 260,
+   "to_year": 267,
+   "override": true,
+   "note": "로마 편 동방 수호자 260~267, 팔미라"
+  },
+  {
+   "id": "person:제노비아",
+   "place": "place:팔미라",
+   "from_year": 270,
+   "to_year": 271,
+   "override": true,
+   "note": "제노비아 270~272 독립, 팔미라"
+  },
+  {
+   "id": "person:제노비아",
+   "place": "place:팔미라성밖",
+   "from_year": 272,
+   "to_year": 272,
+   "override": true,
+   "note": "272 팔미라 함락. 전투 점을 가리지 않게 비켜 둠",
+   "at": [
+    38.55,
+    34.4
+   ]
+  },
+  {
+   "id": "person:테트리쿠스",
+   "place": "place:트리어",
+   "from_year": 271,
+   "to_year": 274,
+   "override": true,
+   "note": "갈리아 제국 271~274, 트리어. 274 샬롱에서 항복"
+  },
+  {
+   "id": "person:아우렐리아누스",
+   "place": "place:로마",
+   "from_year": 270,
+   "to_year": 275,
+   "override": true,
+   "note": "중앙 로마 270~275, 로마 성벽 공사 중"
+  },
+  {
+   "id": "person:디오클레티아누스",
+   "place": "place:니코메디아",
+   "from_year": 284,
+   "to_year": 296,
+   "override": true,
+   "note": "284 즉위, 동방 니코메디아"
+  },
+  {
+   "id": "person:막시미아누스",
+   "place": "place:밀라노",
+   "from_year": 286,
+   "to_year": 296,
+   "override": true,
+   "note": "286 서방 정제, 밀라노"
+  }
+ ]
+}

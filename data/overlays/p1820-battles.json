@@ -1,0 +1,67 @@
+{
+ "type": "FeatureCollection",
+ "teaching": true,
+ "source": "포인트 18·19·20 사건 점(2026-11-01). 좌표는 정본 place 또는 현대 지명 근사.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:에데사",
+    "name_ko": "에데사 근처 황제 피랍",
+    "year": 260,
+    "valid_from": 260,
+    "valid_to": 261,
+    "victor": "기타중립",
+    "teaching": true,
+    "source": "260 발레리아누스가 에데사 근처에서 샤푸르 1세에게 사로잡힘. 좌표는 정본 place:에데사."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     38.7855,
+     37.163
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "place:팔미라",
+    "name_ko": "팔미라 함락",
+    "year": 272,
+    "valid_from": 272,
+    "valid_to": 273,
+    "victor": "로마",
+    "teaching": true,
+    "source": "272 아우렐리아누스가 팔미라를 함락. 좌표는 정본 place:팔미라."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     38.2681,
+     34.5514
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "event:샬롱전투",
+    "name_ko": "샬롱(카탈라우눔) 항복",
+    "year": 274,
+    "valid_from": 274,
+    "valid_to": 275,
+    "victor": "로마",
+    "teaching": true,
+    "source": "274 샬롱(카탈라우눔)에서 테트리쿠스 항복. 좌표는 현대 샬롱앙샹파뉴 근사."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.36,
+     48.96
+    ]
+   }
+  }
+ ]
+}
