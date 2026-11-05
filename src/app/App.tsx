@@ -28,6 +28,8 @@ const Callouts = lazy(() => import('./Callouts').then(m => ({ default: m.Callout
 const MobileSheet = lazy(() => import('./MobileSheet').then(m => ({ default: m.MobileSheet })));
 const BannerCard = lazy(() => import('./BannerCard').then(m => ({ default: m.BannerCard })));
 const GraphPanel = lazy(() => import('./GraphPanel').then(m => ({ default: m.GraphPanel })));
+// 점검 탭 같은 팀용 화면은 주소에 ?dev=1을 붙였을 때만 보인다
+const DEV = new URLSearchParams(location.search).get('dev') === '1';
 const Qc = lazy(() => import('./Qc').then(m => ({ default: m.Qc })));
 import './shell.css';
 
@@ -328,7 +330,7 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
   // 판 없이 지도 위에 얹는 글자(연도·제목·각주·「그 해」)의 색은 **스킨**에서 온다.
   // OS 테마를 따라가면 밝은 스킨 위에 흰 글씨가 얹혀 1.2:1이 된다 — style.ts chromeTone.
   return (
-    <div className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
+    <main className={`shell${s.present ? ' is-present' : ''}`} style={chromeTone(s.skin) as React.CSSProperties}>
       <div ref={mapRef} className="shell-map" />
       {/* 미시 지도 콜아웃. 줌으로 켜진다 — 「로마로 들어가면 보여지겠지」(River). C로 토글. */}
       <Suspense fallback={null}><Callouts map={engRef.current?.map ?? null} engine={engRef.current} root={root} ds={ds} narrow={narrow} year={s.year} onResolved={setMicroCallouts} onPin={setFocusCallout} /></Suspense>
@@ -487,12 +489,10 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
       {!explorerOpen && !narrow && <button className="shell-explorer-pill" onClick={() => setExplorerOpen(true)}>탐색 ▸</button>}
       {explorerOpen && !narrow && <Card padding={3} elevation="low" className="shell-explorer">
         <div className="shell-explorer-head">
-        <SegmentedControl label="탐색" value={tab} onChange={setTab} size="sm">
-          <SegmentedControlItem value="objects" label="객체" />
-          <SegmentedControlItem value="layers" label="레이어" />
-          <SegmentedControlItem value="scenes" label="장면" />
-          <SegmentedControlItem value="qc" label="QC" />
-        </SegmentedControl>
+        <div className="shell-tabs" role="tablist" aria-label="탐색">
+          {([['objects', '객체'], ['layers', '레이어'], ['scenes', '장면'], ...(DEV ? [['qc', '점검']] : [])] as [string, string][]).map(([v, l]) =>
+            <button key={v} role="tab" aria-selected={tab === v} className={tab === v ? 'is-on' : ''} onClick={() => setTab(v)}>{l}</button>)}
+        </div>
         <IconButton label="접기" size="sm" variant="ghost" icon={<span>◂</span>} onClick={() => setExplorerOpen(false)} />
         </div>
         {tab === 'objects' && (
@@ -517,7 +517,7 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
             {CATALOG.map((c, i) => (
               <div key={c.id} className={`row${c.p1 ? ' is-p1' : ''}`}>
                 <Switch label={c.label} value={c.id === 'board' ? !!s.board : !c.p1 && on.has(c.id)} onChange={() => toggleLayer(c.id)} size="sm" isDisabled={!!c.p1} />
-                {c.p1 ? <Badge label="P1" /> : i < 9 && <Kbd keys={String(i + 1)} />}
+                {c.p1 ? <Badge label="준비 중" /> : i < 9 && <Kbd keys={String(i + 1)} />}
               </div>
             ))}
             {/* 선 토글(River 2026-09-18): 국경 테·성벽·도로·전투 화살표·평야 점선. 강·경로·속주·그래프는 위의 제 토글 */}
@@ -527,10 +527,10 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
             <div className="row"><Switch label="장면 강조 (주인공·강조면)" value={prefs.focus} onChange={() => { const v = !prefs.focus; setScenePref('focus', v); setPrefs({ ...scenePrefs }); if (!v) store.set({ sel: null }); engRef.current?.rescene(); }} size="sm" /></div>
             <div className="row"><Switch label="세부 지도 설명 카드" value={prefs.callouts} onChange={() => { setScenePref('callouts', !prefs.callouts); setPrefs({ ...scenePrefs }); }} size="sm" /></div>
             <div className="row"><Switch label="선 (국경·성벽·도로·화살표)" value={s.lines} onChange={() => store.set({ lines: !s.lines })} size="sm" /><Kbd keys="l" /></div>
-            <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후는 데이터(ERA5·CMEMS·CHELSA)가 붙으면 켜진다.</Text><Button label="로드맵" size="sm" variant="ghost" onClick={() => open('https://github.com/snas-lifebook/chronoatlas/blob/main/docs/roadmap.md', '_blank')} /></div>
+            <div className="row layers-empty"><Text size="sm" color="secondary">바람·해류·기후 층은 아직 준비 중이에요.</Text></div>
           </div>
         )}
-        {tab === 'qc' && <Suspense fallback={null}><Qc base={`${root}datasets/${ds}`} onLocate={locate} /></Suspense>}
+        {DEV && tab === 'qc' && <Suspense fallback={null}><Qc base={`${root}datasets/${ds}`} onLocate={locate} /></Suspense>}
         {tab === 'scenes' && (
           <div className="shell-scenes">
             {sceneGroups.map(([group, list]) => (
@@ -648,9 +648,9 @@ export function App({ d, store, root, ds, scenes, boards, landing = false }: { d
       {liveBoard && engRef.current && !narrow && <Suspense fallback={null}><BattleBar engine={engRef.current} store={store} board={liveBoard.board} shift={explorerOpen} /></Suspense>}
 
       <div className="shell-footnote">
-        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <a className="lib-link" href={LIBRARY} target="_blank" rel="noreferrer">자료실 ↗</a> · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>
+        <Text size="sm" color="secondary">{d.manifest.basemap?.length ? '실제 지리 기반 · Natural Earth 10m(PD) · Pleiades(CC BY) · 영토 Cliopatria(CC BY) · ' : ''}정본 온톨로지 {d.manifest.counts?.entities ?? ''}객체 · <a className="lib-link" href={LIBRARY} target="_blank" rel="noreferrer">자료실 ↗</a> · <a className="lib-link" href={`${root}credits.html`} target="_blank" rel="noreferrer">출처와 라이선스 ↗</a> · <Kbd keys="left" /><Kbd keys="right" /> 연도 <Kbd keys="space" /> 재생 <Kbd keys="v" /> 평면/입체</Text>
       </div>
-    </div>
+    </main>
   );
 }
 

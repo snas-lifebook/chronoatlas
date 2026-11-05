@@ -188,7 +188,7 @@ const eras = [...(existsSync(erasPath) ? JSON.parse(readFileSync(erasPath, 'utf8
     const m = (e.attrs.years as string).match(/^(-?\d+)-(\d+)$/)!; return { id: e.id, label: e.name, from: Number(m[1]), to: Number(m[2]), sub: true }; })];
 const years = [...chron.map(e => e!.year), ...links.flatMap(l => [l.from_year, l.to_year]).filter((y): y is number => typeof y === 'number')];
 const manifest = {
-  id: 'rome', title: '로마제국쇠망사 — 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
+  id: 'rome', title: '로마제국쇠망사 · 온톨로지 전체 (30포인트)', crs: 'EPSG:4326', center: [14, 40], zoom: 4,
   time: { from: Math.min(...years), to: Math.max(...years), unit: 'year' },
   // 범위는 scripts/extent.ts 하나만 본다. 예전엔 여기에 같은 숫자를 또 박아 놨고, 그러면 BBOX를 바꿔도
   // manifest.bbox가 옛 값으로 남아 지도의 maxBounds와 relief 모서리가 조용히 어긋난다. test/extent.test.ts가 막는다.

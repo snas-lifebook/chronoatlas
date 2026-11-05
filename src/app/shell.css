@@ -87,7 +87,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-layers .skin-block { display: grid; gap: 6px; padding: 2px 4px 10px; border-bottom: 1px solid var(--color-border); margin-bottom: 4px; }
 .shell-layers .skin-block .astryx-segmented-control { width: 100%; }
 
-.shell-toolbar { position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px;
+.shell-toolbar { position: absolute; left: 50%; bottom: 140px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px;
   background: var(--color-background-surface); border: 1px solid var(--color-border); border-radius: 14px; box-shadow: var(--shadow-med, 0 4px 16px rgba(0,0,0,.08)); }
 .shell-tool { display: grid; justify-items: center; gap: 1px; min-width: 76px; padding: 8px 10px; border: 0; border-radius: 10px; background: transparent; color: var(--color-text-primary); cursor: pointer; font: inherit; }
 .shell-tool:hover { background: var(--color-background-muted); }
@@ -99,7 +99,7 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 /* 강조색 위에서는 opacity를 더 주면 안 된다. 0.85만 줘도 #d9e8fa/#0064e0 = 4.32로 4.5:1을 못 넘겼다. */
 .shell-tool.is-active .sub { color: inherit; }
 
-.shell-timeline { position: absolute; left: 0; right: 0; bottom: 0; height: 96px; padding: 8px 24px 8px; display: grid; grid-template-rows: 16px 12px 20px 1fr; gap: 2px;
+.shell-timeline { position: absolute; left: 0; right: 0; bottom: 0; height: 108px; padding: 8px 24px 8px; display: grid; grid-template-rows: 16px 12px 20px 1fr; gap: 2px;
   background: color-mix(in srgb, var(--color-background-surface) 82%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--color-border); }
 .shell-eras { position: relative; }
 .shell-eras .era { position: absolute; top: 0; height: 14px; line-height: 14px; font-size: 10px; letter-spacing: 0.04em; color: var(--color-text-secondary); background: var(--color-background-muted); border-radius: 3px; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; box-sizing: border-box; cursor: pointer; }
@@ -114,7 +114,8 @@ html, body, #app { margin: 0; height: 100%; overflow: hidden; }
 .shell-legend span { display: inline-flex; align-items: center; gap: 4px; }
 .shell-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
-.shell-footnote { position: absolute; left: 24px; bottom: 104px; pointer-events: none; }
+.shell-footnote { position: absolute; left: 24px; bottom: 114px; pointer-events: none; }
+.shell-footnote a { pointer-events: auto; }
 
 /* ── 지도 위 맨글씨 ────────────────────────────────────────────────────────────
    River: 「좌 상단에 년도나 하는 메타데이터들 있잖아. 이런 것들이 너무 잘 안 보여.」
@@ -432,9 +433,9 @@ button.chip:hover { border-color: var(--color-text-primary); }
 .bm-del { margin-left: auto; font-size: 11px; color: var(--color-text-secondary); background: none; border: 0; cursor: pointer; }
 
 /* 모바일 읽기 모드 (R50, MobileSheet.tsx). 620px 이하에서만 존재한다 */
-.mobile-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-rows: 24px 44px 1fr; background: var(--color-background-surface); border-top: 1px solid var(--color-border); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-med, 0 -4px 16px rgba(0,0,0,.12)); transition: height 180ms ease; }
-.mobile-sheet.is-peek { height: 68px; } .mobile-sheet.is-half { height: 46vh; } .mobile-sheet.is-full { height: 88vh; }
-.ms-grip { height: 24px; background: none; border: 0; position: relative; cursor: pointer; } .ms-grip::after { content: ''; position: absolute; left: 50%; top: 9px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--color-border); }
+.mobile-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; display: grid; grid-template-rows: 32px 44px 1fr; background: var(--color-background-surface); border-top: 1px solid var(--color-border); border-radius: 14px 14px 0 0; box-shadow: var(--shadow-med, 0 -4px 16px rgba(0,0,0,.12)); transition: height 180ms ease; }
+.mobile-sheet.is-peek { height: 76px; } .mobile-sheet.is-half { height: 46vh; } .mobile-sheet.is-full { height: 88vh; }
+.ms-grip { height: 32px; background: none; border: 0; position: relative; cursor: pointer; } .ms-grip::after { content: ''; position: absolute; left: 50%; top: 14px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: var(--color-border); }
 .ms-tabs { display: flex; gap: 4px; padding: 0 12px; } .ms-tabs button { flex: 1; min-height: 44px; border: 0; background: none; font: 600 13px/1 var(--font-family-body); color: var(--color-text-secondary); border-bottom: 2px solid transparent; cursor: pointer; } .ms-tabs button.is-on { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
 .ms-body { overflow: auto; padding: 8px 16px 24px; display: grid; gap: 8px; align-content: start; }
 .ms-callouts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .ms-callouts li { display: flex; gap: 10px; min-height: 44px; padding: 4px; } .ms-callouts li.is-focus { background: var(--color-background-muted); border-radius: 8px; }
@@ -507,3 +508,14 @@ html[data-skin="satellite"] .shell-year, html[data-skin="satellite"] .shell-pres
 .promo-card video { width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 8px; background: #000; }
 .promo-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 .promo-actions { display: flex; gap: 8px; }
+
+/* 탐색 카드 탭(role=tablist). astryx SegmentedControl은 radiogroup이라 스크린리더가 탭으로 읽지 못한다. */
+.shell-tabs { display: flex; gap: 2px; padding: 2px; background: var(--color-background-muted); border-radius: 10px; }
+.shell-tabs button { flex: 1; min-height: 32px; border: 0; border-radius: 8px; background: none; font: 600 13px/1 var(--font-family-body); color: var(--color-text-secondary); cursor: pointer; }
+.shell-tabs button.is-on { background: var(--color-background-surface); color: var(--color-text-primary); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+/* 모바일 터치 대상 32px 이상(감사 1-4: 장면 칩 22px, 시트 손잡이 24px) */
+@media (max-width: 1023px) {
+  .sn-jump, .shell-scene-nav button, .shell-scene-nav select, .shell-explorer-pill, .shell-tool { min-height: 32px; }
+  .ms-callouts li, .ins-rel li, .ins-rel button { min-height: 32px; }
+}

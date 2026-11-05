@@ -20,6 +20,8 @@ const SRC_LABEL: Record<string, string> = { point: '포인트', gibbon: '기번'
 const ATTR_LABEL: Record<string, string> = { role: '역할', region: '지역', type: '유형', reign: '재위', period: '시대', origin: '출신', relation: '관계', title: '직함', location: '위치', status: '지위',
   modern: '오늘의', participants: '참가자', founder: '창설자', age: '나이', original: '원어', parent: '상위', place_kind: '종류', duration: '기간', empire: '제국', language: '언어', leader: '지도자', country: '나라',
   achievement: '업적', population: '인구', importance: '중요도', author: '저자', creator: '창시자', office: '관직', faction: '파벌', dynasty: '왕조' };
+const ROLE_KO: Record<string, string> = { general: '장군', emperor: '황제', king: '왕', empress: '황후', consul: '집정관', prince: '왕자', princess: '공주', noblewoman: '귀족 여성', nobleman: '귀족', historian: '역사가', governor: '총독', prefect: '장관', praetorian_prefect: '근위대장', 'prefect of the Praetorian Guard': '근위대장', wife: '아내', commander: '지휘관', concubine: '후궁', politician: '정치가', eunuch: '환관', eunuch_general: '환관 장군', bishop: '주교', senator: '원로원 의원', censor: '감찰관', 'Roman officer': '로마 장교', 'Roman senator': '로마 원로원 의원', 'Byzantine emperor': '비잔티움 황제', 'Egypt pharaoh': '이집트 파라오', 'young child': '어린아이', author: '저술가', socialite: '사교계 인물' };
+const attrVal = (k: string, v: unknown) => k === 'role' ? String(v).split(',').map(t => ROLE_KO[t.trim()] ?? t.trim()).join(', ') : String(v);
 const GROUP_ORDER = ['hostile', 'ally', 'rule', 'lineage', 'member', 'act', 'locate', 'make', 'other'];
 export const fmtYear = (y: number) => (y < 0 ? `BC ${-y}` : `AD ${y}`);
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -52,7 +54,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
     return (
       <Card padding={4} className="shell-right">
         <Heading level={2}>{u.label}</Heading>
-        <Text size="sm" color="secondary">{ARM_KO[u.arm]} · {u.actor}{u.strength != null ? ` · ${u.strength.toLocaleString()}명` : ''}{status}</Text>
+        <Text size="sm" color="secondary">{ARM_KO[u.arm]} · {u.actor}{u.strength ? ` · ${u.strength.toLocaleString()}명` : ''}{status}</Text>
         {u.entity && <Button label="지휘관 보기" size="sm" variant="secondary" onClick={() => store.set({ sel: u.entity! })} />}
         <Text size="sm">{b.source}</Text>
         <Text size="sm" color="secondary">이 배치는 도식이지 측량이 아니다. 좌표는 사료의 서술을 통설대로 옮긴 것이다.</Text>
@@ -199,7 +201,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
       {stateRows.length > 0 && (
         <section className="ins-sec">
           <div className="ins-label">{fmtYear(year)}의 상태</div>
-          <dl className="ins-kv">{stateRows.map(([k, v]) => <div key={k}><dt>{ATTR_LABEL[k]}</dt><dd>{String(v)}</dd></div>)}</dl>
+          <dl className="ins-kv">{stateRows.map(([k, v]) => <div key={k}><dt>{ATTR_LABEL[k]}</dt><dd>{attrVal(k, v)}</dd></div>)}</dl>
         </section>
       )}
       {node?.desc && <Text size="sm" className="ins-desc">{node.desc}</Text>}
@@ -214,7 +216,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
                 {list.map((n: Neighbor, i) => (
                   <li key={i} onMouseEnter={() => onHoverNeighbor(n.node.id)} onMouseLeave={() => onHoverNeighbor(null)} onClick={() => onLocate(n.node.id)}>
                     <span className="ins-rel-name">{n.node.name}</span>
-                    <span className="ins-rel-meta">{REL_LABEL[n.rel] ?? n.rel}{n.dir === 'in' ? ' ←' : ''}{n.link.from_year != null ? ` · ${fmtYear(n.link.from_year)}` : ''}{n.link.point != null ? ` · P${pad(n.link.point)}` : ''}</span>
+                    <span className="ins-rel-meta">{REL_LABEL[n.rel] ?? n.rel}{n.dir === 'in' ? ' ←' : ''}{n.link.from_year != null ? ` · ${fmtYear(n.link.from_year)}` : ''}{n.link.point != null ? ` · 포인트 ${pad(n.link.point)}` : ''}</span>
                   </li>
                 ))}
               </ul>
@@ -228,7 +230,7 @@ export function Inspector({ d, store, sel, year, base, root, onHoverNeighbor, on
       {node && node.points.length > 0 && (
         <section className="ins-sec">
           <div className="ins-label">등장 포인트</div>
-          <div className="ins-chips">{node.points.map(p => <a key={p} href={libraryPoint(p, name)} target="_blank" rel="noreferrer">P{pad(p)}</a>)}</div>
+          <div className="ins-chips">{node.points.map(p => <a key={p} href={libraryPoint(p, name)} target="_blank" rel="noreferrer">포인트 {pad(p)}</a>)}</div>
         </section>
       )}
       </div>

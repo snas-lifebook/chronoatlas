@@ -59,7 +59,9 @@ Promise.all([load(), Promise.all(Object.values(BOARD_FILES).map(f => f()))]).the
       pitch: q.has('p') ? store.get().pitch : 0,
     });
   }
+  const { from, to } = d.manifest.time;   // 주소의 연도가 자료 범위를 벗어나면(?y=99999) 가장 가까운 끝으로 맞춘다
+  store.set({ year: Math.min(to, Math.max(from, store.get().year)) });
   bindUrl(store);
-  document.title = `${d.manifest.title} — 크로노아틀라스`;
+  document.title = `${d.manifest.title} · 크로노아틀라스`;
   createRoot(document.getElementById('app')!).render(<App d={d} store={store} root={ROOT} ds={DS} scenes={scenes} boards={boards} landing={LANDING} />);
 }).catch(err => { document.body.innerHTML = `<pre style="padding:20px">로드 실패: ${err.message}</pre>`; });
